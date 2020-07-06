@@ -12,6 +12,8 @@ import unicodedata
 
 APP_ORGA = "http://185.161.45.213/organizations"
 header = {'Authorization': 'Basic {}'.format(os.getenv("DATAESR_HEADER"))}
+print("header", flush=True)
+print(header, flush=True)
 es = Elasticsearch(['localhost', 'elasticsearch'])
 
 def strip_accents(w: str) -> str:
@@ -567,7 +569,9 @@ def get_rnsr():
     supervisors_cities = {}
 
     url_dataesr = APP_ORGA+"/organizations/?where={\"rnsr\":{\"$exists\":true}}&max_results=500&projection={\"active\":1,\"alias\":1,\"names\":1,\"id\":1,\"code_numbers\":1,\"supervisors\":1,\"addresses\":1,\"dates\":1}&page="
-    nb_page = math.ceil(requests.get(url_dataesr+str(1), headers=header).json()['meta']['total']/500)
+    r_page = requests.get(url_dataesr+str(1), headers=header)
+    print(r_page.text, flush=True)
+    nb_page = math.ceil(r_page.json()['meta']['total']/500)
     print("GET RNSR", flush=True)
     print(url_dataesr, flush=True)
 
