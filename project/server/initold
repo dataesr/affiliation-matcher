@@ -1,0 +1,21 @@
+from flask import Flask, jsonify
+from fake import *
+
+app = Flask(__name__)
+@app.route("/")
+def hello():
+    return "Hello World!"
+
+@app.route("/t/<path:url>")
+def test(url):
+    return "Hello {}!".format(url)
+
+@app.route("/crawl/<path:url>")
+def crawl_from_api(url):
+    print(url)
+    crawl(url)
+    return "{} crawled".format(url)
+
+#if __name__ == "__main__":
+#    app.run(host="0.0.0.0", port=int("5000"), debug=True)
+
