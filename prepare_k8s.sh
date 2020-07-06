@@ -1,3 +1,3 @@
-export KUBECONFIG=~/.kube/kube-config-pubmed
+export KUBECONFIG=~/.kube/kube-config-matcher
 kubectl cluster-info
 
