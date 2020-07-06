@@ -131,18 +131,16 @@ def match_structured(matching_info, strategies, logs):
         current_strat_answers = []
         strat_fields = strat.split(';')
         logs += "<li>Strategie testée : {}".format(strat)
+        
+        indiv_ids = [matching_info[field]['ids'] for field in strat_fields]
+        strat_ids = set(indiv_ids[0]).intersection(*indiv_ids)
 
-        for field in strat_fields:
-            if field not in matching_info:
-                stop_current_start = True
-        if stop_current_start:
-            logs += " vide </li></br>"
+        if len(strat_ids) == 0:
+            logs += " &empty; </li>"
             continue
         logs += "</li></br>"
             
             
-        indiv_ids = [matching_info[field]['ids'] for field in strat_fields]
-        strat_ids = set(indiv_ids[0]).intersection(*indiv_ids)
         max_number = {}
         logs += "<ol> "
         for potential_id in strat_ids:
