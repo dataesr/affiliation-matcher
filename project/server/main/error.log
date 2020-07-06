@@ -1,0 +1,6 @@
+
+[2020-06-12 18:40:02] Traceback (most recent call last):
+  File "local_test.py", line 4, in <module>
+    crawl(sys.argv[1], sys.argv[2])
+IndexError: list index out of range
+
