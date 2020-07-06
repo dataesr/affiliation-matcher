@@ -1,0 +1,53 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<div class="starter-template">
+    <h1>Alignement </h1>
+    <hr><br>
+    <div>
+	<div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="form_query">Input</label>
+                    <textarea id="input_query" type="text" name="query" class="form-control" rows="4" placeholder="Entrez ici une signature d'affiliation" required="required" data-error="A query is required"></textarea>
+                    <div class="help-block with-errors"></div>
+		</div> <!-- enf form-group -->
+	    </div> <!--end md-6-->
+	    
+	    <div class="col-md-2">
+                <label for="form_type">Type</label>
+		<select id="input_type" class="browser-default custom-select">
+                  <option value="rnsr">RNSR</option>
+                </select>
+	    </div>
+	    
+	    <div class="col-md-2">
+                <label for="form_year">Année</label>
+		<select id="input_year" class="browser-default custom-select">
+                  <option value="2020">2020</option>
+                  <option value="2019">2019</option>
+                  <option value="2018">2018</option>
+                </select>
+	    </div>
+	    
+	    
+	</div> <!-- end row-->
+
+	<div class="row">
+
+	    <div class="col-md-2 offset-md-10">
+	    	<button id="submit_request" class="btn btn-primary">Submit</button>
+	    </div>
+	</div>
+
+  	</div>
+    </div>
+
+    <div id="logs">
+	    <h3> Résultat </h3>
+    </div>
+
+</div>
+
+{% endblock %}

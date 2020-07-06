@@ -1,0 +1,14 @@
+redis==3.3.11
+rq==1.1.0
+Flask==1.1.1
+Flask-Bootstrap==3.3.7.1
+Flask-Testing==0.7.1
+Flask-WTF==0.14.2
+gunicorn==20.0.4
+requests==2.19.1
+Unidecode==1.0.22
+beautifulsoup4==4.8.2
+lxml==3.8.0
+html5lib==1.0.1
+elasticsearch==7.8.0
+elasticsearch-dsl==7.2.1
