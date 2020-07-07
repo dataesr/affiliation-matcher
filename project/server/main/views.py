@@ -7,7 +7,7 @@ from project.server.main.tasks import create_task_match, create_task_rnsr, creat
 main_blueprint = Blueprint("main", __name__,)
 
 
-@main_blueprint.route("/match", methods=["GET"])
+@main_blueprint.route("/", methods=["GET"])
 def home():
     return render_template("main/rnsr.html")
 
