@@ -36,10 +36,25 @@ def normalize_for_count(x, matching_field):
             pass
     return x.lower()[0:6]
 
-def match_unstructured(year, x):
+def match_unstructured(year, query='', code=None, name=None, city=None, acronym=None, supervisor_acronym=None, supervisor_id=None, supervisor_name=None):
 
     logs = ""
-    logs += "<h1> &#128269; {}</h1>".format(x)
+    logs += "<h1> &#128269; {}</h1>".format(query)
+    x = query
+    if code is None:
+        code = x
+    if name is None:
+        name = x
+    if city is None:
+        city = x
+    if acronym is None:
+        acronym = x
+    if supervisor_acronym is None:
+        supervisor_acronym = x
+    if supervisor_id is None:
+        supervisor_id = x
+    if supervisor_name is None:
+        supervisor_name = x
 
     matching_info={}
     matching_info['code'] = get_match_code(year, x)
@@ -86,6 +101,7 @@ def match_unstructured(year, x):
     strategies.append("name;acronym;supervisors_acronym")
     strategies.append("name;acronym;supervisors_name")
 
+    strategies.append("acronym;city")
 
     strategies.append("code_fuzzy;city")
 
