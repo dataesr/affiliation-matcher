@@ -1,0 +1,4 @@
+{
+  "project/server/main/fake_test.py": true,
+  "project/server/main/local_test.py": true
+}
