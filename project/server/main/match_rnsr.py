@@ -251,11 +251,11 @@ def match_structured(matching_info, strategies, logs):
                 continue
                 
             if has_code: 
-                if final_results[strat][0] in matching_info['code']['ids']:
+                if final_results[strat][0] in matching_info.get('code',{}).get('ids', []):
                     logs += " &#128076; car a bien un label numéro <br/>"
                     logs += "<h3>{}</h3>".format(final_results[strat][0])
                     return {'match': final_results[strat][0], 'logs': logs}
-                elif final_results[strat][0] in matching_info['code_digit']['ids']:
+                elif final_results[strat][0] in matching_info.get('code_digit',{}).get('ids', []):
                     logs += " &#128076; car a bien les chiffres du label numéro <br/>"
                     logs += "<h3>{}</h3>".format(final_results[strat][0])
                     return {'match': final_results[strat][0], 'logs': logs}
@@ -263,7 +263,7 @@ def match_structured(matching_info, strategies, logs):
                     logs += " &#128078; car n'a pas le label numéro"
                     continue
             elif has_acronym:
-                if final_results[strat][0] in matching_info['acronym']['ids']:
+                if final_results[strat][0] in matching_info.get('acronym',{}).get('ids', []):
                     logs += " &#128076; car a bien un acronyme <br/>"
                     logs += "<h3>{}</h3>".format(final_results[strat][0])
                     return {'match': final_results[strat][0], 'logs': logs}
