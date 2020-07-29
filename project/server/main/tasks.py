@@ -1,5 +1,5 @@
 import time
-from project.server.main.match_rnsr import match_unstructured
+from project.server.main.match_rnsr import match_unstructured, match_fields
 from project.server.main.init_rnsr import init_es
 
 def create_task_match(arg):
@@ -21,8 +21,13 @@ def create_task_rnsr(arg):
     supervisor_acronym = arg.get('supervisor_acronym', None)
     supervisor_id = arg.get('supervisor_id', None)
     supervisor_name = arg.get('supervisor_name', None)
-    
-    return match_unstructured(year, query, code, name, city, acronym, supervisor_acronym, supervisor_id, supervisor_name)
+
+    if code or name or city or acronym or supervisor_acronym or supervisor_id or supervisor_name:
+        return match_fields(year, code, name, city, acronym, supervisors_id)
+    elif query:
+        return match_unstructured(year, query)
+    else:
+        return {'error': 'all inputs are empty'}
 
 def create_task_init_rnsr():
     return init_es()

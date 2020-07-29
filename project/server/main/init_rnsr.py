@@ -59,7 +59,7 @@ def init_es():
         if w in main_cities:
             main_cities_for_removal.remove(w)
 
-    main_acronyms = get_common_words(rnsr, 'acronyms',split=True, threshold=5)
+    main_acronyms = get_common_words(rnsr, 'acronyms',split=True, threshold=5) + ['brgm']
     main_names = list(set(get_common_words(rnsr, 'names',50)) - set(main_cities))
 
     main_supervisors_name = list(set(get_common_words(rnsr, 'supervisors_name', split=True, threshold=5)) - set(main_acronyms))
@@ -568,7 +568,7 @@ def get_rnsr():
     supervisors_acronyms = {}
     supervisors_cities = {}
 
-    url_dataesr = APP_ORGA+"/organizations/?where={\"rnsr\":{\"$exists\":true}}&max_results=500&projection={\"active\":1,\"alias\":1,\"names\":1,\"id\":1,\"code_numbers\":1,\"supervisors\":1,\"addresses\":1,\"dates\":1}&page="
+    url_dataesr = APP_ORGA+"/organizations/?where={\"rnsr\":{\"$exists\":true}}&max_results=500&projection={\"active\":1,\"alias\":1,\"names\":1,\"id\":1,\"code_numbers\":1,\"supervisors\":1,\"addresses\":1,\"dates\":1,\"sirene\":1}&page="
     r_page = requests.get(url_dataesr+str(1), headers=header)
     print(r_page.text, flush=True)
     nb_page = math.ceil(r_page.json()['meta']['total']/500)
@@ -618,6 +618,8 @@ def get_rnsr():
             ################### SUPERVISORS ID & NAME
 
             new_elt['supervisors_id'] = [k.get('id') for k in elt.get('supervisors', []) if 'id' in k]
+            if 'sirene' in elt:
+                new_elt['supervisors_id'].append(elt['sirene'])
 
             new_elt['supervisors_acronym'] = []
             new_elt['supervisors_name'] = [k.get('name') for k in elt.get('supervisors', []) if 'name' in k]

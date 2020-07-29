@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search
 from elasticsearch import helpers
-es = Elasticsearch(['elasticsearch'])
+es = Elasticsearch(['elasticsearch', 'localhost'])
 
 #def normalize_for_count(x):
 #    return x.lower()[0:6]
@@ -36,25 +36,11 @@ def normalize_for_count(x, matching_field):
             pass
     return x.lower()[0:6]
 
-def match_unstructured(year, query='', code=None, name=None, city=None, acronym=None, supervisor_acronym=None, supervisor_id=None, supervisor_name=None):
+def match_unstructured(year, query=''):
 
     logs = ""
     logs += "<h1> &#128269; {}</h1>".format(query)
     x = query
-    if code is None:
-        code = x
-    if name is None:
-        name = x
-    if city is None:
-        city = x
-    if acronym is None:
-        acronym = x
-    if supervisor_acronym is None:
-        supervisor_acronym = x
-    if supervisor_id is None:
-        supervisor_id = x
-    if supervisor_name is None:
-        supervisor_name = x
 
     matching_info={}
     matching_info['code'] = get_match_code(year, x)
@@ -107,6 +93,23 @@ def match_unstructured(year, query='', code=None, name=None, city=None, acronym=
 
     return match_structured(matching_info, strategies, logs)
 
+def match_fields(year, code, name, city, acronym, supervisors_id):
+
+    matching_info={}
+
+    matching_info['code'] = get_match_code(year, code)
+    matching_info['name'] = get_match_name(year, name)
+    matching_info['city'] = get_match_city(year, city)
+    matching_info['acronym'] = get_match_acronym(year, acronym)
+    matching_info['supervisors_id'] = get_match_supervisors_id(year, supervisors_id)
+
+    logs=""
+    strategies=[]
+    strategies.append("code;city;name;acronym;supervisors_id")
+    strategies.append("code;city;name;supervisors_id")
+    strategies.append("code;city;acronym;supervisors_id")
+    strategies.append("city;name;acronym;supervisors_id")
+    return match_structured(matching_info, strategies, logs)
 
 def match_structured(matching_info, strategies, logs):
     
@@ -145,6 +148,7 @@ def match_structured(matching_info, strategies, logs):
     for strat in strategies:
         stop_current_start = False
         current_strat_answers = []
+        current_strat_avoid = []
         strat_fields = strat.split(';')
         logs += "<li>Strategie testée : {}".format(strat)
         
@@ -215,7 +219,7 @@ def match_structured(matching_info, strategies, logs):
                         else:
                             logs +="<br/> &#128584; "+potential_id+" ignoré car {} {} est insuffisant ({} attendus au min)".format(
                                 max_number[field], field, min_match_for_field[field])
-                            pass
+                            current_strat_avoid.append(potential_id)
                     elif potential_id not in matching_info.get('code', {}).get('ids', []):
                         logs += "<br/> &#10060; {} ajouté à la black-list car seulement {} {} vs le max est {}".format(
                             potential_id,
@@ -236,6 +240,8 @@ def match_structured(matching_info, strategies, logs):
                 current_potential_ids = retained_id_for_strat
                 retained_id_for_strat = []
         final_results[strat] = list(set(retained_id_for_strat))
+        for x in current_strat_avoid:
+            final_results[strat].remove(x)
             
     #for res in final_results:
         if len(final_results[strat]) == 1:
@@ -300,7 +306,8 @@ def get_match_supervisors_acronym(year, x, verbose=False):
     return get_info(year, x, ['supervisors_acronym'], size=2000, verbose=False, highlights=['supervisors_acronym'])
 
 def get_info(year, input_str, search_fields, size=20, verbose=False, highlights=[], fuzzy_ok=False):
-
+    if input_str is None:
+        input_str = ""
     myIndex = "index-rnsr-{}".format(year)
     s = Search(using=es, index=myIndex)
     for f in highlights:
