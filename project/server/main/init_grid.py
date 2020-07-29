@@ -66,7 +66,7 @@ def init_grid_es():
         "_index": "index-grid",
         "_type": "_doc",
         "_id": j,
-        "_source": grid_elt[j] 
+        "_source": grid[j] 
     }
     for j in range(0, len(grid))
     ]
@@ -311,21 +311,6 @@ def get_analyzers():
             ]
           }
 
-    analyzers["analyzer_supervisor_acronym"] =  {
-            "tokenizer": "icu_tokenizer",
-            "filter": [
-                "icu_folding",
-                "length_min_2_char",
-                "lowercase",
-                "french_stop",
-                "english_stop",
-                "city_remover",
-                "custom_filter_supervisor"
-              #  "common_acronyms_filter",
-              #  "common_names_filter",
-              #  "french_stemmer"
-            ]
-          }
     return analyzers
 
 
