@@ -108,7 +108,11 @@ def match_fields(year, code, name, city, acronym, supervisors_id):
     strategies.append("code;city;name;acronym;supervisors_id")
     strategies.append("code;city;name;supervisors_id")
     strategies.append("code;city;acronym;supervisors_id")
+    strategies.append("code;acronym;supervisors_id")
+    strategies.append("code;name;supervisors_id")
     strategies.append("city;name;acronym;supervisors_id")
+    strategies.append("city;acronym;supervisors_id")
+
     return match_structured(matching_info, strategies, logs)
 
 def match_structured(matching_info, strategies, logs):
