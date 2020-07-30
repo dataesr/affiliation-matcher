@@ -459,7 +459,19 @@ def get_grid():
 
         ################### ADDRESSES
 
-        new_elt['cities'] = [k.get('city') for k in elt.get('addresses', []) if 'city' in k]
+        cities=[]
+        for ad in elt.get('addresses', []):
+            if 'city' in ad:
+                cities.append(ad['city'])
+            if 'geonames_city' in ad and ad['geonames_city']:
+                if 'nuts_level3' in ad['geonames_city'] and ad['geonames_city']['nuts_level3']:
+                    if 'name' in ad['geonames_city']['nuts_level3']:
+                        cities.append(ad['geonames_city']['nuts_level3']['name'])
+                if 'nuts_level2' in ad['geonames_city'] and ad['geonames_city']['nuts_level2']:
+                    if 'name' in ad['geonames_city']['nuts_level2']:
+                        cities.append(ad['geonames_city']['nuts_level2']['name'])
+        new_elt['cities'] = list(set(cities))
+
         new_elt['country'] = [k.get('country') for k in elt.get('addresses', []) if 'country' in k]
         new_elt['country_code'] = [k.get('country_code') for k in elt.get('addresses', []) if 'country_code' in k]
 
