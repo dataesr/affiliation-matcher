@@ -2,11 +2,18 @@ import time
 from project.server.main.match_rnsr import match_unstructured, match_fields
 from project.server.main.init_rnsr import init_es
 
+from project.server.main.match_finess import match_unstructured_finess
+from project.server.main.init_finess import init_es_finess
+
+
 def create_task_match(arg):
     type_match = arg.get('type', 'rnsr')
     
     if type_match.lower() == 'rnsr':
         return create_task_rnsr(arg)
+    
+    if type_match.lower() == 'finess':
+        return create_task_finess(arg)
     return {'error': 'type {} unknown'.format(type_match)}
 
 def create_task_rnsr(arg):
@@ -31,6 +38,21 @@ def create_task_rnsr(arg):
 
 def create_task_init_rnsr():
     return init_es()
+
+def create_task_finess(arg):
+    query = arg.get('query', None)
+    
+    name = arg.get('name', None)
+    city = arg.get('city', None)
+
+    if query:
+        return match_unstructured_finess(query)
+    else:
+        return {'error': 'all inputs are empty'}
+
+
+def create_task_init_finess():
+    return init_es_finess()
 
 def test_sleep(task_type):
     time.sleep(int(task_type) * 10)
