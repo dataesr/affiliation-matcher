@@ -2,7 +2,7 @@ import redis
 from rq import Queue, Connection
 from flask import render_template, Blueprint, jsonify, request, current_app
 
-from project.server.main.tasks import create_task_match, create_task_rnsr, create_task_init_rnsr
+from project.server.main.tasks import create_task_match, create_task_rnsr, create_task_init_rnsr, create_task_init_finess
 
 main_blueprint = Blueprint("main", __name__,)
 
@@ -14,6 +14,11 @@ def home():
 @main_blueprint.route("/init", methods=["GET"])
 def run_task_init_rnsr():
     response_object = create_task_init_rnsr()
+    return jsonify(response_object), 202
+
+@main_blueprint.route("/init_finess", methods=["GET"])
+def run_task_init_rnsr():
+    response_object = create_task_init_finess()
     return jsonify(response_object), 202
 
 @main_blueprint.route("/match_api", methods=["POST"])
