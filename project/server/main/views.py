@@ -17,7 +17,7 @@ def run_task_init_rnsr():
     return jsonify(response_object), 202
 
 @main_blueprint.route("/init_finess", methods=["GET"])
-def run_task_init_rnsr():
+def run_task_init_finess():
     response_object = create_task_init_finess()
     return jsonify(response_object), 202
 
