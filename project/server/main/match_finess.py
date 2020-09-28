@@ -82,9 +82,16 @@ def match_structured(matching_info, strategies, logs):
             
         max_number = {}
         logs += "<ol> "
+
+        potential_sirens = []
+
         for potential_id in strat_ids:
             logs += " <li> Id potentiel : {}<br/></li>".format(potential_id)
             current_match = {'id': potential_id}
+
+            if 'sire' in potential_id:
+                potential_sirens.append(potential_id[5:14])
+
             for field in strat_fields:
                 current_match[field+'_match'] = 0
                 #probleme avec les highlights
@@ -175,6 +182,13 @@ def match_structured(matching_info, strategies, logs):
                 logs += " &#128076;<br/>"
                 logs += "<h3>{}</h3>".format(final_results[strat][0])
                 return {'match': final_results[strat][0], 'logs': logs}
+
+
+        else:
+            potential_sirens = list(set(potential_sirens))
+            if len(potential_sirens) == 1:
+                logs += "<br/> all potential match have the same siren " + potential_sirens[0]
+                return {'match': "siren"+potential_sirens[0], 'logs': logs}
     
     return {'match': None, 'logs': logs}
 
