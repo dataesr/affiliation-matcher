@@ -188,6 +188,8 @@ def match_structured(matching_info, strategies, logs):
             potential_sirens = list(set(potential_sirens))
             if len(potential_sirens) == 1:
                 logs += "<br/> all potential match have the same siren " + potential_sirens[0]
+                logs += " &#128076;<br/>"
+                logs += "<h3>{}</h3>".format(potential_sirens[0])
                 return {'match': "siren"+potential_sirens[0], 'logs': logs}
     
     return {'match': None, 'logs': logs}
