@@ -116,6 +116,11 @@ def get_char_filters():
           "pattern": " |_",
           "replacement": ""
         }
+    char_filters["curie"]= {
+          "type": "pattern_replace",
+          "pattern": "(pierre).*(marie).*(curie)",
+          "replacement": ""
+        }
     return char_filters
 
 def get_filters(main_cities, main_names):
@@ -260,6 +265,7 @@ def get_analyzers():
 
     analyzers["analyzer_name"] =  {
             "tokenizer": "icu_tokenizer",
+            "char_filter": ["curie"],
             "filter": [
                 "french_elision",
                 "icu_folding",
