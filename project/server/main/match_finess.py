@@ -209,7 +209,7 @@ def get_info(input_str, search_fields, size=20, verbose=False, highlights=[], fu
 
 
     s = s.query("multi_match", query=input_str,
-            minimum_should_match=1,
+            minimum_should_match=2,
             #fuzziness="auto",
             fields=search_fields)
 
