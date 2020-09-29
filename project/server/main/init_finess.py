@@ -201,6 +201,14 @@ def get_filters(main_cities, main_names):
       "pattern": " ",
       "replacement": ""
     }
+    
+    filters["name_synonym"] = {
+        "type" : "synonym_graph",
+        "synonyms" : [
+            "ch ,centre hospitalier",
+            "chu ,centre hospitalier universitaire"
+        ]
+    } 
     return filters
 
 def get_tokenizers():
@@ -259,7 +267,8 @@ def get_analyzers():
                 "english_stop",
                 "lowercase",
                 "city_remover",
-                "common_names_filter"
+                "common_names_filter",
+                "name_synonym"
             ]
           }
 
