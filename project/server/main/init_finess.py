@@ -73,7 +73,7 @@ def init_es_finess():
             if elt.get('Ligne d’acheminement (CodePostal+Lib commune) ligneacheminement'):
                 known_cities.append(normalize(elt.get('Ligne d’acheminement (CodePostal+Lib commune) ligneacheminement')))
     known_cities = list(set(known_cities) - set('france'))
-    names_to_remove = ["france", "cedex"]
+    names_to_remove = ["france", "cedex", "institut"] 
 
     filters = get_filters(known_cities, names_to_remove)
     char_filters = get_char_filters()
