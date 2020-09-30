@@ -258,11 +258,17 @@ def match_structured(matching_info, strategies, logs):
                 if final_results[strat][0] in matching_info.get('code',{}).get('ids', []):
                     logs += " &#128076; car a bien un label numéro <br/>"
                     logs += "<h3>{}</h3>".format(final_results[strat][0])
-                    return {'match': final_results[strat][0], 'logs': logs}
+                    return_id = final_results[strat][0]
+                    return_val = {'match': return_id, 'logs': logs}
+                    return_val.update(get_supervisors(return_id))
+                    return return_val
                 elif final_results[strat][0] in matching_info.get('code_digit',{}).get('ids', []):
                     logs += " &#128076; car a bien les chiffres du label numéro <br/>"
                     logs += "<h3>{}</h3>".format(final_results[strat][0])
-                    return {'match': final_results[strat][0], 'logs': logs}
+                    return_id = final_results[strat][0]
+                    return_val = {'match': return_id, 'logs': logs}
+                    return_val.update(get_supervisors(return_id))
+                    return return_val
                 else:
                     logs += " &#128078; car n'a pas le label numéro"
                     continue
@@ -270,7 +276,10 @@ def match_structured(matching_info, strategies, logs):
                 if final_results[strat][0] in matching_info.get('acronym',{}).get('ids', []):
                     logs += " &#128076; car a bien un acronyme <br/>"
                     logs += "<h3>{}</h3>".format(final_results[strat][0])
-                    return {'match': final_results[strat][0], 'logs': logs}
+                    return_id = final_results[strat][0]
+                    return_val = {'match': return_id, 'logs': logs}
+                    return_val.update(get_supervisors(return_id))
+                    return return_val
                 else:
                     logs += " &#128078; car n'a pas l'acronyme"
                     continue
@@ -278,7 +287,10 @@ def match_structured(matching_info, strategies, logs):
             else:
                 logs += " &#128076;<br/>"
                 logs += "<h3>{}</h3>".format(final_results[strat][0])
-                return {'match': final_results[strat][0], 'logs': logs}
+                return_id = final_results[strat][0]
+                return_val = {'match': return_id, 'logs': logs}
+                return_val.update(get_supervisors(return_id))
+                return return_val
     
     return {'match': None, 'logs': logs}
 
@@ -383,3 +395,14 @@ def get_info(year, input_str, search_fields, size=20, verbose=False, highlights=
 
     #print(scores)
     return {'ids': res_ids, 'highlights': highlights, 'nb_matches': nb_matches}
+
+def get_supervisors(rnsr_id):
+    myIndex = "index-rnsr-all"
+    s = Search(using=es, index=myIndex)
+    s = s.query("multi_match", query=rnsr_id, fields="id")
+    hit = s.execute().hits[0]
+    return {
+        "supervisors_id": hit.supervisors_id,
+        "supervisors_name": hit.supervisors_name,
+        "supervisors_acronym": hit.supervisors_acronym
+    }
