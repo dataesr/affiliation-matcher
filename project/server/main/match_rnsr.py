@@ -402,7 +402,7 @@ def get_supervisors(rnsr_id):
     s = s.query("multi_match", query=rnsr_id, fields="id")
     hit = s.execute().hits[0]
     return {
-        "supervisors_id": hit.supervisors_id,
-        "supervisors_name": hit.supervisors_name,
-        "supervisors_acronym": hit.supervisors_acronym
+        "supervisors_id": list(hit.supervisors_id),
+        "supervisors_name": list(hit.supervisors_name),
+        "supervisors_acronym": list(hit.supervisors_acronym)
     }
