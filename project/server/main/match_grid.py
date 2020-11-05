@@ -206,7 +206,8 @@ def match_grid_structured(matching_info, strategies, logs):
                 retained_id_for_strat = []
         final_results[strat] = list(set(retained_id_for_strat))
         for x in current_strat_avoid:
-            final_results[strat].remove(x)
+            if x in final_results[strat]:
+                final_results[strat].remove(x)
             
     #for res in final_results:
         if len(final_results[strat]) == 1:
