@@ -167,7 +167,8 @@ def match_structured(matching_info, strategies, logs):
                 current_potential_ids = retained_id_for_strat
                 retained_id_for_strat = []
         for x in ignored_id:
-            retained_id_for_strat.remove(x)
+            if x in retained_id_for_strat:
+                retained_id_for_strat.remove(x)
         final_results[strat] = list(set(retained_id_for_strat))
             
     #for res in final_results:
