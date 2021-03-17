@@ -1,11 +1,7 @@
-#sudo docker build -f Dockerfile_nginx -t dataesr/nginxcrawler -t dataesr/nginxcrawler:1.0 .
-#sudo docker push dataesr/nginxcrawler
+sudo docker build -f Dockerfile_es -t dataesr/es_icu -t dataesr/es_icu:1.0 .
+sudo docker push dataesr/es_icu
 
-#sudo docker build -f Dockerfile_dashboard -t dataesr/dashboard-crawler -t dataesr/dashboard-crawler:1.0 .
-#sudo docker push dataesr/dashboard-crawler
+sudo docker build -f Dockerfile -t dataesr/matcher -t dataesr/matcher:1.2 .
+sudo docker push dataesr/matcher
 
-sudo docker build -f Dockerfile_requests -t dataesr/requests -t dataesr/requests:1.0 .
-sudo docker push dataesr/requests
-
-sudo docker build -f Dockerfile -t dataesr/pubmed -t dataesr/pubmed:1.1 .
-sudo docker push dataesr/pubmed
+#docker-compose down && docker-compose pull && docker-compose up
