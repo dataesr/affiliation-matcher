@@ -1,3 +1,8 @@
+# Python
 *.pyc
 *.mypy_cache/*
 .mypy*
+venv
+
+# IDE
+.idea
