@@ -1,4 +1,5 @@
-from match_rnsr import match_unstructured, match_fields
+from project.server.main.match_rnsr import match_unstructured, match_fields
+
 
 def test_1():
     res = match_unstructured(2015, "INS1640 INSHS Institut des Sciences Humaines et Sociales ORLEANS")
