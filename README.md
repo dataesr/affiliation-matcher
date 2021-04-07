@@ -11,7 +11,7 @@ And specifically for French affiliations :
 - [FINESS](https://www.data.gouv.fr/fr/datasets/finess-extraction-du-fichier-des-etablissements)
 
 ## Run it locally
-```
+```shell
 git clone git@github.com:dataesr/matcher.git
 cd matcher
 docker-compose up -d
@@ -22,3 +22,9 @@ In your browser you now have :
 - Elasticsearch : http://localhost:9200/
 - RabbitMQ : http://localhost:9181/
 - Matcher : http://localhost:5004/
+
+## Run unit test
+
+```shell
+make test
+```
