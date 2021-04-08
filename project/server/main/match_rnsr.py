@@ -1,8 +1,8 @@
 import requests
-from bs4 import BeautifulSoup
 
+from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Q, Search
+from elasticsearch_dsl import Search
 
 from project.server.main.config import config
 
@@ -25,9 +25,9 @@ def normalize_for_count(x, matching_field):
 
     if analyzer:
         try:
-            r = requests.post(config['ELASTICSEARCH_URL'] + "index-rnsr-all/_analyze", json={
-                "analyzer": analyzer,
-                "text": x
+            r = requests.post(config['ELASTICSEARCH_URL'] + 'index-rnsr-all/_analyze', json={
+                'analyzer': analyzer,
+                'text': x
             }).json()
             return r['tokens'][0]['token']
         except:
@@ -324,7 +324,8 @@ def get_match_supervisors_id(year, query, verbose=False) -> dict:
 
 
 def get_match_supervisors_acronym(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["supervisors_acronym"], size=2000, verbose=verbose, highlights=["supervisors_acronym"])
+    return get_info(year, query, ["supervisors_acronym"], size=2000, verbose=verbose,
+                    highlights=["supervisors_acronym"])
 
 
 def get_info(year, query, search_fields, size=20, verbose=False, highlights=None, fuzzy_ok=False) -> dict:
@@ -396,8 +397,8 @@ def get_info(year, query, search_fields, size=20, verbose=False, highlights=None
 
 
 def get_supervisors(rnsr_id):
-    myIndex = "index-rnsr-all"
-    s = Search(using=es, index=myIndex)
+    my_index = "index-rnsr-all"
+    s = Search(using=es, index=my_index)
     s = s.query("multi_match", query=rnsr_id, fields="id")
     hit = s.execute().hits[0]
     return {
