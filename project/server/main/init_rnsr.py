@@ -24,7 +24,7 @@ def strip_accents(w: str) -> str:
         if unicodedata.category(c) != "Mn")
 
 
-def delete_punct(w: str) -> str:
+def delete_punctuation(w: str) -> str:
     """Delete all punctuation in a string."""
     return w.lower().translate(
         str.maketrans(string.punctuation, len(string.punctuation) * " "))
@@ -33,7 +33,7 @@ def delete_punct(w: str) -> str:
 def normalize_text(text: str) -> str:
     """Normalize string. Delete punctuation and accents."""
     if isinstance(text, str):
-        text = delete_punct(text)
+        text = delete_punctuation(text)
         text = strip_accents(text)
         text = text.replace('\xa0', ' ')
         text = " ".join(text.split())
@@ -45,8 +45,8 @@ def normalize(text):
         .replace('‐', ' ').replace('  ', ' ')
 
 
-def normalize_for_count(x):
-    return normalize_text(x)[0:6]
+def normalize_for_count(text):
+    return normalize_text(text)[0:6]
 
 
 def init_es():

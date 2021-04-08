@@ -4,45 +4,44 @@ from project.server.main.match_rnsr import *
 
 
 class TestMatchUnstructured:
-    def test_1(self):
+    def test_1(self) -> None:
         res = match_unstructured(2015, "INS1640 INSHS Institut des Sciences Humaines et Sociales ORLEANS")
         assert res.get('match') is None
 
-    def test_2(self):
+    def test_2(self) -> None:
         res = match_unstructured(2015, "MOY1000  Délégation Alsace STRASBOURG")
         assert res.get('match') is None
 
 
 class TestMatchFields:
-    def test_3(self):
+    def test_3(self) -> None:
         res = match_fields(2018, "UMR 5223", "INGENIERIE DES MATERIAUX POLYMERES", "VILLEURBANNE CEDEX", "IMP",
                            "196917744")
         assert res.get('match') == '200711890Y'
 
     @pytest.mark.skip
-    def test_4(self):
+    def test_4(self) -> None:
         res = match_fields(2019, None, "BUREAU DE RECHERCHES GEOLOGIQUES ET MINIERES", "ORLEANS", "BRGM", "582056149")
         assert res.get('match') == '195922846R'
 
 
-class TestGetInfo:
-    @pytest.mark.parametrize("param_year,param_query,param_fields,param_size,expected_results_length", [
-        (2019, "Plate-Forme de Criblage chémogénomique et biologique", ["names"], 200, 3),
-        (2017, "Plate-Forme de Criblage chémogénomique et biologique", ["names"], 200, 2),
-        (2019, "Plate-Forme", ["names"], 200, 21),
-        (2019, "PF-CCB", ["acronyms"], 200, 1),
-        (2019, "Plate-Forme de Criblage chémogénomique et biologique", ["names"], 1, 1)
-    ])
-    def test_get_info_by_acronym(self, param_year, param_query, param_fields, param_size, expected_results_length):
-        results = get_info(param_year, param_query, param_fields, param_size, False, param_fields)
-        assert len(results.get('ids')) == expected_results_length
-        assert len(results.get('highlights')) == expected_results_length
-        assert len(results.get('nb_matches')) == expected_results_length
+@pytest.mark.parametrize("param_year,param_query,param_fields,param_size,expected_results_length", [
+    (2019, "Plate-Forme de Criblage chémogénomique et biologique", ["names"], 200, 3),
+    (2017, "Plate-Forme de Criblage chémogénomique et biologique", ["names"], 200, 2),
+    (2019, "Plate-Forme", ["names"], 200, 21),
+    (2019, "PF-CCB", ["acronyms"], 200, 1),
+    (2019, "Plate-Forme de Criblage chémogénomique et biologique", ["names"], 1, 1)
+])
+def test_get_info_by_acronym(param_year, param_query, param_fields, param_size, expected_results_length) -> None:
+    results = get_info(param_year, param_query, param_fields, param_size, False, param_fields)
+    assert len(results.get('ids')) == expected_results_length
+    assert len(results.get('highlights')) == expected_results_length
+    assert len(results.get('nb_matches')) == expected_results_length
 
 
 class TestGetMatch:
     @pytest.fixture
-    def setup(self, mocker):
+    def setup(self, mocker) -> None:
         def mock_get_info(year, query, search_fields, size, verbose, highlights, fuzzy_ok=False) -> dict:
             return {"year": year, "query": query, "search_fields": search_fields, "size": size,
                     "verbose": verbose, "highlights": highlights, "fuzzy_ok": fuzzy_ok}
