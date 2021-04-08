@@ -5,26 +5,30 @@ from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search
 from elasticsearch import helpers
-es = Elasticsearch(['elasticsearch', 'localhost'])
+
+from project.server.main.config import config
+
+
+es = Elasticsearch(config['ELASTICSEARCH_HOST'])
 
 #def normalize_for_count(x):
 #    return x.lower()[0:6]
 
 def normalize_for_count(x, matching_field):
-    
+
     analyzer = None
     if matching_field in ['name', 'acronym']:
         analyzer = "analyzer_{}".format(matching_field)
     elif matching_field in ['city']:
         analyzer = "analyzer_city"
-    elif matching_field in ['country']: 
+    elif matching_field in ['country']:
         analyzer = "analyzer_country"
-    elif matching_field in ['country_code']: 
+    elif matching_field in ['country_code']:
         analyzer = "analyzer_country_code"
-        
+
     if analyzer:
         try:
-            r = requests.post("http://localhost:9200/index-grid/_analyze", json={
+            r = requests.post(config['ELASTICSEARCH_URL'] + "index-grid/_analyze", json={
               "analyzer" : analyzer,
               "text" : x
             }).json()
@@ -80,13 +84,13 @@ def match_grid_fields(name, city, acronym, country, country_code):
     return match_grid_structured(matching_info, strategies, logs)
 
 def match_grid_structured(matching_info, strategies, logs):
-    
-    
+
+
     has_acronym=False
     if len(matching_info.get('acronym', {}).get('ids', [])) > 0:
         has_acronym = True
 
-    
+
     all_matches = {}
     field_matches = {}
     min_match_for_field = {}
@@ -98,17 +102,17 @@ def match_grid_structured(matching_info, strategies, logs):
             all_matches[match_id] += matching_info[f].get('nb_matches', {})[match_id]
             if f not in field_matches[match_id]:
                 field_matches[match_id].append(f)
-                
+
         min_match_for_field[f] = 1
-    
+
     min_match_for_field['supervisors_name'] = 3
     min_match_for_field['supervisors_acronym'] = 2
     relevant_matches = {}
-    
-    
+
+
     final_results = {}
     forbidden_id = []
-    
+
     logs += "<ol> "
     for strat in strategies:
         stop_current_start = False
@@ -116,7 +120,7 @@ def match_grid_structured(matching_info, strategies, logs):
         current_strat_avoid = []
         strat_fields = strat.split(';')
         logs += "<li>Strategie testée : {}".format(strat)
-        
+
         indiv_ids = [matching_info[field]['ids'] for field in strat_fields]
         strat_ids = set(indiv_ids[0]).intersection(*indiv_ids)
 
@@ -124,8 +128,8 @@ def match_grid_structured(matching_info, strategies, logs):
             logs += " &empty; </li>"
             continue
         logs += "</li></br>"
-            
-            
+
+
         max_number = {}
         logs += "<ol> "
         for potential_id in strat_ids:
@@ -137,15 +141,15 @@ def match_grid_structured(matching_info, strategies, logs):
                 bbb =  matching_info[field]['nb_matches'][potential_id]
                 if potential_id in matching_info[field]['nb_matches']:
                     current_match[field+'_match'] = matching_info[field]['nb_matches'][potential_id]
-                    
+
                     current_highlights = matching_info[field]['highlights'][potential_id]
                     current_highlights = [e.replace('<em>', '<strong>').replace('</em>', '</strong>') for e in current_highlights]
                     logs += "     - {} {} : {}<br/>".format(
                             matching_info[field]['nb_matches'][potential_id],
                             field,
-                            current_highlights)    
-          
-                
+                            current_highlights)
+
+
                 if field not in max_number:
                     max_number[field] = 0
                     #if field == 'name':
@@ -154,19 +158,19 @@ def match_grid_structured(matching_info, strategies, logs):
                 max_number[field] = max(max_number[field], current_match[field+'_match'])
 
             current_strat_answers.append(current_match)
-        
-        
-        
+
+
+
         if len(max_number)>0:
             logs += "<li> &#9989; Nombre de match par champ : {}<br/></li>".format(max_number)
-            
+
         logs += "</ol>" # end of potential ids
-                
+
         if len(strat_ids) == 0:
             continue
-            
-        
-        
+
+
+
         current_potential_ids = strat_ids
         retained_id_for_strat = []
         logs += "Parcours des champs de la stratégie :"
@@ -175,7 +179,7 @@ def match_grid_structured(matching_info, strategies, logs):
             if field in ["city", "code_fuzzy"]:
                 logs += "(ignoré)..."
                 continue
- 
+
             for potential_id in current_potential_ids:
                 if potential_id in matching_info[field]['nb_matches']:
                     if  matching_info[field]['nb_matches'][potential_id] == max_number[field]:
@@ -208,14 +212,14 @@ def match_grid_structured(matching_info, strategies, logs):
         for x in current_strat_avoid:
             if x in final_results[strat]:
                 final_results[strat].remove(x)
-            
+
     #for res in final_results:
         if len(final_results[strat]) == 1:
             logs += "<br/> 1&#65039;&#8419; unique match pour cette stratégie : {} ".format(final_results[strat][0])
             if final_results[strat][0] in forbidden_id:
                 logs += "&#10060; car dans la black-list"
                 continue
-                
+
             if has_acronym:
                 if final_results[strat][0] in matching_info.get('acronym',{}).get('ids', []):
                     logs += " &#128076; car a bien un acronyme <br/>"
@@ -224,12 +228,12 @@ def match_grid_structured(matching_info, strategies, logs):
                 else:
                     logs += " &#128078; car n'a pas l'acronyme"
                     continue
-                
+
             else:
                 logs += " &#128076;<br/>"
                 logs += "<h3>{}</h3>".format(final_results[strat][0])
                 return {'match': final_results[strat][0], 'logs': logs}
-    
+
     return {'match': None, 'logs': logs}
 
 def get_match_city(x, verbose=False):
