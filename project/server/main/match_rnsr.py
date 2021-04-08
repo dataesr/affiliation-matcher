@@ -325,43 +325,41 @@ def get_match_supervisors_acronym(year, query, verbose=False) -> dict:
     return get_info(year, query, ["supervisors_acronym"], size=2000, verbose=verbose, highlights=["supervisors_acronym"])
 
 
-def get_info(year, input_str, search_fields, size=20, verbose=False, highlights=[], fuzzy_ok=False):
-    if input_str is None:
-        input_str = ""
-    myIndex = "index-rnsr-{}".format(year)
-    s = Search(using=es, index=myIndex)
+def get_info(year, query, search_fields, size=20, verbose=False, highlights=None, fuzzy_ok=False) -> dict:
+    if highlights is None:
+        highlights = []
+    if query is None:
+        query = ""
+    my_index = "index-rnsr-{}".format(year)
+    s = Search(using=es, index=my_index)
     for f in highlights:
         s = s.highlight(f)
 
     if search_fields == ['names']:
-        s = s.query("multi_match", query=input_str,
+        s = s.query("multi_match", query=query,
                     minimum_should_match=1,
                     fuzziness="auto",
                     fields=search_fields)
     else:
-        s = s.query("multi_match", query=input_str,
+        s = s.query("multi_match", query=query,
                     minimum_should_match=1,
                     fields=search_fields)
     s = s[0:size]
-    res = s.execute()
-    hits = res.hits
+    results = s.execute()
+    hits = results.hits
 
     if len(hits) == 0 and fuzzy_ok:
         if verbose:
             print("fuzzy {}".format(search_fields))
-        s = Search(using=es, index=myIndex)
+        s = Search(using=es, index=my_index)
         for f in highlights:
             s = s.highlight(f)
-        s = s.query("multi_match", query=input_str,
+        s = s.query("multi_match", query=query,
                     fuzziness=1,
                     fields=search_fields)
         s = s[0:size]
-        res = s.execute()
-        hits = res.hits
-
-    id_res = ""
-    if len(hits) > 0:
-        max_score = hits[0].meta.score
+        results = s.execute()
+        hits = results.hits
 
     res_ids = []
     scores = []
@@ -383,7 +381,7 @@ def get_info(year, input_str, search_fields, size=20, verbose=False, highlights=
                 highlights[hit.id].append(fragment)
 
                 matches = [normalize_for_count(e.get_text(), matching_field) for e in
-                           BeautifulSoup(fragment, 'lxml').find_all('em')]
+                           BeautifulSoup(fragment, "lxml").find_all("em")]
 
                 if hit.id not in nb_matches:
                     nb_matches[hit.id] = 0
@@ -392,8 +390,7 @@ def get_info(year, input_str, search_fields, size=20, verbose=False, highlights=
                 matches_frag[hit.id] = list(set(matches_frag[hit.id]))
                 nb_matches[hit.id] = len(matches_frag[hit.id])
 
-    # print(scores)
-    return {'ids': res_ids, 'highlights': highlights, 'nb_matches': nb_matches}
+    return {"ids": res_ids, "highlights": highlights, "nb_matches": nb_matches}
 
 
 def get_supervisors(rnsr_id):
