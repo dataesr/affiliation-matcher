@@ -4,7 +4,9 @@ from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search
 
-es = Elasticsearch(['elasticsearch', 'localhost'])
+from project.server.main.config import config
+
+es = Elasticsearch(config['ELASTICSEARCH_HOST'])
 
 
 def normalize_for_count(x, matching_field):
@@ -23,7 +25,7 @@ def normalize_for_count(x, matching_field):
 
     if analyzer:
         try:
-            r = requests.post("http://localhost:9200/index-rnsr-all/_analyze", json={
+            r = requests.post(config['ELASTICSEARCH_URL'] + "index-rnsr-all/_analyze", json={
                 "analyzer": analyzer,
                 "text": x
             }).json()
