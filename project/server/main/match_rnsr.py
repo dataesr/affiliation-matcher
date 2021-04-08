@@ -283,50 +283,46 @@ def match_structured(matching_info, strategies, logs):
     return {'match': None, 'logs': logs}
 
 
-def get_match_code(year, x, verbose=False):
-    return get_info(year, x, ["code_numbers"], size=20, verbose=verbose,
-                    highlights=["code_numbers"])
+def get_match_code(year, query, verbose=False) -> dict:
+    return get_info(year, query, ["code_numbers"], size=20, verbose=verbose, highlights=["code_numbers"])
 
 
-def get_match_code_label(year, x, verbose=False):
-    return get_info(year, x, ["code_numbers.labels"], size=10000, verbose=verbose,
+def get_match_code_label(year, query, verbose=False) -> dict:
+    return get_info(year, query, ["code_numbers.labels"], size=10000, verbose=verbose,
                     highlights=["code_numbers.labels"])
 
 
-def get_match_code_digit(year, x, verbose=False):
-    return get_info(year, x, ["code_numbers.digits"], size=20, verbose=verbose,
-                    highlights=["code_numbers.digits"])
-    # return get_info(year, x, ["code_numbers", "code_numbers.digits_only"], size=20, verbose=verbose,
-    #                highlights=["code_numbers", "code_numbers.digits_only"])
+def get_match_code_digit(year, query, verbose=False) -> dict:
+    return get_info(year, query, ["code_numbers.digits"], size=20, verbose=verbose, highlights=["code_numbers.digits"])
 
 
-def get_match_code_fuzzy(year, x, verbose=False):
-    return get_info(year, x, ["code_numbers", "code_numbers.digits"], size=1000, verbose=verbose,
+def get_match_code_fuzzy(year, query, verbose=False) -> dict:
+    return get_info(year, query, ["code_numbers", "code_numbers.digits"], size=1000, verbose=verbose,
                     highlights=["code_numbers", "code_numbers.digits"], fuzzy_ok=True)
 
 
-def get_match_city(year, x, verbose=False):
-    return get_info(year, x, ['addresses'], size=5000, verbose=verbose, highlights=['addresses'])
+def get_match_city(year, query, verbose=False) -> dict:
+    return get_info(year, query, ["addresses"], size=5000, verbose=verbose, highlights=["addresses"])
 
 
-def get_match_name(year, x, verbose=False):
-    return get_info(year, x, ['names'], size=200, verbose=verbose, highlights=['names'])
+def get_match_name(year, query, verbose=False) -> dict:
+    return get_info(year, query, ["names"], size=200, verbose=verbose, highlights=["names"])
 
 
-def get_match_acronym(year, x, verbose=False):
-    return get_info(year, x, ['acronyms'], size=5000, verbose=False, highlights=['acronyms'])
+def get_match_acronym(year, query, verbose=False) -> dict:
+    return get_info(year, query, ["acronyms"], size=5000, verbose=verbose, highlights=["acronyms"])
 
 
-def get_match_supervisors_name(year, x, verbose=False):
-    return get_info(year, x, ['supervisors_name'], size=10000, verbose=False, highlights=['supervisors_name'])
+def get_match_supervisors_name(year, query, verbose=False) -> dict:
+    return get_info(year, query, ["supervisors_name"], size=10000, verbose=verbose, highlights=["supervisors_name"])
 
 
-def get_match_supervisors_id(year, x, verbose=False):
-    return get_info(year, x, ['supervisors_id'], size=2000, verbose=False, highlights=['supervisors_id'])
+def get_match_supervisors_id(year, query, verbose=False) -> dict:
+    return get_info(year, query, ["supervisors_id"], size=2000, verbose=verbose, highlights=["supervisors_id"])
 
 
-def get_match_supervisors_acronym(year, x, verbose=False):
-    return get_info(year, x, ['supervisors_acronym'], size=2000, verbose=False, highlights=['supervisors_acronym'])
+def get_match_supervisors_acronym(year, query, verbose=False) -> dict:
+    return get_info(year, query, ["supervisors_acronym"], size=2000, verbose=verbose, highlights=["supervisors_acronym"])
 
 
 def get_info(year, input_str, search_fields, size=20, verbose=False, highlights=[], fuzzy_ok=False):
