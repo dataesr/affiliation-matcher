@@ -14,7 +14,7 @@ And specifically for French affiliations :
 ```shell
 git clone git@github.com:dataesr/matcher.git
 cd matcher
-docker-compose up -d
+make start
 curl http://localhost:5004/init
 ```
 

@@ -7,3 +7,9 @@ unit:
 
 notebook:
 	jupyter notebook
+
+start:
+	docker-compose up -d
+
+stop:
+	docker-compose down
