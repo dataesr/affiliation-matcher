@@ -3,26 +3,49 @@ import pytest
 from project.server.main.match_rnsr import *
 
 
+@pytest.fixture(scope='module')
+def elasticsearch() -> dict:
+    index = config['ELASTICSEARCH_INDEX']
+    es = Elasticsearch(config['ELASTICSEARCH_HOST'])
+    if not es.indices.exists(index):
+        es.indices.create(index, ignore=400)
+    yield {'es': es, 'index': index}
+    es.indices.delete(index=index)
+
+
 class TestMatchUnstructured:
-    def test_1(self) -> None:
-        res = match_unstructured(2015, 'INS1640 INSHS Institut des Sciences Humaines et Sociales ORLEANS')
-        assert res.get('match') is None
+    def test_match_unstructured_non_existent(self) -> None:
+        result = match_unstructured(2019, 'this is a non-existent data')
+        assert result.get('match') is None
 
-    def test_2(self) -> None:
-        res = match_unstructured(2015, 'MOY1000  Délégation Alsace STRASBOURG')
-        assert res.get('match') is None
+    def test_match_unstructured_too_short(self) -> None:
+        result = match_unstructured(2019, 'Biologie et Génétique des interactions Plantes-parasites pour la Protection '
+                                          'Intégrée')
+        assert result.get('match') is None
 
-
-@pytest.mark.skip
-class TestMatchFields:
-    def test_3(self) -> None:
-        res = match_fields(2018, 'UMR 5223', 'INGENIERIE DES MATERIAUX POLYMERES', 'VILLEURBANNE CEDEX', 'IMP',
-                           '196917744')
-        assert res.get('match') == '200711890Y'
-
-    def test_4(self) -> None:
-        res = match_fields(2019, None, 'BUREAU DE RECHERCHES GEOLOGIQUES ET MINIERES', 'ORLEANS', 'BRGM', '582056149')
-        assert res.get('match') == '195922846R'
+    def test_match_unstructured(self, elasticsearch) -> None:
+        id = '194517892S'
+        supervisors_id = ['130002793', '180089013', '331596270', '180070039', '193401312', '130002793']
+        supervisors_name = ['Centre de Cooperation Internationale en Recherche Agronomique pour le Developpement',
+                            'Montpellier SupAgro',
+                            "Montpellier SupAgro - Institut national d'etudes superieures agronomiques de Montpellier",
+                            'ENSAM',
+                            "Institut national de recherche pour l'agriculture, l'alimentation et l'environnement",
+                            'Centre national de la recherche scientifique',
+                            'Institut national de la recherche en agronomie',
+                            "Montpellier SupAgro - Institut national d'études supérieures agronomiques de Montpellier",
+                            'Ecole nationale agronomique Montpellier', 'CNRS', 'CIRAD', 'INRAE', 'INRA']
+        supervisors_acronym = ['Montpellier SupAgro', 'ENSAM', 'CNRS', 'CIRAD', 'INRAE', 'INRA']
+        body = {
+            'id': id,
+            'supervisors_id': supervisors_id,
+            'supervisors_name': supervisors_name,
+            'supervisors_acronym': supervisors_acronym
+        }
+        elasticsearch['es'].index(elasticsearch['index'], body=body, refresh=True)
+        result = match_unstructured(2019, 'Biologie et Génétique des interactions Plantes-parasites pour la Protection '
+                                          'Intégrée UMR385')
+        assert result.get('match') == id
 
 
 class TestGetInfo:
@@ -33,11 +56,12 @@ class TestGetInfo:
         (2019, 'PF-CCB', ['acronyms'], 200, 1),
         (2019, 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 1, 1)
     ])
-    def test_get_info_by_acronym(self, param_year, param_query, param_fields, param_size, expected_results_length) -> None:
-        results = get_info(param_year, param_query, param_fields, param_size, False, param_fields)
-        assert len(results.get('ids')) == expected_results_length
-        assert len(results.get('highlights')) == expected_results_length
-        assert len(results.get('nb_matches')) == expected_results_length
+    def test_get_info_by_acronym(self, param_year, param_query, param_fields, param_size, expected_results_length) -> \
+            None:
+        result = get_info(param_year, param_query, param_fields, param_size, False, param_fields)
+        assert len(result.get('ids')) == expected_results_length
+        assert len(result.get('highlights')) == expected_results_length
+        assert len(result.get('nb_matches')) == expected_results_length
 
 
 class TestGetMatch:
@@ -161,18 +185,7 @@ class TestGetMatch:
 
 
 class TestGetSupervisors:
-    @pytest.fixture
-    def elasticsearch(self) -> dict:
-        index = config['ELASTICSEARCH_INDEX']
-        es = Elasticsearch(config['ELASTICSEARCH_HOST'])
-        if not es.indices.exists(index):
-            es.indices.create(index, ignore=400)
-        yield {'es': es, 'index': index}
-        es.indices.delete(index=index)
-
     def test_get_supervisors(self, elasticsearch) -> None:
-        es = elasticsearch.get('es', None)
-        index = elasticsearch.get('index', None)
         id = 42
         supervisors_id = ['id_01', 'id_02']
         supervisors_name = ['name_01', 'name_02', 'name_03']
@@ -183,7 +196,7 @@ class TestGetSupervisors:
             'supervisors_name': supervisors_name,
             'supervisors_acronym': supervisors_acronym
         }
-        es.index(index, body=body, refresh=True)
+        elasticsearch['es'].index(elasticsearch['index'], body=body, refresh=True)
         result = get_supervisors(id)
         assert isinstance(result, dict)
         assert result.get('supervisors_id', None) == supervisors_id
