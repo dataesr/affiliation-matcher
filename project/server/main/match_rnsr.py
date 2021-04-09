@@ -35,61 +35,54 @@ def normalize_for_count(x, matching_field):
     return x.lower()[0:6]
 
 
-def match_unstructured(year, query=''):
-    logs = ""
-    logs += "<h1> &#128269; {}</h1>".format(query)
-    x = query
+def match_unstructured(year, query='') -> dict:
+    matching_info = {
+        'code': get_match_code(year, query),
+        'code_digit': get_match_code_digit(year, query),
+        'code_label': get_match_code_label(year, query),
+        'code_fuzzy': get_match_code_fuzzy(year, query),
+        'supervisors_acronym': get_match_supervisors_acronym(year, query),
+        'supervisors_name': get_match_supervisors_name(year, query),
+        'city': get_match_city(year, query),
+        'name': get_match_name(year, query),
+        'acronym': get_match_acronym(year, query)
+    }
 
-    matching_info = {}
-    matching_info['code'] = get_match_code(year, x)
-    matching_info['code_digit'] = get_match_code_digit(year, x)
-    matching_info['code_label'] = get_match_code_label(year, x)
-    matching_info['code_fuzzy'] = get_match_code_fuzzy(year, x)
-    matching_info['supervisors_acronym'] = get_match_supervisors_acronym(year, x)
-    matching_info['supervisors_name'] = get_match_supervisors_name(year, x)
-    matching_info['city'] = get_match_city(year, x)
-    matching_info['name'] = get_match_name(year, x)
-    matching_info['acronym'] = get_match_acronym(year, x)
+    strategies = [
+        'code;supervisors_acronym;supervisors_name;city',
+        'code;supervisors_name;city',
+        'code;acronym',
+        'code;name',
+        'code;supervisors_acronym',
+        'code;supervisors_name',
+        'code;city',
+        'code_digit;supervisors_acronym;supervisors_name;city',
+        'code_digit;supervisors_name;city',
+        'code_digit;acronym',
+        'code_digit;name',
+        'code_digit;supervisors_acronym',
+        'code_digit;supervisors_name',
+        'acronym;name;supervisors_name;city',
+        'acronym;name;supervisors_acronym;city',
+        'acronym;supervisors_acronym;city',
+        'acronym;supervisors_name;city',
+        'name;supervisors_acronym;city',
+        'name;supervisors_name;city',
+        'name;acronym;city',
+        'name;acronym;supervisors_acronym',
+        'name;acronym;supervisors_name',
+        'acronym;city',
+        'code_fuzzy;city'
+    ]
 
-    strategies = []
-
-    strategies.append("code;supervisors_acronym;supervisors_name;city")
-    strategies.append("code;supervisors_name;city")
-    strategies.append("code;acronym")
-    strategies.append("code;name")
-    strategies.append("code;supervisors_acronym")
-    strategies.append("code;supervisors_name")
-    strategies.append("code;city")
-
-    strategies.append("code_digit;supervisors_acronym;supervisors_name;city")
-    strategies.append("code_digit;supervisors_name;city")
-    strategies.append("code_digit;acronym")
-    strategies.append("code_digit;name")
-    strategies.append("code_digit;supervisors_acronym")
-    strategies.append("code_digit;supervisors_name")
-
-    strategies.append("acronym;name;supervisors_name;city")
-    strategies.append("acronym;name;supervisors_acronym;city")
-
-    strategies.append("acronym;supervisors_acronym;city")
-    strategies.append("acronym;supervisors_name;city")
-
-    strategies.append("name;supervisors_acronym;city")
-    strategies.append("name;supervisors_name;city")
-
-    strategies.append("name;acronym;city")
-
-    strategies.append("name;acronym;supervisors_acronym")
-    strategies.append("name;acronym;supervisors_name")
-
-    strategies.append("acronym;city")
-
-    strategies.append("code_fuzzy;city")
+    logs = ''
+    logs += '<h1> &#128269; {}</h1>'.format(query)
 
     return match_structured(matching_info, strategies, logs)
 
 
-def match_fields(year, code, name, city, acronym, supervisors_id):
+# Todo: Deprecated
+def match_fields(year, code, name, city, acronym, supervisors_id) -> dict:
     matching_info = {}
 
     matching_info['code'] = get_match_code(year, code)
@@ -111,7 +104,7 @@ def match_fields(year, code, name, city, acronym, supervisors_id):
     return match_structured(matching_info, strategies, logs)
 
 
-def match_structured(matching_info, strategies, logs):
+def match_structured(matching_info, strategies, logs) -> dict:
     has_code = False
     if len(matching_info.get('code', {}).get('ids', [])) > 0:
         has_code = True
