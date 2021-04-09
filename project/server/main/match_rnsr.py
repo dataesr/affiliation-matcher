@@ -83,23 +83,25 @@ def match_unstructured(year, query='') -> dict:
 
 # Todo: Deprecated
 def match_fields(year, code, name, city, acronym, supervisors_id) -> dict:
-    matching_info = {}
+    matching_info = {
+        'code': get_match_code(year, code),
+        'name': get_match_name(year, name),
+        'city': get_match_city(year, city),
+        'acronym': get_match_acronym(year, acronym),
+        'supervisors_id': get_match_supervisors_id(year, supervisors_id)
+    }
 
-    matching_info['code'] = get_match_code(year, code)
-    matching_info['name'] = get_match_name(year, name)
-    matching_info['city'] = get_match_city(year, city)
-    matching_info['acronym'] = get_match_acronym(year, acronym)
-    matching_info['supervisors_id'] = get_match_supervisors_id(year, supervisors_id)
+    strategies = [
+        'code;city;name;acronym;supervisors_id',
+        'code;city;name;supervisors_id',
+        'code;city;acronym;supervisors_id',
+        'code;acronym;supervisors_id',
+        'code;name;supervisors_id',
+        'city;name;acronym;supervisors_id',
+        'city;acronym;supervisors_id'
+    ]
 
-    logs = ""
-    strategies = []
-    strategies.append("code;city;name;acronym;supervisors_id")
-    strategies.append("code;city;name;supervisors_id")
-    strategies.append("code;city;acronym;supervisors_id")
-    strategies.append("code;acronym;supervisors_id")
-    strategies.append("code;name;supervisors_id")
-    strategies.append("city;name;acronym;supervisors_id")
-    strategies.append("city;acronym;supervisors_id")
+    logs = ''
 
     return match_structured(matching_info, strategies, logs)
 
