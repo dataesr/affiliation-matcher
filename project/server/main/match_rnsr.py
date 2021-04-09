@@ -136,14 +136,12 @@ def match_structured(matching_info, strategies, logs):
 
     min_match_for_field['supervisors_name'] = 3
     min_match_for_field['supervisors_acronym'] = 2
-    relevant_matches = {}
 
     final_results = {}
     forbidden_id = []
 
     logs += "<ol> "
     for strat in strategies:
-        stop_current_start = False
         current_strat_answers = []
         current_strat_avoid = []
         strat_fields = strat.split(';')
@@ -165,7 +163,6 @@ def match_structured(matching_info, strategies, logs):
             for field in strat_fields:
                 current_match[field + '_match'] = 0
                 # probleme avec les highlights
-                bbb = matching_info[field]['nb_matches'][potential_id]
                 if potential_id in matching_info[field]['nb_matches']:
                     current_match[field + '_match'] = matching_info[field]['nb_matches'][potential_id]
 
@@ -286,46 +283,46 @@ def match_structured(matching_info, strategies, logs):
 
 
 def get_match_code(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["code_numbers"], size=20, verbose=verbose, highlights=["code_numbers"])
+    return get_info(year, query, ['code_numbers'], size=20, verbose=verbose, highlights=['code_numbers'])
 
 
 def get_match_code_label(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["code_numbers.labels"], size=10000, verbose=verbose,
-                    highlights=["code_numbers.labels"])
+    return get_info(year, query, ['code_numbers.labels'], size=10000, verbose=verbose,
+                    highlights=['code_numbers.labels'])
 
 
 def get_match_code_digit(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["code_numbers.digits"], size=20, verbose=verbose, highlights=["code_numbers.digits"])
+    return get_info(year, query, ['code_numbers.digits'], size=20, verbose=verbose, highlights=['code_numbers.digits'])
 
 
 def get_match_code_fuzzy(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["code_numbers", "code_numbers.digits"], size=1000, verbose=verbose,
-                    highlights=["code_numbers", "code_numbers.digits"], fuzzy_ok=True)
+    return get_info(year, query, ['code_numbers', 'code_numbers.digits'], size=1000, verbose=verbose,
+                    highlights=['code_numbers', 'code_numbers.digits'], fuzzy_ok=True)
 
 
 def get_match_city(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["addresses"], size=5000, verbose=verbose, highlights=["addresses"])
+    return get_info(year, query, ['addresses'], size=5000, verbose=verbose, highlights=['addresses'])
 
 
 def get_match_name(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["names"], size=200, verbose=verbose, highlights=["names"])
+    return get_info(year, query, ['names'], size=200, verbose=verbose, highlights=['names'])
 
 
 def get_match_acronym(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["acronyms"], size=5000, verbose=verbose, highlights=["acronyms"])
+    return get_info(year, query, ['acronyms'], size=5000, verbose=verbose, highlights=['acronyms'])
 
 
 def get_match_supervisors_name(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["supervisors_name"], size=10000, verbose=verbose, highlights=["supervisors_name"])
+    return get_info(year, query, ['supervisors_name'], size=10000, verbose=verbose, highlights=['supervisors_name'])
 
 
 def get_match_supervisors_id(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["supervisors_id"], size=2000, verbose=verbose, highlights=["supervisors_id"])
+    return get_info(year, query, ['supervisors_id'], size=2000, verbose=verbose, highlights=['supervisors_id'])
 
 
 def get_match_supervisors_acronym(year, query, verbose=False) -> dict:
-    return get_info(year, query, ["supervisors_acronym"], size=2000, verbose=verbose,
-                    highlights=["supervisors_acronym"])
+    return get_info(year, query, ['supervisors_acronym'], size=2000, verbose=verbose,
+                    highlights=['supervisors_acronym'])
 
 
 def get_info(year, query, search_fields, size=20, verbose=False, highlights=None, fuzzy_ok=False) -> dict:
@@ -396,13 +393,13 @@ def get_info(year, query, search_fields, size=20, verbose=False, highlights=None
     return {"ids": res_ids, "highlights": highlights, "nb_matches": nb_matches}
 
 
-def get_supervisors(rnsr_id):
-    my_index = "index-rnsr-all"
+def get_supervisors(rnsr_id) -> dict:
+    my_index = config['ELASTICSEARCH_INDEX']
     s = Search(using=es, index=my_index)
-    s = s.query("multi_match", query=rnsr_id, fields="id")
+    s = s.query('multi_match', query=rnsr_id, fields='id')
     hit = s.execute().hits[0]
     return {
-        "supervisors_id": list(hit.supervisors_id),
-        "supervisors_name": list(hit.supervisors_name),
-        "supervisors_acronym": list(hit.supervisors_acronym)
+        'supervisors_id': list(hit.supervisors_id),
+        'supervisors_name': list(hit.supervisors_name),
+        'supervisors_acronym': list(hit.supervisors_acronym)
     }
