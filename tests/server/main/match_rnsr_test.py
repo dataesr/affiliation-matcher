@@ -14,38 +14,45 @@ def elasticsearch() -> dict:
 
 
 class TestMatchUnstructured:
-    def test_match_unstructured_non_existent(self) -> None:
-        result = match_unstructured(2019, 'this is a non-existent data')
-        assert result.get('match') is None
+    @pytest.fixture
+    def setup(self, mocker) -> None:
+        def mock_match_structured(matching_info, strategies, logs) -> dict:
+            return {'matching_info': matching_info, 'strategies': strategies, 'logs': logs}
 
-    def test_match_unstructured_too_short(self) -> None:
-        result = match_unstructured(2019, 'Biologie et Génétique des interactions Plantes-parasites pour la Protection '
-                                          'Intégrée')
-        assert result.get('match') is None
+        mocker.patch('project.server.main.match_rnsr.match_structured', side_effect=mock_match_structured)
 
-    def test_match_unstructured(self, elasticsearch) -> None:
+    def test_match_unstructured(self, setup) -> None:
+        query = 'Biologie et Génétique des interactions Plantes-parasites pour la Protection Intégrée UMR385'
+        result = match_unstructured(2019, query)
+
+        assert len(result.get('matching_info')) == 9
+        assert 'code' in result.get('matching_info')
+        assert result.get('matching_info').get('code') == {'highlights': {'194517892S': ['<em>UMR385</em>']},
+                                                           'ids': ['194517892S'], 'nb_matches': {'194517892S': 1}}
+        assert len(result.get('strategies')) == 24
+        assert 'code;name' in result.get('strategies')
+        assert result.get('logs') == '<h1> &#128269; {}</h1>'.format(query)
+
+
+class TestMatchStructured:
+    def test_match_structured(self, elasticsearch) -> None:
         id = '194517892S'
-        supervisors_id = ['130002793', '180089013', '331596270', '180070039', '193401312', '130002793']
-        supervisors_name = ['Centre de Cooperation Internationale en Recherche Agronomique pour le Developpement',
-                            'Montpellier SupAgro',
-                            "Montpellier SupAgro - Institut national d'etudes superieures agronomiques de Montpellier",
-                            'ENSAM',
-                            "Institut national de recherche pour l'agriculture, l'alimentation et l'environnement",
-                            'Centre national de la recherche scientifique',
-                            'Institut national de la recherche en agronomie',
-                            "Montpellier SupAgro - Institut national d'études supérieures agronomiques de Montpellier",
-                            'Ecole nationale agronomique Montpellier', 'CNRS', 'CIRAD', 'INRAE', 'INRA']
-        supervisors_acronym = ['Montpellier SupAgro', 'ENSAM', 'CNRS', 'CIRAD', 'INRAE', 'INRA']
         body = {
             'id': id,
-            'supervisors_id': supervisors_id,
-            'supervisors_name': supervisors_name,
-            'supervisors_acronym': supervisors_acronym
+            'supervisors_id': [],
+            'supervisors_name': [],
+            'supervisors_acronym': []
         }
         elasticsearch['es'].index(elasticsearch['index'], body=body, refresh=True)
-        result = match_unstructured(2019, 'Biologie et Génétique des interactions Plantes-parasites pour la Protection '
-                                          'Intégrée UMR385')
+        matching_info = {
+            'code_digit': {'highlights': {id: ['<em>UMR385</em>']}, 'ids': [id], 'nb_matches': {id: 1}},
+            'name': {'highlights': {id: ['<em>UMR385</em>']}, 'ids': [id], 'nb_matches': {id: 1}}
+        }
+        strategies = ['code_digit;name']
+        logs = ''
+        result = match_structured(matching_info, strategies, logs)
         assert result.get('match') == id
+        assert 'Strategie testée : {}'.format(strategies[0]) in result.get('logs')
 
 
 class TestGetInfo:
@@ -75,113 +82,113 @@ class TestGetMatch:
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_code(self, setup, param_year, param_query, param_verbose) -> None:
-        info = get_match_code(param_year, param_query, param_verbose)
-        assert info.get('year') == param_year
-        assert info.get('query') == param_query
-        assert info.get('search_fields') == ['code_numbers']
-        assert info.get('size') == 20
-        assert info.get('verbose') is param_verbose
-        assert info.get('highlights') == ['code_numbers']
-        assert info.get('fuzzy_ok') is False
+        result = get_match_code(param_year, param_query, param_verbose)
+        assert result.get('year') == param_year
+        assert result.get('query') == param_query
+        assert result.get('search_fields') == ['code_numbers']
+        assert result.get('size') == 20
+        assert result.get('verbose') is param_verbose
+        assert result.get('highlights') == ['code_numbers']
+        assert result.get('fuzzy_ok') is False
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_code_label(self, setup, param_year, param_query, param_verbose) -> None:
-        info = get_match_code_label(param_year, param_query, param_verbose)
-        assert info.get('year') == param_year
-        assert info.get('query') == param_query
-        assert info.get('search_fields') == ['code_numbers.labels']
-        assert info.get('size') == 10000
-        assert info.get('verbose') is param_verbose
-        assert info.get('highlights') == ['code_numbers.labels']
-        assert info.get('fuzzy_ok') is False
+        result = get_match_code_label(param_year, param_query, param_verbose)
+        assert result.get('year') == param_year
+        assert result.get('query') == param_query
+        assert result.get('search_fields') == ['code_numbers.labels']
+        assert result.get('size') == 10000
+        assert result.get('verbose') is param_verbose
+        assert result.get('highlights') == ['code_numbers.labels']
+        assert result.get('fuzzy_ok') is False
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_code_digit(self, setup, param_year, param_query, param_verbose) -> None:
-        info = get_match_code_digit(param_year, param_query, param_verbose)
-        assert info.get('year') == param_year
-        assert info.get('query') == param_query
-        assert info.get('search_fields') == ['code_numbers.digits']
-        assert info.get('size') == 20
-        assert info.get('verbose') is param_verbose
-        assert info.get('highlights') == ['code_numbers.digits']
-        assert info.get('fuzzy_ok') is False
+        result = get_match_code_digit(param_year, param_query, param_verbose)
+        assert result.get('year') == param_year
+        assert result.get('query') == param_query
+        assert result.get('search_fields') == ['code_numbers.digits']
+        assert result.get('size') == 20
+        assert result.get('verbose') is param_verbose
+        assert result.get('highlights') == ['code_numbers.digits']
+        assert result.get('fuzzy_ok') is False
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_code_fuzzy(self, setup, param_year, param_query, param_verbose) -> None:
-        info = get_match_code_fuzzy(param_year, param_query, param_verbose)
-        assert info.get('year') == param_year
-        assert info.get('query') == param_query
-        assert info.get('search_fields') == ['code_numbers', 'code_numbers.digits']
-        assert info.get('size') == 1000
-        assert info.get('verbose') is param_verbose
-        assert info.get('highlights') == ['code_numbers', 'code_numbers.digits']
-        assert info.get('fuzzy_ok') is True
+        result = get_match_code_fuzzy(param_year, param_query, param_verbose)
+        assert result.get('year') == param_year
+        assert result.get('query') == param_query
+        assert result.get('search_fields') == ['code_numbers', 'code_numbers.digits']
+        assert result.get('size') == 1000
+        assert result.get('verbose') is param_verbose
+        assert result.get('highlights') == ['code_numbers', 'code_numbers.digits']
+        assert result.get('fuzzy_ok') is True
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_city(self, setup, param_year, param_query, param_verbose) -> None:
-        info = get_match_city(param_year, param_query, param_verbose)
-        assert info.get('year') == param_year
-        assert info.get('query') == param_query
-        assert info.get('search_fields') == ['addresses']
-        assert info.get('size') == 5000
-        assert info.get('verbose') is param_verbose
-        assert info.get('highlights') == ['addresses']
-        assert info.get('fuzzy_ok') is False
+        result = get_match_city(param_year, param_query, param_verbose)
+        assert result.get('year') == param_year
+        assert result.get('query') == param_query
+        assert result.get('search_fields') == ['addresses']
+        assert result.get('size') == 5000
+        assert result.get('verbose') is param_verbose
+        assert result.get('highlights') == ['addresses']
+        assert result.get('fuzzy_ok') is False
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_name(self, setup, param_year, param_query, param_verbose) -> None:
-        info = get_match_name(param_year, param_query, param_verbose)
-        assert info.get('year') == param_year
-        assert info.get('query') == param_query
-        assert info.get('search_fields') == ['names']
-        assert info.get('size') == 200
-        assert info.get('verbose') is param_verbose
-        assert info.get('highlights') == ['names']
-        assert info.get('fuzzy_ok') is False
+        result = get_match_name(param_year, param_query, param_verbose)
+        assert result.get('year') == param_year
+        assert result.get('query') == param_query
+        assert result.get('search_fields') == ['names']
+        assert result.get('size') == 200
+        assert result.get('verbose') is param_verbose
+        assert result.get('highlights') == ['names']
+        assert result.get('fuzzy_ok') is False
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_acronym(self, setup, param_year, param_query, param_verbose) -> None:
-        info = get_match_acronym(param_year, param_query, param_verbose)
-        assert info.get('year') == param_year
-        assert info.get('query') == param_query
-        assert info.get('search_fields') == ['acronyms']
-        assert info.get('size') == 5000
-        assert info.get('verbose') is param_verbose
-        assert info.get('highlights') == ['acronyms']
-        assert info.get('fuzzy_ok') is False
+        result = get_match_acronym(param_year, param_query, param_verbose)
+        assert result.get('year') == param_year
+        assert result.get('query') == param_query
+        assert result.get('search_fields') == ['acronyms']
+        assert result.get('size') == 5000
+        assert result.get('verbose') is param_verbose
+        assert result.get('highlights') == ['acronyms']
+        assert result.get('fuzzy_ok') is False
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_supervisors_name(self, setup, param_year, param_query, param_verbose) -> None:
-        info = get_match_supervisors_name(param_year, param_query, param_verbose)
-        assert info.get('year') == param_year
-        assert info.get('query') == param_query
-        assert info.get('search_fields') == ['supervisors_name']
-        assert info.get('size') == 10000
-        assert info.get('verbose') is param_verbose
-        assert info.get('highlights') == ['supervisors_name']
-        assert info.get('fuzzy_ok') is False
+        result = get_match_supervisors_name(param_year, param_query, param_verbose)
+        assert result.get('year') == param_year
+        assert result.get('query') == param_query
+        assert result.get('search_fields') == ['supervisors_name']
+        assert result.get('size') == 10000
+        assert result.get('verbose') is param_verbose
+        assert result.get('highlights') == ['supervisors_name']
+        assert result.get('fuzzy_ok') is False
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_supervisors_id(self, setup, param_year, param_query, param_verbose) -> None:
-        info = get_match_supervisors_id(param_year, param_query, param_verbose)
-        assert info.get('year') == param_year
-        assert info.get('query') == param_query
-        assert info.get('search_fields') == ['supervisors_id']
-        assert info.get('size') == 2000
-        assert info.get('verbose') is param_verbose
-        assert info.get('highlights') == ['supervisors_id']
-        assert info.get('fuzzy_ok') is False
+        result = get_match_supervisors_id(param_year, param_query, param_verbose)
+        assert result.get('year') == param_year
+        assert result.get('query') == param_query
+        assert result.get('search_fields') == ['supervisors_id']
+        assert result.get('size') == 2000
+        assert result.get('verbose') is param_verbose
+        assert result.get('highlights') == ['supervisors_id']
+        assert result.get('fuzzy_ok') is False
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_supervisors_acronym(self, setup, param_year, param_query, param_verbose) -> None:
-        info = get_match_supervisors_acronym(param_year, param_query, param_verbose)
-        assert info.get('year') == param_year
-        assert info.get('query') == param_query
-        assert info.get('search_fields') == ['supervisors_acronym']
-        assert info.get('size') == 2000
-        assert info.get('verbose') is param_verbose
-        assert info.get('highlights') == ['supervisors_acronym']
-        assert info.get('fuzzy_ok') is False
+        result = get_match_supervisors_acronym(param_year, param_query, param_verbose)
+        assert result.get('year') == param_year
+        assert result.get('query') == param_query
+        assert result.get('search_fields') == ['supervisors_acronym']
+        assert result.get('size') == 2000
+        assert result.get('verbose') is param_verbose
+        assert result.get('highlights') == ['supervisors_acronym']
+        assert result.get('fuzzy_ok') is False
 
 
 class TestGetSupervisors:
