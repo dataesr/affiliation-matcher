@@ -14,7 +14,7 @@ services:
       - '9200:9200'
 
   matcher-web:
-    image: dataesr/matcher:1.0
+    image: dataesr/matcher:latest
     privileged: true
     ports:
       - 5004:5000
