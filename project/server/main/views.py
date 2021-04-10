@@ -9,7 +9,7 @@ main_blueprint = Blueprint("main", __name__,)
 
 @main_blueprint.route("/", methods=["GET"])
 def home():
-    return render_template("main/rnsr.html")
+    return render_template("home.html")
 
 @main_blueprint.route("/init", methods=["GET"])
 def run_task_init_rnsr():
