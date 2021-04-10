@@ -9,7 +9,16 @@ notebook:
 	jupyter notebook
 
 start:
+	@echo Starting app...
 	docker-compose up -d
+	@echo
 
 stop:
+	@echo Stopping app...
 	docker-compose down
+	@echo
+
+install:
+	@echo Installing requirements...
+	pip install requirements.txt
+	@echo
