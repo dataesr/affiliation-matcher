@@ -5,6 +5,8 @@ from project.server.main.init_rnsr import init_es
 from project.server.main.match_finess import match_unstructured_finess
 from project.server.main.init_finess import init_es_finess
 
+from project.server.main.match_country import get_address_from_query
+
 
 def create_task_match(arg):
     type_match = arg.get('type', 'rnsr')
@@ -14,6 +16,9 @@ def create_task_match(arg):
     
     if type_match.lower() == 'finess':
         return create_task_finess(arg)
+
+    if type_match.lower() == 'country':
+        return create_task_country(arg)
     return {'error': 'type {} unknown'.format(type_match)}
 
 def create_task_rnsr(arg):
@@ -38,6 +43,12 @@ def create_task_rnsr(arg):
 
 def create_task_init_rnsr():
     return init_es()
+
+
+def create_task_country(arg):
+    query = arg.get('query', None)
+    return get_address_from_query(query)
+
 
 def create_task_finess(arg):
     query = arg.get('query', None)
