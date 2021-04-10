@@ -23,7 +23,7 @@ In your browser you now have :
 - RabbitMQ : http://localhost:9181/
 - Matcher : http://localhost:5004/
 
-## Run unit test
+## Run unit tests
 
 ```shell
 make test
