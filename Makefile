@@ -19,6 +19,6 @@ stop:
 	@echo
 
 install:
-	@echo Installing requirements...
-	pip install requirements.txt
+	@echo Installing dependencies...
+	pip install -r requirements.txt
 	@echo
