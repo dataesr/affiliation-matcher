@@ -1,13 +1,13 @@
-/* custom css */
-
 html {
   position: relative;
   min-height: 100%;
 }
+
 body {
   padding-top: 2rem;
   margin-bottom: 60px;
 }
+
 .footer {
   position: absolute;
   bottom: 0;
