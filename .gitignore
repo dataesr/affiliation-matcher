@@ -9,3 +9,6 @@ venv
 
 # IDE
 .idea
+
+# Logs
+matcher.log
