@@ -3,9 +3,9 @@ import pytest
 from project.server.main.match_country import get_address_from_query
 
 
-@pytest.mark.parametrize('query,country_iso_3', [
+@pytest.mark.parametrize('query,expected_country', [
     ('Tour mirabeau paris', 'fr')
 ])
-def test_get_address_from_query(query, country_iso_3) -> None:
-    response = get_address_from_query(query)
-    assert response.get('match', None) == country_iso_3
+def test_get_address_from_query(query, expected_country) -> None:
+    matched_country = get_address_from_query(query)
+    assert matched_country == expected_country
