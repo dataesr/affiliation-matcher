@@ -6,11 +6,22 @@ from project.server.main.match_rnsr import *
 @pytest.fixture(scope='module')
 def elasticsearch() -> dict:
     index = config['ELASTICSEARCH_INDEX']
+    index_01 = 'index-rnsr-test'
+    index_02 = 'index-rnsr-test2'
     es = Elasticsearch(config['ELASTICSEARCH_HOST'])
     if not es.indices.exists(index):
         es.indices.create(index, ignore=400)
-    yield {'es': es, 'index': index}
-    es.indices.delete(index=index)
+    if not es.indices.exists(index_01):
+        es.indices.create(index_01, ignore=400)
+    if not es.indices.exists(index_02):
+        es.indices.create(index_02, ignore=400)
+    yield {'es': es, 'index': index, 'index_01': index_01, 'index_02': index_02}
+    if es.indices.exists(index):
+        es.indices.delete(index=index)
+    if es.indices.exists(index_01):
+        es.indices.delete(index=index_01)
+    if es.indices.exists(index_02):
+        es.indices.delete(index=index_02)
 
 
 class TestMatchUnstructured:
@@ -56,15 +67,38 @@ class TestMatchStructured:
 
 
 class TestGetInfo:
+    @pytest.mark.parametrize(
+        'param_year,param_query,param_fields,param_size,expected_ids_length,expected_highlights_length', [
+            ('test', 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 200, 3, 3),
+            ('test2', 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 200, 4, 2),
+            (2019, 'Plate-Forme', ['names'], 200, 21, 21),
+            (2019, 'PF-CCB', ['acronyms'], 200, 1, 1),
+            (2019, 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 1, 1, 1)
+        ])
+    def test_get_info_by_names(self, elasticsearch, param_year, param_query, param_fields, param_size,
+                               expected_ids_length, expected_highlights_length) -> None:
+        body = {'id': '12', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-01']}
+        elasticsearch['es'].index(elasticsearch['index_01'], body=body, refresh=True)
+        body = {'id': '13', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-02']}
+        elasticsearch['es'].index(elasticsearch['index_01'], body=body, refresh=True)
+        body = {'id': '14', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-03']}
+        elasticsearch['es'].index(elasticsearch['index_01'], body=body, refresh=True)
+        body = {'id': '15', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2017-01']}
+        elasticsearch['es'].index(elasticsearch['index_02'], body=body, refresh=True)
+        body = {'id': '16', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2017-02']}
+        elasticsearch['es'].index(elasticsearch['index_02'], body=body, refresh=True)
+        result = get_info(param_year, param_query, param_fields, param_size, False, param_fields)
+        assert len(result.get('ids')) == expected_ids_length
+        assert len(result.get('highlights')) == expected_highlights_length
+        assert len(result.get('nb_matches')) == expected_highlights_length
+
     @pytest.mark.parametrize('param_year,param_query,param_fields,param_size,expected_results_length', [
-        (2019, 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 200, 3),
-        (2017, 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 200, 2),
-        (2019, 'Plate-Forme', ['names'], 200, 21),
-        (2019, 'PF-CCB', ['acronyms'], 200, 1),
-        (2019, 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 1, 1)
+        ('test', 'PF-CCB', ['acronyms'], 200, 1),
     ])
-    def test_get_info_by_acronym(self, param_year, param_query, param_fields, param_size, expected_results_length) -> \
-            None:
+    def test_get_info_by_acronyms(self, elasticsearch, param_year, param_query, param_fields, param_size,
+                                  expected_results_length) -> None:
+        body = {'id': '112', 'acronyms': ['PF-CCB']}
+        elasticsearch['es'].index(elasticsearch['index_01'], body=body, refresh=True)
         result = get_info(param_year, param_query, param_fields, param_size, False, param_fields)
         assert len(result.get('ids')) == expected_results_length
         assert len(result.get('highlights')) == expected_results_length
