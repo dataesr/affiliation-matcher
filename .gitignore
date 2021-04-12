@@ -12,3 +12,7 @@ venv
 
 # Logs
 matcher.log
+
+# Build
+dist
+MANIFEST
