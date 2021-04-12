@@ -5,10 +5,10 @@ Flask==1.1.1
 Flask-Bootstrap==3.3.7.1
 Flask-Testing==0.7.1
 Flask-WTF==0.14.2
+geopy==2.1.0
 gunicorn==20.0.4
 html5lib==1.0.1
 lxml==4.6.3
-opencage==1.2.2
 pytest~=6.2.3
 redis==3.3.11
 requests==2.19.1
