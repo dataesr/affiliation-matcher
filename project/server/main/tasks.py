@@ -45,7 +45,8 @@ def create_task_init_rnsr():
 
 def create_task_country(arg):
     query = arg.get('query', None)
-    return get_address_from_query(query)
+    country = get_address_from_query(query)
+    return {'logs': country}
 
 
 def create_task_finess(arg):
