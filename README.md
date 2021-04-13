@@ -14,11 +14,10 @@ And specifically for French affiliations :
 ```shell
 git clone git@github.com:dataesr/matcher.git
 cd matcher
-make start
-curl http://localhost:5004/init
+make start init
 ```
 
-In your browser you now have :
+In your browser, you now have :
 - Elasticsearch : http://localhost:9200/
 - RabbitMQ : http://localhost:9181/
 - Matcher : http://localhost:5004/
