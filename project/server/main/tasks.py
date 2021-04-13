@@ -2,7 +2,7 @@ import time
 
 from project.server.main.init_finess import init_es_finess
 from project.server.main.init_rnsr import init_es
-from project.server.main.match_country import get_address_from_query
+from project.server.main.match_country import get_country_from_query
 from project.server.main.match_finess import match_unstructured_finess
 from project.server.main.match_rnsr import match_unstructured, match_fields
 
@@ -45,7 +45,7 @@ def create_task_init_rnsr():
 
 def create_task_country(arg):
     query = arg.get('query', None)
-    country = get_address_from_query(query)
+    country = get_country_from_query(query)
     return {'logs': country}
 
 
