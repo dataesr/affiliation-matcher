@@ -19,9 +19,6 @@ jobs:
         with:
           registry: hub.docker.com
           image: dataesr/es_icu:latest
-      - name: Test ES host
-        run: |
-          curl localhost:9200
       - name: Test ES host 2
         run: |
           curl elasticsearch:9200
