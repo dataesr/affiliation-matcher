@@ -1,6 +1,6 @@
 import pytest
 
-from project.server.main.match_rnsr import *
+from matcher.server.main.match_rnsr import *
 
 
 @pytest.fixture(scope='module')
@@ -24,7 +24,7 @@ class TestMatchUnstructured:
         def mock_match_structured(matching_info, strategies, logs) -> dict:
             return {'matching_info': matching_info, 'strategies': strategies, 'logs': logs}
 
-        mocker.patch('project.server.main.match_rnsr.match_structured', side_effect=mock_match_structured)
+        mocker.patch('matcher.server.main.match_rnsr.match_structured', side_effect=mock_match_structured)
 
     def test_match_unstructured(self, setup, elasticsearch) -> None:
         body = {
@@ -121,7 +121,7 @@ class TestGetMatch:
             return {'year': year, 'query': query, 'search_fields': search_fields, 'size': size,
                     'verbose': verbose, 'highlights': highlights, 'fuzzy_ok': fuzzy_ok}
 
-        mocker.patch('project.server.main.match_rnsr.get_info', side_effect=mock_get_info)
+        mocker.patch('matcher.server.main.match_rnsr.get_info', side_effect=mock_get_info)
 
     @pytest.mark.parametrize('param_year,param_query,param_verbose', [(42, 'test', False), (42, 'test', True)])
     def test_get_match_code(self, setup, param_year, param_query, param_verbose) -> None:

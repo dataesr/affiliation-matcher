@@ -3,7 +3,7 @@ import redis
 from rq import Queue, Connection
 from flask import render_template, Blueprint, jsonify, request, current_app
 
-from project.server.main.tasks import create_task_match, create_task_rnsr, create_task_init_rnsr, \
+from matcher.server.main.tasks import create_task_match, create_task_rnsr, create_task_init_rnsr, \
     create_task_init_finess
 
 main_blueprint = Blueprint("main", __name__, )
