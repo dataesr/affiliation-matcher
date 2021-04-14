@@ -15,4 +15,4 @@ matcher.log
 
 # Build
 dist
-MANIFEST
+*.egg-info
