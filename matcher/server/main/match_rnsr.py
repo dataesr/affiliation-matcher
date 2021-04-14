@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 
-from project.server.main.config import config
+from matcher.server.main.config import config
 
 es = Elasticsearch(config['ELASTICSEARCH_HOST'])
 

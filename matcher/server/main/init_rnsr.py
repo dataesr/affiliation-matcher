@@ -7,10 +7,9 @@ import unicodedata
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 
-from project.server.main.config import config
+from matcher.server.main.config import config
 
 
-header = {'Authorization': 'Basic {}'.format(os.getenv('DATAESR_HEADER'))}
 print('header', flush=True)
 print(header, flush=True)
 es = Elasticsearch(config['ELASTICSEARCH_HOST'])
