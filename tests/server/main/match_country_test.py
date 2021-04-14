@@ -1,6 +1,6 @@
 import pytest
 
-from project.server.main.match_country import get_country_from_query
+from matcher.server.main.match_country import get_country_from_query
 
 
 @pytest.mark.parametrize('query,expected_country', [

@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from project import __version__
+from matcher import __version__
 
 with open('./README.md', 'r') as f:
     long_description = f.read()

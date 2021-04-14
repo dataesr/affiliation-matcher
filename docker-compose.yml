@@ -21,7 +21,7 @@ services:
     command: python3 manage.py run -h 0.0.0.0
     environment:
       - FLASK_DEBUG=1
-      - APP_SETTINGS=project.server.config.DevelopmentConfig
+      - APP_SETTINGS=matcher.server.config.DevelopmentConfig
     volumes:
       - '/tmp/.X11-unix:/tmp/.X11-unix'
     networks:
@@ -30,11 +30,11 @@ services:
       - redis
   
   matcher-worker:
-    image: dataesr/matcher:1.0
+    image: dataesr/matcher:latest
     privileged: true
     command: /bin/sh start.sh
     environment:
-      - APP_SETTINGS=project.server.config.DevelopmentConfig
+      - APP_SETTINGS=matcher.server.config.DevelopmentConfig
     volumes:
       - '/tmp/.X11-unix:/tmp/.X11-unix'
     networks:

@@ -43,7 +43,7 @@ def normalize_for_count(x):
     return normalize_text(x)[0:6]
 
 def init_es_finess():
-    finess = pickle.load(open("project/server/main/dict_finess.pkl", "rb"))
+    finess = pickle.load(open("matcher/server/main/dict_finess.pkl", "rb"))
 
     docs_to_index = []
     for k in finess:

@@ -1,6 +1,6 @@
 import pytest
 
-from project.server.main.init_rnsr import strip_accents, delete_punctuation, normalize_text, normalize, normalize_for_count
+from matcher.server.main.init_rnsr import strip_accents, delete_punctuation, normalize_text, normalize, normalize_for_count
 
 
 @pytest.mark.parametrize('text,expected_stripped_text', [

@@ -12,7 +12,7 @@ import time
 import unidecode
 import requests
 from cefpython3 import cefpython as cef
-from project.server.main.utils_swift import set_objects, exists_in_storage, get_hash
+from matcher.server.main.utils_swift import set_objects, exists_in_storage, get_hash
 
 sys.excepthook = cef.ExceptHook # shutdown CEF processes on exception
 logger = logging.getLogger('fc')

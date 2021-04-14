@@ -24,7 +24,7 @@ def create_app(script_info=None):
     bootstrap.init_app(app)
 
     # register blueprints
-    from project.server.main.views import main_blueprint
+    from matcher.server.main.views import main_blueprint
 
     app.register_blueprint(main_blueprint)
 
