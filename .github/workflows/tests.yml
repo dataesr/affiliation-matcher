@@ -21,6 +21,8 @@ jobs:
 #        with:
 #          stack-version: 7.8.0
       - uses: docker://dataesr/es_icu:latest
+        env:
+          discovery.type: 'single-node'
 
       - name: Check out repository code
         uses: actions/checkout@v2
