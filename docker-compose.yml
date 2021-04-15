@@ -13,7 +13,7 @@ services:
     ports:
       - '9200:9200'
 
-  matcher-web:
+  web:
     image: dataesr/matcher:latest
     privileged: true
     ports:
@@ -29,7 +29,7 @@ services:
     depends_on:
       - redis
   
-  matcher-worker:
+  worker:
     image: dataesr/matcher:latest
     privileged: true
     command: /bin/sh start.sh
