@@ -3,6 +3,7 @@ from matcher.server.main import __version__
 
 with open('./README.md', 'r') as f:
     long_description = f.read()
+
 setup(
     name='matcher',
     version=__version__,
@@ -56,4 +57,3 @@ setup(
     ],
     zip_safe=True
 )
-
