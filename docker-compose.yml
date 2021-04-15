@@ -2,16 +2,15 @@ version: '3.5'
 
 services:
   elasticsearch:
-    image : dataesr/es_icu:1.0
+    image : dataesr/es_icu:latest
     environment:
-      - "discovery.type=single-node"
-
+      - 'discovery.type=single-node'
     volumes:
       - elastic:/usr/share/elasticsearch/data
     networks:
       - dash-network
     ports:
-      - '9200:9200'
+      - 9200:9200
 
   web:
     image: dataesr/matcher:latest
@@ -56,6 +55,7 @@ services:
       - dash-network
     depends_on:
       - redis
+
 networks:
   dash-network:
     driver: bridge
