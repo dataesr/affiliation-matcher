@@ -25,7 +25,7 @@ install:
 
 docker-build:
 	@echo Building a new docker image
-	docker build -t dataesr/matcher .
+	docker build -t dataesr/matcher:latest .
 	@echo Docker image built
 
 python-build:
