@@ -1,16 +1,45 @@
 version: '3.5'
 
 services:
+  redis:
+    image: redis:5.0.7-alpine
+    networks:
+      - matcher-network
+
+  dashboard:
+    image: dataesr/dashboard-crawler:latest
+    ports:
+      - 9181:9181
+    command: rq-dashboard -H redis
+    networks:
+      - matcher-network
+    depends_on:
+      - redis
+
   elasticsearch:
     image : dataesr/es_icu:latest
+    ports:
+      - 9200:9200
     environment:
       - 'discovery.type=single-node'
     volumes:
       - elastic:/usr/share/elasticsearch/data
     networks:
-      - dash-network
-    ports:
-      - 9200:9200
+      - matcher-network
+
+  worker:
+    image: dataesr/matcher:latest
+    privileged: true
+    command: /bin/sh start.sh
+    environment:
+      - APP_SETTINGS=matcher.server.config.DevelopmentConfig
+    volumes:
+      - '/tmp/.X11-unix:/tmp/.X11-unix'
+    networks:
+      - matcher-network
+    depends_on:
+      - redis
+      - elasticsearch
 
   web:
     image: dataesr/matcher:latest
@@ -24,40 +53,12 @@ services:
     volumes:
       - '/tmp/.X11-unix:/tmp/.X11-unix'
     networks:
-      - dash-network
+      - matcher-network
     depends_on:
-      - redis
-  
-  worker:
-    image: dataesr/matcher:latest
-    privileged: true
-    command: /bin/sh start.sh
-    environment:
-      - APP_SETTINGS=matcher.server.config.DevelopmentConfig
-    volumes:
-      - '/tmp/.X11-unix:/tmp/.X11-unix'
-    networks:
-      - dash-network
-    depends_on:
-      - redis
-
-  redis:
-    image: redis:5.0.7-alpine
-    networks:
-      - dash-network
-
-  dashboard:
-    image: dataesr/dashboard-crawler:1.0
-    ports:
-      - 9181:9181
-    command: rq-dashboard -H redis
-    networks:
-      - dash-network
-    depends_on:
-      - redis
+      - worker
 
 networks:
-  dash-network:
+  matcher-network:
     driver: bridge
 
 volumes:
