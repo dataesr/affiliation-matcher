@@ -9,14 +9,14 @@ notebook:
 	jupyter notebook
 
 start:
-	@echo Starting app...
+	@echo Matcher starting...
 	docker-compose up -d
-	@echo App started
+	@echo Matcher started
 
 stop:
-	@echo Stopping app...
+	@echo Matcher stopping...
 	docker-compose down
-	@echo App stopped
+	@echo Matcher stopped
 
 install:
 	@echo Installing dependencies...
@@ -34,6 +34,6 @@ python-build:
 	@echo Python package built
 
 init:
-	@echo Populate data into app
+	@echo Populate data into matcher
 	curl http://localhost:5004/init
-	@echo App is now populated
+	@echo Matcher is now populated

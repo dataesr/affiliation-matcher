@@ -29,3 +29,18 @@ In your browser, you now have :
 ```shell
 make test
 ```
+
+## Build python package
+To generate the tarball package into the dist folder
+```shell
+make python-build
+```
+To install the generated package into your project
+
+```shell
+pip install /path/to/your/package.tar.gz
+```
+Then import the package into your python file
+```python
+import matcher
+```
