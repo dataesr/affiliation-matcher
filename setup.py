@@ -1,5 +1,5 @@
-from setuptools import setup
-from matcher.server.main import __version__
+from setuptools import find_packages, setup
+from matcher import __version__
 
 with open('./README.md', 'r') as f:
     long_description = f.read()
@@ -15,8 +15,7 @@ setup(
     author='Eric Jeangirard, Anne L\'Hôte',
     keywords=['research', 'matching', 'publication'],
     python_requires='>=3.6',
-    package_dir={'matcher': 'matcher/server/main'},
-    packages=['matcher'],
+    packages=find_packages(),
     install_requires=[
         'beautifulsoup4==4.8.2',
         'elasticsearch==7.8.0',

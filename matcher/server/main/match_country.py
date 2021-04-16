@@ -1,10 +1,8 @@
-import logging
-
 from geopy.geocoders import Nominatim
+from matcher.server.main.logger import get_logger
 
-logging.basicConfig(filename='matcher.log', level=logging.DEBUG,
-                    format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 geolocator = Nominatim(user_agent='another_user_agent')
+logger = get_logger(__name__)
 
 
 def retrieve_country(query) -> str:
@@ -26,5 +24,5 @@ def retrieve_country(query) -> str:
 def get_country_from_query(query) -> str:
     country = retrieve_country(query)
     if country is None:
-        logging.error('No country found for {}'.format(query))
+        logger.error('No country found for {}'.format(query))
     return country
