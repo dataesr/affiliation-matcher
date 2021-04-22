@@ -11,7 +11,7 @@ notebook:
 start:
 	@echo Matcher starting...
 	docker-compose up -d
-	@echo Matcher started
+	@echo Matcher started http://localhost:5004
 
 stop:
 	@echo Matcher stopping...
