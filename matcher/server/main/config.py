@@ -5,7 +5,7 @@ APP_ENV = os.getenv('APP_ENV', 'development')
 
 # Set default config
 APP_ORGA = 'http://185.161.45.213/organizations'
-ELASTICSEARCH_HOST = 'localhost'
+ELASTICSEARCH_HOST = 'elasticsearch'
 ELASTICSEARCH_PORT = '9200'
 ELASTICSEARCH_INDEX = 'index-rnsr-all'
 
