@@ -1,6 +1,27 @@
+# Python
 __pycache__
-.git/
 *.pyc
 *.pyi
+venv
 .cache
+
+# Unit tests
+.pytest_cache/
+tests
+
+# IDE
+.idea
+
+# Logs
+*.log
+
+# Build
+dist
+*.egg-info
+
+# Git
+.git/
+.github
+
+# Kubernetes
 k8s/
