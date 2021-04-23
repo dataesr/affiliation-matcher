@@ -1,28 +1,43 @@
-from geopy.geocoders import Nominatim
-from matcher.server.main.logger import get_logger
+import json
+import re
 
-geolocator = Nominatim(user_agent='another_user_agent')
-logger = get_logger(__name__)
+from matcher.server.main.strings import normalize_text
 
-
-def retrieve_country(query) -> str:
-    geocode = geolocator.geocode(query)
-    if geocode is None:
-        split_query = query.split(',', 1)
-        if len(split_query) > 1:
-            country = retrieve_country(split_query[1])
-        else:
-            country = None
-    else:
-        lat = geocode.raw.get('lat', None)
-        lon = geocode.raw.get('lon', None)
-        location = geolocator.reverse('{}, {}'.format(lat, lon))
-        country = location.raw.get('address', None).get('country_code', None)
-    return country
+FILE_COUNTRY_KEYWORDS = 'matcher/server/main/country_keywords.json'
+FILE_COUNTRY_FORBIDDEN = 'matcher/server/main/country_forbidden.json'
 
 
-def get_country_from_query(query) -> str:
-    country = retrieve_country(query)
-    if country is None:
-        logger.error('No country found for {}'.format(query))
-    return country
+def construct_regex(regexes: list = None):
+    pattern = '|'.join(['(?<![a-z])' + regex + '(?![a-z])' for regex in regexes])
+    return re.compile(pattern)
+
+
+def construct_regex_simple(regexes: list = None):
+    pattern = '|'.join([regex for regex in regexes])
+    return re.compile(pattern)
+
+
+with open(FILE_COUNTRY_KEYWORDS, 'r') as file:
+    country_keywords = json.load(file)
+
+with open(FILE_COUNTRY_FORBIDDEN, 'r') as file:
+    country_keywords_forbidden = json.load(file)
+
+country_regex = {}
+country_regex_forbidden = {}
+for country in country_keywords:
+    country_regex[country] = construct_regex(country_keywords[country])
+
+for country in country_keywords_forbidden:
+    country_regex_forbidden[country] = construct_regex_simple(country_keywords_forbidden[country])
+
+
+def get_countries_from_query(query) -> list:
+    countries = []
+    query = normalize_text(query, remove_sep=False)
+    for country in country_keywords:
+        if re.search(country_regex[country], query):
+            if country in country_regex_forbidden and re.search(country_regex_forbidden[country], query):
+                continue
+            countries.append(country.upper())
+    return list(set(countries))
