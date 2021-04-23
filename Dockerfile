@@ -1,36 +1,65 @@
+# syntax=docker/dockerfile:1
 FROM ubuntu:18.04
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.6 \
-    python3-pip \
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    alsa-utils \
+    g++ \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libc6 \
+    libcairo2 \
+    libcups2 \
+    libdbus-1-3 \
+    libexpat1 \
+    libfontconfig1 \
+    libfreetype6 \
+    libgcc1 \
+    libgconf-2-4 \
+    libgdk-pixbuf2.0-0 \
+    libglib2.0-0 \
+    libgtk-3-0 \
+    libgtk2.0-0 \
+    libnspr4 \
+    libnss3 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
     libpython3.6 \
+    libstdc++6 \
+    libx11-6 \
+    libx11-xcb1 \
+    libxcb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxi6 \
+    libxrandr2 \
+    libxrender1 \
+    libxss1 \
+    libxtst6 \
     locales \
     locales-all \
-    python3-setuptools \
-    g++ \
+    python3.6 \
     python3-dev \
-    x11-utils \
-    alsa-utils \
+    python3-pip \
+    python3-setuptools \
     x11-apps \
-    libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 \ 
-    libfreetype6 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 \ 
-    libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 \ 
-    libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 \ 
-    libnss3 libxcomposite1 libgtk2.0-0 libgtk-3-0 xvfb xorg xterm libatk-bridge2.0-0 \ 
-    && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-WORKDIR /src
+    x11-utils \
+    xorg \
+    xterm \
+    xvfb \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-COPY requirements.txt /src/requirements.txt
-RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt --proxy=${HTTP_PROXY}
+WORKDIR /src
 
-COPY . /src
-#CMD [ "app.py" ]
-#CMD ["/bin/sh", "start.sh"]
+COPY requirements.txt ./
+RUN pip3 install --upgrade pip && pip3 install -r requirements.txt --proxy=${HTTP_PROXY}
+
+COPY . .
