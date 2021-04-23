@@ -44,8 +44,3 @@ Then import the package into your python file
 ```python
 import matcher
 ```
-
-## k8s
-```shell
-kubectl apply -k k8s --kubeconfig /path/to/your/kubeconfig.yml
-```
