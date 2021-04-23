@@ -43,3 +43,6 @@ init:
 	@echo Populate data into matcher
 	curl http://localhost:5004/init
 	@echo Matcher is now populated
+
+kube-deploy:
+	kubectl apply -k k8s
