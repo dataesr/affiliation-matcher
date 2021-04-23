@@ -9,6 +9,7 @@ venv
 
 # IDE
 .idea
+.vscode
 
 # Logs
 *.log
