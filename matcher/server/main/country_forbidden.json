@@ -1,0 +1,27 @@
+{
+    "FR": [
+        "cochin.*india",
+        "cochin.*ind",
+        "nancy.*italy",
+        "nancy.*usa",
+        "nancy.*cornell",
+        "sant pau",
+        "pau.*spain",
+        "paris climate",
+        "paris.*texas",
+        "paris.*tx",
+        "montpellier.*italy",
+        "dr. metz",
+        "ambroise pare.*belgi",
+        "hotel dieu de france"
+    ],
+    "GB": [
+        "kent.*oh"
+    ],
+    "SD": [
+        "south"
+    ],
+    "MX": [
+        "new"
+    ]
+}
