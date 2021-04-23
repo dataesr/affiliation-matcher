@@ -16,24 +16,22 @@ setup(
     keywords=['research', 'matching', 'publication'],
     python_requires='>=3.6',
     packages=find_packages(),
+    test_suite='pytest',
     install_requires=[
         'beautifulsoup4==4.8.2',
         'elasticsearch==7.8.0',
         'elasticsearch-dsl==7.2.1',
         'Flask==1.1.1',
         'Flask-Bootstrap==3.3.7.1',
-        'Flask-Testing==0.7.1',
-        'Flask-WTF==0.14.2',
         'geopy==2.1.0',
-        'gunicorn==20.0.4',
-        'html5lib==1.0.1',
         'lxml==4.6.3',
-        'pytest~=6.2.3',
-        'pytest-mock==3.5.1',
         'redis==3.3.11',
         'requests==2.19.1',
-        'rq==1.1.0',
-        'Unidecode==1.0.22'
+        'rq==1.1.0'
+    ],
+    tests_require=[
+        'pytest==6.2.3',
+        'pytest-mock==3.5.1'
     ],
     classifiers=[
         # https://pypi.org/pypi?%3Aaction=list_classifiers
