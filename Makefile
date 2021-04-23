@@ -25,8 +25,14 @@ install:
 
 docker-build:
 	@echo Building a new docker image
-	docker build -t dataesr/matcher:latest .
+	docker build -t dataesr/matcher:$(VERSION) -t dataesr/matcher:latest .
 	@echo Docker image built
+
+docker-push:
+	@echo Pushing a new docker image
+	docker push dataesr/matcher:$(VERSION)
+	docker push dataesr/matcher:latest
+	@echo Docker image pushed
 
 python-build:
 	@echo Building a python package
