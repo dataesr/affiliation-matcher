@@ -43,7 +43,7 @@ services:
     image: dataesr/matcher:1.5
     privileged: true
     env_file:
-      - .env
+      - k8s/.env
     ports:
       - 5004:5000
     command: python3 manage.py run -h 0.0.0.0
