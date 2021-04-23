@@ -11,7 +11,7 @@ venv
 .idea
 
 # Logs
-matcher.log
+*.log
 
 # Build
 dist
