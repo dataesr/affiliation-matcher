@@ -1,10 +1,11 @@
 import json
+import os
 import re
 
 from matcher.server.main.strings import normalize_text
 
-FILE_COUNTRY_KEYWORDS = 'matcher/server/main/country_keywords.json'
-FILE_COUNTRY_FORBIDDEN = 'matcher/server/main/country_forbidden.json'
+FILE_COUNTRY_KEYWORDS = 'country_keywords.json'
+FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'
 
 
 def construct_regex(regexes: list = None):
@@ -17,10 +18,11 @@ def construct_regex_simple(regexes: list = None):
     return re.compile(pattern)
 
 
-with open(FILE_COUNTRY_KEYWORDS, 'r') as file:
+dirname = os.path.dirname(__file__)
+with open(os.path.join(dirname, FILE_COUNTRY_KEYWORDS), 'r') as file:
     country_keywords = json.load(file)
 
-with open(FILE_COUNTRY_FORBIDDEN, 'r') as file:
+with open(os.path.join(dirname, FILE_COUNTRY_FORBIDDEN), 'r') as file:
     country_keywords_forbidden = json.load(file)
 
 country_regex = {}
