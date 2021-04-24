@@ -16,6 +16,7 @@ setup(
     keywords=['research', 'matching', 'publication'],
     python_requires='>=3.6',
     packages=find_packages(),
+    package_data={'': ['*.json']},
     test_suite='pytest',
     install_requires=[
         'beautifulsoup4==4.8.2',
