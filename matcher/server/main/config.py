@@ -13,6 +13,9 @@ if APP_ENV in ['test']:
     ELASTICSEARCH_HOST = 'localhost'
     ELASTICSEARCH_INDEX = 'index-rnsr-test'
 
+if APP_ENV == 'development':
+    ELASTICSEARCH_HOST = 'localhost'
+
 ELASTICSEARCH_URL = ELASTICSEARCH_HOST + ':' + ELASTICSEARCH_PORT
 
 # Export config
