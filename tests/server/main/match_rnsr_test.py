@@ -9,9 +9,9 @@ def elasticsearch() -> dict:
     index_01 = 'index-rnsr-test'
     index_02 = 'index-rnsr-test2'
     es = Elasticsearch(config['ELASTICSEARCH_HOST'])
-    es.indices.create(index, ignore=[400])
-    es.indices.create(index_01, ignore=[400])
-    es.indices.create(index_02, ignore=[400])
+    es.indices.create(index=index, ignore=[400])
+    es.indices.create(index=index_01, ignore=[400])
+    es.indices.create(index=index_02, ignore=[400])
     yield {'es': es, 'index': index, 'index_01': index_01, 'index_02': index_02}
     es.indices.delete(index=index, ignore=[404])
     es.indices.delete(index=index_01, ignore=[404])
