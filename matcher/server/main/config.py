@@ -14,7 +14,7 @@ if APP_ENV in ['test']:
     ELASTICSEARCH_INDEX = 'index-rnsr-test'
 
 if APP_ENV == 'development':
-    ELASTICSEARCH_HOST = 'localhost'
+    ELASTICSEARCH_HOST = 'elasticsearch'
 
 ELASTICSEARCH_URL = ELASTICSEARCH_HOST + ':' + ELASTICSEARCH_PORT
 
