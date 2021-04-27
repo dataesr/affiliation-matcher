@@ -3,7 +3,7 @@ import re
 
 from elasticsearch import Elasticsearch
 from matcher.server.main.config import config
-from matcher.server.main.match_country import construct_keywords_regex, get_countries_from_query
+from matcher.server.main.match_country import get_countries_from_query, get_regex_from_country_by_fields
 
 
 @pytest.fixture(scope='module')
@@ -16,43 +16,31 @@ def elasticsearch() -> dict:
 
 
 class TestMatchCountry:
-    def test_construct_keywords_regex_with_one_keyword(self, elasticsearch) -> None:
-        body = {
-            'category': 'keyword',
-            'country': 'fr',
-            'regex': 'term_01'
-        }
-        elasticsearch['es'].index(elasticsearch['index'], body=body, refresh=True)
-        regex = construct_keywords_regex(elasticsearch['es'], elasticsearch['index'], 'fr')
-        assert regex == re.compile('(?<![a-z])term_01(?![a-z])')
-        elasticsearch['es'].delete_by_query(index=elasticsearch['index'], body={"query": {"match_all": {}}})
-
-    def test_construct_keywords_regex_with_two_keywords(self, elasticsearch) -> None:
-        body = {
-            'category': 'keyword',
-            'country': 'fr',
-            'regex': 'term_02'
-        }
-        elasticsearch['es'].index(elasticsearch['index'], body=body, refresh=True)
-        body = {
-            'category': 'keyword',
-            'country': 'fr',
-            'regex': 'term_03'
-        }
-        elasticsearch['es'].index(elasticsearch['index'], body=body, refresh=True)
-        regex = construct_keywords_regex(elasticsearch['es'], elasticsearch['index'], 'fr')
-        assert regex == re.compile('(?<![a-z])term_02(?![a-z])|(?<![a-z])term_03(?![a-z])')
-        elasticsearch['es'].delete_by_query(index=elasticsearch['index'], body={"query": {"match_all": {}}})
+    @pytest.mark.parametrize('fields,values,is_complex,expected_regex', [
+        (['cities'], [['city_01']], True, re.compile('(?<![a-z])city_01(?![a-z])', re.IGNORECASE)),
+        (['cities'], [['city_01', 'city_02']], True, re.compile('(?<![a-z])city_01(?![a-z])|(?<![a-z])city_02(?![a-z])', re.IGNORECASE)),
+        (['cities', 'info'], [['city_01'], ['info_01']], True, re.compile('(?<![a-z])city_01(?![a-z])|(?<![a-z])info_01(?![a-z])', re.IGNORECASE)),
+        (['stop_words'], [['word_01', 'word_02']], False, re.compile('word_01|word_02', re.IGNORECASE))
+    ])
+    def test_get_regex_from_country_by_fields(self, elasticsearch, fields, values, is_complex, expected_regex) -> None:
+        body = {}
+        for (field, value) in zip(fields, values):
+            body[field] = value
+        elasticsearch['es'].index(elasticsearch['index'], id='fr', body=body, refresh=True)
+        regex = get_regex_from_country_by_fields(elasticsearch['es'], elasticsearch['index'], 'fr', fields, is_complex)
+        assert regex == expected_regex
+        elasticsearch['es'].delete_by_query(index=elasticsearch['index'], body={'query': {'match_all': {}}})
 
     @pytest.mark.parametrize(
         'query,expected_country', [
-        ('Tour Mirabeau Paris', ['FR']),
-        ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['FR']),
-        ('N\'importe quoi', []),
-        ('Sorbonne Université, INSERM, UMRS 1142 LIMICS, Paris, France, APHP.Sorbonne, Fetal Medicine Department, '
-         'Armand Trousseau Hospital, Paris, France.', ['FR']),
-        ('Hotel-Dieu de France University Hospital, Faculty of Medicine, Saint Joseph University, Beirut, Lebanon.', ['LB'])
-    ])
+            ('Tour Mirabeau Paris', ['fr']),
+            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['fr']),
+            ('N\'importe quoi', []),
+            ('Sorbonne Université, INSERM, UMRS 1142 LIMICS, Paris, France, APHP.Sorbonne, Fetal Medicine Department, '
+             'Armand Trousseau Hospital, Paris, France.', ['fr']),
+            ('Hotel-Dieu de France University Hospital, Faculty of Medicine, Saint Joseph University, Beirut, Lebanon.',
+             ['lb'])
+        ])
     def test_get_countries_from_query(self, query, expected_country) -> None:
         matched_country = get_countries_from_query(query)
         assert matched_country == expected_country
