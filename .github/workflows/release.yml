@@ -14,8 +14,5 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/matcher-0.0.1.tar.gz
-          # asset_name: mything
+          file: dist/matcher-${{ github.ref }}.tar.gz
           tag: ${{ github.ref }}
-          # overwrite: true
-          body: "This is my release text"
