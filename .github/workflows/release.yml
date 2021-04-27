@@ -18,7 +18,5 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/matcher-${{ TAG_NAME }}.tar.gz
+          file: dist/matcher-${{ steps.tag.outputs.TAG_NAME }}.tar.gz
           tag: ${{ github.ref }}
-        env:
-          TAG_NAME: ${{ steps.tag.outputs.TAG_NAME }}
