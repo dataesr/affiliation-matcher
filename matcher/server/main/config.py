@@ -9,12 +9,12 @@ ELASTICSEARCH_HOST = 'elasticsearch'
 ELASTICSEARCH_PORT = '9200'
 ELASTICSEARCH_INDEX = 'index-rnsr-all'
 
-if APP_ENV in ['test']:
-    ELASTICSEARCH_HOST = 'elasticsearch'
+if APP_ENV == 'test':
+    ELASTICSEARCH_HOST = 'localhost'
     ELASTICSEARCH_INDEX = 'index-rnsr-test'
 
 if APP_ENV == 'development':
-    ELASTICSEARCH_HOST = 'elasticsearch'
+    ELASTICSEARCH_HOST = 'localhost'
 
 ELASTICSEARCH_URL = ELASTICSEARCH_HOST + ':' + ELASTICSEARCH_PORT
 
