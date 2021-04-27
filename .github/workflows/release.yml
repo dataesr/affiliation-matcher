@@ -10,9 +10,15 @@ jobs:
       - uses: actions/checkout@v2
       - name: 🔨 Build
         run: make python-build
+      - name: 🔖 Collect tag name
+        id: tag
+        run: |
+          echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
       - name: 📡 Upload package to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/matcher-$($env:GITHUB_REF -replace "refs/tags/").tar.gz
+          file: dist/matcher-{{ TAG_NAME }}.tar.gz
           tag: ${{ github.ref }}
+        env:
+          TAG_NAME: ${{ steps.tag.outputs.TAG_NAME }}
