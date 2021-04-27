@@ -8,11 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build
+      - name: 🔨 Build
         run: make python-build
-      - name: Upload binaries to release
+      - name: 📡 Upload package to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/matcher-${{ github.event.release.tag_name }}.tar.gz
+          file: dist/matcher-$($env:GITHUB_REF -replace "refs/tags/").tar.gz
           tag: ${{ github.ref }}
