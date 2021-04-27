@@ -44,5 +44,11 @@ init:
 	curl http://localhost:5004/init
 	@echo Matcher is now populated
 
+release:
+	echo "__version__ = '${NEW_VERSION}'" > matcher/__init__.py
+	git commit -am '[release] version ${NEW_VERSION}'
+	git tag ${NEW_VERSION}
+	echo "If everything is OK, you can push with tags i.e. git push origin master --tags"
+
 kube-deploy:
 	kubectl apply -k k8s
