@@ -1,6 +1,6 @@
 # Python
 *.pyc
-*.mypy_cache/*
+*.mypy_cache*
 .mypy*
 venv
 
