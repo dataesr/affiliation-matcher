@@ -14,7 +14,7 @@ jobs:
         id: tag
         run: |
           echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
-      - name: 📡 Upload package to release
+      - name: 📦 Upload package to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
