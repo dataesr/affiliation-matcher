@@ -1,6 +1,7 @@
 # Affiliation matcher
 
 ![Tests](https://github.com/dataesr/matcher/actions/workflows/tests.yml/badge.svg)
+![Build](https://github.com/dataesr/matcher/actions/workflows/build.yml/badge.svg)
 
 The affiliation matcher aims to automatically align an affiliation with different reference systems, including :
 - [Country ISO 3166](https://en.wikipedia.org/wiki/ISO_3166)
