@@ -44,3 +44,11 @@ Then import the package into your python file
 ```python
 import matcher
 ```
+
+## Release
+It uses [semver](https://semver.org/).
+
+To create a new release, do
+```shell
+make release VERSION=x.x.x
+```
