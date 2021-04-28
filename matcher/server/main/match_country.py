@@ -25,7 +25,6 @@ def get_regex_from_country_by_fields(es: Elasticsearch = None, index: str = '', 
         pattern = '|'.join(['(?<![a-z])' + normalize_text(regex, remove_sep=False) + '(?![a-z])' for regex in regexes])
     else:
         pattern = '|'.join([normalize_text(regex, remove_sep=False) for regex in regexes])
-    print(pattern)
     return re.compile(pattern, re.IGNORECASE | re.UNICODE) if pattern != '' else None
 
 
