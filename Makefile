@@ -1,3 +1,6 @@
+DOCKER_IMAGE_NAME=dataesr/matcher
+CURRENT_VERSION=$(shell cat matcher/__init__.py | grep -P '(\d\.?){3}' -o)
+
 test: unit
 
 unit:
@@ -25,13 +28,13 @@ install:
 
 docker-build:
 	@echo Building a new docker image
-	docker build -t dataesr/matcher:$(VERSION) -t dataesr/matcher:latest .
+	docker build -t $(DOCKER_IMAGE_NAME):$(CURRENT_VERSION) -t $(DOCKER_IMAGE_NAME):latest .
 	@echo Docker image built
 
 docker-push:
 	@echo Pushing a new docker image
-	docker push dataesr/matcher:$(VERSION)
-	docker push dataesr/matcher:latest
+	docker push $(DOCKER_IMAGE_NAME):$(CURRENT_VERSION)
+	docker push $(DOCKER_IMAGE_NAME):latest
 	@echo Docker image pushed
 
 python-build:
