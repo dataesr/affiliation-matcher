@@ -28,7 +28,9 @@ services:
   worker:
     image: dataesr/matcher:0.0.4
     privileged: true
-    command: /bin/sh start.sh
+    command: >
+        /bin/sh -c "sysctl -w vm.max_map_count=262144
+        && python3 manage.py run_worker"
     environment:
       - APP_SETTINGS=matcher.server.config.DevelopmentConfig
     volumes:
