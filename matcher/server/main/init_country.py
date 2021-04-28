@@ -8,7 +8,8 @@ from matcher.server.main.config import config
 ES_INDEX = 'country'
 FILE_COUNTRY_KEYWORDS = 'country_keywords.json'
 FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'
-FILE_FRENCH_CITIES = 'insee_2020_cities.json'
+FILE_FRENCH_CITIES = 'fr_cities.json'
+FILE_FRENCH_UNIVERSITIES = 'fr_universities.json'
 
 
 def get_info_from_country(alpha_2: str = None) -> dict:
@@ -32,6 +33,22 @@ def get_cities_from_country(alpha_2: str = None) -> dict:
     return {'cities': cities}
 
 
+def get_universities_from_country(alpha_2: str = None) -> dict:
+    universities = []
+    if alpha_2 == 'fr':
+        dirname = os.path.dirname(__file__)
+        with open(os.path.join(dirname, FILE_FRENCH_UNIVERSITIES), 'r') as file:
+            data = json.load(file)
+            for d in data:
+                uo_lib_officiel = d['fields']['uo_lib_officiel']
+                if uo_lib_officiel not in universities:
+                    universities.append(uo_lib_officiel)
+                uo_lib = d['fields']['uo_lib']
+                if uo_lib not in universities:
+                    universities.append(uo_lib)
+    return {'universities': universities}
+
+
 def get_stop_words_from_country(alpha_2: str = None) -> dict:
     alpha_2 = alpha_2.upper()
     dirname = os.path.dirname(__file__)
@@ -44,10 +61,10 @@ def get_stop_words_from_country(alpha_2: str = None) -> dict:
     return {'stop_words': stop_words}
 
 
-# TODO: Add logger
 def init_country() -> None:
     es = Elasticsearch(config['ELASTICSEARCH_HOST'])
-    es.indices.create(index=ES_INDEX, ignore=400)
+    mapping = {'mappings': {'properties': {'universities': {'type': 'text'}}}}
+    es.indices.create(index=ES_INDEX, body=mapping, ignore=400)
     es.delete_by_query(index=ES_INDEX, body={'query': {'match_all': {}}}, refresh=True)
     # TODO: use helpers.parallel_bulk
     for country in pycountry.countries:
@@ -57,6 +74,8 @@ def init_country() -> None:
         body.update(info)
         cities = get_cities_from_country(country)
         body.update(cities)
+        universities = get_universities_from_country(country)
+        body.update(universities)
         stop_words = get_stop_words_from_country(country)
         body.update(stop_words)
         es.index(index=ES_INDEX, id=country, body=body, refresh=True)
