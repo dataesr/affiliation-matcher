@@ -28,14 +28,15 @@ def get_regex_from_country_by_fields(es: Elasticsearch = None, index: str = '', 
     return re.compile(pattern, re.IGNORECASE | re.UNICODE) if pattern != '' else None
 
 
-def get_countries_from_query(query: str = '') -> list:
+def get_countries_from_query(query: str = '', strategies: list = None) -> list:
+    if strategies is None:
+        strategies = ['info']
     countries = []
     es = Elasticsearch(config['ELASTICSEARCH_HOST'])
     query = normalize_text(query, remove_sep=False)
     for country in pycountry.countries:
         country = country.alpha_2.lower()
-        keywords_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, ['cities', 'info', 'universities'],
-                                                          True)
+        keywords_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, strategies, True)
         if keywords_regex is not None and re.search(keywords_regex, query):
             stop_words_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, ['stop_words'], False)
             if stop_words_regex is not None and re.search(stop_words_regex, query):
