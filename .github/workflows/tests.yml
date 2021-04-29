@@ -13,6 +13,12 @@ jobs:
 
       - name: 🗃️ Start Elasticsearch ICU
         run: docker run -d -e discovery.type=single-node -v elastic:/usr/share/elasticsearch/data -p 9200:9200 dataesr/es_icu:latest
+      - uses: nev7n/wait_for_response@v1
+        with:
+          url: 'http://localhost:9200/'
+          responseCode: 200
+          timeout: 2000
+          interval: 500
 
   build:
     runs-on: ubuntu-latest
