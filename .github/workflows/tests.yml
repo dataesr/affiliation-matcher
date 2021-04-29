@@ -33,4 +33,6 @@ jobs:
 
       - name: 🟩 Run unit tests
         run: |
-          make test
+          curl http://localhost:9200
+          printenv | grep APP_ENV
+          APP_ENV=test python -m pytest
