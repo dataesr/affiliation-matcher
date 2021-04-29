@@ -35,16 +35,20 @@ class TestMatchCountry:
         elasticsearch['es'].delete_by_query(index=elasticsearch['index'], body={'query': {'match_all': {}}})
 
     @pytest.mark.parametrize(
-        'query,expected_country', [
-            ('Tour Mirabeau Paris', ['fr']),
-            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['fr']),
-            ('N\'importe quoi', []),
-            ('Sorbonne Université, INSERM, UMRS 1142 LIMICS, Paris, France, APHP.Sorbonne, Fetal Medicine Department, '
-             'Armand Trousseau Hospital, Paris, France.', ['fr']),
+        'query,strategies,expected_country', [
+            # Query with no meaningful should return no country
+            ('Not meaningful string', ['cities', 'info', 'universities'], []),
+            # Simple query with a city should match the associated country
+            ('Tour Mirabeau Paris', ['cities'], ['fr']),
+            # Complex query with a city should match the associated country
+            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['cities'], ['fr']),
+            # Even if city is not recognized, the university name should match the associated country
+            ('Université de technologie de Troyes', ['cities'], []),
+            ('Université de technologie de Troyes', ['universities'], ['fr']),
+            # With stop words, a misleading hospital name should not match the country
             ('Hotel-Dieu de France University Hospital, Faculty of Medicine, Saint Joseph University, Beirut, Lebanon.',
-             ['lb']),
-            ('Université de technologie de Troyes', ['fr'])
+             ['info'], ['lb'])
         ])
-    def test_get_countries_from_query(self, query, expected_country) -> None:
-        matched_country = get_countries_from_query(query)
+    def test_get_countries_from_query(self, query, strategies, expected_country) -> None:
+        matched_country = get_countries_from_query(query, strategies)
         assert matched_country == expected_country
