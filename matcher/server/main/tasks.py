@@ -1,5 +1,6 @@
 import time
 
+from matcher.server.main.init_country import init_country
 from matcher.server.main.init_finess import init_es_finess
 from matcher.server.main.init_rnsr import init_es
 from matcher.server.main.match_country import get_countries_from_query
@@ -47,6 +48,10 @@ def create_task_country(arg):
     query = arg.get('query', None)
     country = get_countries_from_query(query)
     return {'logs': country}
+
+
+def create_task_init_country():
+    return init_country()
 
 
 def create_task_finess(arg):
