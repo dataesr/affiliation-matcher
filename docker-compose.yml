@@ -5,7 +5,7 @@ services:
       - matcher-network
 
   dashboard:
-    image: dataesr/dashboard-crawler:latest
+    image: dataesr/dashboard-crawler:1.1
     ports:
       - 9181:9181
     command: rq-dashboard -H redis
@@ -15,7 +15,7 @@ services:
       - redis
 
   elasticsearch:
-    image : dataesr/es_icu:latest
+    image : dataesr/es_icu:1.1
     ports:
       - 9200:9200
     environment:
