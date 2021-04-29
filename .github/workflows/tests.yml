@@ -27,6 +27,13 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           make install
 
+      - name: Test ES host 1/2
+        run: |
+          curl http://localhost:9200
+      - name: Test ES host 2/2
+        run: |
+          curl http://elasticsearch:9200
+
       - name: 🟩 Run unit tests
         run: |
-          APP_ENV=github python -m pytest
+          APP_ENV=test python -m pytest
