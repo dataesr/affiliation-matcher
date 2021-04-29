@@ -26,6 +26,9 @@ class TestMatchCountry:
         (['stop_words'], [['word_01', 'word_02']], False, re.compile('word 01|word 02', re.IGNORECASE))
     ])
     def test_get_regex_from_country_by_fields(self, elasticsearch, fields, values, is_complex, expected_regex) -> None:
+        print('\n\n\n**********')
+        print(config['ELASTICSEARCH_HOST'])
+        print('**********\n\n\n')
         body = {}
         for (field, value) in zip(fields, values):
             body[field] = value
