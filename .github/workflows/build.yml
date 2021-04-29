@@ -7,25 +7,33 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: 🏁 Checkout
+        uses: actions/checkout@v2
+
       - name: 🏷️ Collect tag name
         id: tag
         run: |
           echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
+
       - name: 🐍 Build python package
         run: make python-build
+
       - name: 📦 Upload python package to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/matcher-${{ steps.tag.outputs.TAG_NAME }}.tar.gz
           tag: ${{ github.ref }}
+
       - name : 🐋 Build docker image
         run: make docker-build
+
       - name: 🔑 Login docker
         run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: 📦 Push docker image
         run: make docker-push
+
       - name: 📢 Notify in slack
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{"text":"📦 New release <https://github.com/dataesr/matcher/releases/tag/${{ steps.tag.outputs.TAG_NAME }}|${{ steps.tag.outputs.TAG_NAME }}> in matcher"}' ${{ secrets.SLACK_WEBHOOK }}
