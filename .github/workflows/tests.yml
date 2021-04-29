@@ -1,14 +1,9 @@
 name: Tests
 on: [push]
 jobs:
-  build:
+  elasticsearch:
     runs-on: ubuntu-latest
     steps:
-      - name: 🐍 Set up Python 3.6
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.6
-
       - name: ⚙️Configure sysctl limits
         run: |
           sudo swapoff -a
@@ -16,11 +11,20 @@ jobs:
           sudo sysctl -w fs.file-max=262144
           sudo sysctl -w vm.max_map_count=262144
 
-      - name: 🏁 Checkout
-        uses: actions/checkout@v2
-
       - name: 🗃️ Start Elasticsearch ICU
         run: docker run -d -e discovery.type=single-node -v elastic:/usr/share/elasticsearch/data -p 9200:9200 dataesr/es_icu:latest
+
+  build:
+    runs-on: ubuntu-latest
+    needs: elasticsearch
+    steps:
+      - name: 🐍 Set up Python 3.6
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
+      - name: 🏁 Checkout
+        uses: actions/checkout@v2
 
       - name: ️🚧 Install dependencies
         run: |
@@ -29,5 +33,4 @@ jobs:
 
       - name: 🟩 Run unit tests
         run: |
-          curl http://localhost:9200
           make test
