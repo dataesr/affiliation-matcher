@@ -8,9 +8,6 @@ unit:
 	APP_ENV=test python -m pytest
 	@echo End of unit tests
 
-notebook:
-	jupyter notebook
-
 start:
 	@echo Matcher starting...
 	docker-compose up -d
