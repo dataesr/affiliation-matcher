@@ -13,15 +13,23 @@
         "montpellier.*italy",
         "dr. metz",
         "ambroise pare.*belgi",
-        "hotel dieu de france"
+        "hotel dieu de france",
+        "CHU Saint Pierre",
+        "new orleans"
     ],
     "GB": [
         "kent.*oh"
     ],
-    "SD": [
-        "south"
+    "IL": [
+        "beth israel deaconess medical center"
     ],
     "MX": [
         "new"
+    ],
+    "SD": [
+        "south"
+    ],
+    "VI": [
+        "vir biotechnology"
     ]
 }

@@ -6,8 +6,6 @@ from matcher.server.main.config import config
 from matcher.server.main.strings import normalize_text
 
 ES_INDEX = 'country'
-FILE_COUNTRY_KEYWORDS = 'country_keywords.json'
-FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'
 
 
 def get_regex_from_country_by_fields(es: Elasticsearch = None, index: str = '', country: str = '', fields: list = None,
@@ -20,6 +18,7 @@ def get_regex_from_country_by_fields(es: Elasticsearch = None, index: str = '', 
             values = results['hits']['hits'][0]['_source'][field]
         except KeyError:
             values = []
+        values = values if type(values) == list else [values]
         regexes = regexes + values
     if is_complex:
         pattern = '|'.join(['(?<![a-z])' + normalize_text(regex, remove_sep=False) + '(?![a-z])' for regex in regexes])
