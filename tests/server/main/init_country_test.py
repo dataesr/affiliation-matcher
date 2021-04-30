@@ -5,9 +5,13 @@ from matcher.server.main.init_country import get_cities_from_country, get_info_f
 
 
 class TestInitCountry:
-    def test_get_info_from_country(self):
+    def test_get_info_from_country_fr(self):
         result = get_info_from_country('fr')
-        assert result == {'alpha_2': 'FR', 'alpha_3': 'FRA', 'info': ['France', 'French']}
+        assert result == {'alpha_2': 'FR', 'alpha_3': 'FRA', 'info': ['France', 'French Republic']}
+
+    def test_get_info_from_country_bo(self):
+        result = get_info_from_country('bo')
+        assert result == {'alpha_2': 'BO', 'alpha_3': 'BOL', 'info': ['Bolivia, Plurinational State of', 'Plurinational State of Bolivia', 'Bolivia']}
 
     def test_get_cities_from_country_fr(self):
         french_cities = get_cities_from_country('fr')['cities']
@@ -31,7 +35,7 @@ class TestInitCountry:
 
     def test_get_stop_words_from_country_fr(self):
         french_stop_words = get_stop_words_from_country('fr')['stop_words']
-        assert len(french_stop_words) == 14
+        assert len(french_stop_words) == 16
         assert 'paris.*tx' in french_stop_words
 
     def test_get_stop_words_from_country_cn(self):
@@ -50,5 +54,5 @@ class TestInitCountry:
         assert french_result['alpha_2'] == 'FR'
         assert french_result['alpha_3'] == 'FRA'
         assert len(french_result['info']) == 2
-        assert len(french_result['stop_words']) == 14
+        assert len(french_result['stop_words']) == 16
         assert len(french_result['universities']) == 333

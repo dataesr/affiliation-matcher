@@ -47,7 +47,11 @@ class TestMatchCountry:
             ('Université de technologie de Troyes', ['universities'], ['fr']),
             # With stop words, a misleading hospital name should not match the country
             ('Hotel-Dieu de France University Hospital, Faculty of Medicine, Saint Joseph University, Beirut, Lebanon.',
-             ['info'], ['lb'])
+             ['info'], ['lb']),
+            # Country with only alpha_3
+            ('St Cloud Hospital, St Cloud, MN, USA.', ['alpha_3'], ['us']),
+            ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
+             ['cities', 'universities', 'info', 'white_list'], ['lb'])
         ])
     def test_get_countries_from_query(self, query, strategies, expected_country) -> None:
         matched_country = get_countries_from_query(query, strategies)

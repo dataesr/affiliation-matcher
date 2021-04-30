@@ -6,18 +6,21 @@ from elasticsearch import Elasticsearch
 from matcher.server.main.config import config
 
 ES_INDEX = 'country'
-FILE_COUNTRY_KEYWORDS = 'country_keywords.json'
 FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'
+FILE_COUNTRY_WHITE_LIST = 'country_white_list.json'
 FILE_FRENCH_CITIES = 'fr_cities.json'
 FILE_FRENCH_UNIVERSITIES = 'fr_universities.json'
 
 
 def get_info_from_country(alpha_2: str = None) -> dict:
     country = pycountry.countries.get(alpha_2=alpha_2)
-    info = [country.name]
-    language = pycountry.languages.get(alpha_2=alpha_2)
-    if language is not None:
-        info.append(language.name)
+    info = []
+    if hasattr(country, 'name'):
+        info.append(country.name)
+    if hasattr(country, 'official_name'):
+        info.append(country.official_name)
+    if hasattr(country, 'common_name'):
+        info.append(country.common_name)
     return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3,
             'info': info}
 
@@ -28,6 +31,9 @@ def get_cities_from_country(alpha_2: str = None) -> dict:
         with open(os.path.join(dirname, FILE_FRENCH_CITIES), 'r') as file:
             cities = json.load(file)['cities']
             cities = [city.lower() for city in cities]
+    elif alpha_2 == 'us':
+        subdivisions = pycountry.subdivisions.get(country_code='us')
+        cities = [subdivision.name for subdivision in subdivisions]
     else:
         cities = []
     return {'cities': cities}
@@ -49,13 +55,25 @@ def get_universities_from_country(alpha_2: str = None) -> dict:
     return {'universities': universities}
 
 
+def get_white_list_from_country(alpha_2: str = None) -> dict:
+    alpha_2 = alpha_2.upper()
+    dirname = os.path.dirname(__file__)
+    with open(os.path.join(dirname, FILE_COUNTRY_WHITE_LIST), 'r') as file:
+        country_white_list = json.load(file)
+        if alpha_2 in country_white_list.keys():
+            white_list = country_white_list[alpha_2]
+        else:
+            white_list = []
+    return {'white_list': white_list}
+
+
 def get_stop_words_from_country(alpha_2: str = None) -> dict:
     alpha_2 = alpha_2.upper()
     dirname = os.path.dirname(__file__)
     with open(os.path.join(dirname, FILE_COUNTRY_FORBIDDEN), 'r') as file:
-        country_keywords = json.load(file)
-        if alpha_2 in country_keywords.keys():
-            stop_words = country_keywords[alpha_2]
+        country_stop_words = json.load(file)
+        if alpha_2 in country_stop_words.keys():
+            stop_words = country_stop_words[alpha_2]
         else:
             stop_words = []
     return {'stop_words': stop_words}
@@ -76,6 +94,8 @@ def init_country() -> None:
         body.update(cities)
         universities = get_universities_from_country(country)
         body.update(universities)
+        white_list = get_white_list_from_country(country)
+        body.update(white_list)
         stop_words = get_stop_words_from_country(country)
         body.update(stop_words)
         es.index(index=ES_INDEX, id=country, body=body, refresh=True)
