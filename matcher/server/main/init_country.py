@@ -22,10 +22,10 @@ def get_all_cities() -> dict:
         ?country wdt:P297 ?country_alpha2 .
         OPTIONAL { ?city wdt:P1705 ?label_native . }
         OPTIONAL { ?city wdt:P1448 ?label_official . }
-        OPTIONAL { ?city rdfs:label ?label_en filter (lang(?label_en) = "en") . }
-        OPTIONAL { ?city rdfs:label ?label_fr filter (lang(?label_fr) = "fr") . }
-        OPTIONAL { ?city rdfs:label ?label_es filter (lang(?label_es) = "es") . }
-        OPTIONAL { ?city rdfs:label ?label_it filter (lang(?label_it) = "it") . }
+        OPTIONAL { ?city rdfs:label ?label_en FILTER(lang(?label_en) = "en") . }
+        OPTIONAL { ?city rdfs:label ?label_fr FILTER(lang(?label_fr) = "fr") . }
+        OPTIONAL { ?city rdfs:label ?label_es FILTER(lang(?label_es) = "es") . }
+        OPTIONAL { ?city rdfs:label ?label_it FILTER(lang(?label_it) = "it") . }
         FILTER(?population > ''' + str(QUERY_CITY_POPULATION_LIMIT) + ''') .
     }
     '''
@@ -88,10 +88,10 @@ def get_all_universities() -> dict:
                   wdt:P17 ?country .
         ?country wdt:P297 ?country_alpha2 .
         OPTIONAL { ?university wdt:P1705 ?label_native . }
-        OPTIONAL { ?university rdfs:label ?label_en filter (lang(?label_en) = "en") . }
-        OPTIONAL { ?university rdfs:label ?label_fr filter (lang(?label_fr) = "fr") . }
-        OPTIONAL { ?university rdfs:label ?label_es filter (lang(?label_es) = "es") . }
-        OPTIONAL { ?university rdfs:label ?label_it filter (lang(?label_it) = "it") . }
+        OPTIONAL { ?university rdfs:label ?label_en FILTER(lang(?label_en) = "en") . }
+        OPTIONAL { ?university rdfs:label ?label_fr FILTER(lang(?label_fr) = "fr") . }
+        OPTIONAL { ?university rdfs:label ?label_es FILTER(lang(?label_es) = "es") . }
+        OPTIONAL { ?university rdfs:label ?label_it FILTER(lang(?label_it) = "it") . }
     }
     '''
     response = requests.get(WIKIDATA_SPARQL_URL, params={'query': query, 'format': 'json'})
@@ -120,6 +120,62 @@ def get_all_universities() -> dict:
             if 'label_it' in university.keys():
                 results[alpha_2]['all'].append(university['label_it']['value'])
                 results[alpha_2]['it'].append(university['label_it']['value'])
+    else:
+        # TODO: use logger
+        print('The request returned an error')
+        print(response.status_code)
+    for country in results:
+        results[country]['all'] = list(set(results[country]['all']))
+        if 'en' in results[country].keys():
+            results[country]['en'] = list(set(results[country]['en']))
+        if 'fr' in results[country].keys():
+            results[country]['fr'] = list(set(results[country]['fr']))
+        if 'es' in results[country].keys():
+            results[country]['es'] = list(set(results[country]['es']))
+        if 'it' in results[country].keys():
+            results[country]['it'] = list(set(results[country]['it']))
+    return results
+
+
+def get_all_hospitals() -> dict:
+    query = '''
+    SELECT DISTINCT ?country_alpha2 ?label_native ?label_en ?label_fr ?label_es ?label_it WHERE {
+        ?hospital wdt:P31/wdt:P279* wd:Q16917 ;
+                wdt:P17 ?country .
+        ?country wdt:P297 ?country_alpha2 .
+        OPTIONAL { ?hospital wdt:P1705 ?label_native . }
+        OPTIONAL { ?hospital rdfs:label ?label_en FILTER(lang(?label_en) = "en") . }
+        OPTIONAL { ?hospital rdfs:label ?label_fr FILTER(lang(?label_fr) = "fr") . }
+        OPTIONAL { ?hospital rdfs:label ?label_es FILTER(lang(?label_es) = "es") . }
+        OPTIONAL { ?hospital rdfs:label ?label_it FILTER(lang(?label_it) = "it") . }
+    }
+    '''
+    response = requests.get(WIKIDATA_SPARQL_URL, params={'query': query, 'format': 'json'})
+    results = {}
+    if response.status_code == requests.codes.ok:
+        for hospital in response.json()['results']['bindings']:
+            alpha_2 = hospital['country_alpha2']['value'].lower()
+            if alpha_2 not in results.keys():
+                results[alpha_2] = {}
+                results[alpha_2]['all'] = []
+                results[alpha_2]['en'] = []
+                results[alpha_2]['fr'] = []
+                results[alpha_2]['es'] = []
+                results[alpha_2]['it'] = []
+            if 'label_native' in hospital.keys():
+                results[alpha_2]['all'].append(hospital['label_native']['value'])
+            if 'label_en' in hospital.keys():
+                results[alpha_2]['all'].append(hospital['label_en']['value'])
+                results[alpha_2]['en'].append(hospital['label_en']['value'])
+            if 'label_fr' in hospital.keys():
+                results[alpha_2]['all'].append(hospital['label_fr']['value'])
+                results[alpha_2]['fr'].append(hospital['label_fr']['value'])
+            if 'label_es' in hospital.keys():
+                results[alpha_2]['all'].append(hospital['label_es']['value'])
+                results[alpha_2]['es'].append(hospital['label_es']['value'])
+            if 'label_it' in hospital.keys():
+                results[alpha_2]['all'].append(hospital['label_it']['value'])
+                results[alpha_2]['it'].append(hospital['label_it']['value'])
     else:
         # TODO: use logger
         print('The request returned an error')
@@ -181,6 +237,7 @@ def init_country() -> None:
     es.delete_by_query(index=ES_INDEX, body={'query': {'match_all': {}}}, refresh=True)
     all_cities = get_all_cities()
     all_universities = get_all_universities()
+    all_hospitals = get_all_hospitals()
     # TODO: use helpers.parallel_bulk
     for country in pycountry.countries:
         country = country.alpha_2.lower()
@@ -213,6 +270,18 @@ def init_country() -> None:
             all_universities[country].keys() else []
         body.update({'universities': universities_all, 'universities_en': universities_en, 'universities_fr':
                     universities_fr, 'universities_es': universities_es, 'universities_it': universities_it})
+        hospitals_all = all_hospitals[country]['all'] if country in all_hospitals.keys() and 'all' in \
+            all_hospitals[country].keys() else []
+        hospitals_en = all_hospitals[country]['en'] if country in all_hospitals.keys() and 'en' in \
+            all_hospitals[country].keys() else []
+        hospitals_fr = all_hospitals[country]['fr'] if country in all_hospitals.keys() and 'fr' in \
+            all_hospitals[country].keys() else []
+        hospitals_es = all_hospitals[country]['es'] if country in all_hospitals.keys() and 'es' in \
+            all_hospitals[country].keys() else []
+        hospitals_it = all_hospitals[country]['it'] if country in all_hospitals.keys() and 'it' in \
+            all_hospitals[country].keys() else []
+        body.update({'hospitals': hospitals_all, 'hospitals_en': hospitals_en, 'hospitals_fr': hospitals_fr,
+                     'hospitals_es': hospitals_es, 'hospitals_it': hospitals_it})
         white_list = get_white_list_from_country(country)
         body.update(white_list)
         stop_words = get_stop_words_from_country(country)
