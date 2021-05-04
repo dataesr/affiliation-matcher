@@ -33,6 +33,7 @@ jobs:
 
       - name: Check ES instance
         run: |
+          sleep 5
           curl localhost:9200
           curl localhost:9200/_cat/indices
 
