@@ -3,16 +3,28 @@ on: [push]
 jobs:
   elasticsearch:
     runs-on: ubuntu-latest
+#    steps:
+#      - name: ⚙️Configure sysctl limits
+#        run: |
+#          sudo swapoff -a
+#          sudo sysctl -w vm.swappiness=1
+#          sudo sysctl -w fs.file-max=262144
+#          sudo sysctl -w vm.max_map_count=262144
+#
+#      - name: 🗃️ Start Elasticsearch ICU
+#        run: docker run -d -e discovery.type=single-node -v elastic:/usr/share/elasticsearch/data -p 9200:9200 dataesr/es_icu:1.1
     steps:
-      - name: ⚙️Configure sysctl limits
+      - name: Configure sysctl limits
         run: |
           sudo swapoff -a
           sudo sysctl -w vm.swappiness=1
           sudo sysctl -w fs.file-max=262144
           sudo sysctl -w vm.max_map_count=262144
 
-      - name: 🗃️ Start Elasticsearch ICU
-        run: docker run -d -e discovery.type=single-node -v elastic:/usr/share/elasticsearch/data -p 9200:9200 dataesr/es_icu:1.1
+      - uses: miyataka/elasticsearch-github-actions@1
+        with:
+          stack-version: '7.8.0'
+          plugins: 'analysis-icu'
 
   tests:
     runs-on: ubuntu-latest
