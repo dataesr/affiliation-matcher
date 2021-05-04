@@ -1,7 +1,7 @@
 from elasticsearch import Elasticsearch
 from matcher.server.main.config import config
-from matcher.server.main.init_country import get_cities_from_country, get_info_from_country, \
-    get_stop_words_from_country, get_universities_from_country, init_country
+from matcher.server.main.init_country import get_all_cities, get_all_universities, get_info_from_country, \
+    get_stop_words_from_country, init_country
 
 
 class TestInitCountry:
@@ -13,25 +13,30 @@ class TestInitCountry:
         result = get_info_from_country('bo')
         assert result == {'alpha_2': 'BO', 'alpha_3': 'BOL', 'info': ['Bolivia, Plurinational State of', 'Plurinational State of Bolivia', 'Bolivia']}
 
-    def test_get_cities_from_country_fr(self):
-        french_cities = get_cities_from_country('fr')['cities']
-        assert len(french_cities) == 75
-        assert 'paris' in french_cities
-        assert 'nancy' in french_cities
-        assert 'issy-les-moulineaux' in french_cities
-
-    def test_get_cities_from_country_cn(self):
-        chinese_cities = get_cities_from_country('cn')['cities']
-        assert len(chinese_cities) == 0
+    def test_get_all_cities(self):
+        cities = get_all_cities()
+        assert len(cities) == 177
+        assert set(cities['fr'].keys()) == {'all', 'strict', 'en', 'fr', 'es', 'it'}
+        assert 'Dunkirk' in cities['fr']['all']
+        assert 'Dunkerque' in cities['fr']['all']
+        assert 'Dunkirk' in cities['fr']['en']
+        assert 'Dunkirk' not in cities['fr']['fr']
+        assert 'Dunkerque' in cities['fr']['fr']
+        assert 'Dunkerque' not in cities['fr']['en']
 
     def test_get_universities_from_country_fr(self):
-        french_universities = get_universities_from_country('fr')['universities']
-        assert len(french_universities) == 333
-        assert 'Rennes School of Business' in french_universities
-
-    def test_get_universities_from_country_cn(self):
-        chinese_universities = get_universities_from_country('cn')['universities']
-        assert len(chinese_universities) == 0
+        universities = get_all_universities()
+        assert len(universities) == 216
+        assert set(universities['fr'].keys()) == {'all', 'en', 'fr', 'es', 'it'}
+        assert 'École normale supérieure de Fontenay-Saint-Cloud' in universities['fr']['all']
+        assert 'École normale supérieure de Fontenay-Saint-Cloud' in universities['fr']['en']
+        assert 'École normale supérieure de Fontenay-Saint-Cloud' in universities['fr']['fr']
+        assert 'Lille Catholic University' in universities['fr']['all']
+        assert 'Lille Catholic University' in universities['fr']['en']
+        assert 'Lille Catholic University' not in universities['fr']['fr']
+        assert 'université catholique de Lille' in universities['fr']['all']
+        assert 'université catholique de Lille' in universities['fr']['fr']
+        assert 'université catholique de Lille' not in universities['fr']['en']
 
     def test_get_stop_words_from_country_fr(self):
         french_stop_words = get_stop_words_from_country('fr')['stop_words']
@@ -50,9 +55,9 @@ class TestInitCountry:
         french_results = es.search(index='country', body={'query': {'ids': {'values': ['fr']}}})
         assert french_results['hits']['total']['value'] == 1
         french_result = french_results['hits']['hits'][0]['_source']
-        assert len(french_result['cities']) == 75
+        assert len(french_result['cities']) == 130
         assert french_result['alpha_2'] == 'FR'
         assert french_result['alpha_3'] == 'FRA'
         assert len(french_result['info']) == 2
         assert len(french_result['stop_words']) == 16
-        assert len(french_result['universities']) == 333
+        assert len(french_result['universities']) == 1611
