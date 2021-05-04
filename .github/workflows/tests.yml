@@ -24,7 +24,7 @@ jobs:
       - name: Check ES instance
         run: |
           sleep 30
-          curl docker ps
+          docker ps
           curl localhost:9200
           curl localhost:9200/_cat/indices
 
