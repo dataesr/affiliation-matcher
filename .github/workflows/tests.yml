@@ -33,9 +33,9 @@ jobs:
 
       - name: Check ES instance
         run: |
-          sleep 15
-          curl elasticsearch:9200
-          curl elasticsearch:9200/_cat/indices
+          sleep 30
+          curl http://localhost:9200
+          curl http://localhost:9200/_cat/indices
 
       - name: 🟩 Run unit tests
         run: |
