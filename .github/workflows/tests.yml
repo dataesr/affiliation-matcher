@@ -21,6 +21,10 @@ jobs:
         run: |
           make start
 
+      - name: Wait for app to be up
+        run: |
+          sleep 30
+
       - name: 🟩 Run unit tests
         run: |
           make test
