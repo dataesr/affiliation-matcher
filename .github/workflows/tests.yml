@@ -24,8 +24,9 @@ jobs:
       - name: Check ES instance
         run: |
           sleep 30
-          curl elasticsearch:9200
-          curl elasticsearch:9200/_cat/indices
+          curl docker ps
+          curl localhost:9200
+          curl localhost:9200/_cat/indices
 
       - name: 🟩 Run unit tests
         run: |
