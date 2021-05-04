@@ -7,6 +7,7 @@ The affiliation matcher aims to automatically align an affiliation with differen
 - [Country ISO 3166](https://en.wikipedia.org/wiki/ISO_3166)
 - [ROR](https://ror.org/)
 - [grid](https://grid.ac/)
+- [Wikidata](https://www.wikidata.org/)
 
 And specifically for French affiliations :
 - [RNSR (Répertoire National des Structures de Recherche)](https://appliweb.dgri.education.fr/rnsr/)
