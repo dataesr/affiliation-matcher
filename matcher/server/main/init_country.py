@@ -5,6 +5,7 @@ import requests
 
 from elasticsearch import Elasticsearch
 from matcher.server.main.config import config
+from matcher.server.main.logger import get_logger
 
 ES_INDEX = 'country'
 FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'
@@ -12,6 +13,8 @@ FILE_COUNTRY_WHITE_LIST = 'country_white_list.json'
 QUERY_CITY_POPULATION_LIMIT = 50000
 WIKIDATA_SPARQL_URL = 'https://query.wikidata.org/bigdata/namespace/wdq/sparql'
 
+
+logger = get_logger(__name__)
 
 def get_all_cities() -> dict:
     query = '''
@@ -63,9 +66,7 @@ def get_all_cities() -> dict:
                 results[alpha_2]['all'].append(city['label_it']['value'])
                 results[alpha_2]['it'].append(city['label_it']['value'])
     else:
-        # TODO: use logger
-        print('The request returned an error')
-        print(response.status_code)
+        logger.error('The request returned an error. Code : {code}'.format(code=response.status_code))
     for country in results:
         results[country]['all'] = list(set(results[country]['all']))
         if 'strict' in results[country].keys():
@@ -121,9 +122,7 @@ def get_all_universities() -> dict:
                 results[alpha_2]['all'].append(university['label_it']['value'])
                 results[alpha_2]['it'].append(university['label_it']['value'])
     else:
-        # TODO: use logger
-        print('The request returned an error')
-        print(response.status_code)
+        logger.error('The request returned an error. Code : {code}'.format(code=response.status_code))
     for country in results:
         results[country]['all'] = list(set(results[country]['all']))
         if 'en' in results[country].keys():
@@ -177,9 +176,7 @@ def get_all_hospitals() -> dict:
                 results[alpha_2]['all'].append(hospital['label_it']['value'])
                 results[alpha_2]['it'].append(hospital['label_it']['value'])
     else:
-        # TODO: use logger
-        print('The request returned an error')
-        print(response.status_code)
+        logger.error('The request returned an error. Code : {code}'.format(code=response.status_code))
     for country in results:
         results[country]['all'] = list(set(results[country]['all']))
         if 'en' in results[country].keys():
