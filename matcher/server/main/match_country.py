@@ -1,7 +1,7 @@
 import pycountry
 import re
 
-from matcher.server.main.myelastic import MyElastic
+from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.strings import normalize_text
 
 ES_INDEX = 'country'
