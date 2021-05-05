@@ -1,18 +1,19 @@
 import pytest
 import re
 
-from elasticsearch import Elasticsearch
-from matcher.server.main.config import config
+from matcher.server.main.init_country import init_country
 from matcher.server.main.match_country import get_countries_from_query, get_regex_from_country_by_fields
+from matcher.server.main.myelastic import MyElastic
 
 
 @pytest.fixture(scope='module')
 def elasticsearch() -> dict:
     index = 'country-test'
-    es = Elasticsearch(config['ELASTICSEARCH_HOST'])
-    es.indices.create(index=index, ignore=[400])
+    es = MyElastic()
+    es.create_index(index=index)
     yield {'es': es, 'index': index}
-    es.indices.delete(index=index, ignore=[404])
+    es.delete_index(index=index)
+
 
 
 class TestMatchCountry:
@@ -29,10 +30,17 @@ class TestMatchCountry:
         body = {}
         for (field, value) in zip(fields, values):
             body[field] = value
-        elasticsearch['es'].index(elasticsearch['index'], id='fr', body=body, refresh=True)
+        elasticsearch['es'].index(index=elasticsearch['index'], id='fr', body=body, refresh=True)
         regex = get_regex_from_country_by_fields(elasticsearch['es'], elasticsearch['index'], 'fr', fields, is_complex)
         assert regex == expected_regex
         elasticsearch['es'].delete_by_query(index=elasticsearch['index'], body={'query': {'match_all': {}}})
+
+    @pytest.fixture(scope='class')
+    def setup(self) -> None:
+        init_country()
+        yield
+        es = MyElastic()
+        es.delete_index(index='country')
 
     @pytest.mark.parametrize(
         'query,strategies,expected_country', [
@@ -53,6 +61,6 @@ class TestMatchCountry:
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
              ['cities', 'universities', 'info', 'white_list'], ['lb'])
         ])
-    def test_get_countries_from_query(self, query, strategies, expected_country) -> None:
+    def test_get_countries_from_query(self, elasticsearch, setup, query, strategies, expected_country) -> None:
         matched_country = get_countries_from_query(query, strategies)
         assert matched_country == expected_country

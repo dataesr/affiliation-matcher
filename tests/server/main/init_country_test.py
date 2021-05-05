@@ -1,7 +1,7 @@
-from elasticsearch import Elasticsearch
 from matcher.server.main.config import config
 from matcher.server.main.init_country import get_all_cities, get_all_universities, get_info_from_country, \
     get_stop_words_from_country, init_country
+from matcher.server.main.myelastic import MyElastic
 
 
 class TestInitCountry:
@@ -48,7 +48,7 @@ class TestInitCountry:
         assert len(chinese_stop_words) == 0
 
     def test_init_country(self):
-        es = Elasticsearch(config['ELASTICSEARCH_HOST'])
+        es = MyElastic()
         init_country()
         all_results = es.search(index='country', body={'query': {'match_all': {}}})
         assert all_results['hits']['total']['value'] == 249
@@ -61,3 +61,4 @@ class TestInitCountry:
         assert len(french_result['info']) == 2
         assert len(french_result['stop_words']) == 16
         assert len(french_result['universities']) == 1611
+        es.delete_index(index='country')
