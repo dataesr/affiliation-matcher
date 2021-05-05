@@ -281,7 +281,7 @@ def init_country() -> None:
         body.update(white_list)
         stop_words = get_stop_words_from_country(country)
         body.update(stop_words)
-        es.index(index=ES_INDEX, id=country, body=body, refresh=True)
+        es.index(index=ES_INDEX, body=body, refresh=True)
 
 
 if __name__ == '__main__':

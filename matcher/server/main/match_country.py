@@ -10,7 +10,7 @@ ES_INDEX = 'country'
 def get_regex_from_country_by_fields(es: MyElastic = None, index: str = '', country: str = '', fields: list = None,
                                      is_complex: bool = False):
     country = country.lower()
-    results = es.search(index=index, body={'query': {'ids': {'values': [country]}}})
+    results = es.search(index=index, body={'query': {'match': {'alpha_2': country}}})
     regexes = []
     for field in fields:
         try:

@@ -26,11 +26,12 @@ class TestMatchCountry:
         (['stop_words'], [['word_01', 'word_02']], False, re.compile('word 01|word 02', re.IGNORECASE))
     ])
     def test_get_regex_from_country_by_fields(self, elasticsearch, fields, values, is_complex, expected_regex) -> None:
-        body = {}
+        country = 'fr'
+        body = {'alpha_2': country}
         for (field, value) in zip(fields, values):
             body[field] = value
-        elasticsearch['es'].index(index=elasticsearch['index'], id='fr', body=body, refresh=True)
-        regex = get_regex_from_country_by_fields(elasticsearch['es'], elasticsearch['index'], 'fr', fields, is_complex)
+        elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
+        regex = get_regex_from_country_by_fields(elasticsearch['es'], elasticsearch['index'], country, fields, is_complex)
         assert regex == expected_regex
         elasticsearch['es'].delete_by_query(index=elasticsearch['index'], body={'query': {'match_all': {}}})
 
