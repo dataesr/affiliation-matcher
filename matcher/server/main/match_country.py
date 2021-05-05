@@ -1,14 +1,13 @@
 import pycountry
 import re
 
-from elasticsearch import Elasticsearch
-from matcher.server.main.config import config
+from matcher.server.main.myelastic import MyElastic
 from matcher.server.main.strings import normalize_text
 
 ES_INDEX = 'country'
 
 
-def get_regex_from_country_by_fields(es: Elasticsearch = None, index: str = '', country: str = '', fields: list = None,
+def get_regex_from_country_by_fields(es: MyElastic = None, index: str = '', country: str = '', fields: list = None,
                                      is_complex: bool = False):
     country = country.lower()
     results = es.search(index=index, body={'query': {'ids': {'values': [country]}}})
@@ -31,7 +30,7 @@ def get_countries_from_query(query: str = '', strategies: list = None) -> list:
     if strategies is None:
         strategies = ['info']
     countries = []
-    es = Elasticsearch(config['ELASTICSEARCH_HOST'])
+    es = MyElastic()
     query = normalize_text(query, remove_sep=False)
     for country in pycountry.countries:
         country = country.alpha_2.lower()

@@ -3,9 +3,8 @@ import os
 import pycountry
 import requests
 
-from elasticsearch import Elasticsearch
-from matcher.server.main.config import config
 from matcher.server.main.logger import get_logger
+from matcher.server.main.myelastic import MyElastic
 
 ES_INDEX = 'country'
 FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'
@@ -13,8 +12,8 @@ FILE_COUNTRY_WHITE_LIST = 'country_white_list.json'
 QUERY_CITY_POPULATION_LIMIT = 50000
 WIKIDATA_SPARQL_URL = 'https://query.wikidata.org/bigdata/namespace/wdq/sparql'
 
-
 logger = get_logger(__name__)
+
 
 def get_all_cities() -> dict:
     query = '''
@@ -228,10 +227,9 @@ def get_stop_words_from_country(alpha_2: str = None) -> dict:
 
 
 def init_country() -> None:
-    es = Elasticsearch(config['ELASTICSEARCH_HOST'])
+    es = MyElastic()
     mapping = {'mappings': {'properties': {'universities': {'type': 'text'}}}}
-    es.indices.create(index=ES_INDEX, body=mapping, ignore=400)
-    es.delete_by_query(index=ES_INDEX, body={'query': {'match_all': {}}}, refresh=True)
+    es.create_index(index=ES_INDEX, mapping=mapping)
     all_cities = get_all_cities()
     all_universities = get_all_universities()
     all_hospitals = get_all_hospitals()
@@ -253,7 +251,7 @@ def init_country() -> None:
             else []
         cities_it = all_cities[country]['it'] if country in all_cities.keys() and 'it' in all_cities[country].keys() \
             else []
-        body.update({'cities': cities_all, 'cities_strict': cities_strict,'cities_en': cities_en,
+        body.update({'cities': cities_all, 'cities_strict': cities_strict, 'cities_en': cities_en,
                      'cities_fr': cities_fr, 'cities_es': cities_es, 'cities_it': cities_it})
         universities_all = all_universities[country]['all'] if country in all_universities.keys() and 'all' in \
             all_universities[country].keys() else []
