@@ -26,7 +26,7 @@ class TestInitCountry:
 
     def test_get_universities_from_country_fr(self):
         universities = get_all_universities()
-        assert len(universities) == 216
+        assert len(universities) == 217
         assert set(universities['fr'].keys()) == {'all', 'en', 'fr', 'es', 'it'}
         assert 'École normale supérieure de Fontenay-Saint-Cloud' in universities['fr']['all']
         assert 'École normale supérieure de Fontenay-Saint-Cloud' in universities['fr']['en']
