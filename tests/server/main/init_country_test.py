@@ -26,7 +26,7 @@ class TestInitCountry:
 
     def test_get_universities_from_country_fr(self):
         universities = get_all_universities()
-        assert len(universities) == 217
+        assert len(universities) == 216
         assert set(universities['fr'].keys()) == {'all', 'en', 'fr', 'es', 'it'}
         assert 'École normale supérieure de Fontenay-Saint-Cloud' in universities['fr']['all']
         assert 'École normale supérieure de Fontenay-Saint-Cloud' in universities['fr']['en']
@@ -52,7 +52,7 @@ class TestInitCountry:
         init_country()
         all_results = es.search(index='country', body={'query': {'match_all': {}}})
         assert all_results['hits']['total']['value'] == 249
-        french_results = es.search(index='country', body={'query': {'ids': {'values': ['fr']}}})
+        french_results = es.search(index='country', body={'query': {'match': {'alpha_2': 'fr'}}})
         assert french_results['hits']['total']['value'] == 1
         french_result = french_results['hits']['hits'][0]['_source']
         assert len(french_result['cities']) == 130
