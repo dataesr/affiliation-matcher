@@ -19,3 +19,8 @@ class MyElastic(Elasticsearch):
         if index is None:
             raise ValueError('Empty value passed for a required argument "index".')
         return self.indices.delete(index=index, ignore=404)
+
+    def delete_all_by_query(self, index: str = None) -> None:
+        if index is None:
+            raise ValueError('Empty value passed for a required argument "index".')
+        return self.delete_by_query(index=index, body={'query': {'match_all': {}}}, refresh=True)

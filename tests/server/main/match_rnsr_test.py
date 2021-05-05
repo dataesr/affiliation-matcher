@@ -35,9 +35,9 @@ class TestMatchUnstructured:
             'supervisors_name': [],
             'supervisors_acronym': []
         }
-        elasticsearch['es'].index(elasticsearch['index'], body=body, refresh=True)
+        elasticsearch['es'].index(elasticsearch['index_01'], body=body, refresh=True)
         query = 'Biologie et Génétique des interactions Plantes-parasites pour la Protection Intégrée UMR385'
-        result = match_unstructured('test', query)
+        result = match_unstructured(year='test', query=query)
 
         assert len(result.get('matching_info')) == 9
         assert 'code' in result.get('matching_info')
@@ -80,7 +80,8 @@ class TestGetInfo:
         ])
     def test_get_info_by_names(self, elasticsearch, param_year, param_query, param_fields, param_size,
                                expected_results_length) -> None:
-        body = {'id': '12', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-01'], 'acronyms': 'PF-CCB'}
+        body = {'id': '12', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-01'], 'acronyms':
+                'PF-CCB'}
         elasticsearch['es'].index(index=elasticsearch['index_01'], body=body, refresh=True)
         body = {'id': '13', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-02']}
         elasticsearch['es'].index(index=elasticsearch['index_01'], body=body, refresh=True)
@@ -98,8 +99,8 @@ class TestGetInfo:
         assert len(result.get('ids')) == expected_results_length
         assert len(result.get('highlights')) == expected_results_length
         assert len(result.get('nb_matches')) == expected_results_length
-        elasticsearch['es'].delete_by_query(index=elasticsearch['index_01'], body={"query": {"match_all": {}}})
-        elasticsearch['es'].delete_by_query(index=elasticsearch['index_02'], body={"query": {"match_all": {}}})
+        elasticsearch['es'].delete_by_query(index=elasticsearch['index_01'], body={'query': {'match_all': {}}})
+        elasticsearch['es'].delete_by_query(index=elasticsearch['index_02'], body={'query': {'match_all': {}}})
 
     @pytest.mark.parametrize('param_year,param_query,param_fields,param_size,expected_results_length', [
         ('test', 'PF-CCB', ['acronyms'], 200, 1),
