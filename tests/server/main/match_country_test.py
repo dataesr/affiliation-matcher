@@ -3,7 +3,7 @@ import re
 
 from matcher.server.main.init_country import init_country
 from matcher.server.main.match_country import get_countries_from_query, get_regex_from_country_by_fields
-from matcher.server.main.myelastic import MyElastic
+from matcher.server.main.my_elastic import MyElastic
 
 
 @pytest.fixture(scope='module')
@@ -13,7 +13,6 @@ def elasticsearch() -> dict:
     es.create_index(index=index)
     yield {'es': es, 'index': index}
     es.delete_index(index=index)
-
 
 
 class TestMatchCountry:

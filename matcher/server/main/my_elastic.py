@@ -7,7 +7,7 @@ class MyElastic(Elasticsearch):
     def __init__(self) -> None:
         super().__init__(hosts=config['ELASTICSEARCH_HOST'])
 
-    def create_index(self, index: str = None, mapping: dict =None) -> None:
+    def create_index(self, index: str = None, mapping: dict = None) -> None:
         if mapping is None:
             mapping = {}
         if index is None:

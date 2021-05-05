@@ -4,7 +4,7 @@ import pycountry
 import requests
 
 from matcher.server.main.logger import get_logger
-from matcher.server.main.myelastic import MyElastic
+from matcher.server.main.my_elastic import MyElastic
 
 ES_INDEX = 'country'
 FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'

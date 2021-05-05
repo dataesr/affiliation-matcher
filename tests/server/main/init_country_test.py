@@ -1,7 +1,6 @@
-from matcher.server.main.config import config
 from matcher.server.main.init_country import get_all_cities, get_all_universities, get_info_from_country, \
     get_stop_words_from_country, init_country
-from matcher.server.main.myelastic import MyElastic
+from matcher.server.main.my_elastic import MyElastic
 
 
 class TestInitCountry:
@@ -11,7 +10,8 @@ class TestInitCountry:
 
     def test_get_info_from_country_bo(self):
         result = get_info_from_country('bo')
-        assert result == {'alpha_2': 'BO', 'alpha_3': 'BOL', 'info': ['Bolivia, Plurinational State of', 'Plurinational State of Bolivia', 'Bolivia']}
+        assert result == {'alpha_2': 'BO', 'alpha_3': 'BOL', 'info': ['Bolivia, Plurinational State of',
+                                                                      'Plurinational State of Bolivia', 'Bolivia']}
 
     def test_get_all_cities(self):
         cities = get_all_cities()
