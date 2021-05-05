@@ -33,7 +33,7 @@ class TestMatchCountry:
         elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
         regex = get_regex_from_country_by_fields(elasticsearch['es'], elasticsearch['index'], country, fields, is_complex)
         assert regex == expected_regex
-        elasticsearch['es'].delete_by_query(index=elasticsearch['index'], body={'query': {'match_all': {}}})
+        elasticsearch['es'].delete_all_by_query(index=elasticsearch['index'])
 
     @pytest.fixture(scope='class')
     def setup(self) -> None:
