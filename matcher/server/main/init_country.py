@@ -7,6 +7,8 @@ from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
 
 ES_INDEX = 'country'
+FILE_FR_CITIES_INSEE = 'fr_cities_insee.csv'
+FILE_FR_UNIVERSITIES_MESRI = 'fr_universities_mesri.json'
 FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'
 FILE_COUNTRY_WHITE_LIST = 'country_white_list.json'
 QUERY_CITY_POPULATION_LIMIT = 50000
@@ -15,7 +17,22 @@ WIKIDATA_SPARQL_URL = 'https://query.wikidata.org/bigdata/namespace/wdq/sparql'
 logger = get_logger(__name__)
 
 
-def get_all_cities() -> dict:
+def get_cities_from_insee() -> dict:
+    dirname = os.path.dirname(__file__)
+    with open(os.path.join(dirname, FILE_FR_CITIES_INSEE), 'r') as file:
+        insee_cities = [line.rstrip() for line in file]
+    return {'insee_cities': insee_cities}
+
+
+def get_universities_from_mesri() -> dict:
+    dirname = os.path.dirname(__file__)
+    with open(os.path.join(dirname, FILE_FR_UNIVERSITIES_MESRI), 'r') as file:
+        data = json.load(file)
+        mesri_universities = [university['fields']['uo_lib_officiel'] for university in data]
+    return {'mesri_universities': mesri_universities}
+
+
+def get_cities_from_wikidata() -> dict:
     query = '''
     SELECT DISTINCT ?country_alpha2 ?label_native ?label_official ?label_en ?label_fr ?label_es ?label_it WHERE { 
         ?city wdt:P31/wdt:P279* wd:Q515 ;
@@ -81,7 +98,7 @@ def get_all_cities() -> dict:
     return results
 
 
-def get_all_universities() -> dict:
+def get_universities_from_wikidata() -> dict:
     query = '''
     SELECT DISTINCT ?country_alpha2 ?label_native ?label_en ?label_fr ?label_es ?label_it WHERE {
         ?university wdt:P31/wdt:P279* wd:Q38723 ;
@@ -135,7 +152,7 @@ def get_all_universities() -> dict:
     return results
 
 
-def get_all_hospitals() -> dict:
+def get_hospitals_from_wikidata() -> dict:
     query = '''
     SELECT DISTINCT ?country_alpha2 ?label_native ?label_en ?label_fr ?label_es ?label_it WHERE {
         ?hospital wdt:P31/wdt:P279* wd:Q16917 ;
@@ -230,57 +247,61 @@ def init_country() -> None:
     es = MyElastic()
     mapping = {'mappings': {'properties': {'universities': {'type': 'text'}}}}
     es.create_index(index=ES_INDEX, mapping=mapping)
-    all_cities = get_all_cities()
-    all_universities = get_all_universities()
-    all_hospitals = get_all_hospitals()
+    cities = get_cities_from_wikidata()
+    universities = get_universities_from_wikidata()
+    hospitals = get_hospitals_from_wikidata()
     # TODO: use helpers.parallel_bulk
     for country in pycountry.countries:
         country = country.alpha_2.lower()
         body = {}
         info = get_info_from_country(country)
         body.update(info)
-        cities_all = all_cities[country]['all'] if country in all_cities.keys() and 'all' in \
-            all_cities[country].keys() else []
-        cities_strict = all_cities[country]['strict'] if country in all_cities.keys() and 'strict' in \
-            all_cities[country].keys() else []
-        cities_en = all_cities[country]['en'] if country in all_cities.keys() and 'en' in all_cities[country].keys() \
+        cities_all = cities[country]['all'] if country in cities.keys() and 'all' in \
+            cities[country].keys() else []
+        cities_strict = cities[country]['strict'] if country in cities.keys() and 'strict' in \
+            cities[country].keys() else []
+        cities_en = cities[country]['en'] if country in cities.keys() and 'en' in cities[country].keys() \
             else []
-        cities_fr = all_cities[country]['fr'] if country in all_cities.keys() and 'fr' in all_cities[country].keys() \
+        cities_fr = cities[country]['fr'] if country in cities.keys() and 'fr' in cities[country].keys() \
             else []
-        cities_es = all_cities[country]['es'] if country in all_cities.keys() and 'es' in all_cities[country].keys() \
+        cities_es = cities[country]['es'] if country in cities.keys() and 'es' in cities[country].keys() \
             else []
-        cities_it = all_cities[country]['it'] if country in all_cities.keys() and 'it' in all_cities[country].keys() \
+        cities_it = cities[country]['it'] if country in cities.keys() and 'it' in cities[country].keys() \
             else []
-        body.update({'cities': cities_all, 'cities_strict': cities_strict, 'cities_en': cities_en,
-                     'cities_fr': cities_fr, 'cities_es': cities_es, 'cities_it': cities_it})
-        universities_all = all_universities[country]['all'] if country in all_universities.keys() and 'all' in \
-            all_universities[country].keys() else []
-        universities_en = all_universities[country]['en'] if country in all_universities.keys() and 'en' in \
-            all_universities[country].keys() else []
-        universities_fr = all_universities[country]['fr'] if country in all_universities.keys() and 'fr' in \
-            all_universities[country].keys() else []
-        universities_es = all_universities[country]['es'] if country in all_universities.keys() and 'es' in \
-            all_universities[country].keys() else []
-        universities_it = all_universities[country]['it'] if country in all_universities.keys() and 'it' in \
-            all_universities[country].keys() else []
-        body.update({'universities': universities_all, 'universities_en': universities_en, 'universities_fr':
-                    universities_fr, 'universities_es': universities_es, 'universities_it': universities_it})
-        hospitals_all = all_hospitals[country]['all'] if country in all_hospitals.keys() and 'all' in \
-            all_hospitals[country].keys() else []
-        hospitals_en = all_hospitals[country]['en'] if country in all_hospitals.keys() and 'en' in \
-            all_hospitals[country].keys() else []
-        hospitals_fr = all_hospitals[country]['fr'] if country in all_hospitals.keys() and 'fr' in \
-            all_hospitals[country].keys() else []
-        hospitals_es = all_hospitals[country]['es'] if country in all_hospitals.keys() and 'es' in \
-            all_hospitals[country].keys() else []
-        hospitals_it = all_hospitals[country]['it'] if country in all_hospitals.keys() and 'it' in \
-            all_hospitals[country].keys() else []
-        body.update({'hospitals': hospitals_all, 'hospitals_en': hospitals_en, 'hospitals_fr': hospitals_fr,
-                     'hospitals_es': hospitals_es, 'hospitals_it': hospitals_it})
-        white_list = get_white_list_from_country(country)
-        body.update(white_list)
-        stop_words = get_stop_words_from_country(country)
-        body.update(stop_words)
+        body.update({'wikidata_cities': cities_all, 'wikidata_cities_strict': cities_strict, 'wikidata_cities_en':
+                    cities_en, 'wikidata_cities_fr': cities_fr, 'wikidata_cities_es': cities_es, 'wikidata_cities_it':
+                    cities_it})
+        universities_all = universities[country]['all'] if country in universities.keys() and 'all' in \
+            universities[country].keys() else []
+        universities_en = universities[country]['en'] if country in universities.keys() and 'en' in \
+            universities[country].keys() else []
+        universities_fr = universities[country]['fr'] if country in universities.keys() and 'fr' in \
+            universities[country].keys() else []
+        universities_es = universities[country]['es'] if country in universities.keys() and 'es' in \
+            universities[country].keys() else []
+        universities_it = universities[country]['it'] if country in universities.keys() and 'it' in \
+            universities[country].keys() else []
+        body.update({'wikidata_universities': universities_all, 'wikidata_universities_en': universities_en,
+                     'wikidata_universities_fr': universities_fr, 'wikidata_universities_es': universities_es,
+                     'wikidata_universities_it': universities_it})
+        hospitals_all = hospitals[country]['all'] if country in hospitals.keys() and 'all' in \
+            hospitals[country].keys() else []
+        hospitals_en = hospitals[country]['en'] if country in hospitals.keys() and 'en' in \
+            hospitals[country].keys() else []
+        hospitals_fr = hospitals[country]['fr'] if country in hospitals.keys() and 'fr' in \
+            hospitals[country].keys() else []
+        hospitals_es = hospitals[country]['es'] if country in hospitals.keys() and 'es' in \
+            hospitals[country].keys() else []
+        hospitals_it = hospitals[country]['it'] if country in hospitals.keys() and 'it' in \
+            hospitals[country].keys() else []
+        body.update({'wikidata_hospitals': hospitals_all, 'wikidata_hospitals_en': hospitals_en,
+                     'wikidata_hospitals_fr': hospitals_fr, 'wikidata_hospitals_es': hospitals_es,
+                     'wikidata_hospitals_it': hospitals_it})
+        body.update(get_white_list_from_country(country))
+        body.update(get_stop_words_from_country(country))
+        if country == 'fr':
+            body.update(get_cities_from_insee())
+            body.update(get_universities_from_mesri())
         es.index(index=ES_INDEX, body=body, refresh=True)
 
 

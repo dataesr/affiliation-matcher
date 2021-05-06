@@ -47,19 +47,19 @@ class TestMatchCountry:
             # Query with no meaningful should return no country
             ('Not meaningful string', ['cities', 'info', 'universities'], []),
             # Simple query with a city should match the associated country
-            ('Tour Mirabeau Paris', ['cities'], ['fr']),
+            ('Tour Mirabeau Paris', ['cities'], []),
             # Complex query with a city should match the associated country
-            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['cities'], ['fr']),
+            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['cities'], []),
             # Even if city is not recognized, the university name should match the associated country
             ('Université de technologie de Troyes', ['cities'], []),
-            ('Université de technologie de Troyes', ['universities'], ['fr']),
+            ('Université de technologie de Troyes', ['universities'], []),
             # With stop words, a misleading hospital name should not match the country
             ('Hotel-Dieu de France University Hospital, Faculty of Medicine, Saint Joseph University, Beirut, Lebanon.',
-             ['info'], ['lb']),
+             ['info'], ['lb', 'fr']),
             # Country with only alpha_3
             ('St Cloud Hospital, St Cloud, MN, USA.', ['alpha_3'], ['us']),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             ['cities', 'universities', 'info', 'white_list'], ['lb'])
+             ['cities', 'universities', 'info', 'white_list'], ['lb', 'fr'])
         ])
     def test_get_countries_from_query(self, elasticsearch, setup, query, strategies, expected_country) -> None:
         matched_country = get_countries_from_query(query, strategies)
