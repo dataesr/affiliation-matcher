@@ -1,56 +1,18 @@
 import json
 import pytest
 
-from matcher.server.main.init_rnsr import delete_punctuation, get_es_rnsr, normalize, normalize_for_count,\
-    normalize_text, strip_accents
+from matcher.server.main.init_rnsr import get_es_rnsr, normalize
 
 
-@pytest.mark.parametrize('text,expected_stripped_text', [
-    ('guivarc’h', 'guivarc h'),
-    ('énervant', 'enervant'),
-    ('agaçant', 'agacant')
-])
-def test_strip_accents(text: str, expected_stripped_text: str) -> None:
-    result = strip_accents(text)
-    assert result == expected_stripped_text
-
-
-@pytest.mark.parametrize('text,expected_without_punctuation_text', [
-    ('with.dot', 'with dot'),
-    ('no,comma', 'no comma'),
-    ('UPPERCASE', 'uppercase')
-])
-def test_delete_punctuation(text: str, expected_without_punctuation_text: str) -> None:
-    result = delete_punctuation(text)
-    assert result == expected_without_punctuation_text
-
-
-@pytest.mark.parametrize('text,expected_normalized_text', [
-    ('before\xa0after', 'before after'),
-    ('multiple    spaces', 'multiple spaces')
-])
-def test_normalize_text(text: str, expected_normalized_text: str) -> None:
-    result = normalize_text(text)
-    assert result == expected_normalized_text
-
-
-@pytest.mark.parametrize('text,expected_normalized_text', [
+@pytest.mark.parametrize('text,normalized_text', [
     ('single-dash', 'single dash'),
     ('here-are-multiple-dashes', 'here are multiple dashes'),
     ('multiple    spaces', 'multiple spaces'),
     ('UPPERCASE', 'uppercase')
 ])
-def test_normalize(text: str, expected_normalized_text: str) -> None:
+def test_normalize(text: str, normalized_text: str) -> None:
     result = normalize(text)
-    assert result == expected_normalized_text
-
-
-@pytest.mark.parametrize('text,expected_normalized_text', [
-    ('this is a long long text', 'this i')
-])
-def test_normalize_for_count(text: str, expected_normalized_text: str) -> None:
-    result = normalize_for_count(text)
-    assert result == expected_normalized_text
+    assert result == normalized_text
 
 
 def test_get_es_rnsr(requests_mock) -> None:
