@@ -63,4 +63,4 @@ class TestMatchCountry:
         ])
     def test_get_countries_from_query(self, elasticsearch, setup, query, strategies, expected_country) -> None:
         matched_country = get_countries_from_query(query, strategies)
-        assert matched_country == expected_country
+        assert matched_country.sort() == expected_country.sort()
