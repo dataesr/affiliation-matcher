@@ -245,8 +245,8 @@ def get_stop_words_from_country(alpha_2: str = None) -> dict:
 
 def init_country() -> None:
     es = MyElastic()
-    mapping = {'mappings': {'properties': {'universities': {'type': 'text'}}}}
-    es.create_index(index=ES_INDEX, mapping=mapping)
+    mappings = {'mappings': {'properties': {'universities': {'type': 'text'}}}}
+    es.create_index(index=ES_INDEX, mappings=mappings)
     cities = get_cities_from_wikidata()
     universities = get_universities_from_wikidata()
     hospitals = get_hospitals_from_wikidata()
