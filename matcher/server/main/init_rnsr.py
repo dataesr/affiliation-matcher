@@ -43,21 +43,12 @@ def init_es():
     char_filters = get_char_filters()
     tokenizers = get_tokenizers()
     analyzers = get_analyzers()
-    res = {}
+    actions = []
     for year in rnsr:
         reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers)
-        actions = [
-            {
-                '_index': 'index-rnsr-{}'.format(year),
-                '_id': j,
-                '_source': rnsr[year][j]
-            }
-            for j in range(0, len(rnsr[year]))
-        ]
-        res['index-rnsr-{}'.format(year)] = len(rnsr[year])
-        helpers.bulk(es, actions)
-    res['ok'] = 1
-    return res
+        index = 'index-rnsr-{year}'.format(year=year)
+        actions += [{'_index': index, '_source': j} for j in rnsr[year]]
+    helpers.bulk(es, actions)
 
 
 def get_filters(stop_code, main_cities, main_cities_for_removal, main_supervisors_name, main_supervisors_acronym,
@@ -433,20 +424,19 @@ def get_common_words(rnsr, field, split=True, threshold=10):
 
 
 def get_es_rnsr() -> dict:
-    supervisors_names = {}
-    supervisors_acronyms = {}
-    supervisors_cities = {}
-    url_dataesr = config['APP_ORGA'] + '/organizations/?where={"rnsr":{"$exists":true}}&max_results=500' \
-                                       '&projection={"active":1,"alias":1,"names":1,"id":1,' \
-                                       '"code_numbers":1,"supervisors":1,"addresses":1,"dates":1,' \
-                                       '"sirene":1}&page='
-    r_page = requests.get(url_dataesr + str(1), headers=header)
-    nb_page = math.ceil(r_page.json()['meta']['total'] / 500)
+    url = '{root_url}/organizations/?where={{"rnsr":{{"$exists":true}}}}&max_results={page_size}&projection={{' \
+          '"active":1,"alias":1,"names":1,"id":1,"code_numbers":1,"supervisors":1,"addresses":1,"dates":1,' \
+          '"sirene":1}}&page='.format(root_url=config['APP_ORGA'], page_size=500)
     es_rnsrs = {'all': [], 2011: [], 2012: [], 2013: [], 2014: [], 2015: [], 2016: [], 2017: [], 2018: [], 2019: [],
                 2020: []}
-    pages = range(1, nb_page + 1)
-    for page in pages:
-        rnsrs = requests.get(url_dataesr + str(page), headers=header).json().get('data', [])
+    supervisors_acronyms = {}
+    supervisors_cities = {}
+    supervisors_names = {}
+    page = 1
+    while True:
+        rnsrs = requests.get(url + str(page), headers=header).json().get('data', [])
+        if len(rnsrs) == 0:
+            break
         for rnsr in rnsrs:
             es_rnsr = {'id': rnsr['id']}
             # ACRONYMS & NAMES
@@ -509,6 +499,7 @@ def get_es_rnsr() -> dict:
                                                                   d.get('end_date')[0:4] >= str(year)):
                         es_rnsrs[year].append(es_rnsr)
             es_rnsrs['all'].append(es_rnsr)
+        page += 1
     return es_rnsrs
 
 
