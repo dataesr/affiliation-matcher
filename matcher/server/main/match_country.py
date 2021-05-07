@@ -20,9 +20,9 @@ def get_regex_from_country_by_fields(es: MyElastic = None, index: str = '', coun
         values = values if type(values) == list else [values]
         regexes = regexes + values
     if is_complex:
-        pattern = '|'.join(['(?<![a-z])' + normalize_text(regex, remove_sep=False) + '(?![a-z])' for regex in regexes])
+        pattern = '|'.join(['(?<![a-z])' + normalize_text(regex, remove_separator=False) + '(?![a-z])' for regex in regexes])
     else:
-        pattern = '|'.join([normalize_text(regex, remove_sep=False) for regex in regexes])
+        pattern = '|'.join([normalize_text(regex, remove_separator=False) for regex in regexes])
     return re.compile(pattern, re.IGNORECASE | re.UNICODE) if pattern != '' else None
 
 
@@ -31,7 +31,7 @@ def get_countries_from_query(query: str = '', strategies: list = None) -> list:
         strategies = ['info']
     countries = []
     es = MyElastic()
-    query = normalize_text(query, remove_sep=False)
+    query = normalize_text(query, remove_separator=False)
     for country in pycountry.countries:
         country = country.alpha_2.lower()
         keywords_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, strategies, True)
