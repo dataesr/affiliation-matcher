@@ -1,18 +1,6 @@
 import json
-import pytest
 
-from matcher.server.main.init_rnsr import get_es_rnsr, normalize
-
-
-@pytest.mark.parametrize('text,normalized_text', [
-    ('single-dash', 'single dash'),
-    ('here-are-multiple-dashes', 'here are multiple dashes'),
-    ('multiple    spaces', 'multiple spaces'),
-    ('UPPERCASE', 'uppercase')
-])
-def test_normalize(text: str, normalized_text: str) -> None:
-    result = normalize(text)
-    assert result == normalized_text
+from matcher.server.main.init_rnsr import get_es_rnsr
 
 
 def test_get_es_rnsr(requests_mock) -> None:

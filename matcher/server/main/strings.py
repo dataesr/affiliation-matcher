@@ -14,10 +14,8 @@ def remove_punction(s):
 
 def strip_accents(text: str) -> str:
     """Normalize accents and stuff in string."""
-    text = text.replace("’", " ")
-    return "".join(
-        c for c in unicodedata.normalize("NFD", text)
-        if unicodedata.category(c) != "Mn")
+    text = text.replace('’', ' ')
+    return ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
 
 
 def delete_punctuation(text: str) -> str:

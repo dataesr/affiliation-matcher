@@ -1,4 +1,3 @@
-import math
 import os
 import requests
 
@@ -9,10 +8,6 @@ from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.strings import normalize_text
 
 es = MyElastic()
-
-
-def normalize(text):
-    return normalize_text(text, remove_separator=False).lower().replace('-', ' ').replace('‐', ' ').replace('  ', ' ')
 
 
 def init_es():
@@ -408,9 +403,9 @@ def get_common_words(rnsr, field, split=True, threshold=10):
     for elt in rnsr['all']:
         for c in elt.get(field, []):
             if split:
-                v = normalize(c).split(' ')
+                v = normalize_text(c, remove_separator=False).split(' ')
             else:
-                v = [normalize(c)]
+                v = [normalize_text(c, remove_separator=False)]
             for w in v:
                 if w not in common:
                     common[w] = 0
