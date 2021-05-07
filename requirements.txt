@@ -1,6 +1,7 @@
 # Dev dependencies
 pytest==6.2.3
 pytest-mock==3.5.1
+requests-mock==1.9.2
 
 # Dependencies
 beautifulsoup4==4.8.2
