@@ -1,46 +1,18 @@
 import math
 import os
 import requests
-import string
-import unicodedata
 
 from elasticsearch import helpers
 
 from matcher.server.main.config import config
 from matcher.server.main.my_elastic import MyElastic
+from matcher.server.main.strings import normalize_text
 
 es = MyElastic()
 
 
-def strip_accents(w: str) -> str:
-    """Normalize accents and stuff in string."""
-    w2 = w.replace("’", " ")
-    return "".join(
-        c for c in unicodedata.normalize("NFD", w2)
-        if unicodedata.category(c) != "Mn")
-
-
-def delete_punctuation(w: str) -> str:
-    """Delete all punctuation in a string."""
-    return w.lower().translate(str.maketrans(string.punctuation, len(string.punctuation) * " "))
-
-
-def normalize_text(text: str) -> str:
-    """Normalize string. Delete punctuation and accents."""
-    if isinstance(text, str):
-        text = delete_punctuation(text)
-        text = strip_accents(text)
-        text = text.replace('\xa0', ' ')
-        text = " ".join(text.split())
-    return text or ""
-
-
 def normalize(text):
-    return normalize_text(text).lower().replace('-', ' ').replace('‐', ' ').replace('  ', ' ')
-
-
-def normalize_for_count(text):
-    return normalize_text(text)[0:6]
+    return normalize_text(text, remove_separator=False).lower().replace('-', ' ').replace('‐', ' ').replace('  ', ' ')
 
 
 def init_es():
@@ -93,108 +65,129 @@ def get_filters(stop_code, main_cities, main_cities_for_removal, main_supervisor
         'french_stop': {
             'type': 'stop',
             'stopwords': '_french_'
-        }, 'english_stop': {
+        },
+        'english_stop': {
             'type': 'stop',
             'stopwords': '_english_'
-        }, 'extract_digits': {
+        },
+        'extract_digits': {
             'type': 'keep_types',
             'types': ['<NUM>']
-        }, 'length_min_2_char': {
+        },
+        'length_min_2_char': {
             'type': 'length',
             'min': 2
-        }, 'length_min_3_char': {
+        },
+        'length_min_3_char': {
             'type': 'length',
             'min': 3
-        }, 'length_min_4_char': {
+        },
+        'length_min_4_char': {
             'type': 'length',
             'min': 4
-        }, 'length_min_5_char': {
+        },
+        'length_min_5_char': {
             'type': 'length',
             'min': 5
-        }, 'length_2_5_char': {
+        },
+        'length_2_5_char': {
             'type': 'length',
             'min': 2,
             'max': 5
-        }, 'french_elision': {
+        },
+        'french_elision': {
             'type': 'elision',
             'articles_case': True,
             'articles': ['l', 'm', 't', 'qu', 'n', 's', 'j', 'd', 'c', 'jusqu', 'quoiqu', 'lorsqu', 'puisqu']
-        }, 'french_stemmer': {
+        },
+        'french_stemmer': {
             'type': 'stemmer',
             'language': 'light_french'
-        }, 'english_stemmer': {
+        },
+        'english_stemmer': {
             'type': 'stemmer',
             'language': 'light_english'
-        }, 'underscore_remove': {
+        },
+        'underscore_remove': {
             'type': 'pattern_replace',
             'pattern': '(-|_)',
             'replacement': ' '
-        }, 'city_remover': {
+        },
+        'city_remover': {
             'type': 'stop',
             'ignore_case': True,
             'stopwords': main_cities_for_removal
-        }, 'code_filter': {
+        },
+        'code_filter': {
             'type': 'stop',
             'ignore_case': True,
             'stopwords': stop_code
-        }, 'custom_filter_acronym': {
+        },
+        'custom_filter_acronym': {
             'type': 'stop',
             'ignore_case': True,
             'stopwords': ['cedex', 'medecine', 'ums', 'umr', 'pole', 'umi', 'care', 'métiers', 'ur', 'ea', 'dmu']
-        }, 'custom_filter_supervisor': {
+        },
+        'custom_filter_supervisor': {
             'type': 'stop',
             'ignore_case': True,
             'stopwords': ['institut', 'institute', 'universite', 'university', 'centre', 'pole', 'national']
-        }, 'custom_filter_code': {
+        },
+        'custom_filter_code': {
             'type': 'stop',
             'ignore_case': True,
             'stopwords': ['cnrs', 'pasteur', 'inserm', 'insa']
-        }, 'custom_filter_name': {
+        },
+        'custom_filter_name': {
             'type': 'stop',
             'ignore_case': True,
             'stopwords': ['france']
-        }, 'etab_stop': {
+        },
+        'etab_stop': {
             'type': 'stop',
             'ignore_case': True,
             'stopwords': ['universite', 'hospice', 'hospices', 'hopital', 'hospital',
                           'hospitalo', 'universitaire', 'chu', 'centre', 'hospitalier',
                           'inserm', 'cnrs', 'inria', 'inrae', 'insa', 'pasteur',
                           'service', 'APHP', 'APHM', 'AP', 'HP', 'HM']
-        }, 'keep_code_labels': {
+        },
+        'keep_code_labels': {
             'type': 'keep',
             'keep_words': labels_in_code
-        }, 'keep_cities': {
+        },
+        'keep_cities': {
             'type': 'keep',
             'keep_words': main_cities
-        }, 'common_acronyms_filter': {
+        },
+        'common_acronyms_filter': {
             'type': 'stop',
             'ignore_case': True,
             'stopwords': main_acronyms
-        }, 'supervisors_filter': {
+        },
+        'supervisors_filter': {
             'type': 'stop',
             'ignore_case': True,
             'stopwords': main_supervisors_name + main_supervisors_acronym
-        }, 'common_names_filter': {
+        },
+        'common_names_filter': {
             'type': 'stop',
             'ignore_case': True,
             'stopwords': main_names
-        }, 'city_synonym': {
+        },
+        'city_synonym': {
             'type': 'synonym_graph',
-            'synonyms': [
-                'pierre benite, lyon',
-                'pierre bénite, lyon'
-            ]
-        }, 'name_synonym': {
+            'synonyms': ['pierre benite, lyon', 'pierre bénite, lyon']
+        },
+        'name_synonym': {
             'type': 'synonym_graph',
-            'synonyms': [
-                'modelling, modelisation',
-                'antimicrobials, antimicrobien'
-            ]
-        }, 'remove_space': {
+            'synonyms': ['modelling, modelisation', 'antimicrobials, antimicrobien']
+        },
+        'remove_space': {
             'type': 'pattern_replace',
             'pattern': ' ',
             'replacement': ''
-        }}
+        }
+    }
 
 
 def get_char_filters() -> dict:
@@ -203,11 +196,13 @@ def get_char_filters() -> dict:
             'type': 'pattern_replace',
             'pattern': '\D+',
             'replacement': ' '
-        }, 'remove_digits': {
+        },
+        'remove_digits': {
             'type': 'pattern_replace',
             'pattern': '[0-9]',
             'replacement': ' '
-        }, 'remove_space': {
+        },
+        'remove_space': {
             'type': 'pattern_replace',
             'pattern': ' |_',
             'replacement': ''
@@ -225,10 +220,12 @@ def get_tokenizers() -> dict:
                 'letter',
                 'digit'
             ]
-        }, 'code_tokenizer': {
+        },
+        'code_tokenizer': {
             'type': 'pattern',
             'pattern': '_|\W+'
-        }, 'code_tokenizer_lucky': {
+        },
+        'code_tokenizer_lucky': {
             'type': 'simple_pattern',
             'pattern': '(UMR|U|FR|EA|UPR|UR|CIC|GDR)(.{0,4})([0-9]{2,4})'
         }
@@ -241,7 +238,8 @@ def get_analyzers() -> dict:
             'tokenizer': 'standard',
             'char_filter': ['keep_digits_only'],
             'filter': ['length_2_5_char']
-        }, 'analyzer_code_labels': {
+        },
+        'analyzer_code_labels': {
             'tokenizer': 'code_tokenizer',
             'char_filter': ['remove_digits'],
             'filter': ['lowercase',
@@ -249,16 +247,19 @@ def get_analyzers() -> dict:
                        'custom_filter_code',
                        'keep_code_labels'
                        ]
-        }, 'analyzer_code': {
+        },
+        'analyzer_code': {
             'tokenizer': 'code_tokenizer_lucky',
             'filter': ['lowercase', 'custom_filter_code']
-        }, 'light': {
+        },
+        'light': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
                 'french_elision',
                 'icu_folding'
             ]
-        }, 'heavy': {
+        },
+        'heavy': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
                 'french_elision',
@@ -268,7 +269,8 @@ def get_analyzers() -> dict:
                 'english_stop',
                 'french_stemmer'
             ]
-        }, 'analyzer_address': {
+        },
+        'analyzer_address': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
                 'french_elision',
@@ -279,7 +281,8 @@ def get_analyzers() -> dict:
                 'keep_cities',
                 'city_synonym'
             ]
-        }, 'analyzer_acronym': {
+        },
+        'analyzer_acronym': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
                 'length_min_3_char',
@@ -291,7 +294,8 @@ def get_analyzers() -> dict:
                 'icu_folding',
                 'french_stemmer'
             ]
-        }, 'analyzer_name': {
+        },
+        'analyzer_name': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
                 'french_elision',
@@ -305,7 +309,8 @@ def get_analyzers() -> dict:
                 'name_synonym',
                 'custom_filter_name'
             ]
-        }, 'analyzer_supervisor': {
+        },
+        'analyzer_supervisor': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
                 'icu_folding',
@@ -315,7 +320,8 @@ def get_analyzers() -> dict:
                 'english_stop',
                 'custom_filter_supervisor'
             ]
-        }, 'analyzer_supervisor_acronym': {
+        },
+        'analyzer_supervisor_acronym': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
                 'icu_folding',
@@ -336,7 +342,8 @@ def reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers):
     settings = {
         'index': {
             'max_ngram_diff': 8
-        }, 'analysis': {
+        },
+        'analysis': {
             'analyzer': analyzers,
             'char_filter': char_filters,
             'filter': filters,
@@ -363,8 +370,8 @@ def reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers):
                     'digits': {
                         'type': 'text',
                         'analyzer': 'analyzer_digits'
-                    }
-                    , 'labels': {
+                    },
+                    'labels': {
                         'type': 'text',
                         'analyzer': 'analyzer_code_labels'
                     }

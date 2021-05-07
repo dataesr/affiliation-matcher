@@ -78,6 +78,6 @@ class TestInitCountry:
         assert french_result['alpha_3'] == 'FRA'
         assert len(french_result['info']) == 2
         assert len(french_result['wikidata_cities']) == 130
-        assert len(french_result['wikidata_universities']) == 1612
+        assert len(french_result['wikidata_universities']) == 1613
         assert len(french_result['stop_words']) == 0
         es.delete_index(index='country')
