@@ -1,4 +1,3 @@
-import json
 import math
 import os
 import requests
@@ -507,5 +506,4 @@ def get_es_rnsr() -> dict:
 
 
 if __name__ == '__main__':
-    header = {'Authorization': 'Basic cm9vdDp0b25uZXJyZTJCcmVzdA=='}
     init_es()
