@@ -6,7 +6,7 @@ from matcher.server.main.init_rnsr import get_es_rnsr
 def test_get_es_rnsr(requests_mock) -> None:
     url = 'http://185.161.45.213/organizations/organizations/?where=%7B%22rnsr%22:%7B%22$exists%22:true%7D%7D' \
           '&max_results=500&projection=%7B%22active%22:1,%22alias%22:1,%22names%22:1,%22id%22:1,%22' \
-          'code_numbers%22:1,%22supervisors%22:1,%22addresses%22:1,%22dates%22:1,%22sirene%22:1%7D&page=1'
+          'code_numbers%22:1,%22supervisors%22:1,%22addresses%22:1,%22dates%22:1,%22sirene%22:1%7D&page={page}'
     data = [
         {'id': 0, 'dates': [{'start_date': '2013', 'end_date': '2013'}, {'start_date': '2020'}]},
         {'id': 1, 'dates': [{'start_date': '2018'}], 'names': [{'name_fr': 'french_name_01',
@@ -18,7 +18,9 @@ def test_get_es_rnsr(requests_mock) -> None:
         {'id': 3, 'code_numbers': ['code 01', 'code 02'], 'sirene': 'sirene_01'},
         {'id': 4, 'supervisors': [{'id': 'supervisor_01', 'name': 'supervisor_name_01'}, {'id': 'supervisor_02'}]}
     ]
-    requests_mock.get(url, text='{{"meta": {{"total": 12}}, "data": {data}}}'.format(data=json.dumps(data)))
+    requests_mock.get(url.format(page=1), text='{{"meta": {{"total": 12}}, "data": {data}}}'.format(
+        data=json.dumps(data)))
+    requests_mock.get(url.format(page=2), text='{{"meta": {{"total": 12}}, "data": {data}}}'.format(data=[]))
     data_supervisor_01 = {'names': [{'name_fr': 'supervisor_name_fr_01', 'name_en': 'supervisor_name_en_01'},
                                     {'name_fr': 'supervisor_name_fr_02'}, {'acronym_fr': 'supervisor_acronym_fr_01'}],
                           'addresses': [{'city': 'supervisor_city_01'}, {}]}
