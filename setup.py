@@ -32,7 +32,8 @@ setup(
     ],
     tests_require=[
         'pytest==6.2.3',
-        'pytest-mock==3.5.1'
+        'pytest-mock==3.5.1',
+        'requests-mock==1.9.2'
     ],
     classifiers=[
         # https://pypi.org/pypi?%3Aaction=list_classifiers
