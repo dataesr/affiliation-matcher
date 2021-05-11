@@ -45,22 +45,24 @@ class TestMatchCountry:
     @pytest.mark.parametrize(
         'query,strategies,expected_country', [
             # Query with no meaningful should return no country
-            ('Not meaningful string', ['cities', 'info', 'universities'], []),
+            ('Not meaningful string', ['wikidata_cities', 'info', 'wikidata_universities'], []),
             # Simple query with a city should match the associated country
-            ('Tour Mirabeau Paris', ['cities'], []),
+            ('Tour Mirabeau Paris', ['wikidata_cities'], ['fr']),
             # Complex query with a city should match the associated country
-            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['cities'], []),
-            # Even if city is not recognized, the university name should match the associated country
-            ('Université de technologie de Troyes', ['cities'], []),
-            ('Université de technologie de Troyes', ['universities'], []),
+            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['wikidata_cities'], ['fr']),
             # With stop words, a misleading hospital name should not match the country
             ('Hotel-Dieu de France University Hospital, Faculty of Medicine, Saint Joseph University, Beirut, Lebanon.',
              ['info'], ['lb', 'fr']),
             # Country with only alpha_3
             ('St Cloud Hospital, St Cloud, MN, USA.', ['alpha_3'], ['us']),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             ['cities', 'universities', 'info', 'white_list'], ['lb', 'fr'])
+             ['wikidata_cities', 'wikidata_universities', 'info', 'white_list'], ['lb', 'fr']),
+            # Even if city is not recognized, the university name should match the associated country
+            ('Université de technologie de Troyes', ['wikidata_cities'], []),
+            ('Université de technologie de Troyes', ['wikidata_universities'], ['fr']),
         ])
     def test_get_countries_from_query(self, elasticsearch, setup, query, strategies, expected_country) -> None:
         matched_country = get_countries_from_query(query, strategies)
-        assert matched_country.sort() == expected_country.sort()
+        matched_country.sort()
+        expected_country.sort()
+        assert set(matched_country) == set(expected_country)
