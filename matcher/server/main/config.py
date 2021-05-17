@@ -1,7 +1,7 @@
 import os
 
 # Load the application environment
-APP_ENV = os.getenv('APP_ENV', 'development')
+APP_ENV = os.getenv('APP_ENV')
 
 # Set default config
 APP_ORGA = 'http://185.161.45.213/organizations'
