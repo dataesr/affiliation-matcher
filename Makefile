@@ -49,6 +49,3 @@ release:
 	git commit -am '[release] version $(VERSION)'
 	git tag $(VERSION)
 	@echo If everything is OK, you can push with tags i.e. git push origin master --tags
-
-kube-deploy:
-	kubectl apply -k k8s
