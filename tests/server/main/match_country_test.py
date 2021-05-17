@@ -31,7 +31,8 @@ class TestMatchCountry:
         for (field, value) in zip(fields, values):
             body[field] = value
         elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
-        regex = get_regex_from_country_by_fields(elasticsearch['es'], elasticsearch['index'], country, fields, is_complex)
+        regex = get_regex_from_country_by_fields(elasticsearch['es'], elasticsearch['index'], country, fields,
+                                                 is_complex)
         assert regex == expected_regex
         elasticsearch['es'].delete_all_by_query(index=elasticsearch['index'])
 
@@ -45,21 +46,24 @@ class TestMatchCountry:
     @pytest.mark.parametrize(
         'query,strategies,expected_country', [
             # Query with no meaningful should return no country
-            ('Not meaningful string', ['wikidata_cities', 'info', 'wikidata_universities'], []),
+            ('Not meaningful string', ['wikidata_cities'], []),
             # Simple query with a city should match the associated country
             ('Tour Mirabeau Paris', ['wikidata_cities'], ['fr']),
             # Complex query with a city should match the associated country
-            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['wikidata_cities'], ['fr']),
+            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['wikidata_cities'],
+             ['fr']),
             # With stop words, a misleading hospital name should not match the country
             ('Hotel-Dieu de France University Hospital, Faculty of Medicine, Saint Joseph University, Beirut, Lebanon.',
              ['info'], ['lb', 'fr']),
             # Country with only alpha_3
             ('St Cloud Hospital, St Cloud, MN, USA.', ['alpha_3'], ['us']),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             ['wikidata_cities', 'wikidata_universities', 'info', 'white_list'], ['lb', 'fr']),
+             ['wikidata_cities', 'wikidata_hospitals', 'info'], ['lb']),
             # Even if city is not recognized, the university name should match the associated country
             ('Université de technologie de Troyes', ['wikidata_cities'], []),
             ('Université de technologie de Troyes', ['wikidata_universities'], ['fr']),
+            # Multiple strategies should return the intersection of matched countries and NOT the union of them
+            ('Université de technologie de Troyes', ['wikidata_cities', 'wikidata_universities'], []),
         ])
     def test_get_countries_from_query(self, elasticsearch, setup, query, strategies, expected_country) -> None:
         matched_country = get_countries_from_query(query, strategies)

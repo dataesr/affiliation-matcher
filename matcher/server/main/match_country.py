@@ -20,7 +20,8 @@ def get_regex_from_country_by_fields(es: MyElastic = None, index: str = '', coun
         values = values if type(values) == list else [values]
         regexes = regexes + values
     if is_complex:
-        pattern = '|'.join(['(?<![a-z])' + normalize_text(regex, remove_separator=False) + '(?![a-z])' for regex in regexes])
+        pattern = '|'.join(
+            ['(?<![a-z])' + normalize_text(regex, remove_separator=False) + '(?![a-z])' for regex in regexes])
     else:
         pattern = '|'.join([normalize_text(regex, remove_separator=False) for regex in regexes])
     return re.compile(pattern, re.IGNORECASE | re.UNICODE) if pattern != '' else None
@@ -33,12 +34,15 @@ def get_countries_from_query(query: str = '', strategies: list = None) -> list:
     es = MyElastic()
     query = normalize_text(query, remove_separator=False)
     for country in pycountry.countries:
+        is_country_matched = True
         country = country.alpha_2.lower()
-        keywords_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, strategies, True)
-        if keywords_regex is not None and re.search(keywords_regex, query):
-            stop_words_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, ['stop_words'], False)
-            if stop_words_regex is not None and re.search(stop_words_regex, query):
-                continue
-            else:
-                countries.append(country)
+        for strategy in strategies:
+            keywords_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, [strategy], True)
+            is_country_matched = is_country_matched and keywords_regex is not None and \
+                bool(re.search(keywords_regex, query))
+        stop_words_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, ['stop_words'], False)
+        if stop_words_regex is not None and re.search(stop_words_regex, query):
+            continue
+        if is_country_matched:
+            countries.append(country)
     return list(set(countries))
