@@ -7,6 +7,7 @@ from elasticsearch.helpers import parallel_bulk
 
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
+from matcher.server.main.utils import get_data_from_grid
 
 ES_INDEX = 'country'
 FILE_FR_CITIES_INSEE = 'fr_cities_insee.csv'
@@ -15,6 +16,7 @@ FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'
 FILE_COUNTRY_WHITE_LIST = 'country_white_list.json'
 QUERY_CITY_POPULATION_LIMIT = 50000
 WIKIDATA_SPARQL_URL = 'https://query.wikidata.org/bigdata/namespace/wdq/sparql'
+GRID_DUMP_URL = 'https://ndownloader.figshare.com/files/27251693'
 
 logger = get_logger(__name__)
 
@@ -245,13 +247,39 @@ def get_stop_words_from_country(alpha_2: str = None) -> dict:
     return {'stop_words': stop_words}
 
 
+def get_all_from_grid():
+    grids = get_data_from_grid(url=GRID_DUMP_URL)
+    results = {}
+    for grid in grids['institutes']:
+        names = [grid.get('name')] + grid.get('aliases', []) + grid.get('acronyms', [])
+        grid_addresses = grid.get('addresses', [])
+        if len(grid_addresses) > 0:
+            grid_address = grid_addresses[0]
+            grid_country = grid_address.get('country_code').lower()
+            if grid_country is not None and grid_country not in results.keys():
+                results[grid_country] = {'grid_cities': [], 'grid_hospitals': [], 'grid_universities': []}
+            tmp_01 = grid_address.get('geonames_city', {}) if grid_address is not None else {}
+            tmp_02 = tmp_01.get('geonames_admin1', {}) if tmp_01 is not None else {}
+            address_02 = tmp_01.get('city') if tmp_01 is not None else None
+            address_03 = tmp_02.get('name') if tmp_02 is not None else None
+            grid_cities = [grid_address.get('city'), address_02, address_03]
+            results[grid_country]['grid_cities'] += grid_cities
+            for grid_type in grid.get('types', []):
+                if grid_type == 'Healthcare':
+                    results[grid_country]['grid_hospitals'] += names
+                elif grid_type in ['Education', 'Facility']:
+                    results[grid_country]['grid_universities'] += names
+    return results
+
+
 def init_country() -> None:
     es = MyElastic()
     mappings = {'mappings': {'properties': {'universities': {'type': 'text'}}}}
     es.create_index(index=ES_INDEX, mappings=mappings)
-    cities = get_cities_from_wikidata()
-    universities = get_universities_from_wikidata()
-    hospitals = get_hospitals_from_wikidata()
+    wikidata_cities = get_cities_from_wikidata()
+    wikidata_universities = get_universities_from_wikidata()
+    wikidata_hospitals = get_hospitals_from_wikidata()
+    grid = get_all_from_grid()
     actions = []
     for country in pycountry.countries:
         country = country.alpha_2.lower()
@@ -260,61 +288,35 @@ def init_country() -> None:
         info = get_info_from_country(country)
         body.update(info)
         # WIKIDATA CITIES
-        cities_all = cities[country]['all'] if country in cities.keys() and 'all' in \
-            cities[country].keys() else []
-        cities_strict = cities[country]['strict'] if country in cities.keys() and 'strict' in \
-            cities[country].keys() else []
-        cities_en = cities[country]['en'] if country in cities.keys() and 'en' in cities[country].keys() \
-            else []
-        cities_fr = cities[country]['fr'] if country in cities.keys() and 'fr' in cities[country].keys() \
-            else []
-        cities_es = cities[country]['es'] if country in cities.keys() and 'es' in cities[country].keys() \
-            else []
-        cities_it = cities[country]['it'] if country in cities.keys() and 'it' in cities[country].keys() \
-            else []
         body.update({
-            'wikidata_cities': cities_all,
-            'wikidata_cities_strict': cities_strict,
-            'wikidata_cities_en': cities_en,
-            'wikidata_cities_fr': cities_fr,
-            'wikidata_cities_es': cities_es,
-            'wikidata_cities_it': cities_it
+            'wikidata_cities': wikidata_cities.get(country, {}).get('all', []),
+            'wikidata_cities_strict': wikidata_cities.get(country, {}).get('strict', []),
+            'wikidata_cities_en': wikidata_cities.get(country, {}).get('en', []),
+            'wikidata_cities_fr': wikidata_cities.get(country, {}).get('fr', []),
+            'wikidata_cities_es': wikidata_cities.get(country, {}).get('es', []),
+            'wikidata_cities_it': wikidata_cities.get(country, {}).get('it', [])
         })
         # WIKIDATA UNIVERSITIES
-        universities_all = universities[country]['all'] if country in universities.keys() and 'all' in \
-            universities[country].keys() else []
-        universities_en = universities[country]['en'] if country in universities.keys() and 'en' in \
-            universities[country].keys() else []
-        universities_fr = universities[country]['fr'] if country in universities.keys() and 'fr' in \
-            universities[country].keys() else []
-        universities_es = universities[country]['es'] if country in universities.keys() and 'es' in \
-            universities[country].keys() else []
-        universities_it = universities[country]['it'] if country in universities.keys() and 'it' in \
-            universities[country].keys() else []
         body.update({
-            'wikidata_universities': universities_all,
-            'wikidata_universities_en': universities_en,
-            'wikidata_universities_fr': universities_fr,
-            'wikidata_universities_es': universities_es,
-            'wikidata_universities_it': universities_it
+            'wikidata_universities': wikidata_universities.get(country, {}).get('all', []),
+            'wikidata_universities_en': wikidata_universities.get(country, {}).get('en', []),
+            'wikidata_universities_fr': wikidata_universities.get(country, {}).get('fr', []),
+            'wikidata_universities_es': wikidata_universities.get(country, {}).get('es', []),
+            'wikidata_universities_it': wikidata_universities.get(country, {}).get('it', [])
         })
         # WIKIDATA HOSPITALS
-        hospitals_all = hospitals[country]['all'] if country in hospitals.keys() and 'all' in \
-            hospitals[country].keys() else []
-        hospitals_en = hospitals[country]['en'] if country in hospitals.keys() and 'en' in \
-            hospitals[country].keys() else []
-        hospitals_fr = hospitals[country]['fr'] if country in hospitals.keys() and 'fr' in \
-            hospitals[country].keys() else []
-        hospitals_es = hospitals[country]['es'] if country in hospitals.keys() and 'es' in \
-            hospitals[country].keys() else []
-        hospitals_it = hospitals[country]['it'] if country in hospitals.keys() and 'it' in \
-            hospitals[country].keys() else []
         body.update({
-            'wikidata_hospitals': hospitals_all,
-            'wikidata_hospitals_en': hospitals_en,
-            'wikidata_hospitals_fr': hospitals_fr,
-            'wikidata_hospitals_es': hospitals_es,
-            'wikidata_hospitals_it': hospitals_it
+            'wikidata_hospitals': wikidata_hospitals.get(country, {}).get('all', []),
+            'wikidata_hospitals_en': wikidata_hospitals.get(country, {}).get('en', []),
+            'wikidata_hospitals_fr': wikidata_hospitals.get(country, {}).get('fr', []),
+            'wikidata_hospitals_es': wikidata_hospitals.get(country, {}).get('es', []),
+            'wikidata_hospitals_it': wikidata_hospitals.get(country, {}).get('it', [])
+        })
+        # GRID HOSPITALS AND UNIVERSITIES
+        body.update({
+            'grid_hospitals': list(filter(None, list(set(grid.get(country, {}).get('grid_hospitals', []))))),
+            'grid_universities': list(filter(None, list(set(grid.get(country, {}).get('grid_universities', []))))),
+            'grid_cities': list(filter(None, list(set(grid.get(country, {}).get('grid_cities', [])))))
         })
         # WHITE LIST
         body.update(get_white_list_from_country(country))

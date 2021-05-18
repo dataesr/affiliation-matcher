@@ -1,11 +1,8 @@
-import json
-import os
-import requests
-import zipfile
+from elasticsearch.helpers import bulk
 
-from elasticsearch import helpers
 from matcher.server.main.my_elastic import MyElastic
-from strings import normalize_text
+from matcher.server.main.utils import get_data_from_grid
+from matcher.server.main.strings import normalize_text
 
 es = MyElastic()
 
@@ -14,7 +11,7 @@ def normalize(text: str = None) -> str:
     return normalize_text(text, remove_separator=False).lower().replace('-', ' ').replace('‐', ' ').replace('  ', ' ')
 
 
-def init_grid_es() -> dict:
+def init_grid() -> dict:
     grid = get_grid()
     main_cities = [c for c in get_common_words(grid, 'cities', split=True, threshold=0) if len(c) > 2]
     main_countries = [c for c in get_common_words(grid, 'country', split=True, threshold=0) if len(c) > 1]
@@ -37,7 +34,11 @@ def init_grid_es() -> dict:
         for j in range(0, len(grid))
     ]
     res['index-grid'] = len(grid)
-    helpers.bulk(es, actions)
+    bulk(es, actions)
+    # TODO
+    # for success, info in parallel_bulk(client=es, actions=actions):
+    #     if not success:
+    #         logger.warning('A document insert failed: {info}'.format(info=info))
     res['ok'] = 1
     return res
 
@@ -269,13 +270,6 @@ def reset_index_grid(filters, char_filters, tokenizers, analyzers):
     return es.create_index(index=index, mappings=mappings, settings=settings)
 
 
-def has_a_digit(x) -> bool:
-    for c in x:
-        if c.isdigit():
-            return True
-    return False
-
-
 def get_common_words(x, field, split=True, threshold=10) -> list:
     common = {}
     for elt in x:
@@ -295,24 +289,10 @@ def get_common_words(x, field, split=True, threshold=10) -> list:
     return result
 
 
-def download_url(url, save_path, chunk_size=128) -> None:
-    r = requests.get(url=url, stream=True)
-    with open(save_path, 'wb') as fd:
-        for chunk in r.iter_content(chunk_size=chunk_size):
-            fd.write(chunk)
-
-
 def get_grid() -> list:
     grid_data = []
-    url_grid = 'https://digitalscience.figshare.com/ndownloader/files/23552738'
-    try:
-        os.mkdir('grid_data')
-    except:
-        pass
-    download_url(url_grid, 'grid_data_dump.zip')
-    with zipfile.ZipFile('grid_data_dump.zip', 'r') as zip_ref:
-        zip_ref.extractall('grid_data')
-    grid = json.load(open('grid_data/grid.json', 'r'))
+    url = 'https://digitalscience.figshare.com/ndownloader/files/23552738'
+    grid = get_data_from_grid(url=url)
     for elt in grid['institutes']:
         if elt.get('status') != 'active':
             continue
@@ -346,3 +326,7 @@ def get_grid() -> list:
         new_elt['country_code'] = [k.get('country_code') for k in elt.get('addresses', []) if 'country_code' in k]
         grid_data.append(new_elt)
     return grid_data
+
+
+if __name__ == '__main__':
+    init_grid()

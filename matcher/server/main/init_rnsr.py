@@ -6,6 +6,7 @@ from elasticsearch import helpers
 from matcher.server.main.config import config
 from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.strings import normalize_text
+from matcher.server.main.utils import has_a_digit
 
 header = {'Authorization': 'Basic {}'.format(os.getenv('DATAESR_HEADER'))}
 es = MyElastic()
@@ -390,13 +391,6 @@ def reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers) -> None
         }
     }
     return es.create_index(index=index, mappings=mappings, settings=settings)
-
-
-def has_a_digit(x) -> bool:
-    for c in x:
-        if c.isdigit():
-            return True
-    return False
 
 
 def get_common_words(rnsr, field, split=True, threshold=10) -> list:
