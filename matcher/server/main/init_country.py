@@ -3,6 +3,8 @@ import os
 import pycountry
 import requests
 
+from elasticsearch.helpers import parallel_bulk
+
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
 
@@ -250,12 +252,14 @@ def init_country() -> None:
     cities = get_cities_from_wikidata()
     universities = get_universities_from_wikidata()
     hospitals = get_hospitals_from_wikidata()
-    # TODO: use helpers.parallel_bulk
+    actions = []
     for country in pycountry.countries:
         country = country.alpha_2.lower()
-        body = {}
+        body = {'_index': ES_INDEX}
+        # GENERAL INFO
         info = get_info_from_country(country)
         body.update(info)
+        # WIKIDATA CITIES
         cities_all = cities[country]['all'] if country in cities.keys() and 'all' in \
             cities[country].keys() else []
         cities_strict = cities[country]['strict'] if country in cities.keys() and 'strict' in \
@@ -268,9 +272,15 @@ def init_country() -> None:
             else []
         cities_it = cities[country]['it'] if country in cities.keys() and 'it' in cities[country].keys() \
             else []
-        body.update({'wikidata_cities': cities_all, 'wikidata_cities_strict': cities_strict, 'wikidata_cities_en':
-                    cities_en, 'wikidata_cities_fr': cities_fr, 'wikidata_cities_es': cities_es, 'wikidata_cities_it':
-                    cities_it})
+        body.update({
+            'wikidata_cities': cities_all,
+            'wikidata_cities_strict': cities_strict,
+            'wikidata_cities_en': cities_en,
+            'wikidata_cities_fr': cities_fr,
+            'wikidata_cities_es': cities_es,
+            'wikidata_cities_it': cities_it
+        })
+        # WIKIDATA UNIVERSITIES
         universities_all = universities[country]['all'] if country in universities.keys() and 'all' in \
             universities[country].keys() else []
         universities_en = universities[country]['en'] if country in universities.keys() and 'en' in \
@@ -281,9 +291,14 @@ def init_country() -> None:
             universities[country].keys() else []
         universities_it = universities[country]['it'] if country in universities.keys() and 'it' in \
             universities[country].keys() else []
-        body.update({'wikidata_universities': universities_all, 'wikidata_universities_en': universities_en,
-                     'wikidata_universities_fr': universities_fr, 'wikidata_universities_es': universities_es,
-                     'wikidata_universities_it': universities_it})
+        body.update({
+            'wikidata_universities': universities_all,
+            'wikidata_universities_en': universities_en,
+            'wikidata_universities_fr': universities_fr,
+            'wikidata_universities_es': universities_es,
+            'wikidata_universities_it': universities_it
+        })
+        # WIKIDATA HOSPITALS
         hospitals_all = hospitals[country]['all'] if country in hospitals.keys() and 'all' in \
             hospitals[country].keys() else []
         hospitals_en = hospitals[country]['en'] if country in hospitals.keys() and 'en' in \
@@ -294,15 +309,26 @@ def init_country() -> None:
             hospitals[country].keys() else []
         hospitals_it = hospitals[country]['it'] if country in hospitals.keys() and 'it' in \
             hospitals[country].keys() else []
-        body.update({'wikidata_hospitals': hospitals_all, 'wikidata_hospitals_en': hospitals_en,
-                     'wikidata_hospitals_fr': hospitals_fr, 'wikidata_hospitals_es': hospitals_es,
-                     'wikidata_hospitals_it': hospitals_it})
+        body.update({
+            'wikidata_hospitals': hospitals_all,
+            'wikidata_hospitals_en': hospitals_en,
+            'wikidata_hospitals_fr': hospitals_fr,
+            'wikidata_hospitals_es': hospitals_es,
+            'wikidata_hospitals_it': hospitals_it
+        })
+        # WHITE LIST
         body.update(get_white_list_from_country(country))
+        # STOP WORDS
         body.update(get_stop_words_from_country(country))
         if country == 'fr':
+            # INSEE CITIES
             body.update(get_cities_from_insee())
+            # MESRI UNIVERSITIES
             body.update(get_universities_from_mesri())
-        es.index(index=ES_INDEX, body=body, refresh=True)
+        actions.append(body)
+    for success, info in parallel_bulk(client=es, actions=actions):
+        if not success:
+            logger.warning('A document insert failed: {info}'.format(info=info))
 
 
 if __name__ == '__main__':
