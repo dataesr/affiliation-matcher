@@ -40,7 +40,7 @@ def stringify_dict(dictionary: Dict, sort: bool = True) -> str:
     return text
 
 
-def normalize_text(text: str, remove_separator: bool = True) -> str:
+def normalize_text(text: str = None, remove_separator: bool = True) -> str:
     """Normalize string. Delete punctuation and accents."""
     if isinstance(text, str):
         text = text.replace('\xa0', ' ').replace('\n', ' ')
