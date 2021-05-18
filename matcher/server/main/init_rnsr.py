@@ -10,7 +10,7 @@ from matcher.server.main.strings import normalize_text
 es = MyElastic()
 
 
-def init_es():
+def init_es() -> None:
     rnsr = get_es_rnsr()
     main_cities = [c for c in get_common_words(rnsr, 'cities', split=True, threshold=0) if len(c) > 2]
     main_cities += ['alpes', 'quentin', 'yvelines', 'aquitaine']
@@ -322,7 +322,7 @@ def get_analyzers() -> dict:
     }
 
 
-def reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers):
+def reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers) -> None:
     index = 'index-rnsr-{}'.format(year)
     es.delete_index(index=index)
     settings = {
@@ -391,14 +391,14 @@ def reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers):
     return es.create_index(index=index, mappings=mappings, settings=settings)
 
 
-def has_a_digit(x):
+def has_a_digit(x) -> bool:
     for c in x:
         if c.isdigit():
             return True
     return False
 
 
-def get_common_words(rnsr, field, split=True, threshold=10):
+def get_common_words(rnsr, field, split=True, threshold=10) -> list:
     common = {}
     for elt in rnsr['all']:
         for c in elt.get(field, []):
