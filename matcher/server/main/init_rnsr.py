@@ -1,8 +1,6 @@
 import os
 import requests
 
-from elasticsearch import helpers
-
 from matcher.server.main.config import config
 from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.strings import normalize_text
@@ -11,7 +9,7 @@ from matcher.server.main.utils import has_a_digit
 es = MyElastic()
 
 
-def init_es() -> None:
+def init_rnsr() -> None:
     rnsr = get_es_rnsr()
     main_cities = [c for c in get_common_words(rnsr, 'cities', split=True, threshold=0) if len(c) > 2]
     main_cities += ['alpes', 'quentin', 'yvelines', 'aquitaine']
@@ -43,7 +41,7 @@ def init_es() -> None:
         reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers)
         index = 'index-rnsr-{year}'.format(year=year)
         actions += [{'_index': index, '_source': j} for j in rnsr[year]]
-    helpers.bulk(es, actions)
+    es.parallel_bulk(actions=actions)
 
 
 def get_filters(stop_code, main_cities, main_cities_for_removal, main_supervisors_name, main_supervisors_acronym,
@@ -492,4 +490,4 @@ def get_es_rnsr() -> dict:
 
 
 if __name__ == '__main__':
-    init_es()
+    init_rnsr()

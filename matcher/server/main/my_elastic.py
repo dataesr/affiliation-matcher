@@ -1,11 +1,13 @@
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, helpers
 
 from matcher.server.main.config import config
+from matcher.server.main.logger import get_logger
 
 
 class MyElastic(Elasticsearch):
     def __init__(self) -> None:
         super().__init__(hosts=config['ELASTICSEARCH_HOST'])
+        self.logger = get_logger(__name__)
 
     def create_index(self, index: str = None, mappings: dict = None, settings: dict = None) -> None:
         if mappings is None:
@@ -26,3 +28,8 @@ class MyElastic(Elasticsearch):
         if index is None:
             raise ValueError('Empty value passed for a required argument "index".')
         return self.delete_by_query(index=index, body={'query': {'match_all': {}}}, refresh=True)
+
+    def parallel_bulk(self, actions: list = None) -> None:
+        for success, info in helpers.parallel_bulk(client=self, actions=actions):
+            if not success:
+                self.logger.warning('A document failed: {info}'.format(info=info))

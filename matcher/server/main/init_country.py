@@ -3,8 +3,6 @@ import os
 import pycountry
 import requests
 
-from elasticsearch.helpers import parallel_bulk
-
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.utils import get_data_from_grid
@@ -219,8 +217,7 @@ def get_info_from_country(alpha_2: str = None) -> dict:
         info.append(country.official_name)
     if hasattr(country, 'common_name'):
         info.append(country.common_name)
-    return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3,
-            'info': info}
+    return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'info': info}
 
 
 def get_white_list_from_country(alpha_2: str = None) -> dict:
@@ -314,9 +311,9 @@ def init_country() -> None:
         })
         # GRID HOSPITALS AND UNIVERSITIES
         body.update({
+            'grid_cities': list(filter(None, list(set(grid.get(country, {}).get('grid_cities', []))))),
             'grid_hospitals': list(filter(None, list(set(grid.get(country, {}).get('grid_hospitals', []))))),
-            'grid_universities': list(filter(None, list(set(grid.get(country, {}).get('grid_universities', []))))),
-            'grid_cities': list(filter(None, list(set(grid.get(country, {}).get('grid_cities', [])))))
+            'grid_universities': list(filter(None, list(set(grid.get(country, {}).get('grid_universities', [])))))
         })
         # WHITE LIST
         body.update(get_white_list_from_country(country))
@@ -328,9 +325,7 @@ def init_country() -> None:
             # MESRI UNIVERSITIES
             body.update(get_universities_from_mesri())
         actions.append(body)
-    for success, info in parallel_bulk(client=es, actions=actions):
-        if not success:
-            logger.warning('A document insert failed: {info}'.format(info=info))
+    es.parallel_bulk(actions=actions)
 
 
 if __name__ == '__main__':
