@@ -1,6 +1,6 @@
 from matcher.server.main.init_country import init_country
 from matcher.server.main.init_finess import init_es_finess
-from matcher.server.main.init_rnsr import init_es
+from matcher.server.main.init_rnsr import init_rnsr
 from matcher.server.main.match_country import get_countries_from_query
 from matcher.server.main.match_finess import match_unstructured_finess
 from matcher.server.main.match_rnsr import match_unstructured, match_fields
@@ -37,7 +37,7 @@ def create_task_rnsr(arg) -> dict:
 
 
 def create_task_init_rnsr() -> None:
-    return init_es()
+    return init_rnsr()
 
 
 def create_task_country(arg) -> dict:
