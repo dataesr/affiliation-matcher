@@ -251,6 +251,7 @@ def get_all_from_grid():
         names = [grid.get('name')] + grid.get('aliases', [])
         acronyms = grid.get('acronyms', [])
         grid_addresses = grid.get('addresses', [])
+        names += [label.get('label') for label in grid.get('labels', [])]
         if len(grid_addresses) > 0:
             grid_address = grid_addresses[0]
             grid_country = grid_address.get('country_code').lower()
@@ -262,12 +263,12 @@ def get_all_from_grid():
                     'grid_universities_names': [],
                     'grid_universities_acronyms': []
                 }
+            address_01 = grid_address.get('city')
             tmp_01 = grid_address.get('geonames_city', {}) if grid_address is not None else {}
             tmp_02 = tmp_01.get('geonames_admin1', {}) if tmp_01 is not None else {}
             address_02 = tmp_01.get('city') if tmp_01 is not None else None
             address_03 = tmp_02.get('name') if tmp_02 is not None else None
-            grid_cities = [grid_address.get('city'), address_02, address_03]
-            results[grid_country]['grid_cities'] += grid_cities
+            results[grid_country]['grid_cities'] += [address_01, address_02, address_03]
             for grid_type in grid.get('types', []):
                 if grid_type == 'Healthcare':
                     results[grid_country]['grid_hospitals_names'] += names
