@@ -274,41 +274,38 @@ def get_common_words(x, field, split=True, threshold=10) -> list:
 
 
 def get_grid() -> list:
-    grid_data = []
+    data = []
     grids = get_data_from_grid(url=GRID_DUMP_URL)
-    for elt in grids['institutes']:
-        if elt.get('status') != 'active':
+    for grid in grids['institutes']:
+        if grid.get('status') != 'active':
             continue
-        new_elt = {'id': elt['id']}
+        datum = {'id': grid.get('id')}
         # NAMES
-        names = []
-        if 'name' in elt:
-            names.append(elt['name'])
-        names += elt.get('aliases', [])
-        for lab in elt.get('labels', []):
-            if 'label' in lab:
-                names.append(lab.get('label'))
-        new_elt['names'] = names
+        names = [grid.get('name')] + grid.get('aliases', [])
+        for label in grid.get('labels', []):
+            if 'label' in label:
+                names.append(label.get('label'))
+        datum['names'] = names
         # ACRONYMS
-        acronyms = elt.get('acronyms', [])
-        new_elt['acronyms'] = acronyms
+        datum['acronyms'] = grid.get('acronyms', [])
         # ADDRESSES
         cities = []
-        for ad in elt.get('addresses', []):
-            if 'city' in ad:
-                cities.append(ad['city'])
-            if 'geonames_city' in ad and ad['geonames_city']:
-                if 'nuts_level3' in ad['geonames_city'] and ad['geonames_city']['nuts_level3']:
-                    if 'name' in ad['geonames_city']['nuts_level3']:
-                        cities.append(ad['geonames_city']['nuts_level3']['name'])
-                if 'nuts_level2' in ad['geonames_city'] and ad['geonames_city']['nuts_level2']:
-                    if 'name' in ad['geonames_city']['nuts_level2']:
-                        cities.append(ad['geonames_city']['nuts_level2']['name'])
-        new_elt['cities'] = list(set(cities))
-        new_elt['country'] = [k.get('country') for k in elt.get('addresses', []) if 'country' in k]
-        new_elt['country_code'] = [k.get('country_code') for k in elt.get('addresses', []) if 'country_code' in k]
-        grid_data.append(new_elt)
-    return grid_data
+        addresses = grid.get('addresses', [])
+        for address in addresses:
+            if 'city' in address:
+                cities.append(address['city'])
+            if 'geonames_city' in address and address['geonames_city']:
+                if 'nuts_level3' in address['geonames_city'] and address['geonames_city']['nuts_level3']:
+                    if 'name' in address['geonames_city']['nuts_level3']:
+                        cities.append(address['geonames_city']['nuts_level3']['name'])
+                if 'nuts_level2' in address['geonames_city'] and address['geonames_city']['nuts_level2']:
+                    if 'name' in address['geonames_city']['nuts_level2']:
+                        cities.append(address['geonames_city']['nuts_level2']['name'])
+        datum['cities'] = list(set(cities))
+        datum['country'] = [address.get('country') for address in addresses if 'country' in address]
+        datum['country_code'] = [address.get('country_code') for address in addresses if 'country_code' in address]
+        data.append(datum)
+    return data
 
 
 if __name__ == '__main__':
