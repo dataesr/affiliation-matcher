@@ -248,13 +248,20 @@ def get_all_from_grid():
     grids = get_data_from_grid(url=GRID_DUMP_URL)
     results = {}
     for grid in grids['institutes']:
-        names = [grid.get('name')] + grid.get('aliases', []) + grid.get('acronyms', [])
+        names = [grid.get('name')] + grid.get('aliases', [])
+        acronyms = grid.get('acronyms', [])
         grid_addresses = grid.get('addresses', [])
         if len(grid_addresses) > 0:
             grid_address = grid_addresses[0]
             grid_country = grid_address.get('country_code').lower()
             if grid_country is not None and grid_country not in results.keys():
-                results[grid_country] = {'grid_cities': [], 'grid_hospitals': [], 'grid_universities': []}
+                results[grid_country] = {
+                    'grid_cities': [],
+                    'grid_hospitals_names': [],
+                    'grid_hospitals_acronyms': [],
+                    'grid_universities_names': [],
+                    'grid_universities_acronyms': []
+                }
             tmp_01 = grid_address.get('geonames_city', {}) if grid_address is not None else {}
             tmp_02 = tmp_01.get('geonames_admin1', {}) if tmp_01 is not None else {}
             address_02 = tmp_01.get('city') if tmp_01 is not None else None
@@ -263,9 +270,11 @@ def get_all_from_grid():
             results[grid_country]['grid_cities'] += grid_cities
             for grid_type in grid.get('types', []):
                 if grid_type == 'Healthcare':
-                    results[grid_country]['grid_hospitals'] += names
+                    results[grid_country]['grid_hospitals_names'] += names
+                    results[grid_country]['grid_hospitals_acronyms'] += acronyms
                 elif grid_type in ['Education', 'Facility']:
-                    results[grid_country]['grid_universities'] += names
+                    results[grid_country]['grid_universities_names'] += names
+                    results[grid_country]['grid_universities_acronyms'] += acronyms
     return results
 
 
@@ -312,8 +321,14 @@ def init_country() -> None:
         # GRID HOSPITALS AND UNIVERSITIES
         body.update({
             'grid_cities': list(filter(None, list(set(grid.get(country, {}).get('grid_cities', []))))),
-            'grid_hospitals': list(filter(None, list(set(grid.get(country, {}).get('grid_hospitals', []))))),
-            'grid_universities': list(filter(None, list(set(grid.get(country, {}).get('grid_universities', [])))))
+            'grid_hospitals_names': list(filter(None, list(set(grid.get(country, {})
+                                                               .get('grid_hospitals_names', []))))),
+            'grid_hospitals_acronyms': list(filter(None, list(set(grid.get(country, {})
+                                                                  .get('grid_hospitals_acronyms', []))))),
+            'grid_universities_names': list(filter(None, list(set(grid.get(country, {})
+                                                                  .get('grid_universities_names', []))))),
+            'grid_universities_acronyms': list(filter(None, list(set(grid.get(country, {})
+                                                                     .get('grid_universities_acronyms', [])))))
         })
         # WHITE LIST
         body.update(get_white_list_from_country(country))
