@@ -97,12 +97,8 @@ def match_fields(year, code, name, city, acronym, supervisors_id) -> dict:
 
 
 def match_structured(matching_info: dict = None, strategies: list = None, logs: str = '') -> dict:
-    has_code = False
-    if len(matching_info.get('code', {}).get('ids', [])) > 0:
-        has_code = True
-    has_acronym = False
-    if len(matching_info.get('acronym', {}).get('ids', [])) > 0:
-        has_acronym = True
+    has_code = len(matching_info.get('code', {}).get('ids', [])) > 0
+    has_acronym = len(matching_info.get('acronym', {}).get('ids', [])) > 0
     all_matches = {}
     field_matches = {}
     min_match_for_field = {}

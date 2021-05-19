@@ -1,19 +1,13 @@
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.strings import normalize_text
-from matcher.server.main.utils import get_data_from_grid
+from matcher.server.main.utils import get_common_words, download_data_from_grid
 
 ES_INDEX = 'index-grid'
-GRID_DUMP_URL = 'https://ndownloader.figshare.com/files/27251693'
 
 es = MyElastic()
 
 
-def normalize(text: str = None) -> str:
-    return normalize_text(text, remove_separator=False).lower().replace('-', ' ').replace('‐', ' ').replace('  ', ' ')
-
-
 def init_grid() -> None:
-    grid = get_grid()
+    grid = get_data_from_grid()
     main_cities = [c for c in get_common_words(grid, 'cities', split=True, threshold=0) if len(c) > 2]
     main_countries = [c for c in get_common_words(grid, 'country', split=True, threshold=0) if len(c) > 1]
     main_country_code = [c for c in get_common_words(grid, 'country_code', split=True, threshold=0) if len(c) > 1]
@@ -254,28 +248,9 @@ def reset_index_grid(filters, char_filters, tokenizers, analyzers):
     return es.create_index(index=ES_INDEX, mappings=mappings, settings=settings)
 
 
-def get_common_words(x, field, split=True, threshold=10) -> list:
-    common = {}
-    for elt in x:
-        for c in elt.get(field, []):
-            if split:
-                v = normalize(c).split(' ')
-            else:
-                v = [normalize(c)]
-            for w in v:
-                if w not in common:
-                    common[w] = 0
-                common[w] += 1
-    result = []
-    for w in common:
-        if common[w] > threshold:
-            result.append(w)
-    return result
-
-
-def get_grid() -> list:
+def get_data_from_grid() -> list:
     data = []
-    grids = get_data_from_grid(url=GRID_DUMP_URL)
+    grids = download_data_from_grid()
     for grid in grids['institutes']:
         if grid.get('status') != 'active':
             continue
