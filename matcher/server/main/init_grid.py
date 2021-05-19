@@ -1,8 +1,9 @@
-from elasticsearch.helpers import bulk
-
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import get_data_from_grid
 from matcher.server.main.strings import normalize_text
+from matcher.server.main.utils import get_data_from_grid
+
+ES_INDEX = 'index-grid'
+GRID_DUMP_URL = 'https://ndownloader.figshare.com/files/27251693'
 
 es = MyElastic()
 
@@ -11,7 +12,7 @@ def normalize(text: str = None) -> str:
     return normalize_text(text, remove_separator=False).lower().replace('-', ' ').replace('‐', ' ').replace('  ', ' ')
 
 
-def init_grid() -> dict:
+def init_grid() -> None:
     grid = get_grid()
     main_cities = [c for c in get_common_words(grid, 'cities', split=True, threshold=0) if len(c) > 2]
     main_countries = [c for c in get_common_words(grid, 'country', split=True, threshold=0) if len(c) > 1]
@@ -22,25 +23,9 @@ def init_grid() -> dict:
     char_filters = get_char_filters()
     tokenizers = get_tokenizers()
     analyzers = get_analyzers()
-    res = {}
     reset_index_grid(filters, char_filters, tokenizers, analyzers)
-    actions = [
-        {
-            "_index": "index-grid",
-            "_type": "_doc",
-            "_id": j,
-            "_source": grid[j]
-        }
-        for j in range(0, len(grid))
-    ]
-    res['index-grid'] = len(grid)
-    bulk(es, actions)
-    # TODO
-    # for success, info in parallel_bulk(client=es, actions=actions):
-    #     if not success:
-    #         logger.warning('A document insert failed: {info}'.format(info=info))
-    res['ok'] = 1
-    return res
+    actions = [{'_index': ES_INDEX, '_source': j} for j in grid]
+    es.parallel_bulk(actions=actions)
 
 
 def get_filters(main_cities, main_names, main_acronyms, main_countries, main_country_code) -> dict:
@@ -225,8 +210,7 @@ def get_analyzers() -> dict:
 
 
 def reset_index_grid(filters, char_filters, tokenizers, analyzers):
-    index = 'index-grid'
-    es.delete_index(index=index)
+    es.delete_index(index=ES_INDEX)
     settings = {
         'index': {
             'max_ngram_diff': 8
@@ -267,7 +251,7 @@ def reset_index_grid(filters, char_filters, tokenizers, analyzers):
             },
         }
     }
-    return es.create_index(index=index, mappings=mappings, settings=settings)
+    return es.create_index(index=ES_INDEX, mappings=mappings, settings=settings)
 
 
 def get_common_words(x, field, split=True, threshold=10) -> list:
@@ -291,9 +275,8 @@ def get_common_words(x, field, split=True, threshold=10) -> list:
 
 def get_grid() -> list:
     grid_data = []
-    url = 'https://digitalscience.figshare.com/ndownloader/files/23552738'
-    grid = get_data_from_grid(url=url)
-    for elt in grid['institutes']:
+    grids = get_data_from_grid(url=GRID_DUMP_URL)
+    for elt in grids['institutes']:
         if elt.get('status') != 'active':
             continue
         new_elt = {'id': elt['id']}
