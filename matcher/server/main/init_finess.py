@@ -87,8 +87,6 @@ def init_es_finess():
     actions = [
     {
         "_index": "index-finess",
-        "_type": "_doc",
-        "_id": j,
         "_source": docs_to_index[j]
     }
             for j in range(0, len(docs_to_index))

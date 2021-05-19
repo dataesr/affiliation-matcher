@@ -5,16 +5,15 @@ import requests
 
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import get_data_from_grid
+from matcher.server.main.utils import download_data_from_grid
 
 ES_INDEX = 'country'
-FILE_FR_CITIES_INSEE = 'fr_cities_insee.csv'
-FILE_FR_UNIVERSITIES_MESRI = 'fr_universities_mesri.json'
 FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'
 FILE_COUNTRY_WHITE_LIST = 'country_white_list.json'
+FILE_FR_CITIES_INSEE = 'fr_cities_insee.csv'
+FILE_FR_UNIVERSITIES_MESRI = 'fr_universities_mesri.json'
 QUERY_CITY_POPULATION_LIMIT = 50000
 WIKIDATA_SPARQL_URL = 'https://query.wikidata.org/bigdata/namespace/wdq/sparql'
-GRID_DUMP_URL = 'https://ndownloader.figshare.com/files/27251693'
 
 logger = get_logger(__name__)
 
@@ -244,8 +243,8 @@ def get_stop_words_from_country(alpha_2: str = None) -> dict:
     return {'stop_words': stop_words}
 
 
-def get_all_from_grid():
-    grids = get_data_from_grid(url=GRID_DUMP_URL)
+def get_data_from_grid() -> list:
+    grids = download_data_from_grid()
     results = {}
     for grid in grids['institutes']:
         names = [grid.get('name')] + grid.get('aliases', [])
@@ -255,7 +254,7 @@ def get_all_from_grid():
         if len(grid_addresses) > 0:
             grid_address = grid_addresses[0]
             grid_country = grid_address.get('country_code').lower()
-            if grid_country is not None and grid_country not in results.keys():
+            if grid_country and grid_country not in results.keys():
                 results[grid_country] = {
                     'grid_cities': [],
                     'grid_hospitals_names': [],
@@ -264,10 +263,10 @@ def get_all_from_grid():
                     'grid_universities_acronyms': []
                 }
             address_01 = grid_address.get('city')
-            tmp_01 = grid_address.get('geonames_city', {}) if grid_address is not None else {}
-            tmp_02 = tmp_01.get('geonames_admin1', {}) if tmp_01 is not None else {}
-            address_02 = tmp_01.get('city') if tmp_01 is not None else None
-            address_03 = tmp_02.get('name') if tmp_02 is not None else None
+            tmp_01 = grid_address.get('geonames_city', {}) if grid_address else {}
+            tmp_02 = tmp_01.get('geonames_admin1', {}) if tmp_01 else {}
+            address_02 = tmp_01.get('city') if tmp_01 else None
+            address_03 = tmp_02.get('name') if tmp_02 else None
             results[grid_country]['grid_cities'] += [address_01, address_02, address_03]
             for grid_type in grid.get('types', []):
                 if grid_type == 'Healthcare':
@@ -286,7 +285,7 @@ def init_country() -> None:
     wikidata_cities = get_cities_from_wikidata()
     wikidata_universities = get_universities_from_wikidata()
     wikidata_hospitals = get_hospitals_from_wikidata()
-    grid = get_all_from_grid()
+    grid = get_data_from_grid()
     actions = []
     for country in pycountry.countries:
         country = country.alpha_2.lower()

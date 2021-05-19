@@ -38,10 +38,9 @@ def get_countries_from_query(query: str = '', strategies: list = None) -> list:
         country = country.alpha_2.lower()
         for strategy in strategies:
             keywords_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, [strategy], True)
-            is_country_matched = is_country_matched and keywords_regex is not None and \
-                bool(re.search(keywords_regex, query))
+            is_country_matched = is_country_matched and keywords_regex and bool(re.search(keywords_regex, query))
         stop_words_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, ['stop_words'], False)
-        if stop_words_regex is not None and re.search(stop_words_regex, query):
+        if stop_words_regex and re.search(stop_words_regex, query):
             continue
         if is_country_matched:
             countries.append(country)
