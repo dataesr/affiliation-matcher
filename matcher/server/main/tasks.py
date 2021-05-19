@@ -52,7 +52,7 @@ def create_task_init_country():
 
 def create_task_finess(arg) -> dict:
     query = arg.get('query')
-    return match_unstructured_finess(query) if query is not None else {'error': 'all inputs are empty'}
+    return match_unstructured_finess(query) if query else {'error': 'all inputs are empty'}
 
 
 def create_task_init_finess() -> dict:

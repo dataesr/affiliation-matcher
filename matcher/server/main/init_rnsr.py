@@ -3,8 +3,7 @@ import requests
 
 from matcher.server.main.config import config
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.strings import normalize_text
-from matcher.server.main.utils import has_a_digit
+from matcher.server.main.utils import get_common_words, has_a_digit
 
 es = MyElastic()
 header = {'Authorization': 'Basic {}'.format(os.getenv('DATAESR_HEADER'))}
@@ -12,7 +11,7 @@ header = {'Authorization': 'Basic {}'.format(os.getenv('DATAESR_HEADER'))}
 
 def init_rnsr() -> None:
     rnsr = get_es_rnsr()
-    main_cities = [c for c in get_common_words(rnsr, 'cities', split=True, threshold=0) if len(c) > 2]
+    main_cities = [c for c in get_common_words(rnsr['all'], 'cities', split=True, threshold=0) if len(c) > 2]
     main_cities += ['alpes', 'quentin', 'yvelines', 'aquitaine']
     main_cities_for_removal = main_cities.copy()
     for w in ['france', 'francois', 'jacob', 'michel', 'marcel',
@@ -21,13 +20,13 @@ def init_rnsr() -> None:
               'hopital', 'etoile', 'riviere', 'flots', 'cloud', 'anne', 'claude', 'esprit']:
         if w in main_cities:
             main_cities_for_removal.remove(w)
-    main_acronyms = get_common_words(rnsr, 'acronyms', split=True, threshold=5) + ['brgm']
-    main_names = list(set(get_common_words(rnsr, 'names', threshold=50)) - set(main_cities))
+    main_acronyms = get_common_words(rnsr['all'], 'acronyms', split=True, threshold=5) + ['brgm']
+    main_names = list(set(get_common_words(rnsr['all'], 'names', threshold=50)) - set(main_cities))
     main_supervisors_name = list(
-        set(get_common_words(rnsr, 'supervisors_name', split=True, threshold=5)) - set(main_acronyms))
+        set(get_common_words(rnsr['all'], 'supervisors_name', split=True, threshold=5)) - set(main_acronyms))
     main_supervisors_acronym = list(
-        set(get_common_words(rnsr, 'supervisors_acronym', split=True, threshold=1)) - set(main_acronyms))
-    labels_in_code = [k for k in get_common_words(rnsr, 'code_numbers', split=True, threshold=1) if
+        set(get_common_words(rnsr['all'], 'supervisors_acronym', split=True, threshold=1)) - set(main_acronyms))
+    labels_in_code = [k for k in get_common_words(rnsr['all'], 'code_numbers', split=True, threshold=1) if
                       not (has_a_digit(k))]
     stop_code = ['insa', 'inserm', 'pasteur', 'de', 'cnrs', 'team', 'inra', 'inria', 'inrae', 'cea', 'siege', 'tech',
                  'idf', 'ouest']
@@ -389,25 +388,6 @@ def reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers) -> None
         }
     }
     return es.create_index(index=index, mappings=mappings, settings=settings)
-
-
-def get_common_words(rnsr, field, split=True, threshold=10) -> list:
-    common = {}
-    for elt in rnsr['all']:
-        for c in elt.get(field, []):
-            if split:
-                v = normalize_text(c, remove_separator=False).split(' ')
-            else:
-                v = [normalize_text(c, remove_separator=False)]
-            for w in v:
-                if w not in common:
-                    common[w] = 0
-                common[w] += 1
-    result = []
-    for w in common:
-        if common[w] > threshold:
-            result.append(w)
-    return result
 
 
 def get_es_rnsr() -> dict:
