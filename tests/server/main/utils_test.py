@@ -1,9 +1,9 @@
 import pytest
 
-from matcher.server.main.strings import delete_punctuation, normalize_text, strip_accents
+from matcher.server.main.utils import delete_punctuation, normalize_text, strip_accents
 
 
-class TestStrings:
+class TestUtils:
     @pytest.mark.parametrize('text,text_without_punctuation', [
         ('with.dot', 'with dot'),
         ('no,comma', 'no comma'),
