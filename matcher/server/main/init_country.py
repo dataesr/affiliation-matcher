@@ -243,17 +243,25 @@ def get_stop_words_from_country(alpha_2: str = None) -> dict:
     return {'stop_words': stop_words}
 
 
-def get_data_from_grid() -> list:
+def get_data_from_grid() -> dict:
     grids = download_data_from_grid()
     results = {}
     for grid in grids['institutes']:
+        if grid.get('status') != 'active':
+            continue
+        # NAMES
         names = [grid.get('name')] + grid.get('aliases', [])
-        acronyms = grid.get('acronyms', [])
-        grid_addresses = grid.get('addresses', [])
         names += [label.get('label') for label in grid.get('labels', [])]
-        if len(grid_addresses) > 0:
-            grid_address = grid_addresses[0]
-            grid_country = grid_address.get('country_code').lower()
+        names = list(set(names))
+        # ACRONYMS
+        acronyms = grid.get('acronyms', [])
+        acronyms = list(set(acronyms))
+        # CITIES
+        cities = []
+        grid_country = None
+        addresses = grid.get('addresses', [])
+        for address in addresses:
+            grid_country = address.get('country_code').lower()
             if grid_country and grid_country not in results.keys():
                 results[grid_country] = {
                     'grid_cities': [],
@@ -262,19 +270,32 @@ def get_data_from_grid() -> list:
                     'grid_universities_names': [],
                     'grid_universities_acronyms': []
                 }
-            address_01 = grid_address.get('city')
-            tmp_01 = grid_address.get('geonames_city', {}) if grid_address else {}
-            tmp_02 = tmp_01.get('geonames_admin1', {}) if tmp_01 else {}
-            address_02 = tmp_01.get('city') if tmp_01 else None
-            address_03 = tmp_02.get('name') if tmp_02 else None
-            results[grid_country]['grid_cities'] += [address_01, address_02, address_03]
-            for grid_type in grid.get('types', []):
-                if grid_type == 'Healthcare':
-                    results[grid_country]['grid_hospitals_names'] += names
-                    results[grid_country]['grid_hospitals_acronyms'] += acronyms
-                elif grid_type in ['Education', 'Facility']:
-                    results[grid_country]['grid_universities_names'] += names
-                    results[grid_country]['grid_universities_acronyms'] += acronyms
+            if 'city' in address and address.get('city'):
+                cities.append(address.get('city'))
+            if 'geonames_city' in address and address.get('geonames_city'):
+                if 'city' in address.get('geonames_city') and address.get('geonames_city').get('city'):
+                    cities.append(address.get('geonames_city').get('city'))
+                if 'geonames_admin1' in address.get('geonames_city') and \
+                        address.get('geonames_city').get('geonames_admin1'):
+                    if 'name' in address.get('geonames_city').get('geonames_admin1') and \
+                            address.get('geonames_city').get('geonames_admin1').get('name'):
+                        cities.append(address.get('geonames_city').get('geonames_admin1').get('name'))
+                if 'nuts_level2' in address.get('geonames_city') and address.get('geonames_city').get('nuts_level2'):
+                    if 'name' in address.get('geonames_city').get('nuts_level2') and \
+                            address.get('geonames_city').get('nuts_level2').get('name'):
+                        cities.append(address.get('geonames_city').get('nuts_level2').get('name'))
+                if 'nuts_level3' in address.get('geonames_city') and address.get('geonames_city').get('nuts_level3'):
+                    if 'name' in address.get('geonames_city').get('nuts_level3') and \
+                            address.get('geonames_city').get('nuts_level3').get('name'):
+                        cities.append(address.get('geonames_city').get('nuts_level3').get('name'))
+        results[grid_country]['grid_cities'] += list(set(cities))
+        for grid_type in grid.get('types', []):
+            if grid_type == 'Healthcare':
+                results[grid_country]['grid_hospitals_names'] += names
+                results[grid_country]['grid_hospitals_acronyms'] += acronyms
+            elif grid_type in ['Education', 'Facility']:
+                results[grid_country]['grid_universities_names'] += names
+                results[grid_country]['grid_universities_acronyms'] += acronyms
     return results
 
 
@@ -320,15 +341,11 @@ def init_country() -> None:
         })
         # GRID HOSPITALS AND UNIVERSITIES
         body.update({
-            'grid_cities': list(filter(None, list(set(grid.get(country, {}).get('grid_cities', []))))),
-            'grid_hospitals_names': list(filter(None, list(set(grid.get(country, {})
-                                                               .get('grid_hospitals_names', []))))),
-            'grid_hospitals_acronyms': list(filter(None, list(set(grid.get(country, {})
-                                                                  .get('grid_hospitals_acronyms', []))))),
-            'grid_universities_names': list(filter(None, list(set(grid.get(country, {})
-                                                                  .get('grid_universities_names', []))))),
-            'grid_universities_acronyms': list(filter(None, list(set(grid.get(country, {})
-                                                                     .get('grid_universities_acronyms', [])))))
+            'grid_cities': list(set(grid.get(country, {}).get('grid_cities', []))),
+            'grid_hospitals_names': grid.get(country, {}).get('grid_hospitals_names', []),
+            'grid_hospitals_acronyms': grid.get(country, {}).get('grid_hospitals_acronyms', []),
+            'grid_universities_names': grid.get(country, {}).get('grid_universities_names', []),
+            'grid_universities_acronyms': grid.get(country, {}).get('grid_universities_acronyms', [])
         })
         # WHITE LIST
         body.update(get_white_list_from_country(country))
