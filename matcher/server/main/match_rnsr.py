@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from elasticsearch_dsl import Search
 
-from matcher.server.main.config import config
+from matcher.server.main.config import ELASTICSEARCH_URL
 from matcher.server.main.my_elastic import MyElastic
 
 es = MyElastic()
@@ -23,7 +23,7 @@ def normalize_for_count(x, matching_field):
         analyzer = "analyzer_supervisor"
     if analyzer:
         try:
-            r = requests.post(config['ELASTICSEARCH_URL'] + 'index-rnsr-all/_analyze', json={
+            r = requests.post(ELASTICSEARCH_URL + 'index-rnsr-all/_analyze', json={
                 'analyzer': analyzer,
                 'text': x
             }).json()
@@ -299,9 +299,7 @@ def get_info(year, query: str = None, search_fields: list = None, size=20, highl
         s = Search(using=es, index=index)
         for f in highlights:
             s = s.highlight(f)
-        s = s.query('multi_match', query=query,
-                    fuzziness=1,
-                    fields=search_fields)
+        s = s.query('multi_match', query=query, fuzziness=1, fields=search_fields)
         s = s[0:size]
         results = s.execute()
         hits = results.hits
