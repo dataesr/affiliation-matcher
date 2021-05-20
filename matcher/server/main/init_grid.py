@@ -1,5 +1,5 @@
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import get_common_words, download_data_from_grid
+from matcher.server.main.utils import download_data_from_grid, get_common_words
 
 ES_INDEX = 'index-grid'
 

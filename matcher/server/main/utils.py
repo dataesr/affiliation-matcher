@@ -2,14 +2,37 @@ import json
 import os
 import requests
 import shutil
+import string
+import unicodedata
 
 from tempfile import mkdtemp
 from zipfile import ZipFile
 
 from matcher.server.main.config import GRID_DUMP_URL
-from matcher.server.main.strings import normalize_text
 
 CHUNK_SIZE = 128
+
+
+def strip_accents(text: str) -> str:
+    """Normalize accents and stuff in string."""
+    text = text.replace('’', ' ')
+    return ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
+
+
+def delete_punctuation(text: str) -> str:
+    """Delete all punctuation in a string."""
+    return text.lower().translate(str.maketrans(string.punctuation, len(string.punctuation) * ' '))
+
+
+def normalize_text(text: str = None, remove_separator: bool = True) -> str:
+    """Normalize string. Delete punctuation and accents."""
+    if isinstance(text, str):
+        text = text.replace('\xa0', ' ').replace('\n', ' ')
+        text = delete_punctuation(text)
+        text = strip_accents(text)
+        sep = '' if remove_separator else ' '
+        text = sep.join(text.split())
+    return text or ''
 
 
 def download_data_from_grid() -> dict:
@@ -23,8 +46,8 @@ def download_data_from_grid() -> dict:
         file.extractall(grid_unzipped_folder)
     with open('{folder}/grid.json'.format(folder=grid_unzipped_folder), 'r') as file:
         data = json.load(file)
-    os.remove(grid_downloaded_file)
-    shutil.rmtree(grid_unzipped_folder)
+    os.remove(path=grid_downloaded_file)
+    shutil.rmtree(path=grid_unzipped_folder)
     return data
 
 
