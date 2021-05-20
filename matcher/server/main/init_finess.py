@@ -10,37 +10,10 @@ import string
 import unicodedata
 import pickle
 
+from matcher.server.main.utils import normalize_text
+
 es = Elasticsearch(['localhost', 'elasticsearch'])
 
-def strip_accents(w: str) -> str:
-    """Normalize accents and stuff in string."""
-    w2 = w.replace("’", " ")
-    return "".join(
-      c for c in unicodedata.normalize("NFD", w2)
-      if unicodedata.category(c) != "Mn")
-
-
-def delete_punct(w: str) -> str:
-    """Delete all puctuation in a string."""
-    return w.lower().translate(
-          str.maketrans(string.punctuation, len(string.punctuation)*" "))
-
-def normalize_text(text: str) -> str:
-    """Normalize string. Delete puctuation and accents."""
-    if isinstance(text, str):
-        text = delete_punct(text)
-        text = strip_accents(text)
-        text = text.replace('\xa0', ' ')
-        text = " ".join(text.split())
-    return text or ""
-
-
-def normalize(text):
-    return normalize_text(text).lower().replace('-', ' ')\
-              .replace('‐', ' ').replace('  ', ' ')
-
-def normalize_for_count(x):
-    return normalize_text(x)[0:6]
 
 def init_es_finess():
     finess = pickle.load(open("matcher/server/main/dict_finess.pkl", "rb"))
@@ -69,9 +42,9 @@ def init_es_finess():
     for k in finess:
         for elt in finess[k]:
             if elt.get('dataesr_city'):
-                known_cities.append(normalize(elt.get('dataesr_city')))
+                known_cities.append(normalize_text(text=elt.get('dataesr_city'), remove_separator=False))
             if elt.get('Ligne d’acheminement (CodePostal+Lib commune) ligneacheminement'):
-                known_cities.append(normalize(elt.get('Ligne d’acheminement (CodePostal+Lib commune) ligneacheminement')))
+                known_cities.append(normalize_text(text=elt.get('Ligne d’acheminement (CodePostal+Lib commune) ligneacheminement'), remove_separator=False))
     known_cities = list(set(known_cities) - set('france'))
     names_to_remove = ["france", "cedex", "institut"] 
 
