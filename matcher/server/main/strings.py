@@ -1,4 +1,3 @@
-"""String utils."""
 import collections
 import string
 import unicodedata

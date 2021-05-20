@@ -257,25 +257,32 @@ def get_data_from_grid() -> list:
         datum = {'id': grid.get('id')}
         # NAMES
         names = [grid.get('name')] + grid.get('aliases', [])
-        for label in grid.get('labels', []):
-            if 'label' in label:
-                names.append(label.get('label'))
+        names += [label.get('label') for label in grid.get('labels', [])]
         datum['names'] = names
         # ACRONYMS
         datum['acronyms'] = grid.get('acronyms', [])
-        # ADDRESSES
+        # CITIES
         cities = []
         addresses = grid.get('addresses', [])
         for address in addresses:
-            if 'city' in address:
-                cities.append(address['city'])
-            if 'geonames_city' in address and address['geonames_city']:
-                if 'nuts_level3' in address['geonames_city'] and address['geonames_city']['nuts_level3']:
-                    if 'name' in address['geonames_city']['nuts_level3']:
-                        cities.append(address['geonames_city']['nuts_level3']['name'])
-                if 'nuts_level2' in address['geonames_city'] and address['geonames_city']['nuts_level2']:
-                    if 'name' in address['geonames_city']['nuts_level2']:
-                        cities.append(address['geonames_city']['nuts_level2']['name'])
+            if 'city' in address and address.get('city'):
+                cities.append(address.get('city'))
+            if 'geonames_city' in address and address.get('geonames_city'):
+                if 'city' in address.get('geonames_city') and address.get('geonames_city').get('city'):
+                    cities.append(address.get('geonames_city').get('city'))
+                if 'geonames_admin1' in address.get('geonames_city') and \
+                        address.get('geonames_city').get('geonames_admin1'):
+                    if 'name' in address.get('geonames_city').get('geonames_admin1') and \
+                            address.get('geonames_city').get('geonames_admin1').get('name'):
+                        cities.append(address.get('geonames_city').get('geonames_admin1').get('name'))
+                if 'nuts_level2' in address.get('geonames_city') and address.get('geonames_city').get('nuts_level2'):
+                    if 'name' in address.get('geonames_city').get('nuts_level2') and \
+                            address.get('geonames_city').get('nuts_level2').get('name'):
+                        cities.append(address.get('geonames_city').get('nuts_level2').get('name'))
+                if 'nuts_level3' in address.get('geonames_city') and address.get('geonames_city').get('nuts_level3'):
+                    if 'name' in address.get('geonames_city').get('nuts_level3') and \
+                            address.get('geonames_city').get('nuts_level3').get('name'):
+                        cities.append(address.get('geonames_city').get('nuts_level3').get('name'))
         datum['cities'] = list(set(cities))
         datum['country'] = [address.get('country') for address in addresses if 'country' in address]
         datum['country_code'] = [address.get('country_code') for address in addresses if 'country_code' in address]
