@@ -7,7 +7,7 @@ from matcher.server.main.config import ELASTICSEARCH_URL
 from matcher.server.main.my_elastic import MyElastic
 
 es = MyElastic()
-ES_INDEX = 'index-grid'
+ES_INDEX = 'grid'
 
 
 def normalize_for_count(text: str = None, matching_field: str = None) -> str:
