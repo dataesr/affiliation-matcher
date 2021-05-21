@@ -288,14 +288,15 @@ def get_data_from_grid() -> dict:
                     if 'name' in address.get('geonames_city').get('nuts_level3') and \
                             address.get('geonames_city').get('nuts_level3').get('name'):
                         cities.append(address.get('geonames_city').get('nuts_level3').get('name'))
-        results[grid_country]['grid_cities'] += list(set(cities))
-        for grid_type in grid.get('types', []):
-            if grid_type == 'Healthcare':
-                results[grid_country]['grid_hospitals_names'] += names
-                results[grid_country]['grid_hospitals_acronyms'] += acronyms
-            elif grid_type in ['Education', 'Facility']:
-                results[grid_country]['grid_universities_names'] += names
-                results[grid_country]['grid_universities_acronyms'] += acronyms
+        if grid_country:
+            results[grid_country]['grid_cities'] += list(set(cities))
+            for grid_type in grid.get('types', []):
+                if grid_type == 'Healthcare':
+                    results[grid_country]['grid_hospitals_names'] += names
+                    results[grid_country]['grid_hospitals_acronyms'] += acronyms
+                elif grid_type in ['Education', 'Facility']:
+                    results[grid_country]['grid_universities_names'] += names
+                    results[grid_country]['grid_universities_acronyms'] += acronyms
     return results
 
 
