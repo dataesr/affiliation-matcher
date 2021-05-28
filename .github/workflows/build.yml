@@ -12,8 +12,7 @@ jobs:
 
       - name: 🏷️ Collect tag name
         id: tag
-        run: |
-          echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
+        run: echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
 
       - name: 🐍 Build python package
         run: make python-build
