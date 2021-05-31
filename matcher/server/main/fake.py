@@ -3,14 +3,15 @@
 
 # Fake Chrome browser using CEF for reading a webpage
 from __future__ import print_function
-import json
+
 import logging
 import os
 import sys
 import threading
 import time
-import unidecode
+
 import requests
+import unidecode
 from cefpython3 import cefpython as cef
 from matcher.server.main.utils_swift import set_objects, exists_in_storage, get_hash
 

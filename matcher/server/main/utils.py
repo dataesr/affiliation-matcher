@@ -1,12 +1,12 @@
 import json
 import os
-import requests
 import shutil
 import string
 import unicodedata
-
 from tempfile import mkdtemp
 from zipfile import ZipFile
+
+import requests
 
 from matcher.server.main.config import GRID_DUMP_URL
 

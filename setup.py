@@ -1,4 +1,5 @@
 from setuptools import find_packages, setup
+
 from matcher import __version__
 
 with open('./README.md', 'r') as f:
