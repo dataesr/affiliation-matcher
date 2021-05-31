@@ -1,5 +1,6 @@
-import pycountry
 import re
+
+import pycountry
 
 from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.utils import normalize_text
