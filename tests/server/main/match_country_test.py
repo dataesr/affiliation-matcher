@@ -63,7 +63,7 @@ class TestMatchCountry:
             ('Université de technologie de Troyes', ['wikidata_cities'], []),
             ('Université de technologie de Troyes', ['wikidata_universities'], ['fr']),
             # Multiple strategies should return the intersection of matched countries and NOT the union of them
-            ('Université de technologie de Troyes', ['wikidata_cities', 'wikidata_universities'], []),
+            ('Université de technologie de Troyes', ['wikidata_cities', 'wikidata_universities'], [])
         ])
     def test_get_countries_from_query(self, elasticsearch, setup, query, strategies, expected_country) -> None:
         matched_country = get_countries_from_query(query, strategies)

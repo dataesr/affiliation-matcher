@@ -15,7 +15,7 @@ def get_regex_from_country_by_fields(es: MyElastic = None, index: str = '', coun
     for field in fields:
         try:
             values = results['hits']['hits'][0]['_source'][field]
-        except KeyError:
+        except (KeyError, IndexError):
             values = []
         values = values if type(values) == list else [values]
         regexes = regexes + values

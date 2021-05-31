@@ -1,6 +1,6 @@
 import pytest
 
-from matcher.server.main.config import config
+from matcher.server.main.config import ELASTICSEARCH_INDEX
 from matcher.server.main.match_rnsr import match_structured, match_unstructured, get_info, get_match_code, \
     get_match_code_label, get_match_code_digit, get_match_code_fuzzy, get_match_city, get_match_name, \
     get_match_acronym, get_match_supervisors_name, get_match_supervisors_id, get_match_supervisors_acronym, \
@@ -10,17 +10,14 @@ from matcher.server.main.my_elastic import MyElastic
 
 @pytest.fixture(scope='module')
 def elasticsearch() -> dict:
-    index = config['ELASTICSEARCH_INDEX']
-    index_01 = 'index-rnsr-test'
-    index_02 = 'index-rnsr-test2'
+    index = ELASTICSEARCH_INDEX
+    index_other = 'index-rnsr-test-other'
     es = MyElastic()
     es.indices.create(index=index, ignore=[400])
-    es.indices.create(index=index_01, ignore=[400])
-    es.indices.create(index=index_02, ignore=[400])
-    yield {'es': es, 'index': index, 'index_01': index_01, 'index_02': index_02}
+    es.indices.create(index=index_other, ignore=[400])
+    yield {'es': es, 'index': index, 'index_other': index_other}
     es.indices.delete(index=index, ignore=[404])
-    es.indices.delete(index=index_01, ignore=[404])
-    es.indices.delete(index=index_02, ignore=[404])
+    es.indices.delete(index=index_other, ignore=[404])
 
 
 class TestMatchUnstructured:
@@ -40,7 +37,7 @@ class TestMatchUnstructured:
             'supervisors_name': [],
             'supervisors_acronym': []
         }
-        elasticsearch['es'].index(elasticsearch['index_01'], body=body, refresh=True)
+        elasticsearch['es'].index(elasticsearch['index'], body=body, refresh=True)
         query = 'Biologie et Génétique des interactions Plantes-parasites pour la Protection Intégrée UMR385'
         result = match_unstructured(year='test', query=query)
 
@@ -86,25 +83,25 @@ class TestGetInfo:
     def test_get_info_by_names(self, elasticsearch, year, query, fields, size, expected_results_length) -> None:
         body = {'id': '12', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-01'], 'acronyms':
                 'PF-CCB'}
-        elasticsearch['es'].index(index=elasticsearch['index_01'], body=body, refresh=True)
+        elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
         body = {'id': '13', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-02']}
-        elasticsearch['es'].index(index=elasticsearch['index_01'], body=body, refresh=True)
+        elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
         body = {'id': '14', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-03']}
-        elasticsearch['es'].index(index=elasticsearch['index_01'], body=body, refresh=True)
+        elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
         body = {'id': '15', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2017-01']}
-        elasticsearch['es'].index(index=elasticsearch['index_02'], body=body, refresh=True)
+        elasticsearch['es'].index(index=elasticsearch['index_other'], body=body, refresh=True)
         body = {'id': '16', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2017-02']}
-        elasticsearch['es'].index(index=elasticsearch['index_02'], body=body, refresh=True)
+        elasticsearch['es'].index(index=elasticsearch['index_other'], body=body, refresh=True)
         body = {'id': '17', 'names': ['Plate-Forme']}
-        elasticsearch['es'].index(index=elasticsearch['index_01'], body=body, refresh=True)
+        elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
         body = {'id': '18', 'names': ['Plate-Forme other']}
-        elasticsearch['es'].index(index=elasticsearch['index_01'], body=body, refresh=True)
+        elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
         result = get_info(year=year, query=query, search_fields=fields, size=size, highlights=fields)
         assert len(result.get('ids')) == expected_results_length
         assert len(result.get('highlights')) == expected_results_length
         assert len(result.get('nb_matches')) == expected_results_length
-        elasticsearch['es'].delete_all_by_query(index=elasticsearch['index_01'])
-        elasticsearch['es'].delete_all_by_query(index=elasticsearch['index_02'])
+        elasticsearch['es'].delete_all_by_query(index=elasticsearch['index'])
+        elasticsearch['es'].delete_all_by_query(index=elasticsearch['index_other'])
 
     @pytest.mark.parametrize('year,query,fields,size,expected_results_length', [
         ('test', 'PF-CCB', ['acronyms'], 200, 1),
@@ -112,7 +109,7 @@ class TestGetInfo:
     def test_get_info_by_acronyms(self, elasticsearch, year, query, fields, size, expected_results_length)\
             -> None:
         body = {'id': '112', 'acronyms': ['PF-CCB']}
-        elasticsearch['es'].index(elasticsearch['index_01'], body=body, refresh=True)
+        elasticsearch['es'].index(elasticsearch['index'], body=body, refresh=True)
         result = get_info(year=year, query=query, search_fields=fields, size=size, highlights=fields)
         assert len(result.get('ids')) == expected_results_length
         assert len(result.get('highlights')) == expected_results_length
