@@ -11,26 +11,27 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="input_query">Input</label>
-                    <textarea id="input_query" type="text" name="query" class="form-control" rows="4"
-                              placeholder="Entrez ici une signature d'affiliation" required="required"
-                              data-error="A query is required"></textarea>
+                    <textarea class="form-control" data-error="A query is required" id="input_query" name="query"
+                              placeholder="Entrez ici une signature d'affiliation"
+                              required="required" rows="4"
+                              type="text"></textarea>
                     <div class="help-block with-errors"></div>
                 </div>
             </div>
             <div class="col-md-2">
                 <label for="input_type">Type</label>
-                <select id="input_type" class="browser-default custom-select">
+                <select class="browser-default custom-select" id="input_type">
                     <option value="rnsr">RNSR</option>
                     <option value="finess">Finess</option>
-                    <option value="grid" disabled>grid.ac</option>
-                    <option value="ror" disabled>RoR</option>
+                    <option disabled value="grid">grid.ac</option>
+                    <option disabled value="ror">RoR</option>
                     <option value="country">Country</option>
                 </select>
             </div>
 
             <div class="col-md-2">
                 <label for="input_year">Année</label>
-                <select id="input_year" class="browser-default custom-select">
+                <select class="browser-default custom-select" id="input_year">
                     <option value="2020">2020</option>
                     <option value="2019">2019</option>
                     <option value="2018">2018</option>

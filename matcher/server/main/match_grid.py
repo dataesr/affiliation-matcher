@@ -112,17 +112,17 @@ def match_grid_structured(matching_info: dict = None, strategies: list = None, l
             logs += '<li> Id potentiel : {}<br/></li>'.format(potential_id)
             current_match = {'id': potential_id}
             for field in strat_fields:
-                current_match[field+'_match'] = 0
+                current_match[field + '_match'] = 0
                 if potential_id in matching_info[field]['nb_matches']:
-                    current_match[field+'_match'] = matching_info[field]['nb_matches'][potential_id]
+                    current_match[field + '_match'] = matching_info[field]['nb_matches'][potential_id]
                     current_highlights = matching_info[field]['highlights'][potential_id]
                     current_highlights = [e.replace('<em>', '<strong>').replace('</em>', '</strong>')
                                           for e in current_highlights]
-                    logs += '     - {} {} : {}<br/>'\
+                    logs += '     - {} {} : {}<br/>' \
                         .format(matching_info[field]['nb_matches'][potential_id], field, current_highlights)
                 if field not in max_number:
                     max_number[field] = 0
-                max_number[field] = max(max_number[field], current_match[field+'_match'])
+                max_number[field] = max(max_number[field], current_match[field + '_match'])
             current_strat_answers.append(current_match)
         if len(max_number) > 0:
             logs += '<li> &#9989; Nombre de match par champ : {}<br/></li>'.format(max_number)
@@ -144,7 +144,7 @@ def match_grid_structured(matching_info: dict = None, strategies: list = None, l
                             retained_id_for_strat.append(potential_id)
                         else:
                             logs += '<br/> &#128584; ' + potential_id + \
-                                    ' ignoré car {} {} est insuffisant ({} attendus au min)'\
+                                    ' ignoré car {} {} est insuffisant ({} attendus au min)' \
                                         .format(max_number[field], field, min_match_for_field[field])
                             current_strat_avoid.append(potential_id)
                     elif potential_id not in matching_info.get('code', {}).get('ids', []):
@@ -205,7 +205,7 @@ def get_match_country_code(query: str = None) -> dict:
     return get_info(query=query, fields=['country_code'], size=100000)
 
 
-def get_info(query: str = None, fields: list = None, size: int = 20, highlights: list = None, fuzzy_ok: bool = False)\
+def get_info(query: str = None, fields: list = None, size: int = 20, highlights: list = None, fuzzy_ok: bool = False) \
         -> dict:
     if fields is None:
         fields = []
@@ -235,7 +235,7 @@ def get_info(query: str = None, fields: list = None, size: int = 20, highlights:
     nb_matches = {}
     matches_frag = {}
     for hit in hits:
-        if fields == ['names'] and hit.meta.score < hits.max_score*0.5:
+        if fields == ['names'] and hit.meta.score < hits.max_score * 0.5:
             continue
         ids.append(hit.id)
         scores.append(hit.meta.score)

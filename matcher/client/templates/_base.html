@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Alignement</title>
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-        <link href="{{url_for('static', filename='main.css')}}" rel="stylesheet" media="screen">
-        {% block css %}{% endblock %}
-    </head>
-    <body>
-        <div class="container">
-            {% block content %}{% endblock %}
-        </div>
-        <footer class="footer">
-            <div class="container">
-                <small>
+<head>
+    <meta charset="utf-8">
+    <title>Alignement</title>
+    <meta content="" name="description">
+    <meta content="" name="author">
+    <meta content="width=device-width,initial-scale=1" name="viewport">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{url_for('static', filename='main.css')}}" media="screen" rel="stylesheet">
+    {% block css %}{% endblock %}
+</head>
+<body>
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+<footer class="footer">
+    <div class="container">
+        <small>
                     <span class="text-muted">
                         ©
                         <a href="http://scanr.enseignementsup-recherche.gouv.fr/" target="_blank">MESRI - scanR</a>
                     </span>
-                </small>
-            </div>
-        </footer>
-        <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-        <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-        <script src="{{url_for('static', filename='main.js')}}" type="text/javascript"></script>
-        {% block js %}{% endblock %}
-    </body>
+        </small>
+    </div>
+</footer>
+<script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="{{url_for('static', filename='main.js')}}" type="text/javascript"></script>
+{% block js %}{% endblock %}
+</body>
 </html>
