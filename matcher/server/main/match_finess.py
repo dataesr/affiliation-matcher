@@ -1,13 +1,9 @@
 import requests
-import datetime
 from bs4 import BeautifulSoup
-
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Q, Search
-from elasticsearch import helpers
+from elasticsearch_dsl import Search
 
 from matcher.server.main.config import config
-
 
 es = Elasticsearch(config['ELASTICSEARCH_HOST'])
 

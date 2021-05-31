@@ -1,14 +1,7 @@
-import os
-
-import requests
-import datetime
-import math
-from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Q, Search
-from elasticsearch import helpers
-import string
-import unicodedata
 import pickle
+
+from elasticsearch import Elasticsearch
+from elasticsearch import helpers
 
 from matcher.server.main.utils import normalize_text
 

@@ -1,5 +1,6 @@
-import pytest
 import re
+
+import pytest
 
 from matcher.server.main.init_country import init_country
 from matcher.server.main.match_country import get_countries_from_query, get_regex_from_country_by_fields

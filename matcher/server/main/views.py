@@ -1,7 +1,6 @@
 import redis
-
-from rq import Queue, Connection
 from flask import render_template, Blueprint, jsonify, request, current_app
+from rq import Queue, Connection
 
 from matcher.server.main.tasks import create_task_match, create_task_rnsr, create_task_init_country, \
     create_task_init_rnsr, create_task_init_finess
