@@ -3,15 +3,15 @@ import requests
 from bs4 import BeautifulSoup
 from elasticsearch_dsl import Search
 
-from matcher.server.main.config import ELASTICSEARCH_URL
+from matcher.server.main.config import ELASTICSEARCH_INDEX, ELASTICSEARCH_URL
 from matcher.server.main.my_elastic import MyElastic
 
 es = MyElastic()
 
 
-def normalize_for_count(x, matching_field):
+def normalize_for_count(text, matching_field):
     if 'code' in matching_field:
-        return x.upper()
+        return text.upper()
     analyzer = None
     if matching_field in ['name', 'acronym']:
         analyzer = "analyzer_{}".format(matching_field)
@@ -23,14 +23,14 @@ def normalize_for_count(x, matching_field):
         analyzer = "analyzer_supervisor"
     if analyzer:
         try:
-            r = requests.post(ELASTICSEARCH_URL + 'index-rnsr-all/_analyze', json={
+            req = requests.post(ELASTICSEARCH_URL + '/' + ELASTICSEARCH_INDEX + '/_analyze', json={
                 'analyzer': analyzer,
-                'text': x
+                'text': text
             }).json()
-            return r['tokens'][0]['token']
+            return req['tokens'][0]['token']
         except:
             pass
-    return x.lower()[0:6]
+    return text.lower()[0:6]
 
 
 def match_unstructured(year: str = '2020', query: str = '') -> dict:
@@ -329,8 +329,7 @@ def get_info(year, query: str = None, search_fields: list = None, size=20, highl
 
 
 def get_supervisors(rnsr_id) -> dict:
-    index = config['ELASTICSEARCH_INDEX']
-    s = Search(using=es, index=index)
+    s = Search(using=es, index=ELASTICSEARCH_INDEX)
     s = s.query('multi_match', query=rnsr_id, fields='id')
     hit = s.execute().hits[0]
     return {

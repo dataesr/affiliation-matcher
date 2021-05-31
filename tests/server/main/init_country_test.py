@@ -25,7 +25,7 @@ class TestInitCountry:
 
     def test_get_cities_from_wikidata(self) -> None:
         cities = get_cities_from_wikidata()
-        assert len(cities) == 177
+        assert len(cities) == 178
         assert set(cities['fr'].keys()) == {'all', 'strict', 'en', 'fr', 'es', 'it'}
         assert 'Dunkirk' in cities['fr']['all']
         assert 'Dunkerque' in cities['fr']['all']
@@ -70,14 +70,14 @@ class TestInitCountry:
         init_country()
         es = MyElastic()
         all_results = es.search(index='country')
-        assert all_results['hits']['total']['value'] == 249
+        assert all_results['hits']['total']['value'] == 104
         french_results = es.search(index='country', body={'query': {'match': {'alpha_2': 'fr'}}})
         assert french_results['hits']['total']['value'] == 1
         french_result = french_results['hits']['hits'][0]['_source']
         assert french_result['alpha_2'] == 'FR'
         assert french_result['alpha_3'] == 'FRA'
         assert len(french_result['info']) == 2
-        assert len(french_result['wikidata_cities']) == 130
+        assert len(french_result['wikidata_cities']) == 127
         assert len(french_result['wikidata_universities']) == 1614
         assert len(french_result['stop_words']) == 0
         es.delete_index(index='country')
