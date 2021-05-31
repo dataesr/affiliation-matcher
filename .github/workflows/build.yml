@@ -24,7 +24,7 @@ jobs:
           file: dist/matcher-${{ steps.tag.outputs.TAG_NAME }}.tar.gz
           tag: ${{ github.ref }}
 
-      - name : 🐋 Build docker image
+      - name: 🐋 Build docker image
         run: make docker-build
 
       - name: 🔑 Login docker

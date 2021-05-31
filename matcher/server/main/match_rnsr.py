@@ -167,7 +167,10 @@ def match_structured(matching_info: dict = None, strategies: list = None, logs: 
                             retained_id_for_strat.append(potential_id)
                         else:
                             logs += "<br/> &#128584; " + potential_id + " ignoré car {} {} est insuffisant ({} " \
-                                    "attendus au min)".format(max_number[field], field, min_match_for_field[field])
+                                                                        "attendus au min)".format(max_number[field],
+                                                                                                  field,
+                                                                                                  min_match_for_field[
+                                                                                                      field])
                             current_strat_avoid.append(potential_id)
                     elif potential_id not in matching_info.get('code', {}).get('ids', []):
                         logs += "<br/> &#10060; {} ajouté à la black-list car seulement {} {} vs le max est {}".format(

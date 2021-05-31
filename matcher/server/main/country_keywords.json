@@ -1,2038 +1,2038 @@
 {
-    "FR": [
-        "france",
-        "francais",
-        "francaise",
-        "paris",
-        "region idf",
-        "marseille",
-        "lyon",
-        "saint nazaire",
-        "villeurbanne",
-        "chartres",
-        "plessis robinson",
-        "nantes",
-        "alpes maritimes",
-        "strasbourg",
-        "montpellier",
-        "cnrs",
-        "aulnay",
-        "perpignan",
-        "la loire",
-        "tourcoing",
-        "bordeaux",
-        "lille",
-        "limoges",
-        "les moulineaux",
-        "issy",
-        "levallois",
-        "rouen",
-        "unirouen",
-        "normandie",
-        "cergy",
-        "beziers",
-        "montauban",
-        "rodez",
-        "tarbes",
-        "nimes",
-        "angers",
-        "ponts de ce",
-        "le havre",
-        "colmar",
-        "du mans",
-        "le mans",
-        "cognacq jay",
-        "owkin",
-        "narbonne",
-        "pontoise",
-        "saint etienne",
-        "ambroise pare",
-        "hopital pasteur",
-        "toulouse",
-        "henri mondor",
-        "maisons alfort",
-        "versailles",
-        "clermont",
-        "belfort",
-        "montbeliard",
-        "amiens",
-        "besancon",
-        "jean minjoz",
-        "besançon",
-        "caen",
-        "corse",
-        "creil",
-        "clamart",
-        "vichy",
-        "saint mande",
-        "creteil",
-        "créteil",
-        "dijon",
-        "grenoble",
-        "guadeloupe",
-        "sorbonne",
-        "avignon",
-        "vaucluse",
-        "la réunion",
-        "guyane",
-        "vallauris",
-        "bobigny",
-        "bligny",
-        "montigny",
-        "vivarais",
-        "st mandrier",
-        "carcassonne",
-        "lavaur",
-        "ollioules",
-        "aurillac",
-        "dunkerque",
-        "morlaix",
-        "mulhouse",
-        "gif sur yvette",
-        "auvergne",
-        "saint maur des fosses",
-        "francia",
-        "francilien",
-        "essonnes",
-        "la roche sur yon",
-        "garenne",
-        "gennevilliers",
-        "franceand",
-        "cachan",
-        "pompidou",
-        "french guyana",
-        "mayotte",
-        "martinique",
-        "nancy",
-        "vannes",
-        "metz",
-        "palaiseau",
-        "poitiers",
-        "reims",
-        "montfermeil",
-        "rennes",
-        "brest",
-        "picardie",
-        "suresnes",
-        "poissy",
-        "bretigny",
-        "billancourt",
-        "villejuif",
-        "velizy",
-        "noumea",
-        "nouméa",
-        "new caledonia",
-        "nouvelle caledonie",
-        "saint denis",
-        "saint brieuc",
-        "reunion",
-        "saint cloud",
-        "gustave roussy",
-        "leon berard",
-        "institut curie",
-        "institute curie",
-        "trousseau",
-        "godinot",
-        "bichat",
-        "beaujon",
-        "cochin",
-        "hopital bicetre",
-        "saint herblain",
-        "eugene marquis",
-        "cordeliers",
-        "saint lo",
-        "claudius regaud",
-        "lariboisiere",
-        "tenon",
-        "necker",
-        "valenciennes",
-        "bagnolet",
-        "bagnols",
-        "sete",
-        "cahors",
-        "cornebarrieu",
-        "ariege",
-        "paoli calmettes",
-        "quimper",
-        "aix",
-        "tours",
-        "marne",
-        "pau",
-        "adour",
-        "nice",
-        "sophia-antipolis",
-        "inria",
-        "inserm",
-        "inra",
-        "ifsttar",
-        "brgm",
-        "ifremer",
-        "onera",
-        "saclay",
-        "bourgogne",
-        "nancy 2",
-        "calédonie",
-        "bretagne",
-        "savoie",
-        "toulon",
-        "umr",
-        "ehess",
-        "lorraine",
-        "panthéon",
-        "univ-smb",
-        "mnhn.fr",
-        "collège de france",
-        "paristech",
-        "insee.fr",
-        "iepg.fr",
-        "enpjj",
-        "picardy",
-        "azur",
-        "kedge",
-        "institut de recherche pour le developpement",
-        "institut de recherche pour la developpement",
-        "institut national des sciences appliquees",
-        "inrae",
-        "ap hp",
-        "aphp",
-        "aphm",
-        "ap hm",
-        "timone",
-        "hyeres",
-        "roubaix",
-        "garches",
-        "cholet",
-        "centre international de recherche en infectiologie",
-        "institut pasteur",
-        "biomerieux",
-        "andree rosemon",
-        "claude bernard",
-        "annecy",
-        "tahiti",
-        "pitie salpetriere",
-        "french"
-    ],
-    "CN": [
-        "china",
-        "chinese",
-        "fujian",
-        "shanghai",
-        "beijing",
-        "bejing",
-        "guangan",
-        "guangzhou",
-        "guangzho",
-        "shenzhen",
-        "shenznen",
-        "tongji",
-        "changhai",
-        "zhejiang",
-        "jiaxing",
-        "donghua",
-        "kunming",
-        "sichuan",
-        "peking",
-        "guangdong",
-        "sun yat sen",
-        "fudan",
-        "wuhan",
-        "hubei",
-        "tsinghua",
-        "renmin",
-        "huazhong",
-        "haohua",
-        "xiangyang",
-        "jiaotong",
-        "shaanxi",
-        "yichang",
-        "shanghaitech",
-        "nanjing",
-        "huoshenshan",
-        "genetalks",
-        "guilin",
-        "lanzhou",
-        "beihang",
-        "jinan",
-        "hainan",
-        "xiamen",
-        "xiangzhou",
-        "zhejaing",
-        "chinese",
-        "fuyang",
-        "nanchang",
-        "plagh",
-        "yichun",
-        "shanxi",
-        "ningbo",
-        "jiangxi",
-        "people s hospital",
-        "nantong",
-        "biomissile corporation",
-        "military medical university",
-        "army medical university",
-        "northern theater command",
-        "rainsure scientific",
-        "yueqing",
-        "people hospital",
-        "940th hospital",
-        "960th hospital",
-        "pople hospital",
-        "xiaoshan",
-        "minzu",
-        "central south university",
-        "southeast university",
-        "anygo technology",
-        "abmax biotechnology",
-        "southern medical university",
-        "central theater command",
-        "jiangnan",
-        "xi'an",
-        "xi an",
-        "tianjin",
-        "nanchang",
-        "xijing",
-        "tangdu",
-        "chengdu",
-        "shenyang",
-        "henan",
-        "zwhongnan",
-        "yunnan",
-        "hexi",
-        "zhe jiang",
-        "zhejiang",
-        "chongqing",
-        "dazhou",
-        "changzheng",
-        "zhuhai",
-        "qingdao",
-        "shantou",
-        "wenzhou",
-        "jingmen",
-        "shandong",
-        "jingzhou",
-        "minjiang",
-        "xinqiao",
-        "anhui",
-        "zhengzhou",
-        "xiangya",
-        "suizhou",
-        "huangshi",
-        "gansu",
-        "jin yin tan",
-        "huajia",
-        "research network of immunity and health",
-        "zhenge biotechnology",
-        "bengbu",
-        "guizhou",
-        "shijiazhuang",
-        "central threater command",
-        "pla general hospital",
-        "hunan",
-        "soochow",
-        "westlake university",
-        "guangxi",
-        "suzhou",
-        "huaiyin",
-        "liangzhou",
-        "xiguan",
-        "xinjiang",
-        "wuan",
-        "xian",
-        "huanggang",
-        "changsha",
-        "jilin",
-        "ninghai",
-        "xiangshan",
-        "shaoxing",
-        "vision medicals",
-        "simcere",
-        "changchun",
-        "suzhou",
-        "university of pla",
-        "hebei",
-        "huanggang",
-        "peoples hospital",
-        "pla",
-        "shangdong",
-        "guangzho",
-        "tongjihospital",
-        "macau",
-        "hangzhou",
-        "fujianprovincial",
-        "regend therapeutics",
-        "hefei",
-        "zunyi",
-        "nanning",
-        "hangzhou",
-        "sinocelltech",
-        "affiliated hospital",
-        "jinling",
-        "huizhou",
-        "shaoyang",
-        "huangzhong",
-        "ofjingmen",
-        "zhongnan",
-        "gangdong"
-    ],
-    "IT": [
-        "italy",
-        "italie",
-        "italia",
-        "italian",
-        "rome",
-        "roma",
-        "lazio",
-        "udine",
-        "genova",
-        "infn",
-        "pisa",
-        "bocconi",
-        "catania",
-        "basilicata",
-        "sicily",
-        "palermo",
-        "palerme",
-        "sicilia",
-        "perugia",
-        "messina",
-        "milan",
-        "milano",
-        "foggia",
-        "dell universita",
-        "humanitas university",
-        "IRCCS",
-        "sapienza",
-        "brescia",
-        "federico ii",
-        "san raffaele",
-        "istituto",
-        "istat",
-        "luiss guido carli",
-        "mensana srls",
-        "salento",
-        "catanzaro",
-        "torino",
-        "turin",
-        "bari",
-        "bologna",
-        "napoli",
-        "naples",
-        "veneto",
-        "venezia",
-        "bruno kessler foundation",
-        "reggio emilia",
-        "ricerche",
-        "ricerca",
-        "isi foundation",
-        "salerno",
-        "trento",
-        "pavia",
-        "monza",
-        "verona",
-        "lucca",
-        "toscana",
-        "bergamo",
-        "ospedale",
-        "fondazione",
-        "trieste",
-        "siena",
-        "sienne",
-        "padova",
-        "padua",
-        "firenze",
-        "careggi",
-        "of florence",
-        "faenza"
-    ],
-    "US": [
-        "usa",
-        "u s a",
-        "u s",
-        "us",
-        "united states",
-        "estados unidos",
-        "alaska",
-        "michigan",
-        "nevada",
-        "burlington",
-        "menlo park",
-        "yale",
-        "willowbrook",
-        "church va",
-        "city ca",
-        "salem va",
-        "santa fe",
-        "chicago",
-        "maine",
-        "golden co",
-        "baltimore",
-        "oaks ca",
-        "delaware",
-        "loma linda",
-        "williamstown",
-        "moutain view",
-        "palo alto",
-        "boise id",
-        "potomac",
-        "hills mi",
-        "henderson nv",
-        "duarte ca",
-        "amherst",
-        "new hampshire",
-        "gilbert az",
-        "lemont il",
-        "mississippi",
-        "san diego",
-        "londonderry",
-        "philadelphia",
-        "new orleans",
-        "rochester ny",
-        "lewisburg",
-        "danville pa",
-        "danville ca",
-        "oaks ca",
-        "plantation fl",
-        "arbor mi",
-        "milford ma",
-        "weymouth ma",
-        "city ny",
-        "antonio tx",
-        "rockville",
-        "hamilton",
-        "idaho",
-        "loveland co",
-        "lisle il",
-        "arlington va",
-        "chesterfield mo",
-        "silver spring",
-        "littleton co",
-        "gilbert az",
-        "orange ca",
-        "columbus oh",
-        "richmond va",
-        "hackensack",
-        "allentown",
-        "east hanover nj",
-        "bethesda",
-        "gaithersburg",
-        "alexandria va",
-        "jacksonville",
-        "charlottesville",
-        "greenville",
-        "alexandria va",
-        "frisco",
-        "buffalo",
-        "tarrytown",
-        "duluth",
-        "northbrook",
-        "ny",
-        "wa",
-        "nj",
-        "n y",
-        "tn",
-        "mn",
-        "ct",
-        "nc",
-        "sc",
-        "pa",
-        "ca",
-        "ma",
-        "fl",
-        "nc",
-        "ks",
-        "md",
-        "wi",
-        "ks",
-        "rutgers",
-        "new jersey",
-        "wilmington",
-        "boulder",
-        "tx",
-        "az",
-        "wv",
-        "nd",
-        "oh",
-        "paducah",
-        "sacramento",
-        "west lafayette",
-        "honolulu",
-        "hawai",
-        "jefferson",
-        "beltsville",
-        "waimanalo",
-        "california",
-        "oakland ca",
-        "princeton",
-        "massachusetts",
-        "harvard",
-        "miami",
-        "las vegas",
-        "columbia",
-        "stanford",
-        "arizona",
-        "alabama",
-        "new york",
-        "bronx",
-        "manhasset",
-        "stony brook",
-        "washington",
-        "oregon",
-        "bill and melinda gates",
-        "milwaukee",
-        "wisconsin",
-        "texas",
-        "nashville",
-        "bloomington",
-        "mn",
-        "houston",
-        "ucla",
-        "berkeley",
-        "cornell",
-        "florida",
-        "fort lauderdale",
-        "tampa",
-        "salt lake city",
-        "georgetown university",
-        "brown university",
-        "north carolina",
-        "south carolina",
-        "maryland",
-        "connecticut",
-        "hawaii",
-        "virginia",
-        "iowa",
-        "boston",
-        "pennsylvania",
-        "collegeville",
-        "cleveland",
-        "seattle",
-        "portland",
-        "hyattsville",
-        "nebraska",
-        "creighton",
-        "deerfield",
-        "evanston",
-        "illinois",
-        "ucsf",
-        "icahn",
-        "vermont",
-        "wyoming",
-        "duke",
-        "san francisco",
-        "los angeles",
-        "johns hopkins",
-        "johns hopksin",
-        "oklahoma",
-        "u s food",
-        "scripps",
-        "san mateo county",
-        "county department",
-        "county division",
-        "santa clara county",
-        "county public health",
-        "county health",
-        "cuebiq",
-        "parker institute",
-        "ohio",
-        "case western",
-        "asdera llc",
-        "oracle corporation",
-        "ut southwestern medical center",
-        "national council of research",
-        "fred hutchinson",
-        "cold spring harbor",
-        "target health",
-        "national institutes of health",
-        "nih",
-        "niaid",
-        "national institute of infectious diseases",
-        "montclair state",
-        "leidos",
-        "ripeta",
-        "centers for disease control and prevention",
-        "los alamos",
-        "new mexico",
-        "kansas",
-        "closedloop.ai",
-        "carnegie mellon",
-        "purdue",
-        "indiana",
-        "tennessee",
-        "memphis",
-        "kentucky",
-        "rensselaer",
-        "uc davis",
-        "brigham",
-        "vanderbilt",
-        "emory",
-        "atlanta",
-        "pittsburgh",
-        "bard college",
-        "university of notre dame",
-        "flow pharma",
-        "la jolla",
-        "dakota",
-        "loyola",
-        "buffalo school",
-        "utmb",
-        "john a burns",
-        "lown institute",
-        "hoag memorial",
-        "cedars sinai",
-        "mammoth biosciences",
-        "national institute of health",
-        "missouri",
-        "fordham",
-        "saint leo",
-        "howard university",
-        "snohomish",
-        "providence",
-        "mit",
-        "utah",
-        "saint louis university",
-        "rockefeller",
-        "cincinnati",
-        "craig venter",
-        "phoenix",
-        "louisiana",
-        "baton rouge",
-        "brandeis",
-        "dane county",
-        "albert einstein college",
-        "penn state",
-        "nyu",
-        "charlotte",
-        "detroit",
-        "montana",
-        "calverton",
-        "minneapolis",
-        "minnesota",
-        "colorado",
-        "hempstead",
-        "rhode island",
-        "arkansas",
-        "louisville",
-        "brooklyn",
-        "omaha",
-        "denver",
-        "u s army",
-        "u s navy",
-        "westchester",
-        "renton",
-        "indianapolis",
-        "dallas",
-        "springfield",
-        "newark",
-        "mayo clinic",
-        "united states"
-    ],
-    "CH": [
-        "switzerland",
-        "suisse",
-        "ginebra",
-        "zurich",
-        "fribourg",
-        "nyon",
-        "bern",
-        "basel",
-        "genolier",
-        "geneva",
-        "geneve",
-        "epfl",
-        "lausanne",
-        "swiss",
-        "cern",
-        "vaud",
-        "bellinzona"
-    ],
-    "GR": [
-        "greece",
-        "grece",
-        "athenes",
-        "athens",
-        "thrace",
-        "grecia",
-        "thessaloniki",
-        "crete"
-    ],
-    "GB": [
-        "great britain",
-        "united kingdom",
-        "uk",
-        "u k",
-        "gb",
-        "g b",
-        "leeds",
-        "aberdeen",
-        "royaume uni",
-        "london",
-        "londres",
-        "warwick",
-        "oxford",
-        "cambridge",
-        "nhs",
-        "imperial college",
-        "bristol",
-        "surrey",
-        "british",
-        "england",
-        "leicester",
-        "wetherby",
-        "swansea",
-        "ipswich",
-        "cardiff",
-        "bedfordshire",
-        "lancaster",
-        "birmingham",
-        "essex",
-        "glasgow",
-        "edinburgh",
-        "southampton",
-        "keele",
-        "liverpool",
-        "queen mary",
-        "princess margaret",
-        "stirling",
-        "exeter",
-        "stephen perse",
-        "canterbury",
-        "nottingham",
-        "manchester",
-        "sussex",
-        "worcester",
-        "lshtm",
-        "ucl",
-        "res consortium",
-        "salford royal",
-        "bath",
-        "oucru",
-        "sheffield",
-        "aberdeenshire",
-        "kent",
-        "berkshire",
-        "scotland",
-        "united kingdom"
-    ],
-    "ES": [
-        "spain",
-        "espana",
-        "leioa",
-        "vigo",
-        "basque country",
-        "espagne",
-        "madrid",
-        "lleida",
-        "lerida",
-        "galicia",
-        "bilbao",
-        "rovira i virgili",
-        "navarra",
-        "ciudad real",
-        "granada",
-        "oviedo",
-        "cataluna",
-        "barcelona",
-        "asturias",
-        "alicante",
-        "csic",
-        "expilab",
-        "iese business school",
-        "cadiz",
-        "icfo",
-        "spanish",
-        "zaragoza",
-        "valencia"
-    ],
-    "CA": [
-        "canada",
-        "sherbrooke",
-        "montreal",
-        "toronto",
-        "ottawa",
-        "quebec",
-        "carleton",
-        "laval",
-        "mcgill",
-        "bluedot",
-        "simon fraser",
-        "calgary",
-        "mcmaster university",
-        "brock university",
-        "ontario",
-        "saskatchewan",
-        "alberta",
-        "edmonton",
-        "university of victoria",
-        "guelph",
-        "university of waterloo",
-        "dalla lana school",
-        "manitoba",
-        "dalhousie",
-        "halifax",
-        "canadien"
-    ],
-    "BR": [
-        "brazil",
-        "bresil",
-        "brazilian",
-        "goiania",
-        "sao paulo",
-        "parana",
-        "curitiba",
-        "aracatuba",
-        "minas gerais",
-        "ouro preto",
-        "brasil",
-        "recife",
-        "fundacao oswaldo cruz",
-        "sabin medicina",
-        "rio de janeiro",
-        "campinas",
-        "brasileiro"
-    ],
-    "AE": [
-        "uae",
-        "united arab emirates"
-    ],
-    "NO": [
-        "norway",
-        "halden",
-        "trondheim",
-        "norwegian",
-        "oslo",
-        "tromsø"
-    ],
-    "SE": [
-        "sweden",
-        "suede",
-        "swedish",
-        "gothenburg",
-        "bergen",
-        "lund",
-        "uppsala",
-        "stockholm",
-        "kth",
-        "umea",
-        "karolinska",
-        "ingerod",
-        "linkoping"
-    ],
-    "SA": [
-        "saudi arabia",
-        "jeddah",
-        "dammam",
-        "king abdullah",
-        "northern border university",
-        "saudi"
-    ],
-    "IN": [
-        "india",
-        "inde",
-        "new delhi",
-        "indore",
-        "bangalore",
-        "karnataka",
-        "indian",
-        "hyderabad",
-        "aligarh muslim",
-        "homi bhabha",
-        "rajasthan",
-        "jammu",
-        "fortis c doc",
-        "dharwad",
-        "kasturba",
-        "mangalore",
-        "mumbai",
-        "ntr university",
-        "fortis hospital",
-        "mohali",
-        "jadavpur",
-        "coimbatore",
-        "savitribai",
-        "delhi",
-        "jodhpur"
-    ],
-    "PK": [
-        "pakistan",
-        "islamabad",
-        "aga khan university",
-        "dow university",
-        "lahore",
-        "faisalabad",
-        "khyber pakhtunkhwa",
-        "karachi"
-    ],
-    "BD": [
-        "bangladesh",
-        "dhaka",
-        "dacca",
-        "jahangirnagar",
-        "shahjalal"
-    ],
-    "TH": [
-        "thailand",
-        "bangkok",
-        "walailak",
-        "bangkokthailand"
-    ],
-    "BE": [
-        "belgium",
-        "belgique",
-        "liege",
-        "kortrijk",
-        "aalst",
-        "brussels",
-        "leuven",
-        "louvain",
-        "antwerp",
-        "brussel",
-        "ku leuven",
-        "janssen",
-        "ghent",
-        "louvain",
-        "bruxelles",
-        "hasselt"
-    ],
-    "NL": [
-        "netherlands",
-        "netherland",
-        "pays bas",
-        "eindhoven",
-        "amsterdam",
-        "purmerend",
-        "bilthoven",
-        "rotterdam",
-        "geldermalsen",
-        "utrecht",
-        "groningen",
-        "nijmegen",
-        "kwr",
-        "nieuwegein",
-        "amphia hospital",
-        "tweesteden",
-        "bravis hospital",
-        "wageningen",
-        "erasmus",
-        "leiden",
-        "maastricht",
-        "viroclinics xplore",
-        "bprc"
-    ],
-    "KR": [
-        "korea",
-        "corea",
-        "coree",
-        "seoul",
-        "sejong",
-        "kyungpook",
-        "cheongju",
-        "gwangju",
-        "incheon",
-        "gwangju",
-        "daegu",
-        "soongsil",
-        "sungkyunkwan",
-        "asan medical",
-        "hallym",
-        "yonsei",
-        "ulsan",
-        "pohang",
-        "korea republic of"
-    ],
-    "IL": [
-        "israel",
-        "technion",
-        "tel aviv",
-        "ramat gan",
-        "ben gurion",
-        "weizmann",
-        "hebrew",
-        "jerusalem",
-        "israeli",
-        "rambam",
-        "clalit",
-        "bar ilan",
-        "nazareth"
-    ],
-    "JP": [
-        "japan",
-        "hokkaido",
-        "tokyo",
-        "chiyoda ku",
-        "kyoto",
-        "showa",
-        "nippon",
-        "tsukuba",
-        "nankai",
-        "nagaizumi",
-        "osaka",
-        "kibi",
-        "saitama",
-        "saidai",
-        "yamanashi",
-        "hiroshima",
-        "nagasaki",
-        "self defense forces central",
-        "gunma",
-        "chiba",
-        "tohoku",
-        "keio",
-        "waseda",
-        "kawasaki"
-    ],
-    "TW": [
-        "taiwan",
-        "taichung",
-        "hualien",
-        "chang gung",
-        "taipei",
-        "pingtung",
-        "taiwan province of china"
-    ],
-    "HK": [
-        "hong kong",
-        "pamela youde nethersole",
-        "united christian hospital",
-        "tuen mun hospital",
-        "hong kong"
-    ],
-    "VN": [
-        "viet nam",
-        "vietnam",
-        "hcmc",
-        "ho chi minh"
-    ],
-    "NE": [
-        "bokkos",
-        "niger"
-    ],
-    "EG": [
-        "egypt",
-        "egypte",
-        "cairo",
-        "assiut"
-    ],
-    "DK": [
-        "denmark",
-        "aarhus",
-        "copenhagen",
-        "statens serum",
-        "cobo technologies",
-        "roskilde",
-        "danish",
-        "odense"
-    ],
-    "FI": [
-        "finland",
-        "jyvaskyla",
-        "helsinki",
-        "aalto"
-    ],
-    "PT": [
-        "portugal",
-        "porto",
-        "lisbonne",
-        "lisbon",
-        "lisboa",
-        "egas moniz",
-        "ciiem",
-        "gulbenkian",
-        "coimbra"
-    ],
-    "MX": [
-        "mexique",
-        "sonora",
-        "san luis potosi",
-        "monterrey",
-        "unam",
-        "iztapalapa",
-        "puebla",
-        "mexico"
-    ],
-    "MW": [
-        "mzuzu",
-        "malawi"
-    ],
-    "VE": [
-        "venezuela",
-        "caracas",
-        "venezuela bolivarian republic of"
-    ],
-    "SI": [
-        "ljubljana",
-        "maribor",
-        "slovenia"
-    ],
-    "TR": [
-        "turkey",
-        "istanbul",
-        "abdullah gul",
-        "ankara",
-        "bahcesehir",
-        "ege",
-        "edirne",
-        "izmir",
-        "adana",
-        "bursa",
-        "antalya"
-    ],
-    "LB": [
-        "liban",
-        "lebanese",
-        "beirut",
-        "lebanon"
-    ],
-    "CL": [
-        "universidad mayor",
-        "chile",
-        "chili"
-    ],
-    "AT": [
-        "austria",
-        "autriche",
-        "vienna",
-        "innsbruck",
-        "wien"
-    ],
-    "EC": [
-        "ecuador",
-        "quito"
-    ],
-    "NG": [
-        "nigeria",
-        "nasarawa",
-        "lagos"
-    ],
-    "SN": [
-        "senegal",
-        "thies"
-    ],
-    "IQ": [
-        "irak",
-        "sulaimany",
-        "iraq"
-    ],
-    "CU": [
-        "cuba",
-        "cuban",
-        "habana"
-    ],
-    "ZA": [
-        "south africa",
-        "stellenbosch",
-        "cape town",
-        "johannesburg",
-        "kwazulu natal",
-        "pretoria",
-        "south africa"
-    ],
-    "CI": [
-        "ivory coast",
-        "abidjan",
-        "cote d ivoire"
-    ],
-    "HU": [
-        "hungary",
-        "hungarian",
-        "szeged",
-        "budapest"
-    ],
-    "BO": [
-        "bolivia",
-        "la paz",
-        "cochabamba",
-        "bolivia plurinational state of"
-    ],
-    "PE": [
-        "peru",
-        "lima",
-        "arequipa"
-    ],
-    "IE": [
-        "ireland",
-        "galway",
-        "irland",
-        "dublin",
-        "cork"
-    ],
-    "PL": [
-        "poland",
-        "pologne",
-        "polish",
-        "wroclaw",
-        "warsaw",
-        "varsovie",
-        "katowice",
-        "rzeszow",
-        "silesian",
-        "nadarzyn"
-    ],
-    "DZ": [
-        "alger",
-        "algeria",
-        "saida",
-        "algerie",
-        "zab"
-    ],
-    "TZ": [
-        "tanzania",
-        "dar es salaam",
-        "tanzania united republic of"
-    ],
-    "PS": [
-        "palestine",
-        "gaza",
-        "hebron",
-        "palestinian",
-        "palestine state of"
-    ],
-    "TN": [
-        "tunis",
-        "tunisia",
-        "tunisie",
-        "monastir",
-        "bizerte",
-        "sidi thabet",
-        "sfax",
-        "sousse"
-    ],
-    "IR": [
-        "iran",
-        "mashhad",
-        "iranian",
-        "tehran",
-        "ahvaz jundishapur",
-        "shahid beheshti",
-        "shahrekord",
-        "payame noor",
-        "tarbiat",
-        "shahid madani",
-        "kerman university",
-        "yasuj",
-        "esfahan",
-        "shiraz",
-        "iran islamic republic of"
-    ],
-    "DE": [
-        "germany",
-        "allemagne",
-        "bielefeld",
-        "german",
-        "freiburg",
-        "potsdam",
-        "leipzig",
-        "max planck institute",
-        "berlin",
-        "dusseldorf",
-        "marburg",
-        "erlangen",
-        "goettingen",
-        "munster",
-        "mannheim",
-        "bonn",
-        "fur",
-        "dresden",
-        "wurzburg",
-        "deggendorf",
-        "giessen",
-        "tubingen",
-        "frankfurt",
-        "ruhr",
-        "mainz",
-        "krozingen",
-        "hamburg",
-        "greifswald",
-        "nuremberg",
-        "duesseldorf",
-        "johannes gutenberg",
-        "kaiserslautern",
-        "trier",
-        "leibniz institut",
-        "gmbh",
-        "dortmund",
-        "charite",
-        "essen",
-        "helmholtz",
-        "luebeck",
-        "gottingen",
-        "robert koch",
-        "munich",
-        "munchen",
-        "deutschland",
-        "stuttgart",
-        "goethe university",
-        "koln",
-        "uniklinik",
-        "heidelberg"
-    ],
-    "AU": [
-        "australia",
-        "james cook",
-        "monash",
-        "tasmania",
-        "canberra",
-        "sydney",
-        "sydn",
-        "queensland",
-        "melbourne",
-        "koblenz",
-        "telethon kids institute",
-        "ausvet",
-        "deakin",
-        "new south wales",
-        "nsw",
-        "csiro",
-        "la trobe",
-        "adelaide",
-        "australian",
-        "macquarie",
-        "doherty institute"
-    ],
-    "NZ": [
-        "new zealand",
-        "otago",
-        "auckland",
-        "wellington",
-        "manaaki",
-        "waikato",
-        "dunedin",
-        "tauranga",
-        "new zealand"
-    ],
-    "AW": [
-        "aruba"
-    ],
-    "AF": [
-        "afghanistan"
-    ],
-    "AO": [
-        "angola"
-    ],
-    "AI": [
-        "anguilla"
-    ],
-    "AX": [
-        "aland islands"
-    ],
-    "AL": [
-        "albania"
-    ],
-    "AD": [
-        "andorra",
-        "andorre"
-    ],
-    "AR": [
-        "argentina",
-        "buenos aires",
-        "argentine"
-    ],
-    "AM": [
-        "armenia",
-        "armenie",
-        "yerevan"
-    ],
-    "AS": [
-        "american samoa"
-    ],
-    "AQ": [
-        "antarctica"
-    ],
-    "AG": [
-        "antigua and barbuda"
-    ],
-    "AZ": [
-        "azerbaijan"
-    ],
-    "BI": [
-        "burundi"
-    ],
-    "BJ": [
-        "benin"
-    ],
-    "BQ": [
-        "bonaire sint eustatius and saba"
-    ],
-    "BF": [
-        "burkina faso"
-    ],
-    "BG": [
-        "bulgaria",
-        "bulgarian",
-        "bulgary",
-        "sofia"
-    ],
-    "BH": [
-        "bahrain"
-    ],
-    "BS": [
-        "bahamas"
-    ],
-    "BA": [
-        "bosnia and herzegovina",
-        "bosnia",
-        "sarajevo"
-    ],
-    "BL": [
-        "saint barthelemy"
-    ],
-    "BY": [
-        "belarus"
-    ],
-    "BZ": [
-        "belize"
-    ],
-    "BM": [
-        "bermuda"
-    ],
-    "BB": [
-        "barbados"
-    ],
-    "BN": [
-        "brunei darussalam",
-        "brunei"
-    ],
-    "BT": [
-        "bhutan"
-    ],
-    "BV": [
-        "bouvet island"
-    ],
-    "BW": [
-        "botswana"
-    ],
-    "CF": [
-        "central african republic"
-    ],
-    "CC": [
-        "cocos keeling islands"
-    ],
-    "CM": [
-        "cameroon",
-        "yaounde",
-        "bamenda",
-        "cameroun"
-    ],
-    "CD": [
-        "congo the democratic republic of the",
-        "democratic republic of the congo",
-        "lubumbashi",
-        "kinshasa",
-        "kalemie",
-        "democratic republic of congo",
-        "kisangani",
-        "congo drc",
-        "mbandaka"
-    ],
-    "CG": [
-        "brazzaville",
-        "oyo"
-    ],
-    "CK": [
-        "cook islands"
-    ],
-    "CO": [
-        "colombia",
-        "bogota"
-    ],
-    "KM": [
-        "comoros"
-    ],
-    "CV": [
-        "cabo verde"
-    ],
-    "CR": [
-        "costa rica"
-    ],
-    "CW": [
-        "curacao"
-    ],
-    "CX": [
-        "christmas island"
-    ],
-    "KY": [
-        "cayman islands"
-    ],
-    "CY": [
-        "cyprus"
-    ],
-    "CZ": [
-        "czechia",
-        "czech republic",
-        "prague",
-        "czech",
-        "tcheque",
-        "plzen",
-        "brno",
-        "praha"
-    ],
-    "DJ": [
-        "djibouti"
-    ],
-    "DM": [
-        "dominica"
-    ],
-    "DO": [
-        "dominican republic"
-    ],
-    "ER": [
-        "eritrea"
-    ],
-    "EH": [
-        "western sahara"
-    ],
-    "EE": [
-        "estonia",
-        "estonie",
-        "estonie",
-        "tallinn"
-    ],
-    "ET": [
-        "ethiopia"
-    ],
-    "FJ": [
-        "fiji"
-    ],
-    "FK": [
-        "falkland islands malvinas",
-        "falkland islands",
-        "malvinas"
-    ],
-    "FO": [
-        "faroe islands"
-    ],
-    "FM": [
-        "micronesia federated states of"
-    ],
-    "GA": [
-        "gabon"
-    ],
-    "GE": [
-        "georgia"
-    ],
-    "GG": [
-        "guernsey"
-    ],
-    "GH": [
-        "ghana"
-    ],
-    "GI": [
-        "gibraltar"
-    ],
-    "GN": [
-        "guinea",
-        "conakry",
-        "forecariah"
-    ],
-    "GP": [
-        "guadeloupe"
-    ],
-    "GM": [
-        "gambia"
-    ],
-    "GW": [
-        "guinea bissau"
-    ],
-    "GQ": [
-        "equatorial guinea"
-    ],
-    "GD": [
-        "grenada"
-    ],
-    "GL": [
-        "greenland"
-    ],
-    "GT": [
-        "guatemala"
-    ],
-    "GU": [
-        "guam"
-    ],
-    "GY": [
-        "guyana"
-    ],
-    "HM": [
-        "heard island and mcdonald islands"
-    ],
-    "HN": [
-        "honduras"
-    ],
-    "HR": [
-        "croatia",
-        "zagreb"
-    ],
-    "HT": [
-        "haiti"
-    ],
-    "ID": [
-        "indonesia"
-    ],
-    "IM": [
-        "isle of man"
-    ],
-    "IO": [
-        "british indian ocean territory"
-    ],
-    "IS": [
-        "iceland"
-    ],
-    "JM": [
-        "jamaica"
-    ],
-    "JE": [
-        "jersey"
-    ],
-    "JO": [
-        "jordan"
-    ],
-    "KZ": [
-        "kazakhstan"
-    ],
-    "KE": [
-        "kenya"
-    ],
-    "KG": [
-        "kyrgyzstan"
-    ],
-    "KH": [
-        "cambodia",
-        "phnom penh",
-        "pailin",
-        "cambodge"
-    ],
-    "KI": [
-        "kiribati"
-    ],
-    "KN": [
-        "saint kitts and nevis"
-    ],
-    "KW": [
-        "kuwait"
-    ],
-    "LA": [
-        "lao people s democratic republic",
-        "laos",
-        "lao",
-        "vientiane"
-    ],
-    "LR": [
-        "liberia"
-    ],
-    "LY": [
-        "libya"
-    ],
-    "LC": [
-        "saint lucia"
-    ],
-    "LI": [
-        "liechtenstein"
-    ],
-    "LK": [
-        "sri lanka"
-    ],
-    "LS": [
-        "lesotho"
-    ],
-    "LT": [
-        "lithuania",
-        "lituanie",
-        "vilnius"
-    ],
-    "LU": [
-        "luxembourg",
-        "luxemburg"
-    ],
-    "LV": [
-        "latvia"
-    ],
-    "MO": [
-        "macao"
-    ],
-    "MA": [
-        "morocco",
-        "marocco",
-        "rabat",
-        "casablanca",
-        "maroc",
-        "agadir"
-    ],
-    "MC": [
-        "monaco"
-    ],
-    "MD": [
-        "moldova republic of",
-        "moldova"
-    ],
-    "MG": [
-        "madagascar",
-        "antananarivo"
-    ],
-    "MV": [
-        "maldives"
-    ],
-    "MH": [
-        "marshall islands"
-    ],
-    "MK": [
-        "north macedonia",
-        "skopje",
-        "macedonia"
-    ],
-    "ML": [
-        "mali"
-    ],
-    "MT": [
-        "malta"
-    ],
-    "MM": [
-        "myanmar"
-    ],
-    "ME": [
-        "montenegro"
-    ],
-    "MN": [
-        "mongolia",
-        "mongolian",
-        "ulaanbaatar"
-    ],
-    "MP": [
-        "northern mariana islands"
-    ],
-    "MZ": [
-        "mozambique"
-    ],
-    "MR": [
-        "mauritania",
-        "mauritanie",
-        "nouakchott"
-    ],
-    "MS": [
-        "montserrat"
-    ],
-    "MQ": [
-        "martinique"
-    ],
-    "MU": [
-        "mauritius"
-    ],
-    "MY": [
-        "malaysia",
-        "kuala lumpur"
-    ],
-    "YT": [
-        "mayotte"
-    ],
-    "NA": [
-        "namibia"
-    ],
-    "NF": [
-        "norfolk island"
-    ],
-    "NI": [
-        "nicaragua"
-    ],
-    "NU": [
-        "niue"
-    ],
-    "NP": [
-        "nepal"
-    ],
-    "NR": [
-        "nauru"
-    ],
-    "OM": [
-        "oman"
-    ],
-    "PA": [
-        "panama"
-    ],
-    "PN": [
-        "pitcairn"
-    ],
-    "PH": [
-        "philippines"
-    ],
-    "PW": [
-        "palau"
-    ],
-    "PG": [
-        "papua new guinea"
-    ],
-    "PR": [
-        "puerto rico"
-    ],
-    "KP": [
-        "korea democratic people s republic of"
-    ],
-    "PY": [
-        "paraguay"
-    ],
-    "QA": [
-        "qatar",
-        "quatar",
-        "doha"
-    ],
-    "RO": [
-        "romania",
-        "roumanie",
-        "romenia",
-        "bucarest"
-    ],
-    "RU": [
-        "russian federation",
-        "russia",
-        "russian",
-        "moscow",
-        "kurchatov",
-        "smolensk",
-        "yakutsk"
-    ],
-    "RW": [
-        "rwanda"
-    ],
-    "SD": [
-        "sudan"
-    ],
-    "SG": [
-        "singapore"
-    ],
-    "GS": [
-        "south georgia and the south sandwich islands"
-    ],
-    "SH": [
-        "saint helena ascension and tristan da cunha"
-    ],
-    "SJ": [
-        "svalbard and jan mayen"
-    ],
-    "SB": [
-        "solomon islands"
-    ],
-    "SL": [
-        "sierra leone"
-    ],
-    "SV": [
-        "el salvador"
-    ],
-    "SM": [
-        "san marino"
-    ],
-    "SO": [
-        "somalia"
-    ],
-    "PM": [
-        "saint pierre and miquelon"
-    ],
-    "RS": [
-        "serbia",
-        "belgrade"
-    ],
-    "SS": [
-        "south sudan"
-    ],
-    "ST": [
-        "sao tome and principe"
-    ],
-    "SR": [
-        "suriname"
-    ],
-    "SK": [
-        "slovakia",
-        "kosice",
-        "safarik",
-        "bratislava",
-        "slovak"
-    ],
-    "SZ": [
-        "eswatini",
-        "swaziland",
-        "mbabane"
-    ],
-    "SX": [
-        "sint maarten dutch part"
-    ],
-    "SC": [
-        "seychelles"
-    ],
-    "SY": [
-        "syrian arab republic",
-        "syria"
-    ],
-    "TC": [
-        "turks and caicos islands"
-    ],
-    "TD": [
-        "chad",
-        "tchad",
-        "n djamena"
-    ],
-    "TG": [
-        "togo"
-    ],
-    "TJ": [
-        "tajikistan"
-    ],
-    "TK": [
-        "tokelau"
-    ],
-    "TM": [
-        "turkmenistan"
-    ],
-    "TL": [
-        "timor leste"
-    ],
-    "TO": [
-        "tonga"
-    ],
-    "TT": [
-        "trinidad and tobago"
-    ],
-    "TV": [
-        "tuvalu"
-    ],
-    "UG": [
-        "uganda"
-    ],
-    "UA": [
-        "ukraine"
-    ],
-    "UM": [
-        "united states minor outlying islands"
-    ],
-    "UY": [
-        "uruguay"
-    ],
-    "UZ": [
-        "uzbekistan"
-    ],
-    "VA": [
-        "holy see vatican city state"
-    ],
-    "VC": [
-        "saint vincent and the grenadines"
-    ],
-    "VG": [
-        "virgin islands british"
-    ],
-    "VI": [
-        "virgin islands u s"
-    ],
-    "VU": [
-        "vanuatu"
-    ],
-    "WF": [
-        "wallis and futuna"
-    ],
-    "WS": [
-        "samoa"
-    ],
-    "YE": [
-        "yemen"
-    ],
-    "ZM": [
-        "zambia"
-    ],
-    "ZW": [
-        "zimbabwe",
-        "bulawayo"
-    ]
+  "FR": [
+    "france",
+    "francais",
+    "francaise",
+    "paris",
+    "region idf",
+    "marseille",
+    "lyon",
+    "saint nazaire",
+    "villeurbanne",
+    "chartres",
+    "plessis robinson",
+    "nantes",
+    "alpes maritimes",
+    "strasbourg",
+    "montpellier",
+    "cnrs",
+    "aulnay",
+    "perpignan",
+    "la loire",
+    "tourcoing",
+    "bordeaux",
+    "lille",
+    "limoges",
+    "les moulineaux",
+    "issy",
+    "levallois",
+    "rouen",
+    "unirouen",
+    "normandie",
+    "cergy",
+    "beziers",
+    "montauban",
+    "rodez",
+    "tarbes",
+    "nimes",
+    "angers",
+    "ponts de ce",
+    "le havre",
+    "colmar",
+    "du mans",
+    "le mans",
+    "cognacq jay",
+    "owkin",
+    "narbonne",
+    "pontoise",
+    "saint etienne",
+    "ambroise pare",
+    "hopital pasteur",
+    "toulouse",
+    "henri mondor",
+    "maisons alfort",
+    "versailles",
+    "clermont",
+    "belfort",
+    "montbeliard",
+    "amiens",
+    "besancon",
+    "jean minjoz",
+    "besançon",
+    "caen",
+    "corse",
+    "creil",
+    "clamart",
+    "vichy",
+    "saint mande",
+    "creteil",
+    "créteil",
+    "dijon",
+    "grenoble",
+    "guadeloupe",
+    "sorbonne",
+    "avignon",
+    "vaucluse",
+    "la réunion",
+    "guyane",
+    "vallauris",
+    "bobigny",
+    "bligny",
+    "montigny",
+    "vivarais",
+    "st mandrier",
+    "carcassonne",
+    "lavaur",
+    "ollioules",
+    "aurillac",
+    "dunkerque",
+    "morlaix",
+    "mulhouse",
+    "gif sur yvette",
+    "auvergne",
+    "saint maur des fosses",
+    "francia",
+    "francilien",
+    "essonnes",
+    "la roche sur yon",
+    "garenne",
+    "gennevilliers",
+    "franceand",
+    "cachan",
+    "pompidou",
+    "french guyana",
+    "mayotte",
+    "martinique",
+    "nancy",
+    "vannes",
+    "metz",
+    "palaiseau",
+    "poitiers",
+    "reims",
+    "montfermeil",
+    "rennes",
+    "brest",
+    "picardie",
+    "suresnes",
+    "poissy",
+    "bretigny",
+    "billancourt",
+    "villejuif",
+    "velizy",
+    "noumea",
+    "nouméa",
+    "new caledonia",
+    "nouvelle caledonie",
+    "saint denis",
+    "saint brieuc",
+    "reunion",
+    "saint cloud",
+    "gustave roussy",
+    "leon berard",
+    "institut curie",
+    "institute curie",
+    "trousseau",
+    "godinot",
+    "bichat",
+    "beaujon",
+    "cochin",
+    "hopital bicetre",
+    "saint herblain",
+    "eugene marquis",
+    "cordeliers",
+    "saint lo",
+    "claudius regaud",
+    "lariboisiere",
+    "tenon",
+    "necker",
+    "valenciennes",
+    "bagnolet",
+    "bagnols",
+    "sete",
+    "cahors",
+    "cornebarrieu",
+    "ariege",
+    "paoli calmettes",
+    "quimper",
+    "aix",
+    "tours",
+    "marne",
+    "pau",
+    "adour",
+    "nice",
+    "sophia-antipolis",
+    "inria",
+    "inserm",
+    "inra",
+    "ifsttar",
+    "brgm",
+    "ifremer",
+    "onera",
+    "saclay",
+    "bourgogne",
+    "nancy 2",
+    "calédonie",
+    "bretagne",
+    "savoie",
+    "toulon",
+    "umr",
+    "ehess",
+    "lorraine",
+    "panthéon",
+    "univ-smb",
+    "mnhn.fr",
+    "collège de france",
+    "paristech",
+    "insee.fr",
+    "iepg.fr",
+    "enpjj",
+    "picardy",
+    "azur",
+    "kedge",
+    "institut de recherche pour le developpement",
+    "institut de recherche pour la developpement",
+    "institut national des sciences appliquees",
+    "inrae",
+    "ap hp",
+    "aphp",
+    "aphm",
+    "ap hm",
+    "timone",
+    "hyeres",
+    "roubaix",
+    "garches",
+    "cholet",
+    "centre international de recherche en infectiologie",
+    "institut pasteur",
+    "biomerieux",
+    "andree rosemon",
+    "claude bernard",
+    "annecy",
+    "tahiti",
+    "pitie salpetriere",
+    "french"
+  ],
+  "CN": [
+    "china",
+    "chinese",
+    "fujian",
+    "shanghai",
+    "beijing",
+    "bejing",
+    "guangan",
+    "guangzhou",
+    "guangzho",
+    "shenzhen",
+    "shenznen",
+    "tongji",
+    "changhai",
+    "zhejiang",
+    "jiaxing",
+    "donghua",
+    "kunming",
+    "sichuan",
+    "peking",
+    "guangdong",
+    "sun yat sen",
+    "fudan",
+    "wuhan",
+    "hubei",
+    "tsinghua",
+    "renmin",
+    "huazhong",
+    "haohua",
+    "xiangyang",
+    "jiaotong",
+    "shaanxi",
+    "yichang",
+    "shanghaitech",
+    "nanjing",
+    "huoshenshan",
+    "genetalks",
+    "guilin",
+    "lanzhou",
+    "beihang",
+    "jinan",
+    "hainan",
+    "xiamen",
+    "xiangzhou",
+    "zhejaing",
+    "chinese",
+    "fuyang",
+    "nanchang",
+    "plagh",
+    "yichun",
+    "shanxi",
+    "ningbo",
+    "jiangxi",
+    "people s hospital",
+    "nantong",
+    "biomissile corporation",
+    "military medical university",
+    "army medical university",
+    "northern theater command",
+    "rainsure scientific",
+    "yueqing",
+    "people hospital",
+    "940th hospital",
+    "960th hospital",
+    "pople hospital",
+    "xiaoshan",
+    "minzu",
+    "central south university",
+    "southeast university",
+    "anygo technology",
+    "abmax biotechnology",
+    "southern medical university",
+    "central theater command",
+    "jiangnan",
+    "xi'an",
+    "xi an",
+    "tianjin",
+    "nanchang",
+    "xijing",
+    "tangdu",
+    "chengdu",
+    "shenyang",
+    "henan",
+    "zwhongnan",
+    "yunnan",
+    "hexi",
+    "zhe jiang",
+    "zhejiang",
+    "chongqing",
+    "dazhou",
+    "changzheng",
+    "zhuhai",
+    "qingdao",
+    "shantou",
+    "wenzhou",
+    "jingmen",
+    "shandong",
+    "jingzhou",
+    "minjiang",
+    "xinqiao",
+    "anhui",
+    "zhengzhou",
+    "xiangya",
+    "suizhou",
+    "huangshi",
+    "gansu",
+    "jin yin tan",
+    "huajia",
+    "research network of immunity and health",
+    "zhenge biotechnology",
+    "bengbu",
+    "guizhou",
+    "shijiazhuang",
+    "central threater command",
+    "pla general hospital",
+    "hunan",
+    "soochow",
+    "westlake university",
+    "guangxi",
+    "suzhou",
+    "huaiyin",
+    "liangzhou",
+    "xiguan",
+    "xinjiang",
+    "wuan",
+    "xian",
+    "huanggang",
+    "changsha",
+    "jilin",
+    "ninghai",
+    "xiangshan",
+    "shaoxing",
+    "vision medicals",
+    "simcere",
+    "changchun",
+    "suzhou",
+    "university of pla",
+    "hebei",
+    "huanggang",
+    "peoples hospital",
+    "pla",
+    "shangdong",
+    "guangzho",
+    "tongjihospital",
+    "macau",
+    "hangzhou",
+    "fujianprovincial",
+    "regend therapeutics",
+    "hefei",
+    "zunyi",
+    "nanning",
+    "hangzhou",
+    "sinocelltech",
+    "affiliated hospital",
+    "jinling",
+    "huizhou",
+    "shaoyang",
+    "huangzhong",
+    "ofjingmen",
+    "zhongnan",
+    "gangdong"
+  ],
+  "IT": [
+    "italy",
+    "italie",
+    "italia",
+    "italian",
+    "rome",
+    "roma",
+    "lazio",
+    "udine",
+    "genova",
+    "infn",
+    "pisa",
+    "bocconi",
+    "catania",
+    "basilicata",
+    "sicily",
+    "palermo",
+    "palerme",
+    "sicilia",
+    "perugia",
+    "messina",
+    "milan",
+    "milano",
+    "foggia",
+    "dell universita",
+    "humanitas university",
+    "IRCCS",
+    "sapienza",
+    "brescia",
+    "federico ii",
+    "san raffaele",
+    "istituto",
+    "istat",
+    "luiss guido carli",
+    "mensana srls",
+    "salento",
+    "catanzaro",
+    "torino",
+    "turin",
+    "bari",
+    "bologna",
+    "napoli",
+    "naples",
+    "veneto",
+    "venezia",
+    "bruno kessler foundation",
+    "reggio emilia",
+    "ricerche",
+    "ricerca",
+    "isi foundation",
+    "salerno",
+    "trento",
+    "pavia",
+    "monza",
+    "verona",
+    "lucca",
+    "toscana",
+    "bergamo",
+    "ospedale",
+    "fondazione",
+    "trieste",
+    "siena",
+    "sienne",
+    "padova",
+    "padua",
+    "firenze",
+    "careggi",
+    "of florence",
+    "faenza"
+  ],
+  "US": [
+    "usa",
+    "u s a",
+    "u s",
+    "us",
+    "united states",
+    "estados unidos",
+    "alaska",
+    "michigan",
+    "nevada",
+    "burlington",
+    "menlo park",
+    "yale",
+    "willowbrook",
+    "church va",
+    "city ca",
+    "salem va",
+    "santa fe",
+    "chicago",
+    "maine",
+    "golden co",
+    "baltimore",
+    "oaks ca",
+    "delaware",
+    "loma linda",
+    "williamstown",
+    "moutain view",
+    "palo alto",
+    "boise id",
+    "potomac",
+    "hills mi",
+    "henderson nv",
+    "duarte ca",
+    "amherst",
+    "new hampshire",
+    "gilbert az",
+    "lemont il",
+    "mississippi",
+    "san diego",
+    "londonderry",
+    "philadelphia",
+    "new orleans",
+    "rochester ny",
+    "lewisburg",
+    "danville pa",
+    "danville ca",
+    "oaks ca",
+    "plantation fl",
+    "arbor mi",
+    "milford ma",
+    "weymouth ma",
+    "city ny",
+    "antonio tx",
+    "rockville",
+    "hamilton",
+    "idaho",
+    "loveland co",
+    "lisle il",
+    "arlington va",
+    "chesterfield mo",
+    "silver spring",
+    "littleton co",
+    "gilbert az",
+    "orange ca",
+    "columbus oh",
+    "richmond va",
+    "hackensack",
+    "allentown",
+    "east hanover nj",
+    "bethesda",
+    "gaithersburg",
+    "alexandria va",
+    "jacksonville",
+    "charlottesville",
+    "greenville",
+    "alexandria va",
+    "frisco",
+    "buffalo",
+    "tarrytown",
+    "duluth",
+    "northbrook",
+    "ny",
+    "wa",
+    "nj",
+    "n y",
+    "tn",
+    "mn",
+    "ct",
+    "nc",
+    "sc",
+    "pa",
+    "ca",
+    "ma",
+    "fl",
+    "nc",
+    "ks",
+    "md",
+    "wi",
+    "ks",
+    "rutgers",
+    "new jersey",
+    "wilmington",
+    "boulder",
+    "tx",
+    "az",
+    "wv",
+    "nd",
+    "oh",
+    "paducah",
+    "sacramento",
+    "west lafayette",
+    "honolulu",
+    "hawai",
+    "jefferson",
+    "beltsville",
+    "waimanalo",
+    "california",
+    "oakland ca",
+    "princeton",
+    "massachusetts",
+    "harvard",
+    "miami",
+    "las vegas",
+    "columbia",
+    "stanford",
+    "arizona",
+    "alabama",
+    "new york",
+    "bronx",
+    "manhasset",
+    "stony brook",
+    "washington",
+    "oregon",
+    "bill and melinda gates",
+    "milwaukee",
+    "wisconsin",
+    "texas",
+    "nashville",
+    "bloomington",
+    "mn",
+    "houston",
+    "ucla",
+    "berkeley",
+    "cornell",
+    "florida",
+    "fort lauderdale",
+    "tampa",
+    "salt lake city",
+    "georgetown university",
+    "brown university",
+    "north carolina",
+    "south carolina",
+    "maryland",
+    "connecticut",
+    "hawaii",
+    "virginia",
+    "iowa",
+    "boston",
+    "pennsylvania",
+    "collegeville",
+    "cleveland",
+    "seattle",
+    "portland",
+    "hyattsville",
+    "nebraska",
+    "creighton",
+    "deerfield",
+    "evanston",
+    "illinois",
+    "ucsf",
+    "icahn",
+    "vermont",
+    "wyoming",
+    "duke",
+    "san francisco",
+    "los angeles",
+    "johns hopkins",
+    "johns hopksin",
+    "oklahoma",
+    "u s food",
+    "scripps",
+    "san mateo county",
+    "county department",
+    "county division",
+    "santa clara county",
+    "county public health",
+    "county health",
+    "cuebiq",
+    "parker institute",
+    "ohio",
+    "case western",
+    "asdera llc",
+    "oracle corporation",
+    "ut southwestern medical center",
+    "national council of research",
+    "fred hutchinson",
+    "cold spring harbor",
+    "target health",
+    "national institutes of health",
+    "nih",
+    "niaid",
+    "national institute of infectious diseases",
+    "montclair state",
+    "leidos",
+    "ripeta",
+    "centers for disease control and prevention",
+    "los alamos",
+    "new mexico",
+    "kansas",
+    "closedloop.ai",
+    "carnegie mellon",
+    "purdue",
+    "indiana",
+    "tennessee",
+    "memphis",
+    "kentucky",
+    "rensselaer",
+    "uc davis",
+    "brigham",
+    "vanderbilt",
+    "emory",
+    "atlanta",
+    "pittsburgh",
+    "bard college",
+    "university of notre dame",
+    "flow pharma",
+    "la jolla",
+    "dakota",
+    "loyola",
+    "buffalo school",
+    "utmb",
+    "john a burns",
+    "lown institute",
+    "hoag memorial",
+    "cedars sinai",
+    "mammoth biosciences",
+    "national institute of health",
+    "missouri",
+    "fordham",
+    "saint leo",
+    "howard university",
+    "snohomish",
+    "providence",
+    "mit",
+    "utah",
+    "saint louis university",
+    "rockefeller",
+    "cincinnati",
+    "craig venter",
+    "phoenix",
+    "louisiana",
+    "baton rouge",
+    "brandeis",
+    "dane county",
+    "albert einstein college",
+    "penn state",
+    "nyu",
+    "charlotte",
+    "detroit",
+    "montana",
+    "calverton",
+    "minneapolis",
+    "minnesota",
+    "colorado",
+    "hempstead",
+    "rhode island",
+    "arkansas",
+    "louisville",
+    "brooklyn",
+    "omaha",
+    "denver",
+    "u s army",
+    "u s navy",
+    "westchester",
+    "renton",
+    "indianapolis",
+    "dallas",
+    "springfield",
+    "newark",
+    "mayo clinic",
+    "united states"
+  ],
+  "CH": [
+    "switzerland",
+    "suisse",
+    "ginebra",
+    "zurich",
+    "fribourg",
+    "nyon",
+    "bern",
+    "basel",
+    "genolier",
+    "geneva",
+    "geneve",
+    "epfl",
+    "lausanne",
+    "swiss",
+    "cern",
+    "vaud",
+    "bellinzona"
+  ],
+  "GR": [
+    "greece",
+    "grece",
+    "athenes",
+    "athens",
+    "thrace",
+    "grecia",
+    "thessaloniki",
+    "crete"
+  ],
+  "GB": [
+    "great britain",
+    "united kingdom",
+    "uk",
+    "u k",
+    "gb",
+    "g b",
+    "leeds",
+    "aberdeen",
+    "royaume uni",
+    "london",
+    "londres",
+    "warwick",
+    "oxford",
+    "cambridge",
+    "nhs",
+    "imperial college",
+    "bristol",
+    "surrey",
+    "british",
+    "england",
+    "leicester",
+    "wetherby",
+    "swansea",
+    "ipswich",
+    "cardiff",
+    "bedfordshire",
+    "lancaster",
+    "birmingham",
+    "essex",
+    "glasgow",
+    "edinburgh",
+    "southampton",
+    "keele",
+    "liverpool",
+    "queen mary",
+    "princess margaret",
+    "stirling",
+    "exeter",
+    "stephen perse",
+    "canterbury",
+    "nottingham",
+    "manchester",
+    "sussex",
+    "worcester",
+    "lshtm",
+    "ucl",
+    "res consortium",
+    "salford royal",
+    "bath",
+    "oucru",
+    "sheffield",
+    "aberdeenshire",
+    "kent",
+    "berkshire",
+    "scotland",
+    "united kingdom"
+  ],
+  "ES": [
+    "spain",
+    "espana",
+    "leioa",
+    "vigo",
+    "basque country",
+    "espagne",
+    "madrid",
+    "lleida",
+    "lerida",
+    "galicia",
+    "bilbao",
+    "rovira i virgili",
+    "navarra",
+    "ciudad real",
+    "granada",
+    "oviedo",
+    "cataluna",
+    "barcelona",
+    "asturias",
+    "alicante",
+    "csic",
+    "expilab",
+    "iese business school",
+    "cadiz",
+    "icfo",
+    "spanish",
+    "zaragoza",
+    "valencia"
+  ],
+  "CA": [
+    "canada",
+    "sherbrooke",
+    "montreal",
+    "toronto",
+    "ottawa",
+    "quebec",
+    "carleton",
+    "laval",
+    "mcgill",
+    "bluedot",
+    "simon fraser",
+    "calgary",
+    "mcmaster university",
+    "brock university",
+    "ontario",
+    "saskatchewan",
+    "alberta",
+    "edmonton",
+    "university of victoria",
+    "guelph",
+    "university of waterloo",
+    "dalla lana school",
+    "manitoba",
+    "dalhousie",
+    "halifax",
+    "canadien"
+  ],
+  "BR": [
+    "brazil",
+    "bresil",
+    "brazilian",
+    "goiania",
+    "sao paulo",
+    "parana",
+    "curitiba",
+    "aracatuba",
+    "minas gerais",
+    "ouro preto",
+    "brasil",
+    "recife",
+    "fundacao oswaldo cruz",
+    "sabin medicina",
+    "rio de janeiro",
+    "campinas",
+    "brasileiro"
+  ],
+  "AE": [
+    "uae",
+    "united arab emirates"
+  ],
+  "NO": [
+    "norway",
+    "halden",
+    "trondheim",
+    "norwegian",
+    "oslo",
+    "tromsø"
+  ],
+  "SE": [
+    "sweden",
+    "suede",
+    "swedish",
+    "gothenburg",
+    "bergen",
+    "lund",
+    "uppsala",
+    "stockholm",
+    "kth",
+    "umea",
+    "karolinska",
+    "ingerod",
+    "linkoping"
+  ],
+  "SA": [
+    "saudi arabia",
+    "jeddah",
+    "dammam",
+    "king abdullah",
+    "northern border university",
+    "saudi"
+  ],
+  "IN": [
+    "india",
+    "inde",
+    "new delhi",
+    "indore",
+    "bangalore",
+    "karnataka",
+    "indian",
+    "hyderabad",
+    "aligarh muslim",
+    "homi bhabha",
+    "rajasthan",
+    "jammu",
+    "fortis c doc",
+    "dharwad",
+    "kasturba",
+    "mangalore",
+    "mumbai",
+    "ntr university",
+    "fortis hospital",
+    "mohali",
+    "jadavpur",
+    "coimbatore",
+    "savitribai",
+    "delhi",
+    "jodhpur"
+  ],
+  "PK": [
+    "pakistan",
+    "islamabad",
+    "aga khan university",
+    "dow university",
+    "lahore",
+    "faisalabad",
+    "khyber pakhtunkhwa",
+    "karachi"
+  ],
+  "BD": [
+    "bangladesh",
+    "dhaka",
+    "dacca",
+    "jahangirnagar",
+    "shahjalal"
+  ],
+  "TH": [
+    "thailand",
+    "bangkok",
+    "walailak",
+    "bangkokthailand"
+  ],
+  "BE": [
+    "belgium",
+    "belgique",
+    "liege",
+    "kortrijk",
+    "aalst",
+    "brussels",
+    "leuven",
+    "louvain",
+    "antwerp",
+    "brussel",
+    "ku leuven",
+    "janssen",
+    "ghent",
+    "louvain",
+    "bruxelles",
+    "hasselt"
+  ],
+  "NL": [
+    "netherlands",
+    "netherland",
+    "pays bas",
+    "eindhoven",
+    "amsterdam",
+    "purmerend",
+    "bilthoven",
+    "rotterdam",
+    "geldermalsen",
+    "utrecht",
+    "groningen",
+    "nijmegen",
+    "kwr",
+    "nieuwegein",
+    "amphia hospital",
+    "tweesteden",
+    "bravis hospital",
+    "wageningen",
+    "erasmus",
+    "leiden",
+    "maastricht",
+    "viroclinics xplore",
+    "bprc"
+  ],
+  "KR": [
+    "korea",
+    "corea",
+    "coree",
+    "seoul",
+    "sejong",
+    "kyungpook",
+    "cheongju",
+    "gwangju",
+    "incheon",
+    "gwangju",
+    "daegu",
+    "soongsil",
+    "sungkyunkwan",
+    "asan medical",
+    "hallym",
+    "yonsei",
+    "ulsan",
+    "pohang",
+    "korea republic of"
+  ],
+  "IL": [
+    "israel",
+    "technion",
+    "tel aviv",
+    "ramat gan",
+    "ben gurion",
+    "weizmann",
+    "hebrew",
+    "jerusalem",
+    "israeli",
+    "rambam",
+    "clalit",
+    "bar ilan",
+    "nazareth"
+  ],
+  "JP": [
+    "japan",
+    "hokkaido",
+    "tokyo",
+    "chiyoda ku",
+    "kyoto",
+    "showa",
+    "nippon",
+    "tsukuba",
+    "nankai",
+    "nagaizumi",
+    "osaka",
+    "kibi",
+    "saitama",
+    "saidai",
+    "yamanashi",
+    "hiroshima",
+    "nagasaki",
+    "self defense forces central",
+    "gunma",
+    "chiba",
+    "tohoku",
+    "keio",
+    "waseda",
+    "kawasaki"
+  ],
+  "TW": [
+    "taiwan",
+    "taichung",
+    "hualien",
+    "chang gung",
+    "taipei",
+    "pingtung",
+    "taiwan province of china"
+  ],
+  "HK": [
+    "hong kong",
+    "pamela youde nethersole",
+    "united christian hospital",
+    "tuen mun hospital",
+    "hong kong"
+  ],
+  "VN": [
+    "viet nam",
+    "vietnam",
+    "hcmc",
+    "ho chi minh"
+  ],
+  "NE": [
+    "bokkos",
+    "niger"
+  ],
+  "EG": [
+    "egypt",
+    "egypte",
+    "cairo",
+    "assiut"
+  ],
+  "DK": [
+    "denmark",
+    "aarhus",
+    "copenhagen",
+    "statens serum",
+    "cobo technologies",
+    "roskilde",
+    "danish",
+    "odense"
+  ],
+  "FI": [
+    "finland",
+    "jyvaskyla",
+    "helsinki",
+    "aalto"
+  ],
+  "PT": [
+    "portugal",
+    "porto",
+    "lisbonne",
+    "lisbon",
+    "lisboa",
+    "egas moniz",
+    "ciiem",
+    "gulbenkian",
+    "coimbra"
+  ],
+  "MX": [
+    "mexique",
+    "sonora",
+    "san luis potosi",
+    "monterrey",
+    "unam",
+    "iztapalapa",
+    "puebla",
+    "mexico"
+  ],
+  "MW": [
+    "mzuzu",
+    "malawi"
+  ],
+  "VE": [
+    "venezuela",
+    "caracas",
+    "venezuela bolivarian republic of"
+  ],
+  "SI": [
+    "ljubljana",
+    "maribor",
+    "slovenia"
+  ],
+  "TR": [
+    "turkey",
+    "istanbul",
+    "abdullah gul",
+    "ankara",
+    "bahcesehir",
+    "ege",
+    "edirne",
+    "izmir",
+    "adana",
+    "bursa",
+    "antalya"
+  ],
+  "LB": [
+    "liban",
+    "lebanese",
+    "beirut",
+    "lebanon"
+  ],
+  "CL": [
+    "universidad mayor",
+    "chile",
+    "chili"
+  ],
+  "AT": [
+    "austria",
+    "autriche",
+    "vienna",
+    "innsbruck",
+    "wien"
+  ],
+  "EC": [
+    "ecuador",
+    "quito"
+  ],
+  "NG": [
+    "nigeria",
+    "nasarawa",
+    "lagos"
+  ],
+  "SN": [
+    "senegal",
+    "thies"
+  ],
+  "IQ": [
+    "irak",
+    "sulaimany",
+    "iraq"
+  ],
+  "CU": [
+    "cuba",
+    "cuban",
+    "habana"
+  ],
+  "ZA": [
+    "south africa",
+    "stellenbosch",
+    "cape town",
+    "johannesburg",
+    "kwazulu natal",
+    "pretoria",
+    "south africa"
+  ],
+  "CI": [
+    "ivory coast",
+    "abidjan",
+    "cote d ivoire"
+  ],
+  "HU": [
+    "hungary",
+    "hungarian",
+    "szeged",
+    "budapest"
+  ],
+  "BO": [
+    "bolivia",
+    "la paz",
+    "cochabamba",
+    "bolivia plurinational state of"
+  ],
+  "PE": [
+    "peru",
+    "lima",
+    "arequipa"
+  ],
+  "IE": [
+    "ireland",
+    "galway",
+    "irland",
+    "dublin",
+    "cork"
+  ],
+  "PL": [
+    "poland",
+    "pologne",
+    "polish",
+    "wroclaw",
+    "warsaw",
+    "varsovie",
+    "katowice",
+    "rzeszow",
+    "silesian",
+    "nadarzyn"
+  ],
+  "DZ": [
+    "alger",
+    "algeria",
+    "saida",
+    "algerie",
+    "zab"
+  ],
+  "TZ": [
+    "tanzania",
+    "dar es salaam",
+    "tanzania united republic of"
+  ],
+  "PS": [
+    "palestine",
+    "gaza",
+    "hebron",
+    "palestinian",
+    "palestine state of"
+  ],
+  "TN": [
+    "tunis",
+    "tunisia",
+    "tunisie",
+    "monastir",
+    "bizerte",
+    "sidi thabet",
+    "sfax",
+    "sousse"
+  ],
+  "IR": [
+    "iran",
+    "mashhad",
+    "iranian",
+    "tehran",
+    "ahvaz jundishapur",
+    "shahid beheshti",
+    "shahrekord",
+    "payame noor",
+    "tarbiat",
+    "shahid madani",
+    "kerman university",
+    "yasuj",
+    "esfahan",
+    "shiraz",
+    "iran islamic republic of"
+  ],
+  "DE": [
+    "germany",
+    "allemagne",
+    "bielefeld",
+    "german",
+    "freiburg",
+    "potsdam",
+    "leipzig",
+    "max planck institute",
+    "berlin",
+    "dusseldorf",
+    "marburg",
+    "erlangen",
+    "goettingen",
+    "munster",
+    "mannheim",
+    "bonn",
+    "fur",
+    "dresden",
+    "wurzburg",
+    "deggendorf",
+    "giessen",
+    "tubingen",
+    "frankfurt",
+    "ruhr",
+    "mainz",
+    "krozingen",
+    "hamburg",
+    "greifswald",
+    "nuremberg",
+    "duesseldorf",
+    "johannes gutenberg",
+    "kaiserslautern",
+    "trier",
+    "leibniz institut",
+    "gmbh",
+    "dortmund",
+    "charite",
+    "essen",
+    "helmholtz",
+    "luebeck",
+    "gottingen",
+    "robert koch",
+    "munich",
+    "munchen",
+    "deutschland",
+    "stuttgart",
+    "goethe university",
+    "koln",
+    "uniklinik",
+    "heidelberg"
+  ],
+  "AU": [
+    "australia",
+    "james cook",
+    "monash",
+    "tasmania",
+    "canberra",
+    "sydney",
+    "sydn",
+    "queensland",
+    "melbourne",
+    "koblenz",
+    "telethon kids institute",
+    "ausvet",
+    "deakin",
+    "new south wales",
+    "nsw",
+    "csiro",
+    "la trobe",
+    "adelaide",
+    "australian",
+    "macquarie",
+    "doherty institute"
+  ],
+  "NZ": [
+    "new zealand",
+    "otago",
+    "auckland",
+    "wellington",
+    "manaaki",
+    "waikato",
+    "dunedin",
+    "tauranga",
+    "new zealand"
+  ],
+  "AW": [
+    "aruba"
+  ],
+  "AF": [
+    "afghanistan"
+  ],
+  "AO": [
+    "angola"
+  ],
+  "AI": [
+    "anguilla"
+  ],
+  "AX": [
+    "aland islands"
+  ],
+  "AL": [
+    "albania"
+  ],
+  "AD": [
+    "andorra",
+    "andorre"
+  ],
+  "AR": [
+    "argentina",
+    "buenos aires",
+    "argentine"
+  ],
+  "AM": [
+    "armenia",
+    "armenie",
+    "yerevan"
+  ],
+  "AS": [
+    "american samoa"
+  ],
+  "AQ": [
+    "antarctica"
+  ],
+  "AG": [
+    "antigua and barbuda"
+  ],
+  "AZ": [
+    "azerbaijan"
+  ],
+  "BI": [
+    "burundi"
+  ],
+  "BJ": [
+    "benin"
+  ],
+  "BQ": [
+    "bonaire sint eustatius and saba"
+  ],
+  "BF": [
+    "burkina faso"
+  ],
+  "BG": [
+    "bulgaria",
+    "bulgarian",
+    "bulgary",
+    "sofia"
+  ],
+  "BH": [
+    "bahrain"
+  ],
+  "BS": [
+    "bahamas"
+  ],
+  "BA": [
+    "bosnia and herzegovina",
+    "bosnia",
+    "sarajevo"
+  ],
+  "BL": [
+    "saint barthelemy"
+  ],
+  "BY": [
+    "belarus"
+  ],
+  "BZ": [
+    "belize"
+  ],
+  "BM": [
+    "bermuda"
+  ],
+  "BB": [
+    "barbados"
+  ],
+  "BN": [
+    "brunei darussalam",
+    "brunei"
+  ],
+  "BT": [
+    "bhutan"
+  ],
+  "BV": [
+    "bouvet island"
+  ],
+  "BW": [
+    "botswana"
+  ],
+  "CF": [
+    "central african republic"
+  ],
+  "CC": [
+    "cocos keeling islands"
+  ],
+  "CM": [
+    "cameroon",
+    "yaounde",
+    "bamenda",
+    "cameroun"
+  ],
+  "CD": [
+    "congo the democratic republic of the",
+    "democratic republic of the congo",
+    "lubumbashi",
+    "kinshasa",
+    "kalemie",
+    "democratic republic of congo",
+    "kisangani",
+    "congo drc",
+    "mbandaka"
+  ],
+  "CG": [
+    "brazzaville",
+    "oyo"
+  ],
+  "CK": [
+    "cook islands"
+  ],
+  "CO": [
+    "colombia",
+    "bogota"
+  ],
+  "KM": [
+    "comoros"
+  ],
+  "CV": [
+    "cabo verde"
+  ],
+  "CR": [
+    "costa rica"
+  ],
+  "CW": [
+    "curacao"
+  ],
+  "CX": [
+    "christmas island"
+  ],
+  "KY": [
+    "cayman islands"
+  ],
+  "CY": [
+    "cyprus"
+  ],
+  "CZ": [
+    "czechia",
+    "czech republic",
+    "prague",
+    "czech",
+    "tcheque",
+    "plzen",
+    "brno",
+    "praha"
+  ],
+  "DJ": [
+    "djibouti"
+  ],
+  "DM": [
+    "dominica"
+  ],
+  "DO": [
+    "dominican republic"
+  ],
+  "ER": [
+    "eritrea"
+  ],
+  "EH": [
+    "western sahara"
+  ],
+  "EE": [
+    "estonia",
+    "estonie",
+    "estonie",
+    "tallinn"
+  ],
+  "ET": [
+    "ethiopia"
+  ],
+  "FJ": [
+    "fiji"
+  ],
+  "FK": [
+    "falkland islands malvinas",
+    "falkland islands",
+    "malvinas"
+  ],
+  "FO": [
+    "faroe islands"
+  ],
+  "FM": [
+    "micronesia federated states of"
+  ],
+  "GA": [
+    "gabon"
+  ],
+  "GE": [
+    "georgia"
+  ],
+  "GG": [
+    "guernsey"
+  ],
+  "GH": [
+    "ghana"
+  ],
+  "GI": [
+    "gibraltar"
+  ],
+  "GN": [
+    "guinea",
+    "conakry",
+    "forecariah"
+  ],
+  "GP": [
+    "guadeloupe"
+  ],
+  "GM": [
+    "gambia"
+  ],
+  "GW": [
+    "guinea bissau"
+  ],
+  "GQ": [
+    "equatorial guinea"
+  ],
+  "GD": [
+    "grenada"
+  ],
+  "GL": [
+    "greenland"
+  ],
+  "GT": [
+    "guatemala"
+  ],
+  "GU": [
+    "guam"
+  ],
+  "GY": [
+    "guyana"
+  ],
+  "HM": [
+    "heard island and mcdonald islands"
+  ],
+  "HN": [
+    "honduras"
+  ],
+  "HR": [
+    "croatia",
+    "zagreb"
+  ],
+  "HT": [
+    "haiti"
+  ],
+  "ID": [
+    "indonesia"
+  ],
+  "IM": [
+    "isle of man"
+  ],
+  "IO": [
+    "british indian ocean territory"
+  ],
+  "IS": [
+    "iceland"
+  ],
+  "JM": [
+    "jamaica"
+  ],
+  "JE": [
+    "jersey"
+  ],
+  "JO": [
+    "jordan"
+  ],
+  "KZ": [
+    "kazakhstan"
+  ],
+  "KE": [
+    "kenya"
+  ],
+  "KG": [
+    "kyrgyzstan"
+  ],
+  "KH": [
+    "cambodia",
+    "phnom penh",
+    "pailin",
+    "cambodge"
+  ],
+  "KI": [
+    "kiribati"
+  ],
+  "KN": [
+    "saint kitts and nevis"
+  ],
+  "KW": [
+    "kuwait"
+  ],
+  "LA": [
+    "lao people s democratic republic",
+    "laos",
+    "lao",
+    "vientiane"
+  ],
+  "LR": [
+    "liberia"
+  ],
+  "LY": [
+    "libya"
+  ],
+  "LC": [
+    "saint lucia"
+  ],
+  "LI": [
+    "liechtenstein"
+  ],
+  "LK": [
+    "sri lanka"
+  ],
+  "LS": [
+    "lesotho"
+  ],
+  "LT": [
+    "lithuania",
+    "lituanie",
+    "vilnius"
+  ],
+  "LU": [
+    "luxembourg",
+    "luxemburg"
+  ],
+  "LV": [
+    "latvia"
+  ],
+  "MO": [
+    "macao"
+  ],
+  "MA": [
+    "morocco",
+    "marocco",
+    "rabat",
+    "casablanca",
+    "maroc",
+    "agadir"
+  ],
+  "MC": [
+    "monaco"
+  ],
+  "MD": [
+    "moldova republic of",
+    "moldova"
+  ],
+  "MG": [
+    "madagascar",
+    "antananarivo"
+  ],
+  "MV": [
+    "maldives"
+  ],
+  "MH": [
+    "marshall islands"
+  ],
+  "MK": [
+    "north macedonia",
+    "skopje",
+    "macedonia"
+  ],
+  "ML": [
+    "mali"
+  ],
+  "MT": [
+    "malta"
+  ],
+  "MM": [
+    "myanmar"
+  ],
+  "ME": [
+    "montenegro"
+  ],
+  "MN": [
+    "mongolia",
+    "mongolian",
+    "ulaanbaatar"
+  ],
+  "MP": [
+    "northern mariana islands"
+  ],
+  "MZ": [
+    "mozambique"
+  ],
+  "MR": [
+    "mauritania",
+    "mauritanie",
+    "nouakchott"
+  ],
+  "MS": [
+    "montserrat"
+  ],
+  "MQ": [
+    "martinique"
+  ],
+  "MU": [
+    "mauritius"
+  ],
+  "MY": [
+    "malaysia",
+    "kuala lumpur"
+  ],
+  "YT": [
+    "mayotte"
+  ],
+  "NA": [
+    "namibia"
+  ],
+  "NF": [
+    "norfolk island"
+  ],
+  "NI": [
+    "nicaragua"
+  ],
+  "NU": [
+    "niue"
+  ],
+  "NP": [
+    "nepal"
+  ],
+  "NR": [
+    "nauru"
+  ],
+  "OM": [
+    "oman"
+  ],
+  "PA": [
+    "panama"
+  ],
+  "PN": [
+    "pitcairn"
+  ],
+  "PH": [
+    "philippines"
+  ],
+  "PW": [
+    "palau"
+  ],
+  "PG": [
+    "papua new guinea"
+  ],
+  "PR": [
+    "puerto rico"
+  ],
+  "KP": [
+    "korea democratic people s republic of"
+  ],
+  "PY": [
+    "paraguay"
+  ],
+  "QA": [
+    "qatar",
+    "quatar",
+    "doha"
+  ],
+  "RO": [
+    "romania",
+    "roumanie",
+    "romenia",
+    "bucarest"
+  ],
+  "RU": [
+    "russian federation",
+    "russia",
+    "russian",
+    "moscow",
+    "kurchatov",
+    "smolensk",
+    "yakutsk"
+  ],
+  "RW": [
+    "rwanda"
+  ],
+  "SD": [
+    "sudan"
+  ],
+  "SG": [
+    "singapore"
+  ],
+  "GS": [
+    "south georgia and the south sandwich islands"
+  ],
+  "SH": [
+    "saint helena ascension and tristan da cunha"
+  ],
+  "SJ": [
+    "svalbard and jan mayen"
+  ],
+  "SB": [
+    "solomon islands"
+  ],
+  "SL": [
+    "sierra leone"
+  ],
+  "SV": [
+    "el salvador"
+  ],
+  "SM": [
+    "san marino"
+  ],
+  "SO": [
+    "somalia"
+  ],
+  "PM": [
+    "saint pierre and miquelon"
+  ],
+  "RS": [
+    "serbia",
+    "belgrade"
+  ],
+  "SS": [
+    "south sudan"
+  ],
+  "ST": [
+    "sao tome and principe"
+  ],
+  "SR": [
+    "suriname"
+  ],
+  "SK": [
+    "slovakia",
+    "kosice",
+    "safarik",
+    "bratislava",
+    "slovak"
+  ],
+  "SZ": [
+    "eswatini",
+    "swaziland",
+    "mbabane"
+  ],
+  "SX": [
+    "sint maarten dutch part"
+  ],
+  "SC": [
+    "seychelles"
+  ],
+  "SY": [
+    "syrian arab republic",
+    "syria"
+  ],
+  "TC": [
+    "turks and caicos islands"
+  ],
+  "TD": [
+    "chad",
+    "tchad",
+    "n djamena"
+  ],
+  "TG": [
+    "togo"
+  ],
+  "TJ": [
+    "tajikistan"
+  ],
+  "TK": [
+    "tokelau"
+  ],
+  "TM": [
+    "turkmenistan"
+  ],
+  "TL": [
+    "timor leste"
+  ],
+  "TO": [
+    "tonga"
+  ],
+  "TT": [
+    "trinidad and tobago"
+  ],
+  "TV": [
+    "tuvalu"
+  ],
+  "UG": [
+    "uganda"
+  ],
+  "UA": [
+    "ukraine"
+  ],
+  "UM": [
+    "united states minor outlying islands"
+  ],
+  "UY": [
+    "uruguay"
+  ],
+  "UZ": [
+    "uzbekistan"
+  ],
+  "VA": [
+    "holy see vatican city state"
+  ],
+  "VC": [
+    "saint vincent and the grenadines"
+  ],
+  "VG": [
+    "virgin islands british"
+  ],
+  "VI": [
+    "virgin islands u s"
+  ],
+  "VU": [
+    "vanuatu"
+  ],
+  "WF": [
+    "wallis and futuna"
+  ],
+  "WS": [
+    "samoa"
+  ],
+  "YE": [
+    "yemen"
+  ],
+  "ZM": [
+    "zambia"
+  ],
+  "ZW": [
+    "zimbabwe",
+    "bulawayo"
+  ]
 }
