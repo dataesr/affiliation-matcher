@@ -15,7 +15,7 @@ services:
       - redis
 
   elasticsearch:
-    image : dataesr/es_icu:1.1
+    image: dataesr/es_icu:1.1
     ports:
       - 9200:9200
     environment:
@@ -29,8 +29,8 @@ services:
     image: dataesr/matcher:0.0.9
     privileged: true
     command: >
-        /bin/sh -c "sysctl -w vm.max_map_count=262144
-        && python3 manage.py run_worker"
+      /bin/sh -c "sysctl -w vm.max_map_count=262144
+      && python3 manage.py run_worker"
     environment:
       APP_SETTINGS: matcher.server.config.DevelopmentConfig
     volumes:

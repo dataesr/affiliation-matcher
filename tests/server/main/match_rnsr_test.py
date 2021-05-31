@@ -82,7 +82,7 @@ class TestGetInfo:
         ])
     def test_get_info_by_names(self, elasticsearch, year, query, fields, size, expected_results_length) -> None:
         body = {'id': '12', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-01'], 'acronyms':
-                'PF-CCB'}
+            'PF-CCB'}
         elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
         body = {'id': '13', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-02']}
         elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
@@ -106,7 +106,7 @@ class TestGetInfo:
     @pytest.mark.parametrize('year,query,fields,size,expected_results_length', [
         ('test', 'PF-CCB', ['acronyms'], 200, 1),
     ])
-    def test_get_info_by_acronyms(self, elasticsearch, year, query, fields, size, expected_results_length)\
+    def test_get_info_by_acronyms(self, elasticsearch, year, query, fields, size, expected_results_length) \
             -> None:
         body = {'id': '112', 'acronyms': ['PF-CCB']}
         elasticsearch['es'].index(elasticsearch['index'], body=body, refresh=True)
