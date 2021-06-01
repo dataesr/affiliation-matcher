@@ -49,7 +49,7 @@ class TestMatchCountry:
             # Query with no meaningful should return no country
             ('Not meaningful string', ['wikidata_cities'], []),
             # Simple query with a city should match the associated country
-            ('Tour Mirabeau Paris', ['wikidata_cities'], ['fr']),
+            ('Tour Mirabeau Nantes', ['wikidata_cities'], ['fr']),
             # Complex query with a city should match the associated country
             ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['wikidata_cities'],
              ['fr']),
