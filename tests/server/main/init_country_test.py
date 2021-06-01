@@ -70,7 +70,7 @@ class TestInitCountry:
         init_country()
         es = MyElastic()
         all_results = es.search(index='country')
-        assert all_results['hits']['total']['value'] == 104
+        assert all_results['hits']['total']['value'] == 76
         french_results = es.search(index='country', body={'query': {'match': {'alpha_2': 'fr'}}})
         assert french_results['hits']['total']['value'] == 1
         french_result = french_results['hits']['hits'][0]['_source']

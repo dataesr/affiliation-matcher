@@ -75,7 +75,7 @@ class TestGetInfo:
     @pytest.mark.parametrize(
         'year,query,fields,size,expected_results_length', [
             ('test', 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 200, 3),
-            ('test2', 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 200, 2),
+            ('test-other', 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 200, 2),
             ('test', 'Plate-Forme', ['names'], 200, 5),
             ('test', 'PF-CCB', ['acronyms'], 200, 1),
             ('test', 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 1, 1)
