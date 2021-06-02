@@ -15,7 +15,7 @@ def create_task_match(arg) -> dict:
     elif type_match == 'country':
         return create_task_country(arg)
     else:
-        return {'error': 'type {type_match} unknown'.format(type_match=type_match)}
+        return {'Error': f'Type {type_match} unknown'}
 
 
 def create_task_rnsr(arg) -> dict:
