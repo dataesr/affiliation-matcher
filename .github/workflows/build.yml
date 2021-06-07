@@ -33,6 +33,15 @@ jobs:
       - name: 📦 Push docker image
         run: make docker-push
 
-      - name: 📢 Notify in slack
-        run: |
-          curl -X POST -H 'Content-type: application/json' --data '{"text":"📦 New release <https://github.com/dataesr/matcher/releases/tag/${{ steps.tag.outputs.TAG_NAME }}|${{ steps.tag.outputs.TAG_NAME }}> in matcher"}' ${{ secrets.SLACK_WEBHOOK }}
+  slack:
+    needs:
+      - build
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: dataesr/slack-notifier-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN}}
+          slack_token: ${{ secrets.SLACK_TOKEN }}
+          slack_channel: '#bsso_bso2'
