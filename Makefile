@@ -1,5 +1,5 @@
 DOCKER_IMAGE_NAME=dataesr/matcher
-CURRENT_VERSION=$(shell cat matcher/__init__.py | grep -P '(\d\.?){3}' -o)
+CURRENT_VERSION=$(shell cat matcher/__init__.py | grep -P '(\d+\.?){3}' -o)
 
 test: unit
 
