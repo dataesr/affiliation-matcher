@@ -38,7 +38,7 @@ make test
 
 ## Build python package
 
-To generate the tarball package into the dist folder
+To generate the tarball package into the **dist** folder
 
 ```shell
 make python-build
