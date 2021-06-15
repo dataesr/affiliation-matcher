@@ -28,17 +28,17 @@ def get_regex_from_country_by_fields(es: MyElastic = None, index: str = '', coun
     return re.compile(pattern, re.IGNORECASE | re.UNICODE) if pattern != '' else None
 
 
-def get_countries_from_query(query: str = '', strategies: list = None) -> list:
-    if strategies is None:
-        strategies = ['info']
+def get_countries_from_query(query: str = '', criteria: list = None) -> list:
+    if criteria is None:
+        criteria = ['info']
     countries = []
     es = MyElastic()
     query = normalize_text(query, remove_separator=False)
     for country in pycountry.countries:
         is_country_matched = True
         country = country.alpha_2.lower()
-        for strategy in strategies:
-            keywords_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, [strategy], True)
+        for criterion in criteria:
+            keywords_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, [criterion], True)
             is_country_matched = is_country_matched and keywords_regex and bool(re.search(keywords_regex, query))
         stop_words_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, ['stop_words'], False)
         if stop_words_regex and re.search(stop_words_regex, query):
