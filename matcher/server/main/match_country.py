@@ -30,7 +30,7 @@ def get_regex_from_country_by_fields(es: MyElastic = None, index: str = '', coun
 
 def get_countries_from_query(query: str = '', criteria: list = None) -> list:
     if criteria is None:
-        criteria = ['info']
+        criteria = ['names']
     countries = []
     es = MyElastic()
     query = normalize_text(query, remove_separator=False)

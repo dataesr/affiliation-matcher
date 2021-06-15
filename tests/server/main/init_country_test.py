@@ -1,5 +1,5 @@
 from matcher.server.main.init_country import get_cities_from_insee, get_cities_from_wikidata, \
-    get_universities_from_mesri, get_universities_from_wikidata, get_info_from_country, get_stop_words_from_country, \
+    get_universities_from_mesri, get_universities_from_wikidata, get_names_from_country, get_stop_words_from_country, \
     get_hospitals_from_wikidata, init_country
 from matcher.server.main.my_elastic import MyElastic
 
@@ -15,11 +15,11 @@ class TestInitCountry:
         assert len(result) == 265
 
     def test_get_info_from_country_fr(self) -> None:
-        result = get_info_from_country('fr')
+        result = get_names_from_country('fr')
         assert result == {'alpha_2': 'FR', 'alpha_3': 'FRA', 'info': ['France', 'French Republic']}
 
     def test_get_info_from_country_bo(self) -> None:
-        result = get_info_from_country('bo')
+        result = get_names_from_country('bo')
         assert result == {'alpha_2': 'BO', 'alpha_3': 'BOL', 'info': ['Bolivia, Plurinational State of',
                                                                       'Plurinational State of Bolivia', 'Bolivia']}
 
