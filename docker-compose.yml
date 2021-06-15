@@ -26,7 +26,7 @@ services:
       - matcher-network
 
   worker:
-    image: dataesr/matcher:0.0.9
+    image: dataesr/matcher:0.0.12
     privileged: true
     command: >
       /bin/sh -c "sysctl -w vm.max_map_count=262144
@@ -42,7 +42,7 @@ services:
       - elasticsearch
 
   web:
-    image: dataesr/matcher:0.0.9
+    image: dataesr/matcher:0.0.12
     privileged: true
     ports:
       - 5004:5000
