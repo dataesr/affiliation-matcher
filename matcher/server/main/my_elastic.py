@@ -30,6 +30,6 @@ class MyElastic(Elasticsearch):
         return self.delete_by_query(index=index, body={'query': {'match_all': {}}}, refresh=True)
 
     def parallel_bulk(self, actions: list = None) -> None:
-        for success, info in helpers.parallel_bulk(client=self, actions=actions, request_timeout=60):
+        for success, info in helpers.parallel_bulk(client=self, actions=actions, request_timeout=60, refresh=True):
             if not success:
-                self.logger.warning('A document failed: {info}'.format(info=info))
+                self.logger.warning(f'A document failed: {info}')

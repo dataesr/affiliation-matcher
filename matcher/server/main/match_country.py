@@ -28,7 +28,7 @@ def get_regex_from_country_by_fields(es: MyElastic = None, index: str = '', coun
     return re.compile(pattern, re.IGNORECASE | re.UNICODE) if pattern != '' else None
 
 
-def get_countries_from_query(query: str = '', criteria: list = None) -> list:
+def get_countries_from_query(query: str = '', criteria: list = None, index: str = ES_INDEX) -> list:
     if criteria is None:
         criteria = ['names']
     countries = []
@@ -38,9 +38,11 @@ def get_countries_from_query(query: str = '', criteria: list = None) -> list:
         is_country_matched = True
         country = country.alpha_2.lower()
         for criterion in criteria:
-            keywords_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, [criterion], True)
+            keywords_regex = get_regex_from_country_by_fields(es=es, index=index, country=country,
+                                                              fields=[criterion], is_complex=True)
             is_country_matched = is_country_matched and keywords_regex and bool(re.search(keywords_regex, query))
-        stop_words_regex = get_regex_from_country_by_fields(es, ES_INDEX, country, ['stop_words'], False)
+        stop_words_regex = get_regex_from_country_by_fields(es=es, index=index, country=country,
+                                                            fields=['stop_words'], is_complex=False)
         if stop_words_regex and re.search(stop_words_regex, query):
             continue
         if is_country_matched:
