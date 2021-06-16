@@ -2,6 +2,7 @@
 
 ![Tests](https://github.com/dataesr/matcher/actions/workflows/tests.yml/badge.svg)
 ![Build](https://github.com/dataesr/matcher/actions/workflows/build.yml/badge.svg)
+![Docker Image Version (latest by date)](https://img.shields.io/docker/v/dataesr/matcher)
 
 The affiliation matcher aims to automatically align an affiliation with different reference systems, including :
 
