@@ -14,6 +14,7 @@ setup(
     url='https://github.com/dataesr/matcher',
     license='MIT',
     author='Eric Jeangirard, Anne L\'Hôte',
+    author_email='eric.jeangirard@recherche.gouv.fr, anne.lhote@gmail.com',
     keywords=['research', 'matching', 'affiliation'],
     python_requires='>=3.6',
     packages=find_packages(),

@@ -208,16 +208,16 @@ def get_hospitals_from_wikidata() -> dict:
     return results
 
 
-def get_info_from_country(alpha_2: str = None) -> dict:
+def get_names_from_country(alpha_2: str = None) -> dict:
     country = pycountry.countries.get(alpha_2=alpha_2)
-    info = []
+    names = []
     if hasattr(country, 'name'):
-        info.append(country.name)
+        names.append(country.name)
     if hasattr(country, 'official_name'):
-        info.append(country.official_name)
+        names.append(country.official_name)
     if hasattr(country, 'common_name'):
-        info.append(country.common_name)
-    return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'info': info}
+        names.append(country.common_name)
+    return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'names': names}
 
 
 def get_white_list_from_country(alpha_2: str = None) -> dict:
@@ -301,10 +301,10 @@ def get_data_from_grid() -> dict:
     return results
 
 
-def init_country() -> None:
+def init_country(index: str = ES_INDEX) -> None:
     es = MyElastic()
     mappings = {'mappings': {'properties': {'universities': {'type': 'text'}}}}
-    es.create_index(index=ES_INDEX, mappings=mappings)
+    es.create_index(index=index, mappings=mappings)
     wikidata_cities = get_cities_from_wikidata()
     wikidata_universities = get_universities_from_wikidata()
     wikidata_hospitals = get_hospitals_from_wikidata()
@@ -312,10 +312,10 @@ def init_country() -> None:
     actions = []
     for country in pycountry.countries:
         country = country.alpha_2.lower()
-        body = {'_index': ES_INDEX}
-        # GENERAL INFO
-        info = get_info_from_country(country)
-        body.update(info)
+        body = {'_index': index}
+        # GENERAL NAMES
+        names = get_names_from_country(country)
+        body.update(names)
         # WIKIDATA CITIES
         body.update({
             'wikidata_cities': wikidata_cities.get(country, {}).get('all', []),
