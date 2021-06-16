@@ -360,7 +360,3 @@ def init_country(index: str = ES_INDEX) -> None:
             body.update(get_universities_from_mesri())
         actions.append(body)
     es.parallel_bulk(actions=actions)
-
-
-if __name__ == '__main__':
-    init_country()
