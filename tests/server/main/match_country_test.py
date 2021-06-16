@@ -1,9 +1,7 @@
-import re
-
 import pytest
 
 from matcher.server.main.init_country import init_country
-from matcher.server.main.match_country import get_countries_from_query, get_regex_from_country_by_fields
+from matcher.server.main.match_country import get_countries_from_query
 from matcher.server.main.my_elastic import MyElastic
 
 
@@ -29,7 +27,7 @@ class TestMatchCountry:
             # Country with only alpha_3
             ('St Cloud Hospital, St Cloud, MN, USA.', [['alpha_3']], ['us']),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             [['wikidata_cities', 'wikidata_hospitals', 'names']], ['lb']),
+             [['wikidata_cities', 'wikidata_hospitals', 'names']], ['lb', 'fr']),
             # Even if city is not unknown, the university name should match the associated country
             ('Université de technologie de Troyes', [['wikidata_universities']], ['fr']),
         ])
