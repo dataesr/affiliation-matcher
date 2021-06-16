@@ -21,8 +21,8 @@ class TestMatchCountry:
         (['cities'], [['city_01']], True, re.compile('(?<![a-z])city 01(?![a-z])', re.IGNORECASE)),
         (['cities'], [['city_01', 'city_02']], True, re.compile('(?<![a-z])city 01(?![a-z])|(?<![a-z])city 02(?![a-z])',
                                                                 re.IGNORECASE)),
-        (['cities', 'info'], [['city_01'], ['info_01']], True,
-         re.compile('(?<![a-z])city 01(?![a-z])|(?<![a-z])info 01(?![a-z])', re.IGNORECASE)),
+        (['cities', 'names'], [['city_01'], ['name_01']], True,
+         re.compile('(?<![a-z])city 01(?![a-z])|(?<![a-z])name 01(?![a-z])', re.IGNORECASE)),
         (['universities'], [['université']], True, re.compile('(?<![a-z])universite(?![a-z])', re.IGNORECASE)),
         (['stop_words'], [['word_01', 'word_02']], False, re.compile('word 01|word 02', re.IGNORECASE))
     ])
@@ -37,37 +37,35 @@ class TestMatchCountry:
         assert regex == expected_regex
         elasticsearch['es'].delete_all_by_query(index=elasticsearch['index'])
 
-    @pytest.fixture(scope='class')
-    def setup(self) -> None:
-        init_country()
-        yield
-        es = MyElastic()
-        es.delete_index(index='country')
-
     @pytest.mark.parametrize(
-        'query,strategies,expected_country', [
+        'query,criteria,expected_country', [
             # Query with no meaningful should return no country
             ('Not meaningful string', ['wikidata_cities'], []),
             # Simple query with a city should match the associated country
-            # ('Tour Mirabeau Nantes', ['wikidata_cities'], ['fr']),
+            ('Tour Mirabeau Paris', ['wikidata_cities'], ['fr']),
             # Complex query with a city should match the associated country
             ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['wikidata_cities'],
              ['fr']),
-            # With stop words, a misleading hospital name should not match the country
-            ('Hotel-Dieu de France University Hospital, Faculty of Medicine, Saint Joseph University, Beirut, Lebanon.',
-             ['info'], ['lb', 'fr']),
             # Country with only alpha_3
             ('St Cloud Hospital, St Cloud, MN, USA.', ['alpha_3'], ['us']),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             ['wikidata_cities', 'wikidata_hospitals', 'info'], ['lb']),
-            # Even if city is not recognized, the university name should match the associated country
-            ('Université de technologie de Troyes', ['wikidata_cities'], []),
-            ('Université de technologie de Troyes', ['wikidata_universities'], ['fr']),
-            # Multiple strategies should return the intersection of matched countries and NOT the union of them
-            ('Université de technologie de Troyes', ['wikidata_cities', 'wikidata_universities'], [])
+             ['wikidata_cities', 'wikidata_hospitals', 'names'], ['lb']),
+            # Even if city is unknown, the university name should match the associated country
+            ('Université de technologie de Troyes', ['wikidata_cities'], ['fr']),
         ])
-    def test_get_countries_from_query(self, elasticsearch, setup, query, strategies, expected_country) -> None:
-        matched_country = get_countries_from_query(query, strategies)
+    def test_get_countries_from_query(self, elasticsearch, requests_mock, query, criteria, expected_country) -> None:
+        requests_mock.real_http = True
+        requests_mock.get('https://query.wikidata.org/bigdata/namespace/wdq/sparql',
+                          json={'results': {'bindings': [
+                              {'country_alpha2': {'value': 'fr'}, 'label_native': {'value': 'Paris'}},
+                              {'country_alpha2': {'value': 'fr'}, 'label_native': {'value': 'Lille'}},
+                              {'country_alpha2': {'value': 'lb'}, 'label_native': {'value': 'Beirut'}},
+                              {'country_alpha2': {'value': 'fr'}, 'label_native':
+                                  {'value': 'Université de technologie de Troyes'}}
+                          ]}})
+        index = elasticsearch['index']
+        init_country(index=index)
+        matched_country = get_countries_from_query(query=query, criteria=criteria, index=index)
         matched_country.sort()
         expected_country.sort()
         assert set(matched_country) == set(expected_country)
