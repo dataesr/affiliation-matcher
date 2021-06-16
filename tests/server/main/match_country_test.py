@@ -17,26 +17,6 @@ def elasticsearch() -> dict:
 
 
 class TestMatchCountry:
-    @pytest.mark.parametrize('fields,values,is_complex,expected_regex', [
-        (['cities'], [['city_01']], True, re.compile('(?<![a-z])city 01(?![a-z])', re.IGNORECASE)),
-        (['cities'], [['city_01', 'city_02']], True, re.compile('(?<![a-z])city 01(?![a-z])|(?<![a-z])city 02(?![a-z])',
-                                                                re.IGNORECASE)),
-        (['cities', 'names'], [['city_01'], ['name_01']], True,
-         re.compile('(?<![a-z])city 01(?![a-z])|(?<![a-z])name 01(?![a-z])', re.IGNORECASE)),
-        (['universities'], [['université']], True, re.compile('(?<![a-z])universite(?![a-z])', re.IGNORECASE)),
-        (['stop_words'], [['word_01', 'word_02']], False, re.compile('word 01|word 02', re.IGNORECASE))
-    ])
-    def test_get_regex_from_country_by_fields(self, elasticsearch, fields, values, is_complex, expected_regex) -> None:
-        country = 'fr'
-        body = {'alpha_2': country}
-        for (field, value) in zip(fields, values):
-            body[field] = value
-        elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
-        regex = get_regex_from_country_by_fields(elasticsearch['es'], elasticsearch['index'], country, fields,
-                                                 is_complex)
-        assert regex == expected_regex
-        elasticsearch['es'].delete_all_by_query(index=elasticsearch['index'])
-
     @pytest.mark.parametrize(
         'query,strategies,expected_country', [
             # Query with no meaningful should return no country
