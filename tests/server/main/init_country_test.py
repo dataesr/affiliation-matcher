@@ -18,12 +18,14 @@ class TestInitCountry:
 
     def test_get_names_from_country_fr(self) -> None:
         result = get_names_from_country('fr')
-        assert result == {'alpha_2': 'FR', 'alpha_3': 'FRA', 'names': ['France', 'French Republic']}
+        assert result == {'alpha_2': 'FR', 'alpha_3': 'FRA', 'all_names': ['France', 'French Republic'],
+                          'name': 'France'}
 
     def test_get_names_from_country_bo(self) -> None:
         result = get_names_from_country('bo')
-        assert result == {'alpha_2': 'BO', 'alpha_3': 'BOL', 'names': ['Bolivia, Plurinational State of',
-                                                                       'Plurinational State of Bolivia', 'Bolivia']}
+        assert result == {'alpha_2': 'BO', 'alpha_3': 'BOL', 'all_names': ['Bolivia, Plurinational State of',
+                                                                           'Plurinational State of Bolivia', 'Bolivia'],
+                          'name': 'Bolivia'}
 
     def test_get_cities_from_wikidata(self) -> None:
         cities = get_cities_from_wikidata()
@@ -93,7 +95,7 @@ class TestInitCountry:
         french_result = french_results['hits']['hits'][0]['_source']
         assert french_result['alpha_2'] == 'FR'
         assert french_result['alpha_3'] == 'FRA'
-        assert len(french_result['names']) == 2
+        assert len(french_result['all_names']) == 2
         assert len(french_result['wikidata_cities']) == 2
         assert len(french_result['wikidata_hospitals']) == 2
         assert len(french_result['wikidata_universities']) == 2

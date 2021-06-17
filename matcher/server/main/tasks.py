@@ -42,8 +42,7 @@ def create_task_init_rnsr() -> None:
 
 def create_task_country(arg) -> dict:
     query = arg.get('query', '')
-    logs = get_countries_from_query(query)
-    return {'logs': logs}
+    return get_countries_from_query(query=query)
 
 
 def create_task_init_country():
