@@ -49,4 +49,4 @@ def get_countries_from_query(query: str = '', strategies: list = None, index: st
         if len(strategy_results) > 0:
             results = remove_forbidden_countries(countries=strategy_results, query=query)
             return {'results': results, 'logs': logs}
-    return {'results': [], 'log': ''}
+    return {'results': [], 'logs': ''}
