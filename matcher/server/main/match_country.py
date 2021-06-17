@@ -43,6 +43,6 @@ def get_countries_from_query(query: str = '', strategies: list = None, index: st
                 strategy_results = [result for result in strategy_results if result in criteria_results]
         # Strategies stopped as soon as a first result is met
         if len(strategy_results) > 0:
-            results = remove_forbidden_countries(strategy_results)
+            results = remove_forbidden_countries(countries=strategy_results, query=query)
             return results
     return []
