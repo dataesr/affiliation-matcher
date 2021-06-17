@@ -30,14 +30,14 @@ def get_countries_from_query(query: str = '', strategies: list = None, index: st
     es = MyElastic()
     for strategy in strategies:
         strategy_results = None
-        log = f'Matched strategy : {strategy}<br/>'
+        logs = f'Matched strategy : {strategy}<br/>'
         for criteria in strategy:
-            log += f'Criteria : {criteria}<br/>'
+            logs += f'Criteria : {criteria}<br/>'
             body = {'query': {'match': {criteria: query}}, '_source': {'includes': ['alpha_2', 'name']},
                     'highlight': {'fields': {criteria: {}}}}
             hits = es.search(index=index, body=body).get('hits', []).get('hits', [])
             highlights = [hit.get('highlight', {}).get(criteria) for hit in hits]
-            log += '<br /><br />'.join(['<br />'.join(highlight) for highlight in highlights]) + '<br />'
+            logs += '<br /><br />'.join(['<br />'.join(highlight) for highlight in highlights]) + '<br />'
             criteria_results = [{'alpha_2': hit.get('_source', {}).get('alpha_2').lower(),
                                  'name': hit.get('_source', {}).get('name')} for hit in hits]
             if strategy_results is None:
@@ -48,5 +48,5 @@ def get_countries_from_query(query: str = '', strategies: list = None, index: st
         # Strategies stopped as soon as a first result is met
         if len(strategy_results) > 0:
             results = remove_forbidden_countries(countries=strategy_results, query=query)
-            return {'results': results, 'log': log}
+            return {'results': results, 'logs': logs}
     return {'results': [], 'log': ''}
