@@ -22,27 +22,27 @@ class TestMatchCountry:
         assert results == [{'alpha_2': 'lb'}]
 
     @pytest.mark.parametrize(
-        'query,strategies,expected_results,expected_log', [
+        'query,strategies,expected_results,expected_logs', [
             # Query with no meaningful should return no country
-            # ('Not meaningful string', [['wikidata_cities']], [], ''),
+            ('Not meaningful string', [['wikidata_cities']], [], ''),
             # Simple query with a city should match the associated country
-            # ('Tour Mirabeau Paris', [['wikidata_cities']], [{'alpha_2': 'fr', 'name': 'France'}],
-            #  'wikidata_cities'),
+            ('Tour Mirabeau Paris', [['wikidata_cities']], [{'alpha_2': 'fr', 'name': 'France'}],
+             'wikidata_cities'),
             # Complex query with a city should match the associated country
-            # ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', [['wikidata_cities']],
-            #  [{'alpha_2': 'fr', 'name': 'France'}], 'wikidata_cities'),
+            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', [['wikidata_cities']],
+             [{'alpha_2': 'fr', 'name': 'France'}], 'wikidata_cities'),
             # Country with only alpha_3
-            # ('St Cloud Hospital, St Cloud, MN, USA.', [['alpha_3']], [{'alpha_2': 'us', 'name': 'United States'}],
-            #  'alpha_3'),
+            ('St Cloud Hospital, St Cloud, MN, USA.', [['alpha_3']], [{'alpha_2': 'us', 'name': 'United States'}],
+             'alpha_3'),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
              [['wikidata_cities', 'wikidata_hospitals', 'all_names']], [{'alpha_2': 'lb', 'name': 'Lebanon'}],
              'wikidata_cities\', \'wikidata_hospitals\', \'all_names'),
             # Even if city is not unknown, the university name should match the associated country
-            # ('Université de technologie de Troyes', [['wikidata_universities']], [{'alpha_2': 'fr', 'name': 'France'}],
-            #  'wikidata_universities')
+            ('Université de technologie de Troyes', [['wikidata_universities']], [{'alpha_2': 'fr', 'name': 'France'}],
+             'wikidata_universities')
         ])
     def test_get_countries_from_query(self, elasticsearch, requests_mock, query, strategies, expected_results,
-                                      expected_log) -> None:
+                                      expected_logs) -> None:
         requests_mock.real_http = True
         requests_mock.get('https://query.wikidata.org/bigdata/namespace/wdq/sparql',
                           json={'results': {'bindings': [
@@ -56,4 +56,4 @@ class TestMatchCountry:
         init_country(index=index)
         results = get_countries_from_query(query=query, strategies=strategies, index=index)
         assert results['results'] == expected_results
-        assert expected_log in results['log']
+        assert expected_logs in results['logs']
