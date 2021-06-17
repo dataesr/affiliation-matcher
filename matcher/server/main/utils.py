@@ -39,6 +39,7 @@ def download_data_from_grid() -> dict:
     grid_downloaded_file = 'grid_data_dump.zip'
     grid_unzipped_folder = mkdtemp()
     response = requests.get(url=GRID_DUMP_URL, stream=True)
+    print(response)
     with open(grid_downloaded_file, 'wb') as file:
         for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
             file.write(chunk)
@@ -51,27 +52,27 @@ def download_data_from_grid() -> dict:
     return data
 
 
-def has_a_digit(x) -> bool:
-    for c in x:
-        if c.isdigit():
+def has_a_digit(text: str = '') -> bool:
+    for char in text:
+        if char.isdigit():
             return True
     return False
 
 
-def get_common_words(x, field, split=True, threshold=10) -> list:
-    common = {}
-    for elt in x:
-        for c in elt.get(field, []):
+def get_common_words(objects: list, field: string, split: bool = True, threshold: int = 10) -> list:
+    dictionary = {}
+    for obj in objects:
+        for text in obj.get(field, []):
             if split:
-                v = normalize_text(text=c, remove_separator=False).split(' ')
+                words = normalize_text(text=text, remove_separator=False).split(' ')
             else:
-                v = [normalize_text(text=c, remove_separator=False)]
-            for w in v:
-                if w not in common:
-                    common[w] = 0
-                common[w] += 1
+                words = [normalize_text(text=text, remove_separator=False)]
+            for word in words:
+                if word not in dictionary:
+                    dictionary[word] = 0
+                dictionary[word] += 1
     result = []
-    for w in common:
-        if common[w] > threshold:
-            result.append(w)
+    for entry in dictionary:
+        if dictionary[entry] >= threshold:
+            result.append(entry)
     return result
