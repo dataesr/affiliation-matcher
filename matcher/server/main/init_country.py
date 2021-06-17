@@ -210,14 +210,17 @@ def get_hospitals_from_wikidata() -> dict:
 
 def get_names_from_country(alpha_2: str = None) -> dict:
     country = pycountry.countries.get(alpha_2=alpha_2)
-    names = []
+    all_names = []
     if hasattr(country, 'name'):
-        names.append(country.name)
+        all_names.append(country.name)
     if hasattr(country, 'official_name'):
-        names.append(country.official_name)
+        all_names.append(country.official_name)
     if hasattr(country, 'common_name'):
-        names.append(country.common_name)
-    return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'names': names}
+        all_names.append(country.common_name)
+        name = country.common_name
+    else:
+        name = country.name
+    return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'all_names': all_names, 'name': name}
 
 
 def get_white_list_from_country(alpha_2: str = None) -> dict:
@@ -360,7 +363,3 @@ def init_country(index: str = ES_INDEX) -> None:
             body.update(get_universities_from_mesri())
         actions.append(body)
     es.parallel_bulk(actions=actions)
-
-
-if __name__ == '__main__':
-    init_country()

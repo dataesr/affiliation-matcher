@@ -1,9 +1,7 @@
-import re
-
 import pytest
 
 from matcher.server.main.init_country import init_country
-from matcher.server.main.match_country import get_countries_from_query, get_regex_from_country_by_fields
+from matcher.server.main.match_country import get_countries_from_query, remove_forbidden_countries
 from matcher.server.main.my_elastic import MyElastic
 
 
@@ -17,43 +15,34 @@ def elasticsearch() -> dict:
 
 
 class TestMatchCountry:
-    @pytest.mark.parametrize('fields,values,is_complex,expected_regex', [
-        (['cities'], [['city_01']], True, re.compile('(?<![a-z])city 01(?![a-z])', re.IGNORECASE)),
-        (['cities'], [['city_01', 'city_02']], True, re.compile('(?<![a-z])city 01(?![a-z])|(?<![a-z])city 02(?![a-z])',
-                                                                re.IGNORECASE)),
-        (['cities', 'names'], [['city_01'], ['name_01']], True,
-         re.compile('(?<![a-z])city 01(?![a-z])|(?<![a-z])name 01(?![a-z])', re.IGNORECASE)),
-        (['universities'], [['université']], True, re.compile('(?<![a-z])universite(?![a-z])', re.IGNORECASE)),
-        (['stop_words'], [['word_01', 'word_02']], False, re.compile('word 01|word 02', re.IGNORECASE))
-    ])
-    def test_get_regex_from_country_by_fields(self, elasticsearch, fields, values, is_complex, expected_regex) -> None:
-        country = 'fr'
-        body = {'alpha_2': country}
-        for (field, value) in zip(fields, values):
-            body[field] = value
-        elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
-        regex = get_regex_from_country_by_fields(elasticsearch['es'], elasticsearch['index'], country, fields,
-                                                 is_complex)
-        assert regex == expected_regex
-        elasticsearch['es'].delete_all_by_query(index=elasticsearch['index'])
+    def test_remove_forbidden_countries(self):
+        countries = [{'alpha_2': 'fr'}, {'alpha_2': 'lb'}]
+        query = 'Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.'
+        results = remove_forbidden_countries(countries=countries, query=query)
+        assert results == [{'alpha_2': 'lb'}]
 
     @pytest.mark.parametrize(
-        'query,criteria,expected_country', [
+        'query,strategies,expected_results,expected_logs', [
             # Query with no meaningful should return no country
-            ('Not meaningful string', ['wikidata_cities'], []),
+            ('Not meaningful string', [['wikidata_cities']], [], ''),
             # Simple query with a city should match the associated country
-            ('Tour Mirabeau Paris', ['wikidata_cities'], ['fr']),
+            ('Tour Mirabeau Paris', [['wikidata_cities']], [{'alpha_2': 'fr', 'name': 'France'}],
+             'wikidata_cities'),
             # Complex query with a city should match the associated country
-            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', ['wikidata_cities'],
-             ['fr']),
+            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', [['wikidata_cities']],
+             [{'alpha_2': 'fr', 'name': 'France'}], 'wikidata_cities'),
             # Country with only alpha_3
-            ('St Cloud Hospital, St Cloud, MN, USA.', ['alpha_3'], ['us']),
+            ('St Cloud Hospital, St Cloud, MN, USA.', [['alpha_3']], [{'alpha_2': 'us', 'name': 'United States'}],
+             'alpha_3'),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             ['wikidata_cities', 'wikidata_hospitals', 'names'], ['lb']),
-            # Even if city is unknown, the university name should match the associated country
-            ('Université de technologie de Troyes', ['wikidata_cities'], ['fr']),
+             [['wikidata_cities', 'wikidata_hospitals', 'all_names']], [{'alpha_2': 'lb', 'name': 'Lebanon'}],
+             'wikidata_cities\', \'wikidata_hospitals\', \'all_names'),
+            # Even if city is not unknown, the university name should match the associated country
+            ('Université de technologie de Troyes', [['wikidata_universities']], [{'alpha_2': 'fr', 'name': 'France'}],
+             'wikidata_universities')
         ])
-    def test_get_countries_from_query(self, elasticsearch, requests_mock, query, criteria, expected_country) -> None:
+    def test_get_countries_from_query(self, elasticsearch, requests_mock, query, strategies, expected_results,
+                                      expected_logs) -> None:
         requests_mock.real_http = True
         requests_mock.get('https://query.wikidata.org/bigdata/namespace/wdq/sparql',
                           json={'results': {'bindings': [
@@ -65,7 +54,6 @@ class TestMatchCountry:
                           ]}})
         index = elasticsearch['index']
         init_country(index=index)
-        matched_country = get_countries_from_query(query=query, criteria=criteria, index=index)
-        matched_country.sort()
-        expected_country.sort()
-        assert set(matched_country) == set(expected_country)
+        results = get_countries_from_query(query=query, strategies=strategies, index=index)
+        assert results['results'] == expected_results
+        assert expected_logs in results['logs']
