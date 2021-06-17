@@ -1,7 +1,7 @@
 import pytest
 
 from matcher.server.main.init_country import init_country
-from matcher.server.main.match_country import get_countries_from_query
+from matcher.server.main.match_country import get_countries_from_query, remove_forbidden_countries
 from matcher.server.main.my_elastic import MyElastic
 
 
@@ -15,6 +15,12 @@ def elasticsearch() -> dict:
 
 
 class TestMatchCountry:
+    def test_remove_forbidden_countries(self):
+        countries = [{'alpha_2': 'fr'}, {'alpha_2': 'lb'}]
+        query = 'Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.'
+        results = remove_forbidden_countries(countries=countries, query=query)
+        assert results == [{'alpha_2': 'lb'}]
+
     @pytest.mark.parametrize(
         'query,strategies,expected_country', [
             # Query with no meaningful should return no country
@@ -27,8 +33,7 @@ class TestMatchCountry:
             # Country with only alpha_3
             ('St Cloud Hospital, St Cloud, MN, USA.', [['alpha_3']], [{'alpha_2': 'us', 'name': 'United States'}]),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             [['wikidata_cities', 'wikidata_hospitals', 'all_names']], [{'alpha_2': 'lb', 'name': 'Lebanon'},
-                                                                        {'alpha_2': 'fr', 'name': 'France'}]),
+             [['wikidata_cities', 'wikidata_hospitals', 'all_names']], [{'alpha_2': 'lb', 'name': 'Lebanon'}]),
             # Even if city is not unknown, the university name should match the associated country
             ('Université de technologie de Troyes', [['wikidata_universities']], [{'alpha_2': 'fr', 'name': 'France'}])
         ])
