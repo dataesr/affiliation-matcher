@@ -9,6 +9,7 @@ ELASTICSEARCH_HOST = 'elasticsearch'
 ELASTICSEARCH_PORT = '9200'
 ELASTICSEARCH_INDEX = 'index-rnsr-all'
 GRID_DUMP_URL = 'https://ndownloader.figshare.com/files/27251693'
+SCANR_DUMP_URL = 'https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/scanR/organizations.json'
 
 if APP_ENV == 'test':
     ELASTICSEARCH_HOST = 'localhost'
@@ -27,5 +28,6 @@ config = {
     'ELASTICSEARCH_INDEX': ELASTICSEARCH_INDEX,
     'ELASTICSEARCH_PORT': ELASTICSEARCH_PORT,
     'ELASTICSEARCH_URL': ELASTICSEARCH_URL,
-    'GRID_DUMP_URL': GRID_DUMP_URL
+    'GRID_DUMP_URL': GRID_DUMP_URL,
+    'SCANR_DUMP_URL': SCANR_DUMP_URL
 }
