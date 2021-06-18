@@ -1,6 +1,7 @@
 import os
-
+import re
 import requests
+import json
 
 from matcher.server.main.config import config
 from matcher.server.main.my_elastic import MyElastic
@@ -392,82 +393,101 @@ def reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers) -> None
 
 
 def get_es_rnsr() -> dict:
-    url = '{root_url}/organizations/?where={{"rnsr":{{"$exists":true}}}}&max_results={page_size}&projection={{' \
-          '"active":1,"alias":1,"names":1,"id":1,"code_numbers":1,"supervisors":1,"addresses":1,"dates":1,' \
-          '"sirene":1}}&page='.format(root_url=config['APP_ORGA'], page_size=500)
+
+    url = "https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/scanR/organizations.json"
+    r = requests.get(url)
+    data = r.json()
+
+    # todo : use rnsr key when available in dump rather than the regex
+    rnsr_regex = re.compile("[0-9]{9}[A-Z]")
+    rnsrs = [d for d in data if re.search(rnsr_regex, d['id'])]
+
     es_rnsrs = {'all': [], 2011: [], 2012: [], 2013: [], 2014: [], 2015: [], 2016: [], 2017: [], 2018: [], 2019: [],
                 2020: []}
-    supervisors_acronyms = {}
-    supervisors_cities = {}
-    supervisors_names = {}
-    page = 1
-    while True:
-        rnsrs = requests.get(url + str(page), headers=header).json().get('data', [])
-        if len(rnsrs) == 0:
-            break
-        for rnsr in rnsrs:
-            es_rnsr = {'id': rnsr['id']}
-            # ACRONYMS & NAMES
-            acronyms = []
-            names = []
-            for name in rnsr.get('names', []):
-                acronyms.append(name.get('acronym_fr'))
-                acronyms.append(name.get('acronym_en'))
-                names.append(name.get('name_fr'))
-                names.append(name.get('name_en'))
-            es_rnsr['acronyms'] = list(filter(None, acronyms))
-            es_rnsr['names'] = list(filter(None, names))
-            # CODE_NUMBERS
-            code_numbers = []
-            for code in rnsr.get('code_numbers', []):
-                code_numbers.extend([code, code.replace(' ', ''), code.replace(' ', '-'), code.replace(' ', '_')])
-            es_rnsr['code_numbers'] = code_numbers
-            # SUPERVISORS ID
-            es_rnsr['supervisors_id'] = [supervisor.get('id') for supervisor in rnsr.get('supervisors', [])
-                                         if 'id' in supervisor]
-            if 'sirene' in rnsr:
-                es_rnsr['supervisors_id'].append(rnsr['sirene'])
-            # SUPERVISORS ACRONYM, NAME AND CITY
-            es_rnsr['supervisors_acronym'] = []
-            es_rnsr['supervisors_name'] = [k.get('name') for k in rnsr.get('supervisors', []) if 'name' in k]
-            es_rnsr['supervisors_city'] = []
+
+    # setting a dict with all names, acronyms and cities
+    name_acronym_city = {}
+    for d in data:
+        current_id = d['id']
+        name_acronym_city[current_id] = {}
+        
+        acronyms = []
+        if d.get('acronym'):
+            acronyms = list(set(d.get('acronym').values()))
+        name_acronym_city[current_id]['acronym'] = list(filter(None, acronyms))
+        
+        names= []
+        if d.get('label'):
+            names = list(set(d.get('label', []).values()))
+        if d.get('alias'):
+            names += d.get('alias')
+        names = list(set(names))
+        name_acronym_city[current_id]['name'] = list(filter(None, names))
+
+        cities = []
+        for address in d.get('address', []):
+            if 'city' in address and address['city']:
+                cities.append(address['city'])
+        name_acronym_city[current_id]['city'] = list(filter(None, cities))
+
+    for rnsr in rnsrs:
+        rnsr_id = rnsr['id']
+        es_rnsr = {'id': rnsr_id}
+        # ACRONYMS & NAMES
+        es_rnsr['acronyms'] = name_acronym_city[rnsr_id]['acronym']
+        es_rnsr['names'] = name_acronym_city[rnsr_id]['name']
+       
+        #acronyms = []
+        #names = []
+        #for name in rnsr.get('names', []):
+            #acronyms.append(name.get('acronym_fr'))
+            #acronyms.append(name.get('acronym_en'))
+            #names.append(name.get('name_fr'))
+            #names.append(name.get('name_en'))
+        
+        # CODE_NUMBERS
+        code_numbers = []
+        #for code in rnsr.get('code_numbers', []):
+            #code_numbers.extend([code, code.replace(' ', ''), code.replace(' ', '-'), code.replace(' ', '_')])
+        
+        for code in [e['id'] for e in rnsr.get('externalIds', []) if e['type'] == "label_numero"]:
+            code_numbers.extend([code, code.replace(' ', ''), code.replace(' ', '-'), code.replace(' ', '_')])
+        es_rnsr['code_numbers'] = list(set(code_numbers))
+        
+        
+        # SUPERVISORS ID
+        #es_rnsr['supervisors_id'] = [supervisor.get('id') for supervisor in rnsr.get('supervisors', [])
+        #                                 if 'id' in supervisor]
+        #if 'sirene' in rnsr:
+        #    es_rnsr['supervisors_id'].append(rnsr['sirene'])
+         
+        es_rnsr['supervisors_id'] = [supervisor.get('structure') for supervisor in rnsr.get('institutions', [])
+                                         if 'structure' in supervisor]
+        es_rnsr['supervisors_id'] += [e['id'][0:9] for e in rnsr['externalIds'] if "sire" in e['type']]
+        es_rnsr['supervisors_id'] = list(set(es_rnsr['supervisors_id']))    
+
+        # SUPERVISORS ACRONYM, NAME AND CITY
+        for f in ['acronym', 'name', 'city']:
+            es_rnsr[f'supervisors_{f}'] = []
             for supervisor_id in es_rnsr['supervisors_id']:
-                if supervisor_id not in supervisors_names:
-                    supervisor = requests.get(config['APP_ORGA'] + '/organizations/' + supervisor_id,
-                                              headers=header).json()
-                    supervisors_acronyms[supervisor_id] = []
-                    supervisors_names[supervisor_id] = []
-                    for name in supervisor.get('names', []):
-                        supervisors_acronyms[supervisor_id].append(name.get('acronym_fr'))
-                        supervisors_acronyms[supervisor_id].append(name.get('acronym_en'))
-                        supervisors_names[supervisor_id].append(name.get('name_fr'))
-                        supervisors_names[supervisor_id].append(name.get('name_en'))
-                    supervisors_names[supervisor_id] = filter(None, supervisors_names[supervisor_id])
-                    supervisors_acronyms[supervisor_id] = filter(None, supervisors_acronyms[supervisor_id])
-                    supervisors_cities[supervisor_id] = []
-                    for address in supervisor.get('addresses', []):
-                        supervisors_cities[supervisor_id].append(address.get('city'))
-                    supervisors_cities[supervisor_id] = filter(None, supervisors_cities[supervisor_id])
-                es_rnsr['supervisors_acronym'] += supervisors_acronyms[supervisor_id]
-                es_rnsr['supervisors_name'] += supervisors_names[supervisor_id]
-                es_rnsr['supervisors_city'] += supervisors_cities[supervisor_id]
-                es_rnsr['supervisors_acronym'] = list(set(es_rnsr['supervisors_acronym']))
-                es_rnsr['supervisors_name'] = list(set(es_rnsr['supervisors_name']))
-                es_rnsr['supervisors_city'] = list(set(es_rnsr['supervisors_city']))
-            # ADDRESSES
-            es_rnsr['addresses'] = [k.get('input_address') for k in rnsr.get('addresses', []) if
-                                    'input_address' in k]
-            es_rnsr['cities'] = [k.get('city') for k in rnsr.get('addresses', []) if 'city' in k]
-            if len(es_rnsr['addresses']) == 0:
-                es_rnsr['addresses'] = es_rnsr['supervisors_city']
-            # Create an es_rnsr by date
-            for year in range(2011, 2021):
-                for d in rnsr.get('dates', []):
-                    if d.get('start_date')[0:4] <= str(year) and (d.get('end_date') is None or
+                es_rnsr[f'supervisors_{f}'] += name_acronym_city[current_id][f'{f}']
+            es_rnsr[f'supervisors_{f}'] = list(set(es_rnsr[f'supervisors_{f}']))
+            
+        # ADDRESSES
+        es_rnsr['cities'] = name_acronym_city[rnsr_id]['city'] 
+        #es_rnsr['addresses'] = [k.get('input_address') for k in rnsr.get('addresses', []) if
+        #                            'input_address' in k]
+        #if len(es_rnsr['addresses']) == 0:
+        #    es_rnsr['addresses'] = es_rnsr['supervisors_city']
+            
+            
+        # Create an es_rnsr by date
+        for year in range(2011, 2021):
+            for d in rnsr.get('dates', []):
+                if d.get('start_date')[0:4] <= str(year) and (d.get('end_date') is None or
                                                                   d.get('end_date')[0:4] >= str(year)):
-                        es_rnsrs[year].append(es_rnsr)
-            es_rnsrs['all'].append(es_rnsr)
-        page += 1
+                    es_rnsrs[year].append(es_rnsr)
+        es_rnsrs['all'].append(es_rnsr)
     return es_rnsrs
 
 
