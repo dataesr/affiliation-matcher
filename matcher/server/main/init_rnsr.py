@@ -8,11 +8,11 @@ from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.utils import get_common_words, has_a_digit
 
 es = MyElastic()
+index = 'rnsr'
 
-
-def init_rnsr() -> None:
+def init_rnsr() -> dict:
     rnsr = get_es_rnsr()
-    main_cities = [c for c in get_common_words(rnsr['all'], 'cities', split=True, threshold=0) if len(c) > 2]
+    main_cities = [c for c in get_common_words(rnsr, 'cities', split=True, threshold=0) if len(c) > 2]
     main_cities += ['alpes', 'quentin', 'yvelines', 'aquitaine']
     main_cities_for_removal = main_cities.copy()
     for w in ['france', 'francois', 'jacob', 'michel', 'marcel',
@@ -21,13 +21,13 @@ def init_rnsr() -> None:
               'hopital', 'etoile', 'riviere', 'flots', 'cloud', 'anne', 'claude', 'esprit']:
         if w in main_cities:
             main_cities_for_removal.remove(w)
-    main_acronyms = get_common_words(rnsr['all'], 'acronyms', split=True, threshold=5) + ['brgm']
-    main_names = list(set(get_common_words(rnsr['all'], 'names', threshold=50)) - set(main_cities))
+    main_acronyms = get_common_words(rnsr, 'acronyms', split=True, threshold=5) + ['brgm']
+    main_names = list(set(get_common_words(rnsr, 'names', threshold=50)) - set(main_cities))
     main_supervisors_name = list(
-        set(get_common_words(rnsr['all'], 'supervisors_name', split=True, threshold=5)) - set(main_acronyms))
+        set(get_common_words(rnsr, 'supervisors_name', split=True, threshold=5)) - set(main_acronyms))
     main_supervisors_acronym = list(
-        set(get_common_words(rnsr['all'], 'supervisors_acronym', split=True, threshold=1)) - set(main_acronyms))
-    labels_in_code = [k for k in get_common_words(rnsr['all'], 'code_numbers', split=True, threshold=1) if
+        set(get_common_words(rnsr, 'supervisors_acronym', split=True, threshold=1)) - set(main_acronyms))
+    labels_in_code = [k for k in get_common_words(rnsr, 'code_numbers', split=True, threshold=1) if
                       not (has_a_digit(k))]
     stop_code = ['insa', 'inserm', 'pasteur', 'de', 'cnrs', 'team', 'inra', 'inria', 'inrae', 'cea', 'siege', 'tech',
                  'idf', 'ouest']
@@ -38,11 +38,12 @@ def init_rnsr() -> None:
     tokenizers = get_tokenizers()
     analyzers = get_analyzers()
     actions = []
-    for year in rnsr:
-        reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers)
-        index = 'index-rnsr-{year}'.format(year=year)
-        actions += [{'_index': index, '_source': j} for j in rnsr[year]]
+    reset_index_rnsr(filters, char_filters, tokenizers, analyzers)
+    actions = [{'_index': index, '_source': j} for j in rnsr]
     es.parallel_bulk(actions=actions)
+    ans = {'index': index, 'doc_inserted': len(rnsr)}
+    return ans
+
 
 
 def get_filters(stop_code, main_cities, main_cities_for_removal, main_supervisors_name, main_supervisors_acronym,
@@ -322,8 +323,7 @@ def get_analyzers() -> dict:
     }
 
 
-def reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers) -> None:
-    index = 'index-rnsr-{}'.format(year)
+def reset_index_rnsr(filters, char_filters, tokenizers, analyzers) -> None:
     es.delete_index(index=index)
     settings = {
         'index': {
@@ -391,18 +391,17 @@ def reset_index_rnsr(year, filters, char_filters, tokenizers, analyzers) -> None
     return es.create_index(index=index, mappings=mappings, settings=settings)
 
 
-def get_es_rnsr() -> dict:
+def get_es_rnsr() -> list:
 
-    url = "https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/scanR/organizations.json"
-    r = requests.get(url)
+    r = requests.get(config['SCANR_DUMP_URL'])
     data = r.json()
 
     # todo : use rnsr key when available in dump rather than the regex
     rnsr_regex = re.compile("[0-9]{9}[A-Z]")
     rnsrs = [d for d in data if re.search(rnsr_regex, d['id'])]
 
-    es_rnsrs = {'all': [], 2011: [], 2012: [], 2013: [], 2014: [], 2015: [], 2016: [], 2017: [], 2018: [], 2019: [],
-                2020: []}
+    #es_rnsrs = {'all': [], 2011: [], 2012: [], 2013: [], 2014: [], 2015: [], 2016: [], 2017: [], 2018: [], 2019: [],
+    #            2020: []}
 
     # setting a dict with all names, acronyms and cities
     name_acronym_city = {}
@@ -429,6 +428,7 @@ def get_es_rnsr() -> dict:
                 cities.append(address['city'])
         name_acronym_city[current_id]['city'] = list(filter(None, cities))
 
+    es_rnsrs = []
     for rnsr in rnsrs:
         rnsr_id = rnsr['id']
         es_rnsr = {'id': rnsr_id}
@@ -481,14 +481,10 @@ def get_es_rnsr() -> dict:
             
             
         # Create an es_rnsr by date
-        for year in range(2011, 2021):
-            for d in rnsr.get('dates', []):
-                if d.get('start_date')[0:4] <= str(year) and (d.get('end_date') is None or
-                                                                  d.get('end_date')[0:4] >= str(year)):
-                    es_rnsrs[year].append(es_rnsr)
-        es_rnsrs['all'].append(es_rnsr)
+        #for year in range(2011, 2021):
+        #    for d in rnsr.get('dates', []):
+        #        if d.get('start_date')[0:4] <= str(year) and (d.get('end_date') is None or
+        #                                                          d.get('end_date')[0:4] >= str(year)):
+        #            es_rnsrs[year].append(es_rnsr)
+        es_rnsrs.append(es_rnsr)
     return es_rnsrs
-
-
-if __name__ == '__main__':
-    init_rnsr()
