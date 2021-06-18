@@ -36,8 +36,12 @@ def create_task_rnsr(arg) -> dict:
         return {'error': 'all inputs are empty'}
 
 
-def create_task_init_rnsr() -> None:
-    return init_rnsr()
+def create_task_init(matcher_type) -> dict:
+    print(f"matcher type {matcher_type}", flush=True)
+    if matcher_type == "rnsr":
+        return init_rnsr()
+    elif matcher_type == "country":
+        return init_country()
 
 
 def create_task_country(arg) -> dict:
@@ -45,14 +49,7 @@ def create_task_country(arg) -> dict:
     return get_countries_from_query(query=query)
 
 
-def create_task_init_country():
-    return init_country()
-
-
 def create_task_finess(arg) -> dict:
     query = arg.get('query')
     return match_unstructured_finess(query) if query else {'error': 'all inputs are empty'}
 
-
-def create_task_init_finess() -> dict:
-    return init_es_finess()

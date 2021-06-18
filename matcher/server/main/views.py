@@ -2,8 +2,7 @@ import redis
 from flask import render_template, Blueprint, jsonify, request, current_app
 from rq import Queue, Connection
 
-from matcher.server.main.tasks import create_task_match, create_task_rnsr, create_task_init_country, \
-    create_task_init_rnsr, create_task_init_finess
+from matcher.server.main.tasks import create_task_match, create_task_rnsr, create_task_init
 
 main_blueprint = Blueprint("main", __name__, )
 
@@ -15,19 +14,8 @@ def home():
 
 @main_blueprint.route("/init", methods=["GET"])
 def run_task_init_rnsr():
-    response_object = create_task_init_rnsr()
-    return jsonify(response_object), 202
-
-
-@main_blueprint.route("/init_country", methods=["GET"])
-def run_task_init_country():
-    response_object = create_task_init_country()
-    return jsonify(response_object), 202
-
-
-@main_blueprint.route("/init_finess", methods=["GET"])
-def run_task_init_finess():
-    response_object = create_task_init_finess()
+    matcher_type = request.args.get('type')
+    response_object = create_task_init(matcher_type)
     return jsonify(response_object), 202
 
 
