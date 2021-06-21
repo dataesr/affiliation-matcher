@@ -220,7 +220,7 @@ def get_names_from_country(alpha_2: str = None) -> dict:
         name = country.common_name
     else:
         name = country.name
-    return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'all_names': all_names, 'name': name}
+    return {'alpha_2': country.alpha_2.lower(), 'alpha_3': country.alpha_3.lower(), 'all_names': all_names, 'name': name}
 
 
 def get_white_list_from_country(alpha_2: str = None) -> dict:
@@ -306,8 +306,57 @@ def get_data_from_grid() -> dict:
 
 def init_country(index: str = ES_INDEX) -> None:
     es = MyElastic()
-    mappings = {'mappings': {'properties': {'universities': {'type': 'text'}}}}
-    es.create_index(index=index, mappings=mappings)
+    settings = {
+        'analysis': {
+            'filter': {
+                'length_min_3_char': {
+                    'type': 'length',
+                    'min': 3
+                },
+                'country_filter': {
+                    'type': 'stop',
+                    'ignore_case': True,
+                    'stopwords': ['france']
+                }
+            },
+            'analyzer': {
+                'analyzer_name': {
+                    'tokenizer': 'icu_tokenizer',
+                    'filter': ['length_min_3_char']
+                },
+                'analyzer_cities': {
+                    'tokenizer': 'icu_tokenizer',
+                    'filter': ['country_filter', 'icu_folding', 'length_min_3_char', 'lowercase']
+                },
+                'analyzer_cities_2': {
+                    'tokenizer': 'keyword',
+                    'filter': ['icu_folding', 'lowercase']
+                }
+            }
+        }
+    }
+    mappings = {
+        'properties': {
+            'all_names': {
+                'type': 'text',
+                'analyzer': 'analyzer_name'
+            },
+            'wikidata_cities': {
+                'type': 'text',
+                'analyzer': 'analyzer_cities'
+            },
+            'wikidata_cities_2': {
+                'type': 'text',
+                'analyzer': 'analyzer_cities_2',
+                'search_analyzer': 'standard'
+            },
+            'wikidata_hospitals': {
+                'type': 'text',
+                'analyzer': 'analyzer_name'
+            }
+        }
+    }
+    es.create_index(index=index, settings=settings, mappings=mappings)
     wikidata_cities = get_cities_from_wikidata()
     wikidata_universities = get_universities_from_wikidata()
     wikidata_hospitals = get_hospitals_from_wikidata()
@@ -317,11 +366,12 @@ def init_country(index: str = ES_INDEX) -> None:
         country = country.alpha_2.lower()
         body = {'_index': index}
         # GENERAL NAMES
-        names = get_names_from_country(country)
+        names = get_names_from_country(alpha_2=country)
         body.update(names)
         # WIKIDATA CITIES
         body.update({
             'wikidata_cities': wikidata_cities.get(country, {}).get('all', []),
+            'wikidata_cities_2': wikidata_cities.get(country, {}).get('all', []),
             'wikidata_cities_strict': wikidata_cities.get(country, {}).get('strict', []),
             'wikidata_cities_en': wikidata_cities.get(country, {}).get('en', []),
             'wikidata_cities_fr': wikidata_cities.get(country, {}).get('fr', []),
