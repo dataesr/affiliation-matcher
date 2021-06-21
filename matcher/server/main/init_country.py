@@ -220,7 +220,7 @@ def get_names_from_country(alpha_2: str = None) -> dict:
         name = country.common_name
     else:
         name = country.name
-    return {'alpha_2': country.alpha_2.lower(), 'alpha_3': country.alpha_3.lower(), 'all_names': all_names, 'name': name}
+    return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'all_names': all_names, 'name': name}
 
 
 def get_white_list_from_country(alpha_2: str = None) -> dict:
