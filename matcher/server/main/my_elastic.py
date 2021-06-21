@@ -1,4 +1,4 @@
-from elasticsearch import Elasticsearch, helpers
+from elasticsearch import Elasticsearch, helpers, RequestError
 
 from matcher.server.main.config import ELASTICSEARCH_HOST
 from matcher.server.main.logger import get_logger
@@ -9,7 +9,7 @@ class MyElastic(Elasticsearch):
         super().__init__(hosts=ELASTICSEARCH_HOST)
         self.logger = get_logger(__name__)
 
-    def create_index(self, index: str = None, mappings: dict = None, settings: dict = None) -> None:
+    def create_index(self, index: str = None, mappings: dict = None, settings: dict = None):
         if mappings is None:
             mappings = {}
         if settings is None:
@@ -17,14 +17,19 @@ class MyElastic(Elasticsearch):
         if index is None:
             raise ValueError('Empty value passed for a required argument "index".')
         self.delete_index(index=index)
-        return self.indices.create(index=index, body={'mappings': mappings, 'settings': settings}, ignore=400)
+        try:
+            response = self.indices.create(index=index, body={'mappings': mappings, 'settings': settings}, ignore=400)
+        except RequestError as re:
+            self.logger.error(f'Index creation failed : {re}')
+            response = None
+        return response
 
-    def delete_index(self, index: str = None) -> None:
+    def delete_index(self, index: str = None):
         if index is None:
             raise ValueError('Empty value passed for a required argument "index".')
         return self.indices.delete(index=index, ignore=404)
 
-    def delete_all_by_query(self, index: str = None) -> None:
+    def delete_all_by_query(self, index: str = None):
         if index is None:
             raise ValueError('Empty value passed for a required argument "index".')
         return self.delete_by_query(index=index, body={'query': {'match_all': {}}}, refresh=True)
