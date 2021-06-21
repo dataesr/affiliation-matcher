@@ -462,7 +462,7 @@ def get_es_rnsr() -> list:
          
         es_rnsr['supervisors_id'] = [supervisor.get('structure') for supervisor in rnsr.get('institutions', [])
                                          if 'structure' in supervisor]
-        es_rnsr['supervisors_id'] += [e['id'][0:9] for e in rnsr['externalIds'] if "sire" in e['type']]
+        es_rnsr['supervisors_id'] += [e['id'][0:9] for e in rnsr.get('externalIds', []) if "sire" in e['type']]
         es_rnsr['supervisors_id'] = list(set(es_rnsr['supervisors_id']))    
 
         # SUPERVISORS ACRONYM, NAME AND CITY
