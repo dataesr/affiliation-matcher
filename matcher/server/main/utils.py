@@ -39,7 +39,6 @@ def download_data_from_grid() -> dict:
     grid_downloaded_file = 'grid_data_dump.zip'
     grid_unzipped_folder = mkdtemp()
     response = requests.get(url=GRID_DUMP_URL, stream=True)
-    print(response)
     with open(grid_downloaded_file, 'wb') as file:
         for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
             file.write(chunk)
