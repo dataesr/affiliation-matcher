@@ -353,7 +353,16 @@ def init_country(index: str = ES_INDEX) -> None:
             'wikidata_hospitals': {
                 'type': 'text',
                 'analyzer': 'analyzer_name'
-            }
+            },
+            'grid_cities': {
+                'type': 'text',
+                'analyzer': 'analyzer_cities'
+            },
+            'grid_cities_2': {
+                'type': 'text',
+                'analyzer': 'analyzer_cities_2',
+                'search_analyzer': 'standard'
+            },
         }
     }
     es.create_index(index=index, settings=settings, mappings=mappings)
@@ -397,6 +406,7 @@ def init_country(index: str = ES_INDEX) -> None:
         # GRID HOSPITALS AND UNIVERSITIES
         body.update({
             'grid_cities': list(set(grid.get(country, {}).get('grid_cities', []))),
+            'grid_cities_2': list(set(grid.get(country, {}).get('grid_cities', []))),
             'grid_hospitals_names': grid.get(country, {}).get('grid_hospitals_names', []),
             'grid_hospitals_acronyms': grid.get(country, {}).get('grid_hospitals_acronyms', []),
             'grid_universities_names': grid.get(country, {}).get('grid_universities_names', []),
