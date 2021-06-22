@@ -317,6 +317,12 @@ def init_country(index: str = ES_INDEX) -> None:
                     'type': 'stop',
                     'ignore_case': True,
                     'stopwords': ['france']
+                },
+                'my_shingle_filter': {
+                    'type': 'shingle',
+                    'min_shingle_size': 3,
+                    'max_shingle_size': 5,
+                    'output_unigrams': False
                 }
             },
             'analyzer': {
@@ -329,8 +335,8 @@ def init_country(index: str = ES_INDEX) -> None:
                     'filter': ['country_filter', 'icu_folding', 'length_min_3_char', 'lowercase']
                 },
                 'analyzer_cities_2': {
-                    'tokenizer': 'keyword',
-                    'filter': ['icu_folding', 'lowercase']
+                    'tokenizer': 'standard',
+                    'filter': ['icu_folding', 'lowercase', 'my_shingle_filter']
                 }
             }
         }
@@ -347,8 +353,7 @@ def init_country(index: str = ES_INDEX) -> None:
             },
             'wikidata_cities_2': {
                 'type': 'text',
-                'analyzer': 'analyzer_cities_2',
-                'search_analyzer': 'standard'
+                'analyzer': 'analyzer_cities_2'
             },
             'wikidata_hospitals': {
                 'type': 'text',
@@ -360,8 +365,7 @@ def init_country(index: str = ES_INDEX) -> None:
             },
             'grid_cities_2': {
                 'type': 'text',
-                'analyzer': 'analyzer_cities_2',
-                'search_analyzer': 'standard'
+                'analyzer': 'analyzer_cities_2'
             },
         }
     }

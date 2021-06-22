@@ -36,7 +36,11 @@ class TestMatchCountry:
              'wikidata_cities_2\', \'wikidata_hospitals\', \'all_names'),
             # Even if city is not unknown, the university name should match the associated country
             ('Université de technologie de Troyes', [['wikidata_universities']], [{'alpha_2': 'fr', 'name': 'France'}],
-             'wikidata_universities')
+             'wikidata_universities'),
+            # Fort-de-France
+            ('Hotel Dieu de France', [['wikidata_cities_2']], [], 'No results found'),
+            ('Fort-de-France', [['wikidata_cities_2']], [{'alpha_2': 'fr', 'name': 'France'}], 'wikidata_cities_2'),
+            ('CHU de Fort-de-France', [['wikidata_cities_2']], [{'alpha_2': 'fr', 'name': 'France'}], 'wikidata_cities_2'),
         ])
     def test_get_countries_from_query(self, elasticsearch, requests_mock, query, strategies, expected_results,
                                       expected_logs) -> None:
@@ -46,6 +50,7 @@ class TestMatchCountry:
                               {'country_alpha2': {'value': 'fr'}, 'label_native': {'value': 'Paris'}},
                               {'country_alpha2': {'value': 'fr'}, 'label_native': {'value': 'Lille'}},
                               {'country_alpha2': {'value': 'lb'}, 'label_native': {'value': 'Beirut'}},
+                              {'country_alpha2': {'value': 'fr'}, 'label_native': {'value': 'Fort-de-France'}},
                               {'country_alpha2': {'value': 'fr'}, 'label_native':
                                   {'value': 'Université de technologie de Troyes'}}
                           ]}})
