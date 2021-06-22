@@ -41,7 +41,7 @@ python-build:
 
 init:
 	@echo Populate data into matcher
-	curl http://localhost:5004/init
+	curl http://localhost:5004/init?type=country
 	@echo Matcher is now populated
 
 release:
