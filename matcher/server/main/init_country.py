@@ -322,7 +322,8 @@ def init_country(index: str = ES_INDEX) -> None:
                     'type': 'shingle',
                     'min_shingle_size': 3,
                     'max_shingle_size': 5,
-                    'output_unigrams': False
+                    'output_unigrams': False,
+                    'output_unigrams_if_no_shingles': True
                 }
             },
             'analyzer': {
