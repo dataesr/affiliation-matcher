@@ -1,8 +1,8 @@
 import pytest
 
 from matcher.server.main.init_country import get_cities_from_insee, get_cities_from_wikidata, \
-    get_universities_from_mesri, get_universities_from_wikidata, get_names_from_country, get_hospitals_from_wikidata, \
-    init_country
+    get_universities_from_mesri, get_universities_from_wikidata, get_names_from_country, get_stop_words_from_country, \
+    get_hospitals_from_wikidata, init_country
 from matcher.server.main.my_elastic import MyElastic
 
 
@@ -62,13 +62,20 @@ class TestInitCountry:
         assert 'hôpital Paul-Morel' in hospitals['fr']['fr']
         assert 'hôpital Paul-Morel' not in hospitals['fr']['en']
 
+    def test_get_stop_words_from_country_fr(self) -> None:
+        french_stop_words = get_stop_words_from_country('fr')['stop_words']
+        assert len(french_stop_words) == 0
+
+    def test_get_stop_words_from_country_cn(self) -> None:
+        chinese_stop_words = get_stop_words_from_country('cn')['stop_words']
+        assert len(chinese_stop_words) == 0
+
     @pytest.fixture(scope='class')
     def setup(self) -> None:
+        index = 'country-test'
         es = MyElastic()
-        yield {'es': es}
-        es.delete_index(index='test_grid_cities')
-        es.delete_index(index='test_grid_institutions')
-        es.delete_index(index='test_grid_institutions_acronyms')
+        yield {'es': es, 'index': index}
+        es.delete_index(index=index)
 
     def test_init_country(self, setup, requests_mock) -> None:
         requests_mock.real_http = True
@@ -78,10 +85,19 @@ class TestInitCountry:
                               {'country_alpha2': {'value': 'de'}, 'label_native': {'value': 'value_02'}},
                               {'country_alpha2': {'value': 'fr'}, 'label_native': {'value': 'value_03'}}
                           ]}})
+        index = setup['index']
         es = setup['es']
-        init_country(index_prefix='test_')
-        french_cities = es.search(index='test_grid_cities', body={'query': {'match': {'country_alpha2': 'fr'}}})
-        assert french_cities['hits']['total']['value'] == 629
-        paris = es.search(index='test_grid_cities', body={'query': {'percolate': {'field': 'query',
-                                                                                  'document': {'content': 'Paris'}}}})
-        assert paris['hits']['total']['value'] == 3
+        init_country(index=index)
+        all_results = es.search(index=index)
+        assert all_results['hits']['total']['value'] == 249
+        french_results = es.search(index=index, body={'query': {'match': {'alpha_2': 'fr'}}})
+        assert french_results['hits']['total']['value'] == 1
+        french_result = french_results['hits']['hits'][0]['_source']
+        assert french_result['alpha_2'] == 'FR'
+        assert french_result['alpha_3'] == 'FRA'
+        assert len(french_result['all_names']) == 2
+        assert len(french_result['wikidata_cities']) == 2
+        assert len(french_result['wikidata_hospitals']) == 2
+        assert len(french_result['wikidata_universities']) == 2
+        assert len(french_result['stop_words']) == 0
+        es.delete_index(index=index)
