@@ -1,17 +1,14 @@
-import json
-import os
-
-import pycountry
 import requests
 
+from matcher.server.main.config import SCANR_DUMP_URL
+from matcher.server.main.elastic_utils import get_filters, get_analyzers
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.elastic_utils import get_filters, get_analyzers
-from matcher.server.main.config import SCANR_DUMP_URL
 
 logger = get_logger(__name__)
 
-def get_mappings(analyzer):
+
+def get_mappings(analyzer) -> dict:
     return {
         'properties': {
             'content': {
@@ -31,7 +28,7 @@ def get_mappings(analyzer):
     }
 
 
-def init_rnsr(index_prefix: str = '') -> None:
+def init_rnsr(index_prefix: str = '') -> dict:
     es = MyElastic()
     settings = {
         'index': {
@@ -41,20 +38,17 @@ def init_rnsr(index_prefix: str = '') -> None:
             'filter': get_filters(),
         }
     }
-    
     light_criteria = ['city', 'acronym', 'code_number', 'supervisor_acronym']
     heavy_criteria = ['name', 'supervisor_name']
     criteria = light_criteria + heavy_criteria
     es_data = {}
-    
     for criterion in criteria:
         index = f'{index_prefix}rnsr-{criterion}'
         if criterion in light_criteria:
-            es.create_index(index=index, mappings=get_mappings("light"), settings=settings)
+            es.create_index(index=index, mappings=get_mappings('light'), settings=settings)
         else:
-            es.create_index(index=index, mappings=get_mappings("heavy"), settings=settings)
+            es.create_index(index=index, mappings=get_mappings('heavy'), settings=settings)
         es_data[criterion] = {}
-
     rnsrs = download_rnsr_data()
     # Iterate over rnsr data
     for rnsr in rnsrs:
@@ -64,7 +58,6 @@ def init_rnsr(index_prefix: str = '') -> None:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
                 es_data[criterion][criterion_value].append(rnsr['id'])
-                
     # Bulk insert data into ES
     actions = []
     results = {}
@@ -76,19 +69,19 @@ def init_rnsr(index_prefix: str = '') -> None:
             if criterion in light_criteria:
                 action['query'] = {'match_phrase': {'content': {'query': criterion_value, 'analyzer': 'light'}}}
             elif criterion in heavy_criteria:
-                action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': 'heavy', 'minimum_should_match': '2<-25% 9<-3'}}}
+                action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': 'heavy',
+                                                         'minimum_should_match': '2<-25% 9<-3'}}}
             actions.append(action)
     es.parallel_bulk(actions=actions)
     return results
 
-def download_rnsr_data() -> list:
 
+def download_rnsr_data() -> list:
     r = requests.get(SCANR_DUMP_URL)
     data = r.json()
-
     # todo : use rnsr key when available in dump rather than the regex
-    #rnsr_regex = re.compile("[0-9]{9}[A-Z]")
-    #rnsrs = [d for d in data if re.search(rnsr_regex, d['id'])]
+    # rnsr_regex = re.compile("[0-9]{9}[A-Z]")
+    # rnsrs = [d for d in data if re.search(rnsr_regex, d['id'])]
     rnsrs = []
     for d in data:
         if 'rnsr' in [e['type'] for e in d.get('externalIds', [])]:
@@ -99,20 +92,17 @@ def download_rnsr_data() -> list:
     for d in data:
         current_id = d['id']
         name_acronym_city[current_id] = {}
-        
         acronyms = []
         if d.get('acronym'):
             acronyms = list(set(d.get('acronym').values()))
         name_acronym_city[current_id]['acronym'] = list(filter(None, acronyms))
-        
-        names= []
+        names = []
         if d.get('label'):
             names = list(set(d.get('label', []).values()))
         if d.get('alias'):
             names += d.get('alias')
         names = list(set(names))
         name_acronym_city[current_id]['name'] = list(filter(None, names))
-
         cities = []
         for address in d.get('address', []):
             if 'city' in address and address['city']:
@@ -126,21 +116,17 @@ def download_rnsr_data() -> list:
         # ACRONYMS & NAMES
         es_rnsr['acronym'] = name_acronym_city[rnsr_id]['acronym']
         es_rnsr['name'] = name_acronym_city[rnsr_id]['name']
-       
         # CODE_NUMBERS
         code_numbers = []
         for code in [e['id'] for e in rnsr.get('externalIds', []) if e['type'] == "label_numero"]:
             code_numbers.extend([code, code.replace(' ', ''), code.replace(' ', '-'), code.replace(' ', '_')])
         es_rnsr['code_number'] = list(set(code_numbers))
-        
-        
         # SUPERVISORS ID
         es_rnsr['supervisor_id'] = [supervisor.get('structure') for supervisor in rnsr.get('institutions', [])
-                                         if 'structure' in supervisor]
+                                    if 'structure' in supervisor]
         es_rnsr['supervisor_id'] += [e['id'][0:9] for e in rnsr.get('externalIds', []) if "sire" in e['type']]
-        es_rnsr['supervisor_id'] = list(set(es_rnsr['supervisor_id']))    
+        es_rnsr['supervisor_id'] = list(set(es_rnsr['supervisor_id']))
         es_rnsr['supervisor_id'] = list(filter(None, es_rnsr['supervisor_id']))
-
         # SUPERVISORS ACRONYM, NAME AND CITY
         for f in ['acronym', 'name', 'city']:
             es_rnsr[f'supervisor_{f}'] = []
@@ -148,8 +134,7 @@ def download_rnsr_data() -> list:
                 if supervisor_id in name_acronym_city:
                     es_rnsr[f'supervisor_{f}'] += name_acronym_city[supervisor_id][f'{f}']
             es_rnsr[f'supervisor_{f}'] = list(set(es_rnsr[f'supervisor_{f}']))
-            
         # ADDRESSES
-        es_rnsr['city'] = name_acronym_city[rnsr_id]['city'] 
+        es_rnsr['city'] = name_acronym_city[rnsr_id]['city']
         es_rnsrs.append(es_rnsr)
     return es_rnsrs
