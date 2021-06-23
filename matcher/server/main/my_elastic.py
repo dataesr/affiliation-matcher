@@ -16,7 +16,10 @@ class MyElastic(Elasticsearch):
             settings = {}
         if index is None:
             raise ValueError('Empty value passed for a required argument "index".')
-        self.delete_index(index=index)
+        try:
+            self.delete_index(index=index)
+        except:
+            pass
         try:
             response = self.indices.create(index=index, body={'mappings': mappings, 'settings': settings}, ignore=400)
         except RequestError as re:
