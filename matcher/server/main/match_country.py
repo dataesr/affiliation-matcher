@@ -1,9 +1,7 @@
 from matcher.server.main.my_elastic import MyElastic
 
-ES_INDEX = 'country'
 
-
-def get_countries_from_query(query: str = '', strategies: list = None, index: str = ES_INDEX) -> dict:
+def get_countries_from_query(query: str = '', strategies: list = None) -> dict:
     if strategies is None:
         strategies = [['all_names']]
     es = MyElastic()
@@ -12,13 +10,13 @@ def get_countries_from_query(query: str = '', strategies: list = None, index: st
         logs = f'Matched strategy : {strategy}<br/>'
         for criteria in strategy:
             logs += f'Criteria : {criteria}<br/>'
-            body = {'query': {'match': {criteria: query}}, '_source': {'includes': ['alpha_2', 'name']},
-                    'highlight': {'fields': {criteria: {}}}}
-            hits = es.search(index=index, body=body).get('hits', []).get('hits', [])
-            highlights = [hit.get('highlight', {}).get(criteria) for hit in hits]
+            body = {'query': {'percolate': {'field': 'query', 'document': {'content': query}}},
+                    '_source': {'includes': ['country_alpha2']},
+                    'highlight': {'fields': {'content': {'type': 'fvh'}}}}
+            hits = es.search(index=criteria, body=body).get('hits', []).get('hits', [])
+            highlights = [hit.get('highlight', {}).get('content') for hit in hits]
             logs += '<br /><br />'.join(['<br />'.join(highlight) for highlight in highlights]) + '<br />'
-            criteria_results = [{'alpha_2': hit.get('_source', {}).get('alpha_2').lower(),
-                                 'name': hit.get('_source', {}).get('name')} for hit in hits]
+            criteria_results = [hit.get('_source', {}).get('country_alpha2') for hit in hits]
             if strategy_results is None:
                 strategy_results = criteria_results
             else:
