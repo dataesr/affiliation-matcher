@@ -223,203 +223,68 @@ def get_names_from_country(alpha_2: str = None) -> dict:
     return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'all_names': all_names, 'name': name}
 
 
-def get_white_list_from_country(alpha_2: str = None) -> dict:
-    alpha_2 = alpha_2.upper()
-    dirname = os.path.dirname(__file__)
-    with open(os.path.join(dirname, FILE_COUNTRY_WHITE_LIST), 'r') as file:
-        country_white_list = json.load(file)
-        if alpha_2 in country_white_list.keys():
-            white_list = country_white_list[alpha_2]
-        else:
-            white_list = []
-    return {'white_list': white_list}
-
-
-def get_stop_words_from_country(alpha_2: str = None) -> dict:
-    alpha_2 = alpha_2.upper()
-    dirname = os.path.dirname(__file__)
-    with open(os.path.join(dirname, FILE_COUNTRY_FORBIDDEN), 'r') as file:
-        country_stop_words = json.load(file)
-        if alpha_2 in country_stop_words.keys():
-            stop_words = country_stop_words[alpha_2]
-        else:
-            stop_words = []
-    return {'stop_words': stop_words}
-
-
-def get_data_from_grid() -> dict:
-    grids = download_data_from_grid()
-    results = {}
-    for grid in grids['institutes']:
-        if grid.get('status') != 'active':
-            continue
-        # NAMES
-        names = [grid.get('name')] + grid.get('aliases', [])
-        names += [label.get('label') for label in grid.get('labels', [])]
-        names = list(set(names))
-        # ACRONYMS
-        acronyms = grid.get('acronyms', [])
-        acronyms = list(set(acronyms))
-        # CITIES
-        cities = []
-        grid_country = None
-        addresses = grid.get('addresses', [])
-        for address in addresses:
-            grid_country = address.get('country_code').lower()
-            if grid_country and grid_country not in results.keys():
-                results[grid_country] = {
-                    'grid_cities': [],
-                    'grid_hospitals_names': [],
-                    'grid_hospitals_acronyms': [],
-                    'grid_universities_names': [],
-                    'grid_universities_acronyms': []
-                }
-            if 'city' in address and address.get('city'):
-                cities.append(address.get('city'))
-            if 'geonames_city' in address and address.get('geonames_city'):
-                if 'city' in address.get('geonames_city') and address.get('geonames_city').get('city'):
-                    cities.append(address.get('geonames_city').get('city'))
-                if 'geonames_admin1' in address.get('geonames_city') and \
-                        address.get('geonames_city').get('geonames_admin1'):
-                    if 'name' in address.get('geonames_city').get('geonames_admin1') and \
-                            address.get('geonames_city').get('geonames_admin1').get('name'):
-                        cities.append(address.get('geonames_city').get('geonames_admin1').get('name'))
-                if 'nuts_level2' in address.get('geonames_city') and address.get('geonames_city').get('nuts_level2'):
-                    if 'name' in address.get('geonames_city').get('nuts_level2') and \
-                            address.get('geonames_city').get('nuts_level2').get('name'):
-                        cities.append(address.get('geonames_city').get('nuts_level2').get('name'))
-                if 'nuts_level3' in address.get('geonames_city') and address.get('geonames_city').get('nuts_level3'):
-                    if 'name' in address.get('geonames_city').get('nuts_level3') and \
-                            address.get('geonames_city').get('nuts_level3').get('name'):
-                        cities.append(address.get('geonames_city').get('nuts_level3').get('name'))
-        if grid_country:
-            results[grid_country]['grid_cities'] += list(set(cities))
-            for grid_type in grid.get('types', []):
-                if grid_type == 'Healthcare':
-                    results[grid_country]['grid_hospitals_names'] += names
-                    results[grid_country]['grid_hospitals_acronyms'] += acronyms
-                elif grid_type in ['Education', 'Facility']:
-                    results[grid_country]['grid_universities_names'] += names
-                    results[grid_country]['grid_universities_acronyms'] += acronyms
-    return results
-
-
-def init_country(index: str = ES_INDEX) -> None:
+def init_country(index_prefix: str = '') -> None:
     es = MyElastic()
-    settings = {
-        'analysis': {
-            'filter': {
-                'length_min_3_char': {
-                    'type': 'length',
-                    'min': 3
-                },
-                'country_filter': {
-                    'type': 'stop',
-                    'ignore_case': True,
-                    'stopwords': ['france']
-                }
+    mappings = {
+        'properties': {
+            'content': {
+                'type': 'text',
+                'analyzer': 'standard',
+                'term_vector': 'with_positions_offsets'
             },
-            'analyzer': {
-                'analyzer_name': {
-                    'tokenizer': 'icu_tokenizer',
-                    'filter': ['length_min_3_char']
-                },
-                'analyzer_cities': {
-                    'tokenizer': 'icu_tokenizer',
-                    'filter': ['country_filter', 'icu_folding', 'length_min_3_char', 'lowercase']
-                },
-                'analyzer_cities_2': {
-                    'tokenizer': 'keyword',
-                    'filter': ['icu_folding', 'lowercase']
-                }
+            'country': {
+                'type': 'text',
+                'analyzer': 'standard',
+                'term_vector': 'with_positions_offsets'
+            },
+            'query': {
+                'type': 'percolator'
             }
         }
     }
-    mappings = {
-        'properties': {
-            'all_names': {
-                'type': 'text',
-                'analyzer': 'analyzer_name'
-            },
-            'wikidata_cities': {
-                'type': 'text',
-                'analyzer': 'analyzer_cities'
-            },
-            'wikidata_cities_2': {
-                'type': 'text',
-                'analyzer': 'analyzer_cities_2',
-                'search_analyzer': 'standard'
-            },
-            'wikidata_hospitals': {
-                'type': 'text',
-                'analyzer': 'analyzer_name'
-            },
-            'grid_cities': {
-                'type': 'text',
-                'analyzer': 'analyzer_cities'
-            },
-            'grid_cities_2': {
-                'type': 'text',
-                'analyzer': 'analyzer_cities_2',
-                'search_analyzer': 'standard'
-            },
-        }
-    }
-    es.create_index(index=index, settings=settings, mappings=mappings)
-    wikidata_cities = get_cities_from_wikidata()
-    wikidata_universities = get_universities_from_wikidata()
-    wikidata_hospitals = get_hospitals_from_wikidata()
-    grid = get_data_from_grid()
+    index_cities = f'{index_prefix}grid_cities'
+    index_institutions = f'{index_prefix}grid_institutions'
+    index_institutions_acronyms = f'{index_prefix}grid_institutions_acronyms'
+    indexes = [index_cities, index_institutions, index_institutions_acronyms]
+    for index in indexes:
+        es.create_index(index=index, mappings=mappings)
+    data = download_data_from_grid()
+    grids = data.get('institutes', [])
+    # Iterate over grid data
+    es_data = {}
+    for grid in grids:
+        institutions = [grid.get('name')]
+        institutions += grid.get('aliases', [])
+        institutions += [label.get('label') for label in grid.get('labels', [])]
+        acronyms = grid.get('acronyms', [])
+        for address in grid.get('addresses', []):
+            country_code = address.get('country_code').lower()
+            if country_code not in es_data:
+                es_data[country_code] = {'cities': [], 'institutions': [], 'acronyms': []}
+            es_data[country_code]['institutions'] += institutions
+            es_data[country_code]['acronyms'] += acronyms
+            es_data[country_code]['cities'].append(address.get('city'))
+            if address.get('geonames_city', {}):
+                es_data[country_code]['cities'].append(address.get('geonames_city', {}).get('city'))
+    # Bulk insert data into ES
     actions = []
-    for country in pycountry.countries:
-        country = country.alpha_2.lower()
-        body = {'_index': index}
-        # GENERAL NAMES
-        names = get_names_from_country(alpha_2=country)
-        body.update(names)
-        # WIKIDATA CITIES
-        body.update({
-            'wikidata_cities': wikidata_cities.get(country, {}).get('all', []),
-            'wikidata_cities_2': wikidata_cities.get(country, {}).get('all', []),
-            'wikidata_cities_strict': wikidata_cities.get(country, {}).get('strict', []),
-            'wikidata_cities_en': wikidata_cities.get(country, {}).get('en', []),
-            'wikidata_cities_fr': wikidata_cities.get(country, {}).get('fr', []),
-            'wikidata_cities_es': wikidata_cities.get(country, {}).get('es', []),
-            'wikidata_cities_it': wikidata_cities.get(country, {}).get('it', [])
-        })
-        # WIKIDATA UNIVERSITIES
-        body.update({
-            'wikidata_universities': wikidata_universities.get(country, {}).get('all', []),
-            'wikidata_universities_en': wikidata_universities.get(country, {}).get('en', []),
-            'wikidata_universities_fr': wikidata_universities.get(country, {}).get('fr', []),
-            'wikidata_universities_es': wikidata_universities.get(country, {}).get('es', []),
-            'wikidata_universities_it': wikidata_universities.get(country, {}).get('it', [])
-        })
-        # WIKIDATA HOSPITALS
-        body.update({
-            'wikidata_hospitals': wikidata_hospitals.get(country, {}).get('all', []),
-            'wikidata_hospitals_en': wikidata_hospitals.get(country, {}).get('en', []),
-            'wikidata_hospitals_fr': wikidata_hospitals.get(country, {}).get('fr', []),
-            'wikidata_hospitals_es': wikidata_hospitals.get(country, {}).get('es', []),
-            'wikidata_hospitals_it': wikidata_hospitals.get(country, {}).get('it', [])
-        })
-        # GRID HOSPITALS AND UNIVERSITIES
-        body.update({
-            'grid_cities': list(set(grid.get(country, {}).get('grid_cities', []))),
-            'grid_cities_2': list(set(grid.get(country, {}).get('grid_cities', []))),
-            'grid_hospitals_names': grid.get(country, {}).get('grid_hospitals_names', []),
-            'grid_hospitals_acronyms': grid.get(country, {}).get('grid_hospitals_acronyms', []),
-            'grid_universities_names': grid.get(country, {}).get('grid_universities_names', []),
-            'grid_universities_acronyms': grid.get(country, {}).get('grid_universities_acronyms', [])
-        })
-        # WHITE LIST
-        body.update(get_white_list_from_country(country))
-        # STOP WORDS
-        body.update(get_stop_words_from_country(country))
-        if country == 'fr':
-            # INSEE CITIES
-            body.update(get_cities_from_insee())
-            # MESRI UNIVERSITIES
-            body.update(get_universities_from_mesri())
-        actions.append(body)
+    for country_alpha2 in es_data:
+        action_template = {'_index': index_cities, 'country_alpha2': country_alpha2}
+        cities = list(set(es_data[country_alpha2]['cities']))
+        for query in cities:
+            action = action_template.copy()
+            action.update({'query': {'match_phrase': {'content': {'query': query, 'analyzer': 'standard'}}}})
+            actions.append(action)
+        action_template = {'_index': index_institutions, 'country_alpha2': country_alpha2}
+        institutions = list(set(es_data[country_alpha2]['institutions']))
+        for query in institutions:
+            action = action_template.copy()
+            action.update({'query': {'match_phrase': {'content': {'query': query, 'analyzer': 'standard'}}}})
+            actions.append(action)
+        action_template = {'_index': index_institutions_acronyms, 'country_alpha2': country_alpha2}
+        acronyms = list(set(es_data[country_alpha2]['acronyms']))
+        for query in acronyms:
+            action = action_template.copy()
+            action.update({'query': {'match_phrase': {'content': {'query': query, 'analyzer': 'standard'}}}})
+            actions.append(action)
     es.parallel_bulk(actions=actions)
