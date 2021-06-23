@@ -15,7 +15,7 @@ def elasticsearch() -> dict:
     es = MyElastic()
     es.indices.create(index=index, ignore=[400])
     es.indices.create(index=index_other, ignore=[400])
-    yield {'es': es, 'index': index, 'index_other': index_other}
+    yield {'es': es, 'index': index, 'index-other': index_other}
     es.indices.delete(index=index, ignore=[404])
     es.indices.delete(index=index_other, ignore=[404])
 
@@ -75,7 +75,7 @@ class TestGetInfo:
     @pytest.mark.parametrize(
         'year,query,fields,size,expected_results_length', [
             ('test', 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 200, 3),
-            ('test-other', 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 200, 2),
+            ('test_other', 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 200, 2),
             ('test', 'Plate-Forme', ['names'], 200, 5),
             ('test', 'PF-CCB', ['acronyms'], 200, 1),
             ('test', 'Plate-Forme de Criblage chémogénomique et biologique', ['names'], 1, 1)
@@ -89,9 +89,9 @@ class TestGetInfo:
         body = {'id': '14', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2019-03']}
         elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
         body = {'id': '15', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2017-01']}
-        elasticsearch['es'].index(index=elasticsearch['index_other'], body=body, refresh=True)
+        elasticsearch['es'].index(index=elasticsearch['index-other'], body=body, refresh=True)
         body = {'id': '16', 'names': ['Plate-Forme de Criblage chémogénomique et biologique 2017-02']}
-        elasticsearch['es'].index(index=elasticsearch['index_other'], body=body, refresh=True)
+        elasticsearch['es'].index(index=elasticsearch['index-other'], body=body, refresh=True)
         body = {'id': '17', 'names': ['Plate-Forme']}
         elasticsearch['es'].index(index=elasticsearch['index'], body=body, refresh=True)
         body = {'id': '18', 'names': ['Plate-Forme other']}
@@ -101,7 +101,7 @@ class TestGetInfo:
         assert len(result.get('highlights')) == expected_results_length
         assert len(result.get('nb_matches')) == expected_results_length
         elasticsearch['es'].delete_all_by_query(index=elasticsearch['index'])
-        elasticsearch['es'].delete_all_by_query(index=elasticsearch['index_other'])
+        elasticsearch['es'].delete_all_by_query(index=elasticsearch['index-other'])
 
     @pytest.mark.parametrize('year,query,fields,size,expected_results_length', [
         ('test', 'PF-CCB', ['acronyms'], 200, 1),
