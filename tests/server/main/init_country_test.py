@@ -88,8 +88,8 @@ class TestInitCountry:
         index = setup['index']
         es = setup['es']
         init_country(index=index)
-        all_results = es.search(index=index)
-        assert all_results['hits']['total']['value'] == 249
+        all_results = es.count(index=index)
+        assert all_results['count'] == 249
         french_results = es.search(index=index, body={'query': {'match': {'alpha_2': 'fr'}}})
         assert french_results['hits']['total']['value'] == 1
         french_result = french_results['hits']['hits'][0]['_source']

@@ -1,26 +1,27 @@
 from matcher.server.main.config import SCANR_DUMP_URL
-from matcher.server.main.init_rnsr import get_es_rnsr
+from matcher.server.main.init_rnsr import init_rnsr
+from matcher.server.main.my_elastic import MyElastic
 
 
 def test_get_es_rnsr(requests_mock) -> None:
     url = SCANR_DUMP_URL
     data = [
-        {'id': '1'},
-        {'id': '000000000B', 'label': {'default': 'label_01'}, 'alias': ['alias_01'], 'acronym':
-            {'default': 'acronym_01'}},
-        {'id': '000000000C', 'externalIds': [{'id': 'code_01', 'type': 'another_type'},
-                                             {'id': 'code_02', 'type': 'label_numero'}]},
-        {'id': '000000000D', 'institutions': [{'structure': 'supervisor_01'}], 'externalIds': [{'id': 'siren_12345', 'type': 'siren'}]},
-        {'id': '000000000E'}
+        {'id': 'id_01',
+         'externalIds': [{'type': 'other-type'}], 'address': [{'city': 'city_01'}]},
+        {'id': 'id_02',
+         'externalIds': [{'type': 'rnsr'}], 'address': [{'city': 'city_02'}],
+         'label': {'default': 'label_01'}},
+        {'id': 'id_03',
+         'externalIds': [{'type': 'rnsr'}], 'address': [{'city': 'city_03'}],
+         'label': {'default': 'label_02'}},
+        {'id': 'id_04',
+         'externalIds': [{'type': 'rnsr'}], 'address': [{'city': 'city_03'}],
+         'label': {'default': 'label_03'}}
     ]
     requests_mock.get(url=url, json=data)
-    rnsrs = get_es_rnsr()
-    assert len(rnsrs) == 4
-    names = rnsrs[0]['names']
-    names.sort()
-    assert names == ['alias_01', 'label_01']
-    assert rnsrs[0]['acronyms'] == ['acronym_01']
-    assert rnsrs[1]['code_numbers'] == ['code_02']
-    supervisors_ids = rnsrs[2]['supervisors_id']
-    supervisors_ids.sort()
-    assert supervisors_ids == ['siren_123', 'supervisor_01']
+    init_rnsr()
+    es = MyElastic()
+    cities = es.count(index='rnsr-city')
+    assert cities['count'] == 2
+    names = es.count(index='rnsr-name')
+    assert names['count'] == 3
