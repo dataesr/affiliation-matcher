@@ -280,7 +280,7 @@ def get_info(year, query: str = None, search_fields: list = None, size=20, highl
         search_fields = []
     if highlights is None:
         highlights = []
-    index = f'index-rnsr-{year}'
+    index = f'index_rnsr_{year}'
     s = Search(using=es, index=index)
     for f in highlights:
         s = s.highlight(f)

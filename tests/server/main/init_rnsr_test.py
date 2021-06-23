@@ -10,12 +10,12 @@ class TestInitRnsr:
     def setup(self) -> None:
         es = MyElastic()
         yield {'es': es}
-        es.delete_index(index='rnsr-name')
-        es.delete_index(index='rnsr-supervisor_acronym')
-        es.delete_index(index='rnsr-acronym')
-        es.delete_index(index='rnsr-supervisor_name')
-        es.delete_index(index='rnsr-city')
-        es.delete_index(index='rnsr-code_number')
+        es.delete_index(index='rnsr_name')
+        es.delete_index(index='rnsr_supervisor_acronym')
+        es.delete_index(index='rnsr_acronym')
+        es.delete_index(index='rnsr_supervisor_name')
+        es.delete_index(index='rnsr_city')
+        es.delete_index(index='rnsr_code_number')
 
     def test_get_es_rnsr(self, setup, requests_mock) -> None:
         url = SCANR_DUMP_URL
@@ -35,7 +35,7 @@ class TestInitRnsr:
         requests_mock.get(url=url, json=data)
         init_rnsr()
         es = setup['es']
-        cities = es.count(index='rnsr-city')
+        cities = es.count(index='rnsr_city')
         assert cities['count'] == 2
-        names = es.count(index='rnsr-name')
+        names = es.count(index='rnsr_name')
         assert names['count'] == 3
