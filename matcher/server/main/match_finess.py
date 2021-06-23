@@ -6,6 +6,7 @@ from elasticsearch_dsl import Search
 from matcher.server.main.config import config
 
 es = Elasticsearch(config['ELASTICSEARCH_HOST'])
+INDEX = 'index_finess'
 
 
 def normalize_for_count(x, matching_field):
@@ -14,7 +15,7 @@ def normalize_for_count(x, matching_field):
         analyzer = f'analyzer_{matching_field}'
     if analyzer:
         try:
-            r = requests.post(config['ELASTICSEARCH_URL'] + "index-finess/_analyze", json={
+            r = requests.post(config['ELASTICSEARCH_URL'] + INDEX + "/_analyze", json={
                 "analyzer": analyzer,
                 "text": x
             }).json()
@@ -192,8 +193,7 @@ def get_match_city(x, verbose=False):
 
 
 def get_info(input_str, search_fields, size=20, verbose=False, highlights=[], fuzzy_ok=False):
-    myIndex = "index-finess"
-    s = Search(using=es, index=myIndex)
+    s = Search(using=es, index=INDEX)
     for f in highlights:
         s = s.highlight(f)
 

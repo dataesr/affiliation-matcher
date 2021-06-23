@@ -38,7 +38,7 @@ APP_ENV = os.getenv('APP_ENV')
 APP_ORGA = 'http://185.161.45.213/organizations'
 ELASTICSEARCH_HOST = 'elasticsearch'
 ELASTICSEARCH_PORT = '9200'
-ELASTICSEARCH_INDEX = 'index-rnsr-all'
+ELASTICSEARCH_INDEX = 'index_rnsr_all'
 GRID_URL = "https://www.grid.ac/downloads"
 ROR_URL = "https://github.com/ror-community/ror-api/tree/master/rorapi/data"
 
@@ -49,7 +49,7 @@ SCANR_DUMP_URL = 'https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957
 
 if APP_ENV == 'test':
     ELASTICSEARCH_HOST = 'localhost'
-    ELASTICSEARCH_INDEX = 'index-rnsr-test'
+    ELASTICSEARCH_INDEX = 'index_rnsr_test'
 
 if APP_ENV == 'development':
     ELASTICSEARCH_HOST = 'localhost'

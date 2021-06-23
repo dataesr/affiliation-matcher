@@ -6,6 +6,7 @@ from elasticsearch import helpers
 from matcher.server.main.utils import normalize_text
 
 es = Elasticsearch(['localhost', 'elasticsearch'])
+INDEX = 'index_finess'
 
 
 def init_es_finess():
@@ -53,14 +54,14 @@ def init_es_finess():
 
     actions = [
         {
-            "_index": "index-finess",
+            "_index": INDEX,
             "_source": docs_to_index[j]
         }
         for j in range(0, len(docs_to_index))
     ]
     print(helpers.bulk(es, actions), flush=True)
 
-    res["index-finess"] = len(docs_to_index)
+    res[INDEX] = len(docs_to_index)
     res['ok'] = 1
     return res
 
@@ -248,17 +249,15 @@ def get_analyzers():
 
 
 def delete_index_finess():
-    myIndex = 'index-finess'
-    print("deleting " + myIndex, end=':', flush=True)
-    del_docs = es.delete_by_query(index=myIndex, body={"query": {"match_all": {}}})
+    print("deleting " + INDEX, end=':', flush=True)
+    del_docs = es.delete_by_query(index=INDEX, body={"query": {"match_all": {}}})
     print(del_docs, flush=True)
-    del_index = es.indices.delete(index=myIndex, ignore=[400, 404])
+    del_index = es.indices.delete(index=INDEX, ignore=[400, 404])
     print(del_index, flush=True)
     return
 
 
 def reset_index_finess(filters, char_filters, tokenizers, analyzers):
-    myIndex = 'index-finess'
     try:
         delete_index_finess()
     except:
@@ -302,7 +301,7 @@ def reset_index_finess(filters, char_filters, tokenizers, analyzers):
     }
 
     response = es.indices.create(
-        index=myIndex,
+        index=INDEX,
         body={
             "settings": setting_finess,
             "mappings": mapping_finess

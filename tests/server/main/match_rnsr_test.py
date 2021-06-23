@@ -11,7 +11,7 @@ from matcher.server.main.my_elastic import MyElastic
 @pytest.fixture(scope='module')
 def elasticsearch() -> dict:
     index = ELASTICSEARCH_INDEX
-    index_other = 'index-rnsr-test-other'
+    index_other = 'index_rnsr_test_other'
     es = MyElastic()
     es.indices.create(index=index, ignore=[400])
     es.indices.create(index=index_other, ignore=[400])

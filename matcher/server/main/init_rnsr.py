@@ -43,7 +43,7 @@ def init_rnsr(index_prefix: str = '') -> dict:
     criteria = light_criteria + heavy_criteria
     es_data = {}
     for criterion in criteria:
-        index = f'{index_prefix}rnsr-{criterion}'
+        index = f'{index_prefix}rnsr_{criterion}'
         if criterion in light_criteria:
             es.create_index(index=index, mappings=get_mappings('light'), settings=settings)
         else:
@@ -62,7 +62,7 @@ def init_rnsr(index_prefix: str = '') -> dict:
     actions = []
     results = {}
     for criterion in es_data:
-        index = f'{index_prefix}rnsr-{criterion}'
+        index = f'{index_prefix}rnsr_{criterion}'
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
             action = {'_index': index, 'ids': es_data[criterion][criterion_value]}
