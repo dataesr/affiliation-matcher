@@ -288,7 +288,3 @@ def get_data_from_grid() -> list:
         datum['country_code'] = [address.get('country_code') for address in addresses if 'country_code' in address]
         data.append(datum)
     return data
-
-
-if __name__ == '__main__':
-    init_grid()
