@@ -11,8 +11,7 @@ es = Elasticsearch(config['ELASTICSEARCH_HOST'])
 def normalize_for_count(x, matching_field):
     analyzer = None
     if matching_field in ['name', 'city']:
-        analyzer = "analyzer_{}".format(matching_field)
-
+        analyzer = f'analyzer_{matching_field}'
     if analyzer:
         try:
             r = requests.post(config['ELASTICSEARCH_URL'] + "index-finess/_analyze", json={
@@ -26,8 +25,7 @@ def normalize_for_count(x, matching_field):
 
 
 def match_unstructured_finess(query=''):
-    logs = ""
-    logs += "<h1> &#128269; {}</h1>".format(query)
+    logs = f'<h1> &#128269; {query}</h1>'
     x = query
 
     matching_info = {}
@@ -66,7 +64,7 @@ def match_structured(matching_info, strategies, logs):
         stop_current_start = False
         current_strat_answers = []
         strat_fields = strat.split(';')
-        logs += "<li>Strategie testée : {}".format(strat)
+        logs += f"<li>Strategie testée : {strat}"
 
         indiv_ids = [matching_info[field]['ids'] for field in strat_fields]
         strat_ids = set(indiv_ids[0]).intersection(*indiv_ids)
@@ -82,7 +80,7 @@ def match_structured(matching_info, strategies, logs):
         potential_sirens = []
 
         for potential_id in strat_ids:
-            logs += " <li> Id potentiel : {}<br/></li>".format(potential_id)
+            logs += f" <li> Id potentiel : {potential_id}<br/></li>"
             current_match = {'id': potential_id}
 
             if 'sire' in potential_id:
@@ -98,11 +96,8 @@ def match_structured(matching_info, strategies, logs):
                     current_highlights = matching_info[field]['highlights'][potential_id]
                     current_highlights = [e.replace('<em>', '<strong>').replace('</em>', '</strong>') for e in
                                           current_highlights]
-                    logs += "     - {} {} : {}<br/>".format(
-                        matching_info[field]['nb_matches'][potential_id],
-                        field,
-                        current_highlights)
-
+                    logs += f"     - {matching_info[field]['nb_matches'][potential_id]} {field} :" \
+                            f" {current_highlights}<br/>"
                 if field not in max_number:
                     max_number[field] = 0
                     # if field == 'name':
@@ -113,7 +108,7 @@ def match_structured(matching_info, strategies, logs):
             current_strat_answers.append(current_match)
 
         if len(max_number) > 0:
-            logs += "<li> &#9989; Nombre de match par champ : {}<br/></li>".format(max_number)
+            logs += f"<li> &#9989; Nombre de match par champ : {max_number}<br/></li>"
 
         logs += "</ol>"  # end of potential ids
 
@@ -125,7 +120,7 @@ def match_structured(matching_info, strategies, logs):
         ignored_id = []
         logs += "Parcours des champs de la stratégie :"
         for field in strat_fields:
-            logs += "{}...".format(field)
+            logs += f"{field}..."
             if field in ["city", "code_fuzzy"]:
                 logs += "(ignoré)..."
                 continue
@@ -136,15 +131,14 @@ def match_structured(matching_info, strategies, logs):
                         if max_number[field] >= min_match_for_field[field]:
                             retained_id_for_strat.append(potential_id)
                         else:
-                            logs += "<br/> &#128584; " + potential_id + " ignoré car {} {} est insuffisant ({} attendus au min)".format(
-                                max_number[field], field, min_match_for_field[field])
+                            logs += "<br/> &#128584; " + potential_id
+                            logs += f" ignoré car {max_number[field]} {field} est insuffisant" \
+                                    f" ({min_match_for_field[field]} attendus au min)"
                             ignored_id.append(potential_id)
                     elif potential_id not in matching_info.get('code', {}).get('ids', []):
-                        logs += "<br/> &#10060; {} ajouté à la black-list car seulement {} {} vs le max est {}".format(
-                            potential_id,
-                            matching_info[field]['nb_matches'][potential_id],
-                            field,
-                            max_number[field])
+                        logs += f"<br/> &#10060; {potential_id} ajouté à la black-list car seulement" \
+                                f" {matching_info[field]['nb_matches'][potential_id]} {field} vs le max est" \
+                                f" {max_number[field]}"
                         forbidden_id.append(potential_id)
             if len(retained_id_for_strat) == 1:
                 if ('code' in strat_fields) or ('code_digit' in strat_fields) or ('acronym' in strat_fields) or (
@@ -166,7 +160,7 @@ def match_structured(matching_info, strategies, logs):
 
         # for res in final_results:
         if len(final_results[strat]) == 1:
-            logs += "<br/> 1&#65039;&#8419; unique match pour cette stratégie : {} ".format(final_results[strat][0])
+            logs += f"<br/> 1&#65039;&#8419; unique match pour cette stratégie : {final_results[strat][0]} "
             if final_results[strat][0] in forbidden_id:
                 logs += "&#10060; car dans la black-list"
                 continue
@@ -174,7 +168,7 @@ def match_structured(matching_info, strategies, logs):
 
             else:
                 logs += " &#128076;<br/>"
-                logs += "<h3>{}</h3>".format(final_results[strat][0])
+                logs += f"<h3>{final_results[strat][0]}</h3>"
                 return {'match': final_results[strat][0], 'logs': logs}
 
 
@@ -183,7 +177,7 @@ def match_structured(matching_info, strategies, logs):
             if len(potential_sirens) == 1:
                 logs += "<br/> all potential match have the same siren " + potential_sirens[0]
                 logs += " &#128076;<br/>"
-                logs += "<h3>{}</h3>".format(potential_sirens[0])
+                logs += f"<h3>{potential_sirens[0]}</h3>"
                 return {'match': "siren" + potential_sirens[0], 'logs': logs}
 
     return {'match': None, 'logs': logs}

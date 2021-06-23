@@ -11,7 +11,7 @@ ES_INDEX = 'grid'
 
 def normalize_for_count(text: str = None, matching_field: str = None) -> str:
     if matching_field in ['name', 'acronym']:
-        analyzer = 'analyzer_{}'.format(matching_field)
+        analyzer = f'analyzer_{matching_field}'
     elif matching_field in ['city']:
         analyzer = 'analyzer_city'
     elif matching_field in ['country']:
@@ -22,7 +22,7 @@ def normalize_for_count(text: str = None, matching_field: str = None) -> str:
         analyzer = None
     if analyzer:
         try:
-            url = '{url}/{index}/_analyze'.format(url=ELASTICSEARCH_URL, index=ES_INDEX)
+            url = f'{ELASTICSEARCH_URL}/{ES_INDEX}/_analyze'
             response = requests.post(url, json={'analyzer': analyzer, 'text': text}).json()
             return response['tokens'][0]['token']
         except:
@@ -31,7 +31,7 @@ def normalize_for_count(text: str = None, matching_field: str = None) -> str:
 
 
 def match_grid_unstructured(query: str = None) -> dict:
-    logs = '<h1> &#128269; {query}</h1>'.format(query=query)
+    logs = f'<h1> &#128269; {query}</h1>'
     matching_info = {
         'country': get_match_country(query),
         'country_code': get_match_country_code(query),
@@ -99,7 +99,7 @@ def match_grid_structured(matching_info: dict = None, strategies: list = None, l
         current_strat_answers = []
         current_strat_avoid = []
         strat_fields = strat.split(';')
-        logs += '<li>Strategie testée : {}'.format(strat)
+        logs += f'<li>Strategie testée : {strat}'
         indiv_ids = [matching_info[field]['ids'] for field in strat_fields]
         strat_ids = set(indiv_ids[0]).intersection(*indiv_ids)
         if len(strat_ids) == 0:
@@ -109,7 +109,7 @@ def match_grid_structured(matching_info: dict = None, strategies: list = None, l
         max_number = {}
         logs += '<ol>'
         for potential_id in strat_ids:
-            logs += '<li> Id potentiel : {}<br/></li>'.format(potential_id)
+            logs += f'<li> Id potentiel : {potential_id}<br/></li>'
             current_match = {'id': potential_id}
             for field in strat_fields:
                 current_match[field + '_match'] = 0
@@ -118,14 +118,14 @@ def match_grid_structured(matching_info: dict = None, strategies: list = None, l
                     current_highlights = matching_info[field]['highlights'][potential_id]
                     current_highlights = [e.replace('<em>', '<strong>').replace('</em>', '</strong>')
                                           for e in current_highlights]
-                    logs += '     - {} {} : {}<br/>' \
-                        .format(matching_info[field]['nb_matches'][potential_id], field, current_highlights)
+                    logs += f'     - {matching_info[field]["nb_matches"][potential_id]} {field} : ' \
+                            f'{current_highlights}<br/>'
                 if field not in max_number:
                     max_number[field] = 0
                 max_number[field] = max(max_number[field], current_match[field + '_match'])
             current_strat_answers.append(current_match)
         if len(max_number) > 0:
-            logs += '<li> &#9989; Nombre de match par champ : {}<br/></li>'.format(max_number)
+            logs += f'<li> &#9989; Nombre de match par champ : {max_number}<br/></li>'
         logs += '</ol>'
         if len(strat_ids) == 0:
             continue
@@ -133,7 +133,7 @@ def match_grid_structured(matching_info: dict = None, strategies: list = None, l
         retained_id_for_strat = []
         logs += 'Parcours des champs de la stratégie :'
         for field in strat_fields:
-            logs += '{}...'.format(field)
+            logs += f'{field}...'
             if field in ['city', 'code_fuzzy']:
                 logs += '(ignoré)...'
                 continue
@@ -143,13 +143,14 @@ def match_grid_structured(matching_info: dict = None, strategies: list = None, l
                         if max_number[field] >= min_match_for_field[field]:
                             retained_id_for_strat.append(potential_id)
                         else:
-                            logs += '<br/> &#128584; ' + potential_id + \
-                                    ' ignoré car {} {} est insuffisant ({} attendus au min)' \
-                                        .format(max_number[field], field, min_match_for_field[field])
+                            logs += '<br/> &#128584; ' + potential_id
+                            logs += f' ignoré car {max_number[field]} {field} est insuffisant' \
+                                    f' ({min_match_for_field[field]} attendus au min)'
                             current_strat_avoid.append(potential_id)
                     elif potential_id not in matching_info.get('code', {}).get('ids', []):
-                        logs += '<br/> &#10060; {} ajouté à la black-list car seulement {} {} vs le max est {}'.format(
-                            potential_id, matching_info[field]['nb_matches'][potential_id], field, max_number[field])
+                        logs += f'<br/> &#10060; {potential_id} ajouté à la black-list car seulement' \
+                                f' {matching_info[field]["nb_matches"][potential_id]} {field} vs le max' \
+                                f' est {max_number[field]}'
                         forbidden_id.append(potential_id)
             if len(retained_id_for_strat) == 1:
                 if ('code' in strat_fields) or ('code_digit' in strat_fields) or ('acronym' in strat_fields) \
@@ -166,21 +167,21 @@ def match_grid_structured(matching_info: dict = None, strategies: list = None, l
             if x in final_results[strat]:
                 final_results[strat].remove(x)
         if len(final_results[strat]) == 1:
-            logs += '<br/> 1&#65039;&#8419; unique match pour cette stratégie : {} '.format(final_results[strat][0])
+            logs += f'<br/> 1&#65039;&#8419; unique match pour cette stratégie : {final_results[strat][0]} '
             if final_results[strat][0] in forbidden_id:
                 logs += '&#10060; car dans la black-list'
                 continue
             if has_acronym:
                 if final_results[strat][0] in matching_info.get('acronym', {}).get('ids', []):
                     logs += ' &#128076; car a bien un acronyme <br/>'
-                    logs += '<h3>{}</h3>'.format(final_results[strat][0])
+                    logs += f'<h3>{final_results[strat][0]}</h3>'
                     return {'match': final_results[strat][0], 'logs': logs}
                 else:
                     logs += ' &#128078; car n\'a pas l\'acronyme'
                     continue
             else:
                 logs += ' &#128076;<br/>'
-                logs += '<h3>{}</h3>'.format(final_results[strat][0])
+                logs += f'<h3>{final_results[strat][0]}</h3>'
                 return {'match': final_results[strat][0], 'logs': logs}
     return {'match': None, 'logs': logs}
 

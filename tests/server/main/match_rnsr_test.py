@@ -47,7 +47,7 @@ class TestMatchUnstructured:
                                                            'ids': ['194517892S'], 'nb_matches': {'194517892S': 1}}
         assert len(result.get('strategies')) == 24
         assert 'code;name' in result.get('strategies')
-        assert result.get('logs') == '<h1> &#128269; {}</h1>'.format(query)
+        assert result.get('logs') == f'<h1> &#128269; {query}</h1>'
 
 
 class TestMatchStructured:
@@ -68,7 +68,7 @@ class TestMatchStructured:
         logs = ''
         result = match_structured(matching_info, strategies, logs)
         assert result.get('match') == id
-        assert 'Strategie testée : {}'.format(strategies[0]) in result.get('logs')
+        assert f'Strategie testée : {strategies[0]}' in result.get('logs')
 
 
 class TestGetInfo:
