@@ -44,7 +44,7 @@ def download_data_from_grid() -> dict:
             file.write(chunk)
     with ZipFile(grid_downloaded_file, 'r') as file:
         file.extractall(grid_unzipped_folder)
-    with open('{folder}/grid.json'.format(folder=grid_unzipped_folder), 'r') as file:
+    with open(f'{grid_unzipped_folder}/grid.json', 'r') as file:
         data = json.load(file)
     os.remove(path=grid_downloaded_file)
     shutil.rmtree(path=grid_unzipped_folder)

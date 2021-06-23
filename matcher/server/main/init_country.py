@@ -140,7 +140,7 @@ def get_universities_from_wikidata() -> dict:
                 results[alpha_2]['all'].append(university['label_it']['value'])
                 results[alpha_2]['it'].append(university['label_it']['value'])
     else:
-        logger.error('The request returned an error. Code : {code}'.format(code=response.status_code))
+        logger.error(f'The request returned an error. Code : {response.status_code}')
     for country in results:
         results[country]['all'] = list(set(results[country]['all']))
         if 'en' in results[country].keys():
@@ -194,7 +194,7 @@ def get_hospitals_from_wikidata() -> dict:
                 results[alpha_2]['all'].append(hospital['label_it']['value'])
                 results[alpha_2]['it'].append(hospital['label_it']['value'])
     else:
-        logger.error('The request returned an error. Code : {code}'.format(code=response.status_code))
+        logger.error(f'The request returned an error. Code : {response.status_code}')
     for country in results:
         results[country]['all'] = list(set(results[country]['all']))
         if 'en' in results[country].keys():

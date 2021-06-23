@@ -13,13 +13,13 @@ def normalize_for_count(text, matching_field):
         return text.upper()
     analyzer = None
     if matching_field in ['name', 'acronym']:
-        analyzer = "analyzer_{}".format(matching_field)
+        analyzer = f'analyzer_{matching_field}'
     elif matching_field in ['city', 'supervisors_city']:
-        analyzer = "analyzer_address"
+        analyzer = 'analyzer_address'
     elif matching_field in ['supervisors_acronym']:
-        analyzer = "analyzer_supervisor_acronym"
+        analyzer = 'analyzer_supervisor_acronym'
     elif matching_field in ['supervisors_name']:
-        analyzer = "analyzer_supervisor"
+        analyzer = 'analyzer_supervisor'
     if analyzer:
         try:
             req = requests.post(ELASTICSEARCH_URL + '/' + ELASTICSEARCH_INDEX + '/_analyze', json={
@@ -70,7 +70,7 @@ def match_unstructured(year: str = '2020', query: str = '') -> dict:
         'acronym;city',
         'code_fuzzy;city'
     ]
-    logs = '<h1> &#128269; {query}</h1>'.format(query=query)
+    logs = f'<h1> &#128269; {query}</h1>'
     return match_structured(matching_info=matching_info, strategies=strategies, logs=logs)
 
 
@@ -119,7 +119,7 @@ def match_structured(matching_info: dict = None, strategies: list = None, logs: 
         current_strat_answers = []
         current_strat_avoid = []
         strat_fields = strat.split(';')
-        logs += "<li>Strategie testée : {}".format(strat)
+        logs += f'<li>Strategie testée : {strat}'
         indiv_ids = [matching_info[field]['ids'] for field in strat_fields]
         strat_ids = set(indiv_ids[0]).intersection(*indiv_ids)
         if len(strat_ids) == 0:
@@ -129,7 +129,7 @@ def match_structured(matching_info: dict = None, strategies: list = None, logs: 
         max_number = {}
         logs += "<ol> "
         for potential_id in strat_ids:
-            logs += " <li> Id potentiel : {}<br/></li>".format(potential_id)
+            logs += f" <li> Id potentiel : {potential_id}<br/></li>"
             current_match = {'id': potential_id}
             for field in strat_fields:
                 current_match[field + '_match'] = 0
@@ -138,16 +138,14 @@ def match_structured(matching_info: dict = None, strategies: list = None, logs: 
                     current_highlights = matching_info[field]['highlights'][potential_id]
                     current_highlights = [highlight.replace('<em>', '<strong>').replace('</em>', '</strong>')
                                           for highlight in current_highlights]
-                    logs += "     - {} {} : {}<br/>".format(
-                        matching_info[field]['nb_matches'][potential_id],
-                        field,
-                        current_highlights)
+                    logs += f"     - {matching_info[field]['nb_matches'][potential_id]} {field} : " \
+                            f"{current_highlights}<br/>"
                 if field not in max_number:
                     max_number[field] = 0
                 max_number[field] = max(max_number[field], current_match[field + '_match'])
             current_strat_answers.append(current_match)
         if len(max_number) > 0:
-            logs += "<li> &#9989; Nombre de match par champ : {}<br/></li>".format(max_number)
+            logs += f"<li> &#9989; Nombre de match par champ : {max_number}<br/></li>"
         logs += "</ol>"
         if len(strat_ids) == 0:
             continue
@@ -155,7 +153,7 @@ def match_structured(matching_info: dict = None, strategies: list = None, logs: 
         retained_id_for_strat = []
         logs += "Parcours des champs de la stratégie :"
         for field in strat_fields:
-            logs += "{}...".format(field)
+            logs += f"{field}..."
             if field in ["city", "code_fuzzy"]:
                 logs += "(ignoré)..."
                 continue
@@ -166,18 +164,14 @@ def match_structured(matching_info: dict = None, strategies: list = None, logs: 
                         if max_number[field] >= min_match_for_field[field]:
                             retained_id_for_strat.append(potential_id)
                         else:
-                            logs += "<br/> &#128584; " + potential_id + " ignoré car {} {} est insuffisant ({} " \
-                                                                        "attendus au min)".format(max_number[field],
-                                                                                                  field,
-                                                                                                  min_match_for_field[
-                                                                                                      field])
+                            logs += "<br/> &#128584; " + potential_id
+                            logs += f" ignoré car {max_number[field]} {field} est insuffisant " \
+                                    f"({min_match_for_field[field]} attendus au min)"
                             current_strat_avoid.append(potential_id)
                     elif potential_id not in matching_info.get('code', {}).get('ids', []):
-                        logs += "<br/> &#10060; {} ajouté à la black-list car seulement {} {} vs le max est {}".format(
-                            potential_id,
-                            matching_info[field]['nb_matches'][potential_id],
-                            field,
-                            max_number[field])
+                        logs += f"<br/> &#10060; {potential_id} ajouté à la black-list car seulement " \
+                                f"{matching_info[field]['nb_matches'][potential_id]} {field} vs le max est " \
+                                f"{max_number[field]}"
                         forbidden_id.append(potential_id)
             if len(retained_id_for_strat) == 1:
                 if ('code' in strat_fields) or ('code_digit' in strat_fields) or ('acronym' in strat_fields) or (
@@ -194,21 +188,21 @@ def match_structured(matching_info: dict = None, strategies: list = None, logs: 
             if x in final_results[strat]:
                 final_results[strat].remove(x)
         if len(final_results[strat]) == 1:
-            logs += "<br/> 1&#65039;&#8419; unique match pour cette stratégie : {} ".format(final_results[strat][0])
+            logs += f"<br/> 1&#65039;&#8419; unique match pour cette stratégie : {final_results[strat][0]} "
             if final_results[strat][0] in forbidden_id:
                 logs += "&#10060; car dans la black-list"
                 continue
             if has_code:
                 if final_results[strat][0] in matching_info.get('code', {}).get('ids', []):
                     logs += " &#128076; car a bien un label numéro <br/>"
-                    logs += "<h3>{}</h3>".format(final_results[strat][0])
+                    logs += f"<h3>{final_results[strat][0]}</h3>"
                     return_id = final_results[strat][0]
                     return_val = {'match': return_id, 'logs': logs}
                     return_val.update(get_supervisors(return_id))
                     return return_val
                 elif final_results[strat][0] in matching_info.get('code_digit', {}).get('ids', []):
                     logs += " &#128076; car a bien les chiffres du label numéro <br/>"
-                    logs += "<h3>{}</h3>".format(final_results[strat][0])
+                    logs += f"<h3>{final_results[strat][0]}</h3>"
                     return_id = final_results[strat][0]
                     return_val = {'match': return_id, 'logs': logs}
                     return_val.update(get_supervisors(return_id))
@@ -219,7 +213,7 @@ def match_structured(matching_info: dict = None, strategies: list = None, logs: 
             elif has_acronym:
                 if final_results[strat][0] in matching_info.get('acronym', {}).get('ids', []):
                     logs += " &#128076; car a bien un acronyme <br/>"
-                    logs += "<h3>{}</h3>".format(final_results[strat][0])
+                    logs += f"<h3>{final_results[strat][0]}</h3>"
                     return_id = final_results[strat][0]
                     return_val = {'match': return_id, 'logs': logs}
                     return_val.update(get_supervisors(return_id))
@@ -229,7 +223,7 @@ def match_structured(matching_info: dict = None, strategies: list = None, logs: 
                     continue
             else:
                 logs += " &#128076;<br/>"
-                logs += "<h3>{}</h3>".format(final_results[strat][0])
+                logs += f"<h3>{final_results[strat][0]}</h3>"
                 return_id = final_results[strat][0]
                 return_val = {'match': return_id, 'logs': logs}
                 return_val.update(get_supervisors(return_id))
@@ -286,7 +280,7 @@ def get_info(year, query: str = None, search_fields: list = None, size=20, highl
         search_fields = []
     if highlights is None:
         highlights = []
-    index = 'index-rnsr-{year}'.format(year=year)
+    index = f'index-rnsr-{year}'
     s = Search(using=es, index=index)
     for f in highlights:
         s = s.highlight(f)
