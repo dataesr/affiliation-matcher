@@ -327,10 +327,6 @@ def init_country(index: str = ES_INDEX) -> None:
                 'analyzer_cities': {
                     'tokenizer': 'icu_tokenizer',
                     'filter': ['country_filter', 'icu_folding', 'length_min_3_char', 'lowercase']
-                },
-                'analyzer_cities_2': {
-                    'tokenizer': 'keyword',
-                    'filter': ['icu_folding', 'lowercase']
                 }
             }
         }
@@ -345,11 +341,6 @@ def init_country(index: str = ES_INDEX) -> None:
                 'type': 'text',
                 'analyzer': 'analyzer_cities'
             },
-            'wikidata_cities_2': {
-                'type': 'text',
-                'analyzer': 'analyzer_cities_2',
-                'search_analyzer': 'standard'
-            },
             'wikidata_hospitals': {
                 'type': 'text',
                 'analyzer': 'analyzer_name'
@@ -357,12 +348,7 @@ def init_country(index: str = ES_INDEX) -> None:
             'grid_cities': {
                 'type': 'text',
                 'analyzer': 'analyzer_cities'
-            },
-            'grid_cities_2': {
-                'type': 'text',
-                'analyzer': 'analyzer_cities_2',
-                'search_analyzer': 'standard'
-            },
+            }
         }
     }
     es.create_index(index=index, settings=settings, mappings=mappings)
@@ -380,7 +366,6 @@ def init_country(index: str = ES_INDEX) -> None:
         # WIKIDATA CITIES
         body.update({
             'wikidata_cities': wikidata_cities.get(country, {}).get('all', []),
-            'wikidata_cities_2': wikidata_cities.get(country, {}).get('all', []),
             'wikidata_cities_strict': wikidata_cities.get(country, {}).get('strict', []),
             'wikidata_cities_en': wikidata_cities.get(country, {}).get('en', []),
             'wikidata_cities_fr': wikidata_cities.get(country, {}).get('fr', []),
@@ -406,7 +391,6 @@ def init_country(index: str = ES_INDEX) -> None:
         # GRID HOSPITALS AND UNIVERSITIES
         body.update({
             'grid_cities': list(set(grid.get(country, {}).get('grid_cities', []))),
-            'grid_cities_2': list(set(grid.get(country, {}).get('grid_cities', []))),
             'grid_hospitals_names': grid.get(country, {}).get('grid_hospitals_names', []),
             'grid_hospitals_acronyms': grid.get(country, {}).get('grid_hospitals_acronyms', []),
             'grid_universities_names': grid.get(country, {}).get('grid_universities_names', []),
