@@ -48,7 +48,7 @@ def create_task_rnsr(arg) -> dict:
     supervisor_acronym = arg.get('supervisor_acronym', None)
     supervisor_id = arg.get('supervisor_id', None)
     supervisor_name = arg.get('supervisor_name', None)
-    #if code or name or city or acronym or supervisor_acronym or supervisor_id or supervisor_name:
+    # if code or name or city or acronym or supervisor_acronym or supervisor_id or supervisor_name:
     #    return match_fields(year, code, name, city, acronym, supervisor_id)
     if query:
         return match_rnsr(query)
@@ -64,4 +64,3 @@ def create_task_country(arg) -> dict:
 def create_task_finess(arg) -> dict:
     query = arg.get('query', '')
     return match_unstructured_finess(query) if query else {'error': 'all inputs are empty'}
-
