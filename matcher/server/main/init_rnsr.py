@@ -33,6 +33,7 @@ def get_mappings(analyzer) -> dict:
 def init_rnsr() -> dict:
     es = MyElastic()
     index_prefix = INDEX_PREFIX
+    es.indices.delete(f'{index_prefix}*')
     settings = {
         'index': {
         },
@@ -142,16 +143,16 @@ def download_rnsr_data() -> list:
 
         #DATES
         last_year = f"{datetime.date.today().year}"
-        startDate = d.get('startDate')
+        startDate = rnsr.get('startDate')
         if not startDate:
             startDate = '2010'
         start = int(startDate[0:4])
-        endDate = d.get('endDate')
+        endDate = rnsr.get('endDate')
         if not endDate:
             endDate = last_year
         end = int(endDate[0:4])
         # start date one year before official as it can be used before sometimes
-        es_rnsr['year'] = list(range(start-1, end+1))
+        es_rnsr['year'] = [str(y) for y in list(range(start-1, end+1))]
         
         es_rnsrs.append(es_rnsr)
 
