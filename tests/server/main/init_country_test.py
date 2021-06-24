@@ -1,8 +1,8 @@
 import pytest
 
 from matcher.server.main.init_country import get_cities_from_insee, get_cities_from_wikidata, \
-    get_universities_from_mesri, get_universities_from_wikidata, get_names_from_country, get_stop_words_from_country, \
-    get_hospitals_from_wikidata, init_country
+    get_universities_from_mesri, get_universities_from_wikidata, get_names_from_country, get_hospitals_from_wikidata,\
+    init_country
 from matcher.server.main.my_elastic import MyElastic
 
 
@@ -61,14 +61,6 @@ class TestInitCountry:
         assert 'Paul Morel Hospital' not in hospitals['fr']['fr']
         assert 'hôpital Paul-Morel' in hospitals['fr']['fr']
         assert 'hôpital Paul-Morel' not in hospitals['fr']['en']
-
-    def test_get_stop_words_from_country_fr(self) -> None:
-        french_stop_words = get_stop_words_from_country('fr')['stop_words']
-        assert len(french_stop_words) == 0
-
-    def test_get_stop_words_from_country_cn(self) -> None:
-        chinese_stop_words = get_stop_words_from_country('cn')['stop_words']
-        assert len(chinese_stop_words) == 0
 
     @pytest.fixture(scope='class')
     def setup(self) -> None:

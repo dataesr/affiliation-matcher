@@ -9,8 +9,6 @@ from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.utils import download_data_from_grid
 
 ES_INDEX = 'country'
-FILE_COUNTRY_FORBIDDEN = 'country_forbidden.json'
-FILE_COUNTRY_WHITE_LIST = 'country_white_list.json'
 FILE_FR_CITIES_INSEE = 'fr_cities_insee.csv'
 FILE_FR_UNIVERSITIES_MESRI = 'fr_universities_mesri.json'
 QUERY_CITY_POPULATION_LIMIT = 50000
@@ -223,30 +221,6 @@ def get_names_from_country(alpha_2: str = None) -> dict:
     return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'all_names': all_names, 'name': name}
 
 
-def get_white_list_from_country(alpha_2: str = None) -> dict:
-    alpha_2 = alpha_2.upper()
-    dirname = os.path.dirname(__file__)
-    with open(os.path.join(dirname, FILE_COUNTRY_WHITE_LIST), 'r') as file:
-        country_white_list = json.load(file)
-        if alpha_2 in country_white_list.keys():
-            white_list = country_white_list[alpha_2]
-        else:
-            white_list = []
-    return {'white_list': white_list}
-
-
-def get_stop_words_from_country(alpha_2: str = None) -> dict:
-    alpha_2 = alpha_2.upper()
-    dirname = os.path.dirname(__file__)
-    with open(os.path.join(dirname, FILE_COUNTRY_FORBIDDEN), 'r') as file:
-        country_stop_words = json.load(file)
-        if alpha_2 in country_stop_words.keys():
-            stop_words = country_stop_words[alpha_2]
-        else:
-            stop_words = []
-    return {'stop_words': stop_words}
-
-
 def get_data_from_grid() -> dict:
     grids = download_data_from_grid()
     results = {}
@@ -396,10 +370,6 @@ def init_country(index: str = ES_INDEX) -> None:
             'grid_universities_names': grid.get(country, {}).get('grid_universities_names', []),
             'grid_universities_acronyms': grid.get(country, {}).get('grid_universities_acronyms', [])
         })
-        # WHITE LIST
-        body.update(get_white_list_from_country(country))
-        # STOP WORDS
-        body.update(get_stop_words_from_country(country))
         if country == 'fr':
             # INSEE CITIES
             body.update(get_cities_from_insee())
