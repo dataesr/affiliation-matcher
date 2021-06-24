@@ -1,6 +1,7 @@
 from matcher.server.main.init_country import init_country
 from matcher.server.main.init_grid import init_grid
 from matcher.server.main.init_rnsr import init_rnsr
+from matcher.server.main.init_wikidata import init_wikidata
 from matcher.server.main.match_country import get_countries_from_query
 from matcher.server.main.match_finess import match_unstructured_finess
 from matcher.server.main.match_rnsr import match_rnsr
@@ -11,15 +12,18 @@ def create_task_init(args: dict = None) -> dict:
         args = {}
     matcher_type = args.get('type', 'all').lower()
     if matcher_type == 'all':
-        init_rnsr()
         init_country()
         init_grid()
-    elif matcher_type == 'rnsr':
         init_rnsr()
+        init_wikidata()
     elif matcher_type == 'country':
         init_country()
     elif matcher_type == 'grid':
         init_grid()
+    elif matcher_type == 'rnsr':
+        init_rnsr()
+    elif matcher_type == 'wikidata':
+        init_wikidata()
     else:
         return {'Error': f'Matcher type {matcher_type} unknown'}
 
@@ -64,4 +68,3 @@ def create_task_country(arg) -> dict:
 def create_task_finess(arg) -> dict:
     query = arg.get('query', '')
     return match_unstructured_finess(query) if query else {'error': 'all inputs are empty'}
-

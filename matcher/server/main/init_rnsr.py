@@ -1,5 +1,6 @@
-import requests
 import datetime
+
+import requests
 
 from matcher.server.main.config import SCANR_DUMP_URL
 from matcher.server.main.elastic_utils import get_filters, get_analyzers
@@ -9,6 +10,7 @@ from matcher.server.main.my_elastic import MyElastic
 logger = get_logger(__name__)
 
 INDEX_PREFIX = 'rnsr'
+
 
 def get_mappings(analyzer) -> dict:
     return {
@@ -71,7 +73,8 @@ def init_rnsr() -> dict:
         for criterion_value in es_data[criterion]:
             action = {'_index': index, 'ids': es_data[criterion][criterion_value]}
             if criterion in light_criteria:
-                action['query'] = {'match_phrase': {'content': {'query': criterion_value, 'analyzer': 'light', 'slop': 2}}}
+                action['query'] = {
+                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': 'light', 'slop': 2}}}
             elif criterion in heavy_criteria:
                 action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': 'heavy_fr',
                                                          'minimum_should_match': '4<80%'}}}
@@ -141,7 +144,7 @@ def download_rnsr_data() -> list:
         # ADDRESSES
         es_rnsr['city'] = name_acronym_city[rnsr_id]['city']
 
-        #DATES
+        # DATES
         last_year = f"{datetime.date.today().year}"
         startDate = rnsr.get('startDate')
         if not startDate:
@@ -153,7 +156,6 @@ def download_rnsr_data() -> list:
         end = int(endDate[0:4])
         # start date one year before official as it can be used before sometimes
         es_rnsr['year'] = [str(y) for y in list(range(start-1, end+1))]
-        
         es_rnsrs.append(es_rnsr)
 
     return es_rnsrs

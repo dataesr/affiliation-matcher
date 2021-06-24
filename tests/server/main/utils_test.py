@@ -1,6 +1,6 @@
 import pytest
 
-from matcher.server.main.utils import delete_punctuation, get_common_words, has_a_digit,\
+from matcher.server.main.utils import delete_punctuation, get_common_words, has_a_digit, \
     normalize_text, strip_accents
 
 

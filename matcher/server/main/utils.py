@@ -14,6 +14,7 @@ CHUNK_SIZE = 128
 
 def remove_ref_index(query):
     # remove index 
+    """Remove first digits of a string if any."""
     rgx = re.compile("^(\d){1,2}([A-Za-z])(.*)")
     return rgx.sub("\\2\\3", query).strip()
 
