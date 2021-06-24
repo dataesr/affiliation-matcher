@@ -9,13 +9,17 @@ from matcher.server.main.match_rnsr import match_unstructured, match_fields
 def create_task_init(args: dict = None) -> dict:
     if args is None:
         args = {}
-    matcher_type = args.get('type', 'rnsr').lower()
-    if matcher_type == 'rnsr':
-        return init_rnsr()
+    matcher_type = args.get('type', 'all').lower()
+    if matcher_type == 'all':
+        init_rnsr()
+        init_country()
+        init_grid()
+    elif matcher_type == 'rnsr':
+        init_rnsr()
     elif matcher_type == 'country':
-        return init_country()
+        init_country()
     elif matcher_type == 'grid':
-        return init_grid()
+        init_grid()
     else:
         return {'Error': f'Matcher type {matcher_type} unknown'}
 
