@@ -39,19 +39,19 @@ def create_task_match(args: dict = None) -> dict:
 
 
 def create_task_rnsr(arg) -> dict:
-    year = arg.get('year', 2020)
-    query = arg.get('query', None)
-    code = arg.get('code', None)
-    name = arg.get('name', None)
-    city = arg.get('city', None)
-    acronym = arg.get('acronym', None)
-    supervisor_acronym = arg.get('supervisor_acronym', None)
-    supervisor_id = arg.get('supervisor_id', None)
-    supervisor_name = arg.get('supervisor_name', None)
+    year = arg.get('year')
+    query = arg.get('query')
+    code = arg.get('code_number')
+    name = arg.get('name')
+    city = arg.get('city')
+    acronym = arg.get('acronym')
+    supervisor_acronym = arg.get('supervisor_acronym')
+    supervisor_id = arg.get('supervisor_id')
+    supervisor_name = arg.get('supervisor_name')
     #if code or name or city or acronym or supervisor_acronym or supervisor_id or supervisor_name:
     #    return match_fields(year, code, name, city, acronym, supervisor_id)
     if query:
-        return match_rnsr(query)
+        return match_rnsr(query, year)
     else:
         return {'error': 'all inputs are empty'}
 

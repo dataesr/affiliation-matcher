@@ -3,7 +3,7 @@ from matcher.server.main.utils import remove_ref_index
 
 INDEX_PREFIX = 'rnsr'
 
-def match_rnsr(query_input: str = '', strategies: list = None) -> dict:
+def match_rnsr(query_input: str = '', year = None, strategies: list = None) -> dict:
     index_prefix = INDEX_PREFIX
     es = MyElastic()
 
@@ -30,13 +30,21 @@ def match_rnsr(query_input: str = '', strategies: list = None) -> dict:
         ['name', 'acronym', 'supervisor_name'],
         ['acronym', 'city']
     ]
+    if year:
+        strategies_with_year = strategies.copy()
+        for s in strategies_with_year:
+            s.append('year')
+        strategies = strategies_with_year + strategies
     logs = f'<h1> &#128269; {query}</h1>'
     for strategy in strategies:
         strategy_results = None
         all_hits = {}
         logs += f'<br/> - Matching strategy : {strategy}<br/>'
         for criteria in strategy:
-            body = {'query': {'percolate': {'field': 'query', 'document': {'content': query}}},
+            criteria_query = query
+            if criteria == "year":
+                criteria_query = year
+            body = {'query': {'percolate': {'field': 'query', 'document': {'content': criteria_query}}},
                     '_source': {'includes': ['ids', 'query.match*.content.query']},
                     'highlight': {'fields': {'content': {'type': 'fvh'}}}}
             hits = es.search(index=f'{index_prefix}_{criteria}', body=body).get('hits', []).get('hits', [])
