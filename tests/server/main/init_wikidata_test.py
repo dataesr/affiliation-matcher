@@ -1,4 +1,4 @@
-from matcher.server.main.init_wikidata import data2actions, get_cities_from_wikidata, get_hospitals_from_wikidata,\
+from matcher.server.main.init_wikidata import data2actions, get_cities_from_wikidata, get_hospitals_from_wikidata, \
     get_universities_from_wikidata, init_wikidata
 from matcher.server.main.my_elastic import MyElastic
 

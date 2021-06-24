@@ -1,35 +1,41 @@
 import os
+
 import requests
 from bs4 import BeautifulSoup
+
 from matcher.server.main.logger import get_logger
-        
+
 logger = get_logger(__name__)
+
 
 def get_last_grid_dump_url():
     try:
-        soup = BeautifulSoup(requests.get(GRID_URL).text, "lxml")
-        GRID_DUMP_URL = soup.find('a', class_="btn-red")['href'].strip()
-        logger.debug(f"last grid dump url found: {GRID_DUMP_URL}")
+        soup = BeautifulSoup(requests.get(GRID_URL).text, 'lxml')
+        grid_dump_url = soup.find('a', class_='btn-red')['href'].strip()
+        logger.debug(f'Last grid dump url found: {grid_dump_url}')
     except:
-        GRID_DUMP_URL = "https://ndownloader.figshare.com/files/28431024"
-        logger.error(f"grid dump url detection failed, using {GRID_DUMP_URL} instead")
-    return GRID_DUMP_URL
+        grid_dump_url = 'https://ndownloader.figshare.com/files/28431024'
+        logger.error(f'Grid dump url detection failed, using {grid_dump_url} instead')
+    return grid_dump_url
+
 
 def get_last_ror_dump_url():
-    soup = BeautifulSoup(requests.get(ROR_URL).text, "lxml")
+    soup = BeautifulSoup(requests.get(ROR_URL).text, 'lxml')
     try:
-        last_title = "ror-2021"
-        for elt in soup.find_all('div', {"role": "rowheader"}):
-            elt_title = elt.get_text().strip() 
+        last_title = 'ror-2021'
+        last_date = ''
+        for elt in soup.find_all('div', {'role': 'rowheader'}):
+            elt_title = elt.get_text().strip()
             if elt_title > last_title:
-                elt_title = last_title
                 last_date = elt.find('a')['href'].split('/')[-1]
-        ROR_DUMP_URL = f'https://github.com/ror-community/ror-api/blob/master/rorapi/data/{last_date}/ror.zip?raw=true'
-        logger.debug(f"last ror dump url found: {ROR_DUMP_URL}")
+        ror_dump_url = f'https://github.com/ror-community/ror-api/blob/master/rorapi/data/{last_date}/ror.zip?raw=true'
+        logger.debug(f'Last ROR dump url found: {ror_dump_url}')
     except:
-        ROR_DUMP_URL = 'https://github.com/ror-community/ror-api/blob/master/rorapi/data/ror-2021-04-06/ror.zip?raw=true'
-        logger.error(f"ror dump url detection failed, using {ROR_DUMP_URL} instead")
-    return ROR_DUMP_URL
+        ror_dump_url = 'https://github.com/ror-community/ror-api/blob/master/rorapi/data/ror-2021-04-06/ror.zip?' \
+                       'raw=true'
+        logger.error(f'ROR dump url detection failed, using {ror_dump_url} instead')
+    return ror_dump_url
+
 
 # Load the application environment
 APP_ENV = os.getenv('APP_ENV')
@@ -68,4 +74,3 @@ config = {
     'ROR_DUMP_URL': ROR_DUMP_URL,
     'SCANR_DUMP_URL': SCANR_DUMP_URL
 }
-

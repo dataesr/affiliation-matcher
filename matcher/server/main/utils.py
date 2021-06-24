@@ -12,10 +12,11 @@ from matcher.server.main.config import GRID_DUMP_URL
 
 CHUNK_SIZE = 128
 
-def remove_ref_index(query):
-    ans = []
+
+def remove_ref_index(query: str = '') -> str:
+    """Remove first digits of a string if any."""
     q_split = query.split(' ')
-    first_word = query.split(' ')[0]
+    first_word = q_split[0]
     new_first_word = ''
     if first_word[0].isdigit():
         for c in first_word:
@@ -26,6 +27,7 @@ def remove_ref_index(query):
         return new_first_word + ' ' + ' '.join(q_split[1:])
     else:
         return query
+
 
 def strip_accents(text: str) -> str:
     """Normalize accents and stuff in string."""
