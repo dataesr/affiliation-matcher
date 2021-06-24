@@ -28,18 +28,29 @@ def get_analyzers():
         'light': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
+                'lowercase',
                 'french_elision',
                 'icu_folding'
             ]
         },
-        'heavy': {
+        'heavy_fr': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
-                'french_elision',
+                'lowercase',
                 'icu_folding',
                 'french_stop',
                 'english_stop',
+                'french_elision',
                 'french_stemmer'
+            ]
+        },
+        'heavy_en': {
+            'tokenizer': 'icu_tokenizer',
+            'filter': [
+                'lowercase',
+                'icu_folding',
+                'english_stop',
+                'english_stemmer'
             ]
         }
     }
