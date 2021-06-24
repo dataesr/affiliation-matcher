@@ -1,4 +1,5 @@
 import requests
+import datetime
 
 from matcher.server.main.config import SCANR_DUMP_URL
 from matcher.server.main.elastic_utils import get_filters, get_analyzers
@@ -40,7 +41,7 @@ def init_rnsr() -> dict:
             'filter': get_filters(),
         }
     }
-    light_criteria = ['city', 'acronym', 'code_number', 'supervisor_acronym']
+    light_criteria = ['city', 'acronym', 'code_number', 'supervisor_acronym', 'year']
     heavy_criteria = ['name', 'supervisor_name']
     criteria = light_criteria + heavy_criteria
     es_data = {}
@@ -138,5 +139,20 @@ def download_rnsr_data() -> list:
             es_rnsr[f'supervisor_{f}'] = list(set(es_rnsr[f'supervisor_{f}']))
         # ADDRESSES
         es_rnsr['city'] = name_acronym_city[rnsr_id]['city']
+
+        #DATES
+        last_year = f"{datetime.date.today().year}"
+        startDate = d.get('startDate')
+        if not startDate:
+            startDate = '2010'
+        start = int(startDate[0:4])
+        endDate = d.get('endDate')
+        if not endDate:
+            endDate = last_year
+        end = int(endDate[0:4])
+        # start date one year before official as it can be used before sometimes
+        es_rnsr['year'] = list(range(start-1, end+1))
+        
         es_rnsrs.append(es_rnsr)
+
     return es_rnsrs
