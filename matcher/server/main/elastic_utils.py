@@ -23,6 +23,7 @@ def get_filters():
         }
     }
 
+
 def get_analyzers():
     return {
         'light': {
