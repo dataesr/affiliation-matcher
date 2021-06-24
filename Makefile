@@ -40,8 +40,8 @@ python-build:
 	@echo Python package built
 
 init:
-	@echo Populate data into matcher
-	curl http://localhost:5004/init?type=country
+	@echo Populate all data into matcher
+	curl http://localhost:5004/init
 	@echo Matcher is now populated
 
 release:
