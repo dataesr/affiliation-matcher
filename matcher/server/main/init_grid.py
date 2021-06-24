@@ -1,6 +1,8 @@
 from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.utils import download_data_from_grid
 
+SOURCE = 'grid'
+
 es = MyElastic()
 
 
@@ -22,9 +24,9 @@ def init_grid(index_prefix: str = '') -> None:
             }
         }
     }
-    index_cities = f'{index_prefix}grid_cities'
-    index_institutions = f'{index_prefix}grid_institutions'
-    index_institutions_acronyms = f'{index_prefix}grid_institutions_acronyms'
+    index_cities = f'{index_prefix}{SOURCE}_cities'
+    index_institutions = f'{index_prefix}{SOURCE}_institutions'
+    index_institutions_acronyms = f'{index_prefix}{SOURCE}_institutions_acronyms'
     indexes = [index_cities, index_institutions, index_institutions_acronyms]
     for index in indexes:
         es.create_index(index=index, mappings=mappings)
