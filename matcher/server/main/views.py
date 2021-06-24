@@ -7,7 +7,7 @@ from matcher.server.main.logger import get_logger
 from matcher.server.main.tasks import create_task_match, create_task_rnsr, create_task_init
 
 logger = get_logger(__name__)
-main_blueprint = Blueprint("main", __name__, )
+main_blueprint = Blueprint('main', __name__, )
 
 
 @main_blueprint.route("/", methods=["GET"])
@@ -17,7 +17,7 @@ def home():
 
 @main_blueprint.route("/init", methods=["GET"])
 def run_task_init_rnsr():
-    args = request.get_json(force=True)
+    args = request.args
     logger.debug(args)
     response_object = create_task_init(args=args)
     return jsonify(response_object), 202
