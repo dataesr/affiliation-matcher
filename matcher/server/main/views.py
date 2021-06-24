@@ -3,7 +3,7 @@ from flask import Blueprint, current_app, jsonify, render_template, request
 from rq import Connection, Queue
 
 from matcher.server.main.logger import get_logger
-from matcher.server.main.tasks import create_task_match, create_task_rnsr, create_task_init
+from matcher.server.main.tasks import create_task_init, create_task_match, create_task_rnsr
 
 logger = get_logger(__name__)
 main_blueprint = Blueprint('main', __name__, )
@@ -35,17 +35,6 @@ def run_task_rnsr():
     args = request.get_json(force=True)
     logger.debug(args)
     response_object = create_task_rnsr(args)
-    # my_arguments = {'url': url, 'title': title}
-    # logger.debug(my_arguments)
-    # with Connection(redis.from_url(current_app.config["REDIS_URL"])):
-    #    q = Queue(default_timeout=21600)
-    #    task = q.enqueue(create_task_harvest, args)
-    # response_object = {
-    #    "status": "success",
-    #    "data": {
-    #        "task_id": task.get_id()
-    #    }
-    # }
     return jsonify(response_object), 202
 
 
