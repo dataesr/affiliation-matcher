@@ -3,6 +3,10 @@ html {
   min-height: 100%;
 }
 
+em {
+    font-weight: 700;
+}
+
 body {
   padding-top: 2rem;
   margin-bottom: 60px;
