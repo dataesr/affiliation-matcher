@@ -1,21 +1,37 @@
 from matcher.server.main.init_country import init_country
-from matcher.server.main.init_finess import init_es_finess
+from matcher.server.main.init_grid import init_grid
 from matcher.server.main.init_rnsr import init_rnsr
 from matcher.server.main.match_country import get_countries_from_query
 from matcher.server.main.match_finess import match_unstructured_finess
 from matcher.server.main.match_rnsr import match_unstructured, match_fields
 
 
-def create_task_match(arg) -> dict:
-    type_match = arg.get('type', 'rnsr').lower()
-    if type_match == 'rnsr':
-        return create_task_rnsr(arg)
-    elif type_match == 'finess':
-        return create_task_finess(arg)
-    elif type_match == 'country':
-        return create_task_country(arg)
+def create_task_init(args: dict = None) -> dict:
+    if args is None:
+        args = {}
+    matcher_type = args.get('type', 'rnsr').lower()
+    if matcher_type == 'rnsr':
+        return init_rnsr()
+    elif matcher_type == 'country':
+        return init_country()
+    elif matcher_type == 'grid':
+        return init_grid()
     else:
-        return {'Error': f'Type {type_match} unknown'}
+        return {'Error': f'Matcher type {matcher_type} unknown'}
+
+
+def create_task_match(args: dict = None) -> dict:
+    if args is None:
+        args = {}
+    matcher_type = args.get('type', 'rnsr').lower()
+    if matcher_type == 'rnsr':
+        return create_task_rnsr(args)
+    elif matcher_type == 'finess':
+        return create_task_finess(args)
+    elif matcher_type == 'country':
+        return create_task_country(args)
+    else:
+        return {'Error': f'Matcher type {matcher_type} unknown'}
 
 
 def create_task_rnsr(arg) -> dict:
@@ -36,20 +52,12 @@ def create_task_rnsr(arg) -> dict:
         return {'error': 'all inputs are empty'}
 
 
-def create_task_init(matcher_type) -> dict:
-    print(f"matcher type {matcher_type}", flush=True)
-    if matcher_type == "rnsr":
-        return init_rnsr()
-    elif matcher_type == "country":
-        return init_country()
-
-
 def create_task_country(arg) -> dict:
     query = arg.get('query', '')
     return get_countries_from_query(query=query)
 
 
 def create_task_finess(arg) -> dict:
-    query = arg.get('query')
+    query = arg.get('query', '')
     return match_unstructured_finess(query) if query else {'error': 'all inputs are empty'}
 
