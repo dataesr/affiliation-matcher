@@ -1,6 +1,6 @@
 import pytest
 
-from matcher.server.main.init_country import get_cities_from_insee, get_cities_from_wikidata, \
+from matcher.server.main.init_country import get_cities_from_insee, get_cities_from_wikidata,\
     get_universities_from_mesri, get_universities_from_wikidata, get_names_from_country, get_hospitals_from_wikidata,\
     init_country
 from matcher.server.main.my_elastic import MyElastic
@@ -52,7 +52,7 @@ class TestInitCountry:
         assert 'université catholique de Lille' in universities['fr']['fr']
         assert 'université catholique de Lille' not in universities['fr']['en']
 
-    def test_get_get_hospitals_from_wikidata(self) -> None:
+    def test_get_hospitals_from_wikidata(self) -> None:
         hospitals = get_hospitals_from_wikidata()
         assert len(hospitals) == 204
         assert set(hospitals['fr'].keys()) == {'all', 'en', 'fr', 'es', 'it'}
@@ -91,5 +91,4 @@ class TestInitCountry:
         assert len(french_result['wikidata_cities']) == 2
         assert len(french_result['wikidata_hospitals']) == 2
         assert len(french_result['wikidata_universities']) == 2
-        assert len(french_result['stop_words']) == 0
         es.delete_index(index=index)
