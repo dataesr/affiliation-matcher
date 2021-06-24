@@ -6,7 +6,6 @@ import requests
 
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import download_data_from_grid
 
 ES_INDEX = 'country'
 FILE_FR_CITIES_INSEE = 'fr_cities_insee.csv'
@@ -221,63 +220,6 @@ def get_names_from_country(alpha_2: str = None) -> dict:
     return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'all_names': all_names, 'name': name}
 
 
-def get_data_from_grid() -> dict:
-    grids = download_data_from_grid()
-    results = {}
-    for grid in grids['institutes']:
-        if grid.get('status') != 'active':
-            continue
-        # NAMES
-        names = [grid.get('name')] + grid.get('aliases', [])
-        names += [label.get('label') for label in grid.get('labels', [])]
-        names = list(set(names))
-        # ACRONYMS
-        acronyms = grid.get('acronyms', [])
-        acronyms = list(set(acronyms))
-        # CITIES
-        cities = []
-        grid_country = None
-        addresses = grid.get('addresses', [])
-        for address in addresses:
-            grid_country = address.get('country_code').lower()
-            if grid_country and grid_country not in results.keys():
-                results[grid_country] = {
-                    'grid_cities': [],
-                    'grid_hospitals_names': [],
-                    'grid_hospitals_acronyms': [],
-                    'grid_universities_names': [],
-                    'grid_universities_acronyms': []
-                }
-            if 'city' in address and address.get('city'):
-                cities.append(address.get('city'))
-            if 'geonames_city' in address and address.get('geonames_city'):
-                if 'city' in address.get('geonames_city') and address.get('geonames_city').get('city'):
-                    cities.append(address.get('geonames_city').get('city'))
-                if 'geonames_admin1' in address.get('geonames_city') and \
-                        address.get('geonames_city').get('geonames_admin1'):
-                    if 'name' in address.get('geonames_city').get('geonames_admin1') and \
-                            address.get('geonames_city').get('geonames_admin1').get('name'):
-                        cities.append(address.get('geonames_city').get('geonames_admin1').get('name'))
-                if 'nuts_level2' in address.get('geonames_city') and address.get('geonames_city').get('nuts_level2'):
-                    if 'name' in address.get('geonames_city').get('nuts_level2') and \
-                            address.get('geonames_city').get('nuts_level2').get('name'):
-                        cities.append(address.get('geonames_city').get('nuts_level2').get('name'))
-                if 'nuts_level3' in address.get('geonames_city') and address.get('geonames_city').get('nuts_level3'):
-                    if 'name' in address.get('geonames_city').get('nuts_level3') and \
-                            address.get('geonames_city').get('nuts_level3').get('name'):
-                        cities.append(address.get('geonames_city').get('nuts_level3').get('name'))
-        if grid_country:
-            results[grid_country]['grid_cities'] += list(set(cities))
-            for grid_type in grid.get('types', []):
-                if grid_type == 'Healthcare':
-                    results[grid_country]['grid_hospitals_names'] += names
-                    results[grid_country]['grid_hospitals_acronyms'] += acronyms
-                elif grid_type in ['Education', 'Facility']:
-                    results[grid_country]['grid_universities_names'] += names
-                    results[grid_country]['grid_universities_acronyms'] += acronyms
-    return results
-
-
 def init_country(index: str = ES_INDEX) -> None:
     es = MyElastic()
     settings = {
@@ -329,7 +271,6 @@ def init_country(index: str = ES_INDEX) -> None:
     wikidata_cities = get_cities_from_wikidata()
     wikidata_universities = get_universities_from_wikidata()
     wikidata_hospitals = get_hospitals_from_wikidata()
-    grid = get_data_from_grid()
     actions = []
     for country in pycountry.countries:
         country = country.alpha_2.lower()
@@ -361,14 +302,6 @@ def init_country(index: str = ES_INDEX) -> None:
             'wikidata_hospitals_fr': wikidata_hospitals.get(country, {}).get('fr', []),
             'wikidata_hospitals_es': wikidata_hospitals.get(country, {}).get('es', []),
             'wikidata_hospitals_it': wikidata_hospitals.get(country, {}).get('it', [])
-        })
-        # GRID HOSPITALS AND UNIVERSITIES
-        body.update({
-            'grid_cities': list(set(grid.get(country, {}).get('grid_cities', []))),
-            'grid_hospitals_names': grid.get(country, {}).get('grid_hospitals_names', []),
-            'grid_hospitals_acronyms': grid.get(country, {}).get('grid_hospitals_acronyms', []),
-            'grid_universities_names': grid.get(country, {}).get('grid_universities_names', []),
-            'grid_universities_acronyms': grid.get(country, {}).get('grid_universities_acronyms', [])
         })
         if country == 'fr':
             # INSEE CITIES
