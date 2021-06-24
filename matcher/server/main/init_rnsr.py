@@ -7,6 +7,7 @@ from matcher.server.main.my_elastic import MyElastic
 
 logger = get_logger(__name__)
 
+INDEX_PREFIX = 'rnsr'
 
 def get_mappings(analyzer) -> dict:
     return {
@@ -28,8 +29,9 @@ def get_mappings(analyzer) -> dict:
     }
 
 
-def init_rnsr(index_prefix: str = '') -> dict:
+def init_rnsr() -> dict:
     es = MyElastic()
+    index_prefix = INDEX_PREFIX
     settings = {
         'index': {
         },
@@ -43,11 +45,11 @@ def init_rnsr(index_prefix: str = '') -> dict:
     criteria = light_criteria + heavy_criteria
     es_data = {}
     for criterion in criteria:
-        index = f'{index_prefix}rnsr_{criterion}'
+        index = f'{index_prefix}_{criterion}'
         if criterion in light_criteria:
             es.create_index(index=index, mappings=get_mappings('light'), settings=settings)
         else:
-            es.create_index(index=index, mappings=get_mappings('heavy'), settings=settings)
+            es.create_index(index=index, mappings=get_mappings('heavy_fr'), settings=settings)
         es_data[criterion] = {}
     rnsrs = download_rnsr_data()
     # Iterate over rnsr data
@@ -62,15 +64,15 @@ def init_rnsr(index_prefix: str = '') -> dict:
     actions = []
     results = {}
     for criterion in es_data:
-        index = f'{index_prefix}rnsr_{criterion}'
+        index = f'{index_prefix}_{criterion}'
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
             action = {'_index': index, 'ids': es_data[criterion][criterion_value]}
             if criterion in light_criteria:
-                action['query'] = {'match_phrase': {'content': {'query': criterion_value, 'analyzer': 'light'}}}
+                action['query'] = {'match_phrase': {'content': {'query': criterion_value, 'analyzer': 'light', 'slop': 2}}}
             elif criterion in heavy_criteria:
-                action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': 'heavy',
-                                                         'minimum_should_match': '2<-25% 9<-3'}}}
+                action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': 'heavy_fr',
+                                                         'minimum_should_match': '4<80%'}}}
             actions.append(action)
     es.parallel_bulk(actions=actions)
     return results
