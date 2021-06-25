@@ -7,7 +7,8 @@ class TestLoadWikidata:
     def test_get_cities_from_wikidata(self) -> None:
         cities = get_cities_from_wikidata()
         assert len(cities) == 6771
-        keys = list(cities[0].keys())
+        city = [city for city in cities if city.get('label_fr', {}).get('value') == 'Nantes'][0]
+        keys = list(city.keys())
         keys.sort()
         assert keys == ['country_alpha2', 'label_en', 'label_es', 'label_fr', 'label_it', 'label_native',
                         'label_official']
@@ -15,16 +16,20 @@ class TestLoadWikidata:
     def test_get_hospitals_from_wikidata(self) -> None:
         hospitals = get_hospitals_from_wikidata()
         assert len(hospitals) == 40216
-        keys = list(hospitals[0].keys())
+        hospital = [hospital for hospital in hospitals if hospital.get('label_fr', {}).get('value') ==
+                    'Massachusetts General Hospital'][0]
+        keys = list(hospital.keys())
         keys.sort()
         assert keys == ['country_alpha2', 'label_en', 'label_es', 'label_fr', 'label_it']
 
     def test_get_universities_from_wikidata(self) -> None:
         universities = get_universities_from_wikidata()
         assert len(universities) == 54937
-        keys = list(universities[0].keys())
+        university = [university for university in universities if university.get('label_en', {}).get('value') ==
+                      'New York University Tandon School of Engineering'][0]
+        keys = list(university.keys())
         keys.sort()
-        assert keys == ['country_alpha2', 'label_en', 'label_es', 'label_fr', 'label_it', 'label_native']
+        assert keys == ['country_alpha2', 'label_en', 'label_fr', 'label_it', 'label_native']
 
     def test_data2actions(self) -> None:
         index = 'test_wikidata'
@@ -32,8 +37,9 @@ class TestLoadWikidata:
                  'label_fr': {'value': 'label_01_FR'}}]
         actions = data2actions(index=index, data=data)
         assert len(actions) == 2
-        assert actions[0] == {'_index': index, 'country_alpha2': 'fr', 'query': {'match_phrase': {'content': {
-            'query': 'label_01_EN', 'analyzer': 'standard'}}}}
+        assert actions[0]['_index'] == index
+        assert actions[0]['country_alpha2'] == 'fr'
+        assert actions[0]['query']['match_phrase']['content']['query'] in ['label_01_EN', 'label_01_FR']
 
     def test_load_wikidata(self, requests_mock) -> None:
         requests_mock.real_http = True
@@ -44,7 +50,7 @@ class TestLoadWikidata:
                               {'country_alpha2': {'value': 'fr'}, 'label_native': {'value': 'value_03'}}
                           ]}})
         es = MyElastic()
-        load_wikidata(index_prefix='test_')
+        load_wikidata(index_prefix='test')
         french_universities = es.search(index='test_wikidata_universities',
                                         body={'query': {'match': {'country_alpha2': 'fr'}}})
         assert french_universities['hits']['total']['value'] == 2

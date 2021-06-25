@@ -12,6 +12,10 @@ logger = get_logger(__name__)
 SOURCE = 'rnsr'
 
 
+def get_index_name(index_name: str, index_prefix: str = '') -> str:
+    return '_'.join([index_prefix, SOURCE, index_name])
+
+
 def get_mappings(analyzer) -> dict:
     return {
         'properties': {
@@ -53,7 +57,7 @@ def load_rnsr(index_prefix: str = '') -> dict:
     criteria = exact_criteria + txt_criteria
     es_data = {}
     for criterion in criteria:
-        index = f'{index_prefix}{SOURCE}_{criterion}'
+        index = get_index_name(index_name=criterion, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
@@ -70,7 +74,7 @@ def load_rnsr(index_prefix: str = '') -> dict:
     actions = []
     results = {}
     for criterion in es_data:
-        index = f'{index_prefix}{SOURCE}_{criterion}'
+        index = get_index_name(index_name=criterion, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
@@ -85,12 +89,14 @@ def load_rnsr(index_prefix: str = '') -> dict:
     es.parallel_bulk(actions=actions)
     return results
 
-def get_values(x):
+
+def get_values(x: dict) -> list:
     if x.get('fr', '') == x.get('en', '') and x.get('fr'):
         return [x['fr']]
     if (x.get('en', '') in x.get('default', '')) and (x.get('fr', '') in x.get('default', '')) and 'default' in x:
         del x['default']
     return list(set(x.values()))
+
 
 def download_rnsr_data() -> list:
     r = requests.get(SCANR_DUMP_URL)
@@ -127,7 +133,7 @@ def download_rnsr_data() -> list:
         for address in d.get('address', []):
             if 'city' in address and address['city']:
                 cities.append(address['city'])
-        
+
         name_acronym_city[current_id]['city'] = list(filter(None, cities))
         name_acronym_city[current_id]['acronym'] = list(filter(None, acronyms))
         name_acronym_city[current_id]['name'] = list(filter(None, names))

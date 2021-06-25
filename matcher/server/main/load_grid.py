@@ -6,6 +6,10 @@ SOURCE = 'grid'
 es = MyElastic()
 
 
+def get_index_name(index_name: str, index_prefix: str = '') -> str:
+    return '_'.join([index_prefix, SOURCE, index_name])
+
+
 def load_grid(index_prefix: str = '') -> None:
     mappings = {
         'properties': {
@@ -24,9 +28,9 @@ def load_grid(index_prefix: str = '') -> None:
             }
         }
     }
-    index_city = f'{index_prefix}{SOURCE}_city'
-    index_institution = f'{index_prefix}{SOURCE}_institution'
-    index_institution_acronym = f'{index_prefix}{SOURCE}_institution_acronym'
+    index_city = get_index_name(index_name='city', index_prefix=index_prefix)
+    index_institution = get_index_name(index_name='institution', index_prefix=index_prefix)
+    index_institution_acronym = get_index_name(index_name='institution_acronym', index_prefix=index_prefix)
     indexes = [index_city, index_institution, index_institution_acronym]
     for index in indexes:
         es.create_index(index=index, mappings=mappings)

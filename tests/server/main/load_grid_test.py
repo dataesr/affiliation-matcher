@@ -5,7 +5,7 @@ from matcher.server.main.my_elastic import MyElastic
 class TestLoadGrid:
     def test_load_grid(self) -> None:
         es = MyElastic()
-        load_grid(index_prefix='test_')
+        load_grid(index_prefix='test')
         french_cities = es.search(index='test_grid_city', body={'query': {'match': {'country_alpha2': 'fr'}}})
         assert french_cities['hits']['total']['value'] == 629
         paris = es.search(index='test_grid_city', body={'query': {'percolate': {'field': 'query',
