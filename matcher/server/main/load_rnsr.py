@@ -46,14 +46,15 @@ def load_rnsr(index_prefix: str = '') -> dict:
     }
     exact_criteria = ['city', 'acronym', 'code_number', 'supervisor_acronym', 'year']
     txt_criteria = ['name', 'supervisor_name']
-    analyzers = {}
-    analyzers['city'] = 'light'
-    analyzers['acronym'] = 'acronym_analyzer'
-    analyzers['code_number'] = 'code_analyzer'
-    analyzers['supervisor_acronym'] = 'acronym_analyzer'
-    analyzers['year'] = 'light'
-    analyzers['name'] = 'heavy_fr'
-    analyzers['supervisor_name'] = 'heavy_fr'
+    analyzers = {
+        'acronym': 'acronym_analyzer',
+        'city': 'light',
+        'code_number': 'code_analyzer',
+        'name': 'heavy_fr',
+        'supervisor_acronym': 'acronym_analyzer',
+        'supervisor_name': 'heavy_fr',
+        'year': 'light',
+    }
     criteria = exact_criteria + txt_criteria
     es_data = {}
     for criterion in criteria:
@@ -106,9 +107,9 @@ def download_rnsr_data() -> list:
     # rnsrs = [d for d in data if re.search(rnsr_regex, d['id'])]
     rnsrs = []
     for d in data:
-        externalIds = d.get('externalIds', [])
-        if 'rnsr' in [e['type'] for e in externalIds]:
-            d['rnsr'] = [e['id'] for e in externalIds if e['type']=='rnsr'][0]
+        external_ids = d.get('externalIds', [])
+        if 'rnsr' in [e['type'] for e in external_ids]:
+            d['rnsr'] = [e['id'] for e in external_ids if e['type'] == 'rnsr'][0]
             rnsrs.append(d)
     logger.debug(f"{len(rnsrs)} rnsr elements detected in dump")
     # setting a dict with all names, acronyms and cities
@@ -141,7 +142,7 @@ def download_rnsr_data() -> list:
     es_rnsrs = []
     for rnsr in rnsrs:
         rnsr_id = rnsr['id']
-        es_rnsr = {'id': rnsr['rnsr']} # the 'id' field can be different from the rnsr, in some cases
+        es_rnsr = {'id': rnsr['rnsr']}  # the 'id' field can be different from the rnsr, in some cases
         # CODE_NUMBERS
         code_numbers = []
         for code in [e['id'] for e in rnsr.get('externalIds', []) if e['type'] == 'label_numero']:
