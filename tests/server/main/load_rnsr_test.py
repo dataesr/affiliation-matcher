@@ -1,11 +1,11 @@
 import pytest
 
 from matcher.server.main.config import SCANR_DUMP_URL
-from matcher.server.main.init_rnsr import init_rnsr
+from matcher.server.main.load_rnsr import load_rnsr
 from matcher.server.main.my_elastic import MyElastic
 
 
-class TestInitRnsr:
+class TestLoadRnsr:
     @pytest.fixture(scope='class')
     def setup(self) -> None:
         es = MyElastic()
@@ -17,7 +17,7 @@ class TestInitRnsr:
         es.delete_index(index='rnsr_city')
         es.delete_index(index='rnsr_code_number')
 
-    def test_get_es_rnsr(self, setup, requests_mock) -> None:
+    def test_load_rnsr(self, setup, requests_mock) -> None:
         url = SCANR_DUMP_URL
         data = [
             {'id': 'id_01',
@@ -33,7 +33,7 @@ class TestInitRnsr:
              'label': {'default': 'label_03'}}
         ]
         requests_mock.get(url=url, json=data)
-        init_rnsr()
+        load_rnsr()
         es = setup['es']
         cities = es.count(index='rnsr_city')
         assert cities['count'] == 2

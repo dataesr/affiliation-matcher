@@ -23,7 +23,7 @@ def get_names_from_country(alpha_2: str = None) -> dict:
     return {'alpha_2': country.alpha_2, 'alpha_3': country.alpha_3, 'all_names': all_names, 'name': name}
 
 
-def init_country(index: str = ES_INDEX) -> None:
+def load_country(index: str = ES_INDEX) -> None:
     es = MyElastic()
     settings = {
         'analysis': {

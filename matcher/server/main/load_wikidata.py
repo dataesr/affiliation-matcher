@@ -11,7 +11,7 @@ es = MyElastic()
 logger = get_logger(__name__)
 
 
-def get_cities_from_wikidata() -> dict:
+def get_cities_from_wikidata() -> list:
     query = '''
     SELECT DISTINCT ?country_alpha2 ?label_native ?label_official ?label_en ?label_fr ?label_es ?label_it WHERE { 
         ?city wdt:P31/wdt:P279* wd:Q515 ;
@@ -32,11 +32,11 @@ def get_cities_from_wikidata() -> dict:
         results = response.json()['results']['bindings']
     else:
         logger.error(f'The request returned an error. Code : {response.status_code}')
-        results = {}
+        results = []
     return results
 
 
-def get_universities_from_wikidata() -> dict:
+def get_universities_from_wikidata() -> list:
     query = '''
     SELECT DISTINCT ?country_alpha2 ?label_native ?label_en ?label_fr ?label_es ?label_it WHERE {
         ?university wdt:P31/wdt:P279* wd:Q38723 ;
@@ -54,11 +54,11 @@ def get_universities_from_wikidata() -> dict:
         results = response.json()['results']['bindings']
     else:
         logger.error(f'The request returned an error. Code : {response.status_code}')
-        results = {}
+        results = []
     return results
 
 
-def get_hospitals_from_wikidata() -> dict:
+def get_hospitals_from_wikidata() -> list:
     query = '''
     SELECT DISTINCT ?country_alpha2 ?label_native ?label_en ?label_fr ?label_es ?label_it WHERE {
         ?hospital wdt:P31/wdt:P279* wd:Q16917 ;
@@ -76,13 +76,13 @@ def get_hospitals_from_wikidata() -> dict:
         results = response.json()['results']['bindings']
     else:
         logger.error(f'The request returned an error. Code : {response.status_code}')
-        results = {}
+        results = []
     return results
 
 
-def data2actions(index: str, data: dict = None) -> list:
+def data2actions(index: str, data: list = None) -> list:
     if data is None:
-        data = {}
+        data = []
     actions = []
     es_data = {}
     for d in data:
@@ -109,7 +109,7 @@ def data2actions(index: str, data: dict = None) -> list:
     return actions
 
 
-def init_wikidata(index_prefix: str = '') -> None:
+def load_wikidata(index_prefix: str = '') -> None:
     mappings = {
         'properties': {
             'content': {

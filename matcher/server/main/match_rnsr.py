@@ -1,43 +1,39 @@
 from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.utils import remove_ref_index
-
 import re
 
-INDEX_PREFIX = 'rnsr'
-
-def match_rnsr(query_input: str = '', year = None, strategies: list = None) -> dict:
-    index_prefix = INDEX_PREFIX
+def match_rnsr(query: str = '', year: str = None, strategies: list = None) -> dict:
     es = MyElastic()
 
     # if query starts with a digit that can be a reference index
-    query = remove_ref_index(query_input)
+    query = remove_ref_index(query)
 
     query = pre_treatment_rnsr(query)
 
     if strategies is None:
         strategies = [
-        ['code_number', 'supervisor_acronym', 'supervisor_name', 'city'],
-        ['code_number', 'supervisor_name', 'city'],
-        ['code_number', 'acronym'],
-        ['code_number', 'name'],
-        ['code_number', 'supervisor_acronym'],
-        ['code_number', 'supervisor_name'],
-        ['code_number', 'city'],
-        ['acronym', 'name', 'supervisor_name', 'city'],
-        ['acronym', 'name', 'supervisor_acronym', 'city'],
-        ['acronym', 'supervisor_acronym', 'city'],
-        ['acronym', 'supervisor_name', 'city'],
-        ['name', 'supervisor_acronym', 'city'],
-        ['name', 'supervisor_name', 'city'],
-        ['name', 'acronym', 'city'],
-        ['name', 'acronym', 'supervisor_acronym'],
-        ['name', 'acronym', 'supervisor_name'],
-        ['acronym', 'city']
-    ]
+            ['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_city'],
+            ['rnsr_code_number', 'rnsr_supervisor_name', 'rnsr_city'],
+            ['rnsr_code_number', 'rnsr_acronym'],
+            ['rnsr_code_number', 'rnsr_name'],
+            ['rnsr_code_number', 'rnsr_supervisor_acronym'],
+            ['rnsr_code_number', 'rnsr_supervisor_name'],
+            ['rnsr_code_number', 'rnsr_city'],
+            ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_name', 'rnsr_city'],
+            ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_city'],
+            ['rnsr_acronym', 'rnsr_supervisor_acronym', 'rnsr_city'],
+            ['rnsr_acronym', 'rnsr_supervisor_name', 'rnsr_city'],
+            ['rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_city'],
+            ['rnsr_name', 'rnsr_supervisor_name', 'rnsr_city'],
+            ['rnsr_name', 'rnsr_acronym', 'rnsr_city'],
+            ['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_acronym'],
+            ['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_name'],
+            ['rnsr_acronym', 'rnsr_city']
+        ]
     if year:
         strategies_with_year = strategies.copy()
         for s in strategies_with_year:
-            s.append('year')
+            s.append('rnsr_year')
         strategies = strategies_with_year + strategies
     logs = f'<h1> &#128269; {query}</h1>'
     for strategy in strategies:
@@ -46,12 +42,13 @@ def match_rnsr(query_input: str = '', year = None, strategies: list = None) -> d
         logs += f'<br/> - Matching strategy : {strategy}<br/>'
         for criteria in strategy:
             criteria_query = query
-            if criteria == "year":
+            if criteria == "rnsr_year":
                 criteria_query = year
             body = {'query': {'percolate': {'field': 'query', 'document': {'content': criteria_query}}},
                     '_source': {'includes': ['ids', 'query.match*.content.query']},
                     'highlight': {'fields': {'content': {'type': 'fvh'}}}}
-            hits = es.search(index=f'{INDEX_PREFIX}_{criteria}', body=body).get('hits', []).get('hits', [])
+            index = f'{criteria}'
+            hits = es.search(index=index, body=body).get('hits', []).get('hits', [])
             all_hits[criteria] = hits
             criteria_results = [hit.get('_source', {}).get('ids') for hit in hits]
             criteria_results = [item for sublist in criteria_results for item in sublist]
