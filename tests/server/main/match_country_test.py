@@ -1,6 +1,6 @@
 import pytest
 
-from matcher.server.main.init_grid import init_grid
+from matcher.server.main.load_grid import load_grid
 from matcher.server.main.match_country import get_countries_from_query
 from matcher.server.main.my_elastic import MyElastic
 
@@ -33,7 +33,7 @@ class TestMatchCountry:
         ])
     def test_get_countries_from_query(self, elasticsearch, query, strategies, expected_results,
                                       expected_logs) -> None:
-        init_grid(index_prefix='test_')
+        load_grid(index_prefix='test_')
         response = get_countries_from_query(query=query, strategies=strategies)
         results = response['results']
         results.sort()

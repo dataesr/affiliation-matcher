@@ -109,7 +109,7 @@ def data2actions(index: str, data: dict = None) -> list:
     return actions
 
 
-def init_wikidata(index_prefix: str = '') -> None:
+def load_wikidata(index_prefix: str = '') -> None:
     mappings = {
         'properties': {
             'content': {

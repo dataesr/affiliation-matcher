@@ -1,6 +1,6 @@
 import pytest
 
-from matcher.server.main.init_rnsr import init_rnsr
+from matcher.server.main.load_rnsr import load_rnsr
 from matcher.server.main.match_rnsr import match_rnsr
 from matcher.server.main.my_elastic import MyElastic
 
@@ -8,7 +8,7 @@ from matcher.server.main.my_elastic import MyElastic
 @pytest.fixture(scope='module')
 def elasticsearch() -> dict:
     es = MyElastic()
-    init_rnsr(index_prefix='test_')
+    load_rnsr(index_prefix='test_')
     yield
     es.delete_index(index='test_rnsr_city')
     es.delete_index(index='test_rnsr_acronym')
