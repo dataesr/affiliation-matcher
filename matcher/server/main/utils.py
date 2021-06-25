@@ -12,11 +12,12 @@ from matcher.server.main.config import GRID_DUMP_URL
 
 CHUNK_SIZE = 128
 
+
 def remove_ref_index(query):
-    # remove index 
-    """Remove first digits of a string if any."""
+    """Remove the first 2 digits of a string if any."""
     rgx = re.compile("^(\d){1,2}([A-Za-z])(.*)")
     return rgx.sub("\\2\\3", query).strip()
+
 
 def strip_accents(text: str) -> str:
     """Normalize accents and stuff in string."""
