@@ -62,7 +62,8 @@ class TestUtils:
         ('1example', 'example'),
         ('12example', 'example'),
         ('123example', '123example'),
-        ('exam58ple', 'exam58ple')
+        ('exam58ple', 'exam58ple'),
+        ('12 example', '12 example')
     ])
     def test_remove_ref_index(self, text, clean_text) -> None:
         result = remove_ref_index(query=text)
