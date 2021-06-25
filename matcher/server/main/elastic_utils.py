@@ -11,7 +11,7 @@ def get_filters():
         'acronym_stop': {
             'type': 'stop',
             'ignore_case': True,
-            'stopwords': ['pasteur', 'cedex', 'paris']
+            'stopwords': ['pasteur', 'cedex', 'paris', 'ea']
         },
         'french_elision': {
             'type': 'elision',
@@ -25,7 +25,12 @@ def get_filters():
         'english_stemmer': {
             'type': 'stemmer',
             'language': 'light_english'
-        }
+        },
+        'filter_non_alphanumeric': {
+            'type': 'pattern_replace',
+            'pattern': '[^a-zA-Z\d\s:]',
+            'replacement': ''
+        },
     }
 
 
@@ -53,7 +58,8 @@ def get_analyzers():
             'filter': [
                 'lowercase',
                 'french_elision',
-                'icu_folding'
+                'icu_folding',
+                'filter_non_alphanumeric'
             ]
         },
         'heavy_fr': {
