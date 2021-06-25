@@ -131,17 +131,17 @@ def load_wikidata(index_prefix: str = '') -> None:
             }
         }
     }
-    index_cities = get_index_name(index_name='cities', index_prefix=index_prefix)
-    index_hospitals = get_index_name(index_name='hospitals', index_prefix=index_prefix)
-    index_universities = get_index_name(index_name='universities', index_prefix=index_prefix)
-    indexes = [index_cities, index_universities, index_hospitals]
+    index_city = get_index_name(index_name='city', index_prefix=index_prefix)
+    index_hospital = get_index_name(index_name='hospital', index_prefix=index_prefix)
+    index_university = get_index_name(index_name='university', index_prefix=index_prefix)
+    indexes = [index_city, index_university, index_hospital]
     for index in indexes:
         es.create_index(index=index, mappings=mappings)
     actions = []
     cities = get_cities_from_wikidata()
-    actions += data2actions(data=cities, index=index_cities)
+    actions += data2actions(data=cities, index=index_city)
     hospitals = get_hospitals_from_wikidata()
-    actions += data2actions(data=hospitals, index=index_hospitals)
+    actions += data2actions(data=hospitals, index=index_hospital)
     universities = get_universities_from_wikidata()
-    actions += data2actions(data=universities, index=index_universities)
+    actions += data2actions(data=universities, index=index_university)
     es.parallel_bulk(actions=actions)

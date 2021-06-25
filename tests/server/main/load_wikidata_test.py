@@ -51,9 +51,9 @@ class TestLoadWikidata:
                           ]}})
         es = MyElastic()
         load_wikidata(index_prefix='test')
-        french_universities = es.search(index='test_wikidata_universities',
+        french_universities = es.search(index='test_wikidata_university',
                                         body={'query': {'match': {'country_alpha2': 'fr'}}})
         assert french_universities['hits']['total']['value'] == 2
-        es.delete_index('test_wikidata_cities')
-        es.delete_index('test_wikidata_hospitals')
-        es.delete_index('test_wikidata_universities')
+        es.delete_index('test_wikidata_city')
+        es.delete_index('test_wikidata_hospital')
+        es.delete_index('test_wikidata_university')
