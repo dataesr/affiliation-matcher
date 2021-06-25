@@ -6,7 +6,7 @@ from matcher.server.main.my_elastic import MyElastic
 class TestLoadWikidata:
     def test_get_cities_from_wikidata(self) -> None:
         cities = get_cities_from_wikidata()
-        assert len(cities) == 6778
+        assert len(cities) == 6771
         keys = list(cities[0].keys())
         keys.sort()
         assert keys == ['country_alpha2', 'label_en', 'label_es', 'label_fr', 'label_it', 'label_native',
@@ -14,22 +14,22 @@ class TestLoadWikidata:
 
     def test_get_hospitals_from_wikidata(self) -> None:
         hospitals = get_hospitals_from_wikidata()
-        assert len(hospitals) == 40215
+        assert len(hospitals) == 40216
         keys = list(hospitals[0].keys())
         keys.sort()
         assert keys == ['country_alpha2', 'label_en', 'label_es', 'label_fr', 'label_it']
 
     def test_get_universities_from_wikidata(self) -> None:
         universities = get_universities_from_wikidata()
-        assert len(universities) == 54935
+        assert len(universities) == 54937
         keys = list(universities[0].keys())
         keys.sort()
         assert keys == ['country_alpha2', 'label_en', 'label_es', 'label_fr', 'label_it', 'label_native']
 
     def test_data2actions(self) -> None:
         index = 'test_wikidata'
-        data = {{'country_alpha2': {'value': 'FR'}, 'label_en': {'value': 'label_01_EN'},
-                 'label_fr': {'value': 'label_01_FR'}}}
+        data = [{'country_alpha2': {'value': 'FR'}, 'label_en': {'value': 'label_01_EN'},
+                 'label_fr': {'value': 'label_01_FR'}}]
         actions = data2actions(index=index, data=data)
         assert len(actions) == 2
         assert actions[0] == {'_index': index, 'country_alpha2': 'fr', 'query': {'match_phrase': {'content': {
@@ -48,3 +48,6 @@ class TestLoadWikidata:
         french_universities = es.search(index='test_wikidata_universities',
                                         body={'query': {'match': {'country_alpha2': 'fr'}}})
         assert french_universities['hits']['total']['value'] == 2
+        es.delete_index('test_wikidata_cities')
+        es.delete_index('test_wikidata_hospitals')
+        es.delete_index('test_wikidata_universities')
