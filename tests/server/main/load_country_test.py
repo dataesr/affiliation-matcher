@@ -1,10 +1,10 @@
 import pytest
 
-from matcher.server.main.init_country import get_names_from_country, init_country
+from matcher.server.main.load_country import get_names_from_country, load_country
 from matcher.server.main.my_elastic import MyElastic
 
 
-class TestInitCountry:
+class TestLoadCountry:
     def test_get_names_from_country_fr(self) -> None:
         result = get_names_from_country('fr')
         assert result == {'alpha_2': 'FR', 'alpha_3': 'FRA', 'all_names': ['France', 'French Republic'],
@@ -23,10 +23,10 @@ class TestInitCountry:
         yield {'es': es, 'index': index}
         es.delete_index(index=index)
 
-    def test_init_country(self, setup) -> None:
+    def test_load_country(self, setup) -> None:
         index = setup['index']
         es = setup['es']
-        init_country(index=index)
+        load_country(index=index)
         all_results = es.count(index=index)
         assert all_results['count'] == 249
         french_results = es.search(index=index, body={'query': {'match': {'alpha_2': 'fr'}}})

@@ -6,7 +6,7 @@ SOURCE = 'grid'
 es = MyElastic()
 
 
-def init_grid(index_prefix: str = '') -> None:
+def load_grid(index_prefix: str = '') -> None:
     mappings = {
         'properties': {
             'content': {
@@ -24,10 +24,10 @@ def init_grid(index_prefix: str = '') -> None:
             }
         }
     }
-    index_cities = f'{index_prefix}{SOURCE}_cities'
-    index_institutions = f'{index_prefix}{SOURCE}_institutions'
-    index_institutions_acronyms = f'{index_prefix}{SOURCE}_institutions_acronyms'
-    indexes = [index_cities, index_institutions, index_institutions_acronyms]
+    index_city = f'{index_prefix}{SOURCE}_city'
+    index_institution = f'{index_prefix}{SOURCE}_institution'
+    index_institution_acronym = f'{index_prefix}{SOURCE}_institution_acronym'
+    indexes = [index_city, index_institution, index_institution_acronym]
     for index in indexes:
         es.create_index(index=index, mappings=mappings)
     data = download_data_from_grid()
@@ -51,19 +51,19 @@ def init_grid(index_prefix: str = '') -> None:
     # Bulk insert data into ES
     actions = []
     for country_alpha2 in es_data:
-        action_template = {'_index': index_cities, 'country_alpha2': country_alpha2}
+        action_template = {'_index': index_city, 'country_alpha2': country_alpha2}
         cities = list(set(es_data[country_alpha2]['cities']))
         for query in cities:
             action = action_template.copy()
             action.update({'query': {'match_phrase': {'content': {'query': query, 'analyzer': 'standard'}}}})
             actions.append(action)
-        action_template = {'_index': index_institutions, 'country_alpha2': country_alpha2}
+        action_template = {'_index': index_institution, 'country_alpha2': country_alpha2}
         institutions = list(set(es_data[country_alpha2]['institutions']))
         for query in institutions:
             action = action_template.copy()
             action.update({'query': {'match_phrase': {'content': {'query': query, 'analyzer': 'standard'}}}})
             actions.append(action)
-        action_template = {'_index': index_institutions_acronyms, 'country_alpha2': country_alpha2}
+        action_template = {'_index': index_institution_acronym, 'country_alpha2': country_alpha2}
         acronyms = list(set(es_data[country_alpha2]['acronyms']))
         for query in acronyms:
             action = action_template.copy()
