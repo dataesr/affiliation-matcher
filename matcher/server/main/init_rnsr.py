@@ -9,7 +9,7 @@ from matcher.server.main.my_elastic import MyElastic
 
 logger = get_logger(__name__)
 
-INDEX_PREFIX = 'rnsr'
+SOURCE = 'rnsr'
 
 
 def get_mappings(analyzer) -> dict:
@@ -32,13 +32,9 @@ def get_mappings(analyzer) -> dict:
     }
 
 
-def init_rnsr() -> dict:
+def init_rnsr(index_prefix: str = '') -> dict:
     es = MyElastic()
-    index_prefix = INDEX_PREFIX
-    es.indices.delete(f'{index_prefix}*')
     settings = {
-        'index': {
-        },
         'analysis': {
             'analyzer': get_analyzers(),
             'filter': get_filters(),
@@ -49,11 +45,12 @@ def init_rnsr() -> dict:
     criteria = light_criteria + heavy_criteria
     es_data = {}
     for criterion in criteria:
-        index = f'{index_prefix}_{criterion}'
+        index = f'{index_prefix}{SOURCE}_{criterion}'
         if criterion in light_criteria:
-            es.create_index(index=index, mappings=get_mappings('light'), settings=settings)
+            mappings = get_mappings('light')
         else:
-            es.create_index(index=index, mappings=get_mappings('heavy_fr'), settings=settings)
+            mappings = get_mappings('heavy_fr')
+        es.create_index(index=index, mappings=mappings, settings=settings)
         es_data[criterion] = {}
     rnsrs = download_rnsr_data()
     # Iterate over rnsr data
@@ -68,7 +65,7 @@ def init_rnsr() -> dict:
     actions = []
     results = {}
     for criterion in es_data:
-        index = f'{index_prefix}_{criterion}'
+        index = f'{index_prefix}{SOURCE}_{criterion}'
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
             action = {'_index': index, 'ids': es_data[criterion][criterion_value]}
@@ -125,7 +122,7 @@ def download_rnsr_data() -> list:
         es_rnsr['name'] = name_acronym_city[rnsr_id]['name']
         # CODE_NUMBERS
         code_numbers = []
-        for code in [e['id'] for e in rnsr.get('externalIds', []) if e['type'] == "label_numero"]:
+        for code in [e['id'] for e in rnsr.get('externalIds', []) if e['type'] == 'label_numero']:
             code_numbers.extend([code, code.replace(' ', ''), code.replace(' ', '-'), code.replace(' ', '_')])
         es_rnsr['code_number'] = list(set(code_numbers))
         # SUPERVISORS ID
@@ -143,19 +140,18 @@ def download_rnsr_data() -> list:
             es_rnsr[f'supervisor_{f}'] = list(set(es_rnsr[f'supervisor_{f}']))
         # ADDRESSES
         es_rnsr['city'] = name_acronym_city[rnsr_id]['city']
-
         # DATES
-        last_year = f"{datetime.date.today().year}"
-        startDate = rnsr.get('startDate')
-        if not startDate:
-            startDate = '2010'
-        start = int(startDate[0:4])
-        endDate = rnsr.get('endDate')
-        if not endDate:
-            endDate = last_year
-        end = int(endDate[0:4])
-        # start date one year before official as it can be used before sometimes
-        es_rnsr['year'] = [str(y) for y in list(range(start-1, end+1))]
+        last_year = f'{datetime.date.today().year}'
+        start_date = rnsr.get('startDate')
+        if not start_date:
+            start_date = '2010'
+        start = int(start_date[0:4])
+        end_date = rnsr.get('endDate')
+        if not end_date:
+            end_date = last_year
+        end = int(end_date[0:4])
+        # Start date one year before official as it can be used before sometimes
+        es_rnsr['year'] = [str(y) for y in list(range(start - 1, end + 1))]
         es_rnsrs.append(es_rnsr)
 
     return es_rnsrs
