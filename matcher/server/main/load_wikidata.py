@@ -11,6 +11,10 @@ es = MyElastic()
 logger = get_logger(__name__)
 
 
+def get_index_name(index_name: str, index_prefix: str = '') -> str:
+    return '_'.join([index_prefix, SOURCE, index_name])
+
+
 def get_cities_from_wikidata() -> list:
     query = '''
     SELECT DISTINCT ?country_alpha2 ?label_native ?label_official ?label_en ?label_fr ?label_es ?label_it WHERE { 
@@ -127,9 +131,9 @@ def load_wikidata(index_prefix: str = '') -> None:
             }
         }
     }
-    index_cities = f'{index_prefix}{SOURCE}_cities'
-    index_hospitals = f'{index_prefix}{SOURCE}_hospitals'
-    index_universities = f'{index_prefix}{SOURCE}_universities'
+    index_cities = get_index_name(index_name='cities', index_prefix=index_prefix)
+    index_hospitals = get_index_name(index_name='hospitals', index_prefix=index_prefix)
+    index_universities = get_index_name(index_name='universities', index_prefix=index_prefix)
     indexes = [index_cities, index_universities, index_hospitals]
     for index in indexes:
         es.create_index(index=index, mappings=mappings)

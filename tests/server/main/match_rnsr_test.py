@@ -8,7 +8,7 @@ from matcher.server.main.my_elastic import MyElastic
 @pytest.fixture(scope='module')
 def elasticsearch() -> dict:
     es = MyElastic()
-    load_rnsr(index_prefix='test_')
+    load_rnsr(index_prefix='test')
     yield
     es.delete_index(index='test_rnsr_city')
     es.delete_index(index='test_rnsr_acronym')

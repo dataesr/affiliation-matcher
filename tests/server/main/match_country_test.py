@@ -8,6 +8,7 @@ from matcher.server.main.my_elastic import MyElastic
 @pytest.fixture(scope='module')
 def elasticsearch() -> dict:
     es = MyElastic()
+    load_grid(index_prefix='test')
     yield
     es.delete_index(index='test_grid_city')
     es.delete_index(index='test_grid_institution')
@@ -33,7 +34,6 @@ class TestMatchCountry:
         ])
     def test_get_countries_from_query(self, elasticsearch, query, strategies, expected_results,
                                       expected_logs) -> None:
-        load_grid(index_prefix='test_')
         response = get_countries_from_query(query=query, strategies=strategies)
         results = response['results']
         results.sort()
