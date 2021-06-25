@@ -8,6 +8,11 @@ def get_filters():
             'type': 'stop',
             'stopwords': '_english_'
         },
+        'acronym_stop': {
+            'type': 'stop',
+            'ignore_case': True,
+            'stopwords': ['pasteur', 'cedex', 'paris']
+        },
         'french_elision': {
             'type': 'elision',
             'articles_case': True,
@@ -27,6 +32,23 @@ def get_filters():
 def get_analyzers():
     return {
         'light': {
+            'tokenizer': 'icu_tokenizer',
+            'filter': [
+                'lowercase',
+                'french_elision',
+                'icu_folding'
+            ]
+        },
+        'acronym_analyzer': {
+            'tokenizer': 'icu_tokenizer',
+            'filter': [
+                'lowercase',
+                'french_elision',
+                'icu_folding',
+                'acronym_stop'
+            ]
+        },
+        'code_analyzer': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
                 'lowercase',
