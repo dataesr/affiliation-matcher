@@ -1,7 +1,7 @@
 import pytest
 
 from matcher.server.main.utils import delete_punctuation, get_common_words, has_a_digit, \
-    normalize_text, strip_accents
+    normalize_text, remove_ref_index, strip_accents
 
 
 class TestUtils:
@@ -56,3 +56,14 @@ class TestUtils:
     def test_get_common_words(self, objects: list, field: str, split: bool, threshold: int, common_words: list) -> None:
         result = get_common_words(objects=objects, field=field, split=split, threshold=threshold)
         assert result == common_words
+
+    @pytest.mark.parametrize('text,clean_text', [
+        ('example', 'example'),
+        ('1example', 'example'),
+        ('12example', 'example'),
+        ('123example', '123example'),
+        ('exam58ple', 'exam58ple')
+    ])
+    def test_remove_ref_index(self, text, clean_text) -> None:
+        result = remove_ref_index(query=text)
+        assert result == clean_text
