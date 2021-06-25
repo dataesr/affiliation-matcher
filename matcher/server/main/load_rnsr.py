@@ -3,18 +3,13 @@ import datetime
 import requests
 
 from matcher.server.main.config import SCANR_DUMP_URL
-from matcher.server.main.elastic_utils import get_filters, get_analyzers
+from matcher.server.main.elastic_utils import get_analyzers, get_filters, get_index_name
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
 
 logger = get_logger(__name__)
 
 SOURCE = 'rnsr'
-
-
-def get_index_name(index_name: str, index_prefix: str = '') -> str:
-    names = list(filter(lambda x: x != '', [index_prefix, SOURCE, index_name]))
-    return '_'.join(names)
 
 
 def get_mappings(analyzer) -> dict:
@@ -59,7 +54,7 @@ def load_rnsr(index_prefix: str = '') -> dict:
     criteria = exact_criteria + txt_criteria
     es_data = {}
     for criterion in criteria:
-        index = get_index_name(index_name=criterion, index_prefix=index_prefix)
+        index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
@@ -76,7 +71,7 @@ def load_rnsr(index_prefix: str = '') -> dict:
     actions = []
     results = {}
     for criterion in es_data:
-        index = get_index_name(index_name=criterion, index_prefix=index_prefix)
+        index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
