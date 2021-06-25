@@ -12,7 +12,8 @@ logger = get_logger(__name__)
 
 
 def get_index_name(index_name: str, index_prefix: str = '') -> str:
-    return '_'.join([index_prefix, SOURCE, index_name])
+    names = list(filter(lambda x: x != '', [index_prefix, SOURCE, index_name]))
+    return '_'.join(names)
 
 
 def get_cities_from_wikidata() -> list:
