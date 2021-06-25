@@ -3,7 +3,7 @@ from flask import Blueprint, current_app, jsonify, render_template, request
 from rq import Connection, Queue
 
 from matcher.server.main.logger import get_logger
-from matcher.server.main.tasks import create_task_init, create_task_match, create_task_rnsr
+from matcher.server.main.tasks import create_task_load, create_task_match, create_task_rnsr
 
 logger = get_logger(__name__)
 main_blueprint = Blueprint('main', __name__, )
@@ -14,11 +14,11 @@ def home():
     return render_template("home.html")
 
 
-@main_blueprint.route("/init", methods=["GET"])
-def run_task_init_rnsr():
+@main_blueprint.route("/load", methods=["GET"])
+def run_task_load_rnsr():
     args = request.args
     logger.debug(args)
-    response_object = create_task_init(args=args)
+    response_object = create_task_load(args=args)
     return jsonify(response_object), 202
 
 

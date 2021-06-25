@@ -1,29 +1,29 @@
-from matcher.server.main.init_country import init_country
-from matcher.server.main.init_grid import init_grid
-from matcher.server.main.init_rnsr import init_rnsr
-from matcher.server.main.init_wikidata import init_wikidata
+from matcher.server.main.load_country import load_country
+from matcher.server.main.load_grid import load_grid
+from matcher.server.main.load_rnsr import load_rnsr
+from matcher.server.main.load_wikidata import load_wikidata
 from matcher.server.main.match_country import get_countries_from_query
 from matcher.server.main.match_finess import match_unstructured_finess
 from matcher.server.main.match_rnsr import match_rnsr
 
 
-def create_task_init(args: dict = None) -> dict:
+def create_task_load(args: dict = None) -> dict:
     if args is None:
         args = {}
     matcher_type = args.get('type', 'all').lower()
     if matcher_type == 'all':
-        init_country()
-        init_grid()
-        init_rnsr()
-        init_wikidata()
+        load_country()
+        load_grid()
+        load_rnsr()
+        load_wikidata()
     elif matcher_type == 'country':
-        init_country()
+        load_country()
     elif matcher_type == 'grid':
-        init_grid()
+        load_grid()
     elif matcher_type == 'rnsr':
-        init_rnsr()
+        load_rnsr()
     elif matcher_type == 'wikidata':
-        init_wikidata()
+        load_wikidata()
     else:
         return {'Error': f'Matcher type {matcher_type} unknown'}
 

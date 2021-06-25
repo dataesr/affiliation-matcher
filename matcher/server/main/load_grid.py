@@ -6,7 +6,7 @@ SOURCE = 'grid'
 es = MyElastic()
 
 
-def init_grid(index_prefix: str = '') -> None:
+def load_grid(index_prefix: str = '') -> None:
     mappings = {
         'properties': {
             'content': {

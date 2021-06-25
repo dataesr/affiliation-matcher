@@ -32,7 +32,7 @@ def get_mappings(analyzer) -> dict:
     }
 
 
-def init_rnsr(index_prefix: str = '') -> dict:
+def load_rnsr(index_prefix: str = '') -> dict:
     es = MyElastic()
     settings = {
         'analysis': {

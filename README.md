@@ -22,7 +22,7 @@ And specifically for French affiliations :
 ```shell
 git clone git@github.com:dataesr/matcher.git
 cd matcher
-make start init
+make start load
 ```
 
 In your browser, you now have :

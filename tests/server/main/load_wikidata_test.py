@@ -1,9 +1,9 @@
-from matcher.server.main.init_wikidata import data2actions, get_cities_from_wikidata, get_hospitals_from_wikidata, \
-    get_universities_from_wikidata, init_wikidata
+from matcher.server.main.load_wikidata import data2actions, get_cities_from_wikidata, get_hospitals_from_wikidata, \
+    get_universities_from_wikidata, load_wikidata
 from matcher.server.main.my_elastic import MyElastic
 
 
-class TestInitWikidata:
+class TestLoadWikidata:
     def test_get_cities_from_wikidata(self) -> None:
         cities = get_cities_from_wikidata()
         assert len(cities) == 6778
@@ -35,7 +35,7 @@ class TestInitWikidata:
         assert actions[0] == {'_index': index, 'country_alpha2': 'fr', 'query': {'match_phrase': {'content': {
             'query': 'label_01_EN', 'analyzer': 'standard'}}}}
 
-    def test_wikidata_country(self, requests_mock) -> None:
+    def test_load_wikidata(self, requests_mock) -> None:
         requests_mock.real_http = True
         requests_mock.get('https://query.wikidata.org/bigdata/namespace/wdq/sparql',
                           json={'results': {'bindings': [
@@ -44,7 +44,7 @@ class TestInitWikidata:
                               {'country_alpha2': {'value': 'fr'}, 'label_native': {'value': 'value_03'}}
                           ]}})
         es = MyElastic()
-        init_wikidata(index_prefix='test_')
+        load_wikidata(index_prefix='test_')
         french_universities = es.search(index='test_wikidata_universities',
                                         body={'query': {'match': {'country_alpha2': 'fr'}}})
         assert french_universities['hits']['total']['value'] == 2

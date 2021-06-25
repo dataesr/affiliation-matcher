@@ -39,9 +39,9 @@ python-build:
 	python setup.py sdist
 	@echo Python package built
 
-init:
-	@echo Populate all data into matcher
-	curl http://localhost:5004/init
+load:
+	@echo Load all data into ES
+	curl http://localhost:5004/load
 	@echo Matcher is now populated
 
 release:
