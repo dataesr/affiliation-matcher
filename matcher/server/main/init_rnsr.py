@@ -44,16 +44,22 @@ def init_rnsr() -> dict:
             'filter': get_filters(),
         }
     }
-    light_criteria = ['city', 'acronym', 'code_number', 'supervisor_acronym', 'year']
-    heavy_criteria = ['name', 'supervisor_name']
-    criteria = light_criteria + heavy_criteria
+    exact_criteria = ['city', 'acronym', 'code_number', 'supervisor_acronym', 'year']
+    txt_criteria = ['name', 'supervisor_name']
+    analyzers = {}
+    analyzers['city'] = 'light'
+    analyzers['acronym'] = 'acronym_analyzer'
+    analyzers['code_number'] = 'code_analyzer'
+    analyzers['supervisor_acronym'] = 'acronym_analyzer'
+    analyzers['year'] = 'light'
+    analyzers['name'] = 'heavy_fr'
+    analyzers['supervisor_name'] = 'heavy_fr'
+    criteria = exact_criteria + txt_criteria
     es_data = {}
     for criterion in criteria:
         index = f'{index_prefix}_{criterion}'
-        if criterion in light_criteria:
-            es.create_index(index=index, mappings=get_mappings('light'), settings=settings)
-        else:
-            es.create_index(index=index, mappings=get_mappings('heavy_fr'), settings=settings)
+        analyzer = analyzers[criterion]
+        es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
     rnsrs = download_rnsr_data()
     # Iterate over rnsr data
@@ -69,19 +75,26 @@ def init_rnsr() -> dict:
     results = {}
     for criterion in es_data:
         index = f'{index_prefix}_{criterion}'
+        analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
             action = {'_index': index, 'ids': es_data[criterion][criterion_value]}
-            if criterion in light_criteria:
+            if criterion in exact_criteria:
                 action['query'] = {
-                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': 'light', 'slop': 2}}}
-            elif criterion in heavy_criteria:
-                action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': 'heavy_fr',
-                                                         'minimum_should_match': '4<80%'}}}
+                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}
+            elif criterion in txt_criteria:
+                action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': analyzer,
+                                                         'minimum_should_match': '-20%'}}}
             actions.append(action)
     es.parallel_bulk(actions=actions)
     return results
 
+def get_values(x):
+    if x.get('fr', '') == x.get('en', '') and x.get('fr'):
+        return [x['fr']]
+    if (x.get('en', '') in x.get('default', '')) and (x.get('fr', '') in x.get('default', '')) and 'default' in x:
+        del x['default']
+    return list(set(x.values()))
 
 def download_rnsr_data() -> list:
     r = requests.get(SCANR_DUMP_URL)
@@ -91,7 +104,9 @@ def download_rnsr_data() -> list:
     # rnsrs = [d for d in data if re.search(rnsr_regex, d['id'])]
     rnsrs = []
     for d in data:
-        if 'rnsr' in [e['type'] for e in d.get('externalIds', [])]:
+        externalIds = d.get('externalIds', [])
+        if 'rnsr' in [e['type'] for e in externalIds]:
+            d['rnsr'] = [e['id'] for e in externalIds if e['type']=='rnsr'][0]
             rnsrs.append(d)
     logger.debug(f"{len(rnsrs)} rnsr elements detected in dump")
     # setting a dict with all names, acronyms and cities
@@ -99,35 +114,41 @@ def download_rnsr_data() -> list:
     for d in data:
         current_id = d['id']
         name_acronym_city[current_id] = {}
+        # ACRONYMS
         acronyms = []
         if d.get('acronym'):
-            acronyms = list(set(d.get('acronym').values()))
-        name_acronym_city[current_id]['acronym'] = list(filter(None, acronyms))
+            acronyms = get_values(d.get('acronym', []))
+        # NAMES
         names = []
         if d.get('label'):
-            names = list(set(d.get('label', []).values()))
+            names = get_values(d.get('label', []))
         if d.get('alias'):
             names += d.get('alias')
         names = list(set(names))
-        name_acronym_city[current_id]['name'] = list(filter(None, names))
+        names = list(set(names) - set(acronyms))
+        # CITIES
         cities = []
         for address in d.get('address', []):
             if 'city' in address and address['city']:
                 cities.append(address['city'])
+        
         name_acronym_city[current_id]['city'] = list(filter(None, cities))
+        name_acronym_city[current_id]['acronym'] = list(filter(None, acronyms))
+        name_acronym_city[current_id]['name'] = list(filter(None, names))
 
     es_rnsrs = []
     for rnsr in rnsrs:
         rnsr_id = rnsr['id']
-        es_rnsr = {'id': rnsr_id}
-        # ACRONYMS & NAMES
-        es_rnsr['acronym'] = name_acronym_city[rnsr_id]['acronym']
-        es_rnsr['name'] = name_acronym_city[rnsr_id]['name']
+        es_rnsr = {'id': rnsr['rnsr']} # the 'id' field can be different from the rnsr, in some cases
         # CODE_NUMBERS
         code_numbers = []
         for code in [e['id'] for e in rnsr.get('externalIds', []) if e['type'] == "label_numero"]:
             code_numbers.extend([code, code.replace(' ', ''), code.replace(' ', '-'), code.replace(' ', '_')])
         es_rnsr['code_number'] = list(set(code_numbers))
+        # ACRONYMS & NAMES
+        es_rnsr['acronym'] = name_acronym_city[rnsr_id]['acronym']
+        names = name_acronym_city[rnsr_id]['name']
+        es_rnsr['name'] = list(set(names) - set(es_rnsr['acronym']) - set(es_rnsr['code_number']))
         # SUPERVISORS ID
         es_rnsr['supervisor_id'] = [supervisor.get('structure') for supervisor in rnsr.get('institutions', [])
                                     if 'structure' in supervisor]

@@ -1,6 +1,8 @@
 from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.utils import remove_ref_index
 
+import re
+
 INDEX_PREFIX = 'rnsr'
 
 def match_rnsr(query_input: str = '', year = None, strategies: list = None) -> dict:
@@ -9,6 +11,8 @@ def match_rnsr(query_input: str = '', year = None, strategies: list = None) -> d
 
     # if query starts with a digit that can be a reference index
     query = remove_ref_index(query_input)
+
+    query = pre_treatment_rnsr(query)
 
     if strategies is None:
         strategies = [
@@ -78,3 +82,9 @@ def match_rnsr(query_input: str = '', year = None, strategies: list = None) -> d
                     logs += f'{matching_criteria} : {all_highlights[matching_id][matching_criteria]}<br/>'
             break
     return {'results': strategy_results, 'logs': logs, 'highlights': all_highlights}
+
+# done here rather than in synonym settings in es as they seem to cause highlight bugs
+def pre_treatment_rnsr(query):
+    rgx = re.compile("(?i)(unit. mixte de recherche)( |)(S)( |)([0-9])")
+    return rgx.sub("umr\\3\\5", query).lower()
+
