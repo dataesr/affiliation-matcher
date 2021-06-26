@@ -1,5 +1,6 @@
 import requests
 
+from matcher.server.main.elastic_utils import get_index_name
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
 
@@ -9,11 +10,6 @@ WIKIDATA_SPARQL_URL = 'https://query.wikidata.org/bigdata/namespace/wdq/sparql'
 
 es = MyElastic()
 logger = get_logger(__name__)
-
-
-def get_index_name(index_name: str, index_prefix: str = '') -> str:
-    names = list(filter(lambda x: x != '', [index_prefix, SOURCE, index_name]))
-    return '_'.join(names)
 
 
 def get_cities_from_wikidata() -> list:
@@ -132,9 +128,9 @@ def load_wikidata(index_prefix: str = '') -> None:
             }
         }
     }
-    index_city = get_index_name(index_name='city', index_prefix=index_prefix)
-    index_hospital = get_index_name(index_name='hospital', index_prefix=index_prefix)
-    index_university = get_index_name(index_name='university', index_prefix=index_prefix)
+    index_city = get_index_name(index_name='city', source=SOURCE, index_prefix=index_prefix)
+    index_hospital = get_index_name(index_name='hospital', source=SOURCE, index_prefix=index_prefix)
+    index_university = get_index_name(index_name='university', source=SOURCE, index_prefix=index_prefix)
     indexes = [index_city, index_university, index_hospital]
     for index in indexes:
         es.create_index(index=index, mappings=mappings)

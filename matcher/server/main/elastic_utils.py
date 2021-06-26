@@ -88,3 +88,8 @@ def get_analyzers():
             ]
         }
     }
+
+
+def get_index_name(index_name: str, source: str, index_prefix: str = '') -> str:
+    names = list(filter(lambda x: x != '', [index_prefix, source, index_name]))
+    return '_'.join(names)
