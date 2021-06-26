@@ -25,14 +25,17 @@ def get_filters():
         'english_stemmer': {
             'type': 'stemmer',
             'language': 'light_english'
-        },
-        'filter_non_alphanumeric': {
-            'type': 'pattern_replace',
-            'pattern': '[^a-zA-Z\d\s:]',
-            'replacement': ''
-        },
+        }
     }
 
+def get_char_filters():
+    return { 
+        'remove_char_btw_digits': {
+            'type': 'pattern_replace',
+            'pattern': '(\\d+)\D(?=\\d)',
+            'replacement': '$1'
+        }
+    }
 
 def get_analyzers():
     return {
@@ -58,8 +61,10 @@ def get_analyzers():
             'filter': [
                 'lowercase',
                 'french_elision',
-                'icu_folding',
-                'filter_non_alphanumeric'
+                'icu_folding'
+            ],
+            'char_filter': [
+                'remove_char_btw_digits'
             ]
         },
         'heavy_fr': {
