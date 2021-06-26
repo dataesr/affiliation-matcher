@@ -1,14 +1,10 @@
+from matcher.server.main.elastic_utils import get_index_name
 from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.utils import download_data_from_grid
 
 SOURCE = 'grid'
 
 es = MyElastic()
-
-
-def get_index_name(index_name: str, index_prefix: str = '') -> str:
-    names = list(filter(lambda x: x != '', [index_prefix, SOURCE, index_name]))
-    return '_'.join(names)
 
 
 def load_grid(index_prefix: str = '') -> None:
@@ -29,9 +25,10 @@ def load_grid(index_prefix: str = '') -> None:
             }
         }
     }
-    index_city = get_index_name(index_name='city', index_prefix=index_prefix)
-    index_institution = get_index_name(index_name='institution', index_prefix=index_prefix)
-    index_institution_acronym = get_index_name(index_name='institution_acronym', index_prefix=index_prefix)
+    index_city = get_index_name(index_name='city', source=SOURCE, index_prefix=index_prefix)
+    index_institution = get_index_name(index_name='institution', source=SOURCE, index_prefix=index_prefix)
+    index_institution_acronym = get_index_name(index_name='institution_acronym', source=SOURCE,
+                                               index_prefix=index_prefix)
     indexes = [index_city, index_institution, index_institution_acronym]
     for index in indexes:
         es.create_index(index=index, mappings=mappings)
