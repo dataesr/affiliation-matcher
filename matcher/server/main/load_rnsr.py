@@ -3,7 +3,7 @@ import datetime
 import requests
 
 from matcher.server.main.config import SCANR_DUMP_URL
-from matcher.server.main.elastic_utils import get_filters, get_analyzers
+from matcher.server.main.elastic_utils import get_filters, get_analyzers, get_char_filters
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
 
@@ -41,8 +41,9 @@ def load_rnsr(index_prefix: str = '') -> dict:
     es = MyElastic()
     settings = {
         'analysis': {
-            'analyzer': get_analyzers(),
+            'char_filter': get_char_filters(),
             'filter': get_filters(),
+            'analyzer': get_analyzers()
         }
     }
     exact_criteria = ['city', 'acronym', 'code_number', 'supervisor_acronym', 'year']
