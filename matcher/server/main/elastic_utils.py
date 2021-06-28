@@ -46,6 +46,10 @@ def get_filters():
         'english_stemmer': {
             'type': 'stemmer',
             'language': 'light_english'
+        },
+        'length_min_3_char': {
+            'type': 'length',
+            'min': 3
         }
     }
 
@@ -75,6 +79,15 @@ def get_analyzers():
                 'french_elision',
                 'icu_folding',
                 'acronym_stop'
+            ]
+        },
+        'country_analyzer': {
+            'tokenizer': 'icu_tokenizer',
+            'filter': [
+                'lowercase',
+                'french_elision',
+                'icu_folding',
+                'length_min_3_char'
             ]
         },
         'code_analyzer': {

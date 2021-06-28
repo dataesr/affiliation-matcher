@@ -6,6 +6,7 @@ from matcher.server.main.config import SCANR_DUMP_URL
 from matcher.server.main.elastic_utils import get_filters, get_analyzers, get_char_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
+from matcher.server.main.utils import get_alpha2_from_french
 
 logger = get_logger(__name__)
 
@@ -21,11 +22,12 @@ def load_rnsr(index_prefix: str = '') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['city', 'acronym', 'code_number', 'supervisor_acronym', 'year']
+    exact_criteria = ['city', 'country_code', 'acronym', 'code_number', 'supervisor_acronym', 'year']
     txt_criteria = ['name', 'supervisor_name']
     analyzers = {
         'acronym': 'acronym_analyzer',
         'city': 'light',
+        'country_code': 'light',
         'code_number': 'code_analyzer',
         'name': 'heavy_fr',
         'supervisor_acronym': 'acronym_analyzer',
@@ -45,10 +47,13 @@ def load_rnsr(index_prefix: str = '') -> dict:
     for rnsr in rnsrs:
         for criterion in criteria:
             criterion_values = rnsr.get(criterion)
+            if criterion_values is None:
+                logger.debug(f"This element {rnsr} has no {criterion}")
+                continue
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
-                es_data[criterion][criterion_value].append({'id': rnsr['id']})
+                es_data[criterion][criterion_value].append({'id': rnsr['id'], 'country_alpha2': rnsr['country_alpha2']})
     # Bulk insert data into ES
     actions = []
     results = {}
@@ -57,7 +62,7 @@ def load_rnsr(index_prefix: str = '') -> dict:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]]}
+            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]], 'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
             if criterion in exact_criteria:
                 action['query'] = {
                     'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}
@@ -110,15 +115,24 @@ def transform_rnsr_data(data) -> list:
             names += d.get('alias')
         names = list(set(names))
         names = list(set(names) - set(acronyms))
-        # CITIES
-        cities = []
+        # CITIES, COUNTRIES
+        cities, country_alpha2 = [], []
         for address in d.get('address', []):
             if 'city' in address and address['city']:
                 cities.append(address['city'])
+            if 'country' in address and address['country']:
+                alpha2 = get_alpha2_from_french(address['country'])
+                country_alpha2.append(alpha2)
 
+        cities = list(set(cities))
+        country_alpha2 = list(set(country_alpha2))
         name_acronym_city[current_id]['city'] = list(filter(None, cities))
         name_acronym_city[current_id]['acronym'] = list(filter(None, acronyms))
         name_acronym_city[current_id]['name'] = list(filter(None, names))
+        country_alpha2 = list(filter(None, country_alpha2))
+        if not country_alpha2:
+            country_alpha2 = ['fr']
+        name_acronym_city[current_id]['country_alpha2'] = country_alpha2[0] 
 
     es_rnsrs = []
     for rnsr in rnsrs:
@@ -148,6 +162,8 @@ def transform_rnsr_data(data) -> list:
             es_rnsr[f'supervisor_{f}'] = list(set(es_rnsr[f'supervisor_{f}']))
         # ADDRESSES
         es_rnsr['city'] = name_acronym_city[rnsr_id]['city']
+        es_rnsr['country_alpha2'] = name_acronym_city[rnsr_id]['country_alpha2']
+        es_rnsr['country_code'] = [name_acronym_city[rnsr_id]['country_alpha2']]
         # DATES
         last_year = f'{datetime.date.today().year}'
         start_date = rnsr.get('startDate')
