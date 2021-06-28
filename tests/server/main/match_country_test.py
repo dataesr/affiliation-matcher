@@ -26,7 +26,7 @@ class TestMatchCountry:
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.', [['test_grid_city']],
              ['lb', 'us'], 'test_grid_city'),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             [['test_grid_city', 'test_grid_name']], ['lb'], 'No results'),
+             [['test_grid_city', 'test_grid_name']], ['lb'], 'strategy'),
             # Even if city is not unknown, the university name should match the associated country
             ('Université de technologie de Troyes', [['test_grid_name']], ['fr'], 'test_grid_name')
         ])
