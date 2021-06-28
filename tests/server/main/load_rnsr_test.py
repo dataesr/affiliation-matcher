@@ -10,27 +10,39 @@ class TestLoadRnsr:
     def setup(self) -> None:
         es = MyElastic()
         yield {'es': es}
-        es.delete_index(index='test_rnsr_name')
-        es.delete_index(index='test_rnsr_supervisor_acronym')
         es.delete_index(index='test_rnsr_acronym')
-        es.delete_index(index='test_rnsr_supervisor_name')
         es.delete_index(index='test_rnsr_city')
         es.delete_index(index='test_rnsr_code_number')
+        es.delete_index(index='test_rnsr_name')
+        es.delete_index(index='test_rnsr_supervisor_acronym')
+        es.delete_index(index='test_rnsr_supervisor_name')
+        es.delete_index(index='test_rnsr_year')
 
     def test_load_rnsr(self, setup, requests_mock) -> None:
         url = SCANR_DUMP_URL
         data = [
-            {'id': 'id_01',
-             'externalIds': [{'type': 'other-type'}], 'address': [{'city': 'city_01'}]},
-            {'id': 'id_02',
-             'externalIds': [{'type': 'rnsr'}], 'address': [{'city': 'city_02'}],
-             'label': {'default': 'label_01'}},
-            {'id': 'id_03',
-             'externalIds': [{'type': 'rnsr'}], 'address': [{'city': 'city_03'}],
-             'label': {'default': 'label_02'}},
-            {'id': 'id_04',
-             'externalIds': [{'type': 'rnsr'}], 'address': [{'city': 'city_03'}],
-             'label': {'default': 'label_03'}}
+            {
+                'id': 'id_01',
+                'externalIds': [{'type': 'other-type'}],
+                'city': ['city_01']
+            }, {
+                'id': 'id_02',
+                'externalIds': [{'type': 'rnsr', 'id': 'rnsr_id_02'}],
+                'acronym': {'fr': 'acronym_02', 'en': 'acronym_02'},
+                'label': {'fr': 'label_02', 'en': 'label_02'},
+                'address': [{'city': 'city_02'}],
+                'institutions': [{'structure': 'structure_02'}]
+            }, {
+                'id': 'id_03',
+                'externalIds': [{'type': 'rnsr', 'id': 'rnsr_id_03'}],
+                'label': {'fr': 'label_03', 'en': 'label_03'},
+                'address': [{'city': 'city_03'}]
+            }, {
+                'id': 'id_04',
+                'externalIds': [{'type': 'rnsr', 'id': 'rnsr_id_04'}],
+                'label': {'fr': 'label_04', 'en': 'label_04'},
+                'address': [{'city': 'city_03'}]
+            }
         ]
         requests_mock.get(url=url, json=data)
         load_rnsr('test')
