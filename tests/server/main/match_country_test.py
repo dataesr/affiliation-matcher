@@ -1,7 +1,7 @@
 import pytest
 
 from matcher.server.main.load_grid import load_grid
-from matcher.server.main.match_country import get_countries_from_query
+from matcher.server.main.match_country import match_country
 from matcher.server.main.my_elastic import MyElastic
 
 
@@ -34,7 +34,7 @@ class TestMatchCountry:
         ])
     def test_get_countries_from_query(self, elasticsearch, query, strategies, expected_results,
                                       expected_logs) -> None:
-        response = get_countries_from_query(query=query, strategies=strategies)
+        response = match_country(query=query, strategies=strategies)
         results = response['results']
         results.sort()
         assert results == expected_results

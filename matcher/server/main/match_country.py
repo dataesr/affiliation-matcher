@@ -1,7 +1,7 @@
 from matcher.server.main.my_elastic import MyElastic
 
 
-def get_countries_from_query(query: str = '', strategies: list = None) -> dict:
+def match_country(query: str = '', strategies: list = None) -> dict:
     if strategies is None:
         strategies = [['all_names']]
     es = MyElastic()
