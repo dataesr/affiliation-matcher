@@ -47,7 +47,7 @@ def load_rnsr(index_prefix: str = '') -> dict:
     for rnsr in rnsrs:
         for criterion in criteria:
             criterion_values = rnsr.get(criterion)
-            if not criterion_values:
+            if criterion_values is None:
                 logger.debug(f"This element {rnsr} has no {criterion}")
                 continue
             for criterion_value in criterion_values:

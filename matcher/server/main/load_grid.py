@@ -39,7 +39,7 @@ def load_grid(index_prefix: str = '') -> None:
     for grid in grids:
         for criterion in criteria:
             criterion_values = grid.get(criterion)
-            if not criterion_values:
+            if criterion_values is None:
                 logger.debug(f"This element {grid} has no {criterion}")
                 continue
             for criterion_value in criterion_values:

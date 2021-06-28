@@ -56,7 +56,7 @@ def load_country(index_prefix: str = '') -> None:
     for country in countries:
         for criterion in criteria:
             criterion_values = country.get(criterion)
-            if not criterion_values:
+            if criterion_values is None:
                 logger.debug(f"This element {country} has no {criterion}")
                 continue
             for criterion_value in criterion_values:
