@@ -16,7 +16,7 @@ def transform_country_data(raw_data):
     countries = []
     for c in raw_data:
         # ALPHA 2 - 3
-        country = {'alpha2': c['alpha_2'], 'alpha3': [c['alpha_3']]}
+        country = {'alpha2': c['alpha_2'].lower(), 'alpha3': [c['alpha_3']]}
         # NAMES
         all_names = []
         for field_name in ['name', 'official_name', 'common_name']:
