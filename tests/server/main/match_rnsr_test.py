@@ -10,14 +10,7 @@ def elasticsearch() -> dict:
     es = MyElastic()
     load_rnsr(index_prefix='test')
     yield
-    es.delete_index(index='test_rnsr_acronym')
-    es.delete_index(index='test_rnsr_city')
-    es.delete_index(index='test_rnsr_code_number')
-    es.delete_index(index='test_rnsr_name')
-    es.delete_index(index='test_rnsr_supervisor_acronym')
-    es.delete_index(index='test_rnsr_supervisor_name')
-    es.delete_index(index='test_rnsr_year')
-
+    es.delete_index(index='test_rnsr_*')
 
 class TestMatchRnsr:
     @pytest.mark.parametrize(

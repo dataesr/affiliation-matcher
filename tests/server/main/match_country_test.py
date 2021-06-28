@@ -10,9 +10,7 @@ def elasticsearch() -> dict:
     es = MyElastic()
     load_grid(index_prefix='test')
     yield
-    es.delete_index(index='test_grid_city')
-    es.delete_index(index='test_grid_institution')
-    es.delete_index(index='test_grid_institution_acronym')
+    es.delete_index(index='test_grid_*')
 
 
 class TestMatchCountry:
@@ -28,9 +26,9 @@ class TestMatchCountry:
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.', [['test_grid_city']],
              ['lb', 'us'], 'test_grid_city'),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             [['test_grid_city', 'test_grid_institution']], [], 'No results'),
+             [['test_grid_city', 'test_grid_name']], ['lb'], 'strategy'),
             # Even if city is not unknown, the university name should match the associated country
-            ('Université de technologie de Troyes', [['test_grid_institution']], ['fr'], 'test_grid_institution')
+            ('Université de technologie de Troyes', [['test_grid_name']], ['fr'], 'test_grid_name')
         ])
     def test_get_countries_from_query(self, elasticsearch, query, strategies, expected_results,
                                       expected_logs) -> None:

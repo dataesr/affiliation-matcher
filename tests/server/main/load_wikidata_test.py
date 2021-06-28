@@ -6,7 +6,7 @@ from matcher.server.main.my_elastic import MyElastic
 class TestLoadWikidata:
     def test_get_cities_from_wikidata(self) -> None:
         cities = get_cities_from_wikidata()
-        assert len(cities) == 6774
+        assert 5000 < len(cities) < 8000
         city = [city for city in cities if city.get('label_fr', {}).get('value') == 'Nantes'][0]
         keys = list(city.keys())
         keys.sort()
@@ -15,7 +15,7 @@ class TestLoadWikidata:
 
     def test_get_hospitals_from_wikidata(self) -> None:
         hospitals = get_hospitals_from_wikidata()
-        assert len(hospitals) == 40222
+        assert 30000 < len(hospitals) < 50000
         hospital = [hospital for hospital in hospitals if hospital.get('label_fr', {}).get('value') ==
                     'Massachusetts General Hospital'][0]
         keys = list(hospital.keys())
@@ -24,7 +24,7 @@ class TestLoadWikidata:
 
     def test_get_universities_from_wikidata(self) -> None:
         universities = get_universities_from_wikidata()
-        assert len(universities) == 54944
+        assert 50000 < len(universities) < 60000
         university = [university for university in universities if university.get('label_en', {}).get('value') ==
                       'New York University Tandon School of Engineering'][0]
         keys = list(university.keys())

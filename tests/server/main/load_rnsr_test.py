@@ -10,13 +10,7 @@ class TestLoadRnsr:
     def setup(self) -> None:
         es = MyElastic()
         yield {'es': es}
-        es.delete_index(index='test_rnsr_acronym')
-        es.delete_index(index='test_rnsr_city')
-        es.delete_index(index='test_rnsr_code_number')
-        es.delete_index(index='test_rnsr_name')
-        es.delete_index(index='test_rnsr_supervisor_acronym')
-        es.delete_index(index='test_rnsr_supervisor_name')
-        es.delete_index(index='test_rnsr_year')
+        es.delete_index(index='test_rnsr_*')
 
     def test_load_rnsr(self, setup, requests_mock) -> None:
         url = SCANR_DUMP_URL

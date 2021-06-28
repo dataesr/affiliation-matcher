@@ -17,6 +17,8 @@ def match_country(query: str = '', strategies: list = None) -> dict:
             highlights = [hit.get('highlight', {}).get('content') for hit in hits]
             logs += '<br /><br />'.join(['<br />'.join(highlight) for highlight in highlights]) + '<br />'
             criteria_results = [hit.get('_source', {}).get('country_alpha2') for hit in hits]
+            criteria_results = [item for sublist in criteria_results for item in sublist]
+            criteria_results = list(set(criteria_results))
             if strategy_results is None:
                 strategy_results = criteria_results
             else:
