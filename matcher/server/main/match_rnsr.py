@@ -38,6 +38,8 @@ def match_rnsr(query: str = '', year: str = None, strategies: list = None) -> di
             s.append('rnsr_year')
         strategies = strategies_with_year + strategies
     logs = f'<h1> &#128269; {query}</h1>'
+    strategy_results = None
+    all_highlights = {}
     for strategy in strategies:
         strategy_results = None
         all_hits = {}
@@ -87,4 +89,3 @@ def match_rnsr(query: str = '', year: str = None, strategies: list = None) -> di
 def pre_treatment_rnsr(query):
     rgx = re.compile("(?i)(unit. mixte de recherche)( |)(S)( |)([0-9])")
     return rgx.sub("umr\\3\\5", query).lower()
-
