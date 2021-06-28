@@ -40,6 +40,11 @@ def normalize_text(text: str = None, remove_separator: bool = True) -> str:
         text = sep.join(text.split())
     return text or ''
 
+def get_alpha2_from_french(user_input):
+    ref = {"France": "fr", "Mexique": "mx", "Etats-Unis": "us", "Sénégal":"sn", "Chili": "cl", "Inde": "in", "Corée du Sud": "kr",
+"Singapour": "sg", "Canada": "ca", "Pays-Bas": "nl", "Autriche": "at", "Japon": "jp", "Brésil": "br", "Chine": "cn",
+          "Argentine": "ar", "Russie": "ru", "Italie": "it", "Ethiopie": "et", "Israël": "il", "Afrique du Sud": "za"}
+    return ref.get(user_input)
 
 def download_grid_data() -> dict:
     grid_downloaded_file = 'grid_data_dump.zip'
