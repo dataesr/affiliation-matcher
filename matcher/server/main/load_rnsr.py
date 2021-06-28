@@ -3,33 +3,13 @@ import datetime
 import requests
 
 from matcher.server.main.config import SCANR_DUMP_URL
-from matcher.server.main.elastic_utils import get_filters, get_analyzers, get_char_filters, get_index_name
+from matcher.server.main.elastic_utils import get_filters, get_analyzers, get_char_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
 
 logger = get_logger(__name__)
 
 SOURCE = 'rnsr'
-
-
-def get_mappings(analyzer) -> dict:
-    return {
-        'properties': {
-            'content': {
-                'type': 'text',
-                'analyzer': analyzer,
-                'term_vector': 'with_positions_offsets'
-            },
-            'ids': {
-                'type': 'text',
-                'analyzer': 'keyword',
-                'term_vector': 'with_positions_offsets'
-            },
-            'query': {
-                'type': 'percolator'
-            }
-        }
-    }
 
 
 def load_rnsr(index_prefix: str = '') -> dict:
@@ -59,7 +39,8 @@ def load_rnsr(index_prefix: str = '') -> dict:
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
-    rnsrs = download_rnsr_data()
+    raw_rnsrs = download_rnsr_data()
+    rnsrs = transform_rnsr_data(raw_rnsrs)
     # Iterate over rnsr data
     for rnsr in rnsrs:
         for criterion in criteria:
@@ -67,7 +48,7 @@ def load_rnsr(index_prefix: str = '') -> dict:
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
-                es_data[criterion][criterion_value].append(rnsr['id'])
+                es_data[criterion][criterion_value].append({'id': rnsr['id']})
     # Bulk insert data into ES
     actions = []
     results = {}
@@ -76,7 +57,7 @@ def load_rnsr(index_prefix: str = '') -> dict:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            action = {'_index': index, 'ids': es_data[criterion][criterion_value]}
+            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]]}
             if criterion in exact_criteria:
                 action['query'] = {
                     'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}
@@ -99,6 +80,9 @@ def get_values(x: dict) -> list:
 def download_rnsr_data() -> list:
     r = requests.get(SCANR_DUMP_URL)
     data = r.json()
+    return data
+
+def transform_rnsr_data(data) -> list:
     # todo : use rnsr key when available in dump rather than the regex
     # rnsr_regex = re.compile("[0-9]{9}[A-Z]")
     # rnsrs = [d for d in data if re.search(rnsr_regex, d['id'])]
