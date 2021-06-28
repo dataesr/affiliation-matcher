@@ -1,6 +1,7 @@
 import pytest
 
 from matcher.server.main.load_grid import load_grid
+from matcher.server.main.load_country import load_country
 from matcher.server.main.match_country import match_country
 from matcher.server.main.my_elastic import MyElastic
 

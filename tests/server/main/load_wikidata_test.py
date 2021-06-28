@@ -13,24 +13,6 @@ class TestLoadWikidata:
         assert keys == ['country_alpha2', 'label_en', 'label_es', 'label_fr', 'label_it', 'label_native',
                         'label_official']
 
-    def test_get_hospitals_from_wikidata(self) -> None:
-        hospitals = get_hospitals_from_wikidata()
-        assert 30000 < len(hospitals) < 50000
-        hospital = [hospital for hospital in hospitals if hospital.get('label_fr', {}).get('value') ==
-                    'Massachusetts General Hospital'][0]
-        keys = list(hospital.keys())
-        keys.sort()
-        assert keys == ['country_alpha2', 'label_en', 'label_es', 'label_fr', 'label_it']
-
-    def test_get_universities_from_wikidata(self) -> None:
-        universities = get_universities_from_wikidata()
-        assert 50000 < len(universities) < 60000
-        university = [university for university in universities if university.get('label_en', {}).get('value') ==
-                      'New York University Tandon School of Engineering'][0]
-        keys = list(university.keys())
-        keys.sort()
-        assert keys == ['country_alpha2', 'label_en', 'label_fr', 'label_it', 'label_native']
-
     def test_data2actions(self) -> None:
         index = 'test_wikidata'
         data = [{'country_alpha2': {'value': 'FR'}, 'label_en': {'value': 'label_01_EN'},
@@ -54,6 +36,4 @@ class TestLoadWikidata:
         french_universities = es.search(index='test_wikidata_university',
                                         body={'query': {'match': {'country_alpha2': 'fr'}}})
         assert french_universities['hits']['total']['value'] == 2
-        es.delete_index('test_wikidata_city')
-        es.delete_index('test_wikidata_hospital')
-        es.delete_index('test_wikidata_university')
+        es.delete_index('test_wikidata_*')
