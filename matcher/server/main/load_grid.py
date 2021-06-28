@@ -16,12 +16,13 @@ def load_grid(index_prefix: str = '') -> None:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['acronym', 'city', 'country']
+    exact_criteria = ['acronym', 'city', 'country', 'country_code']
     txt_criteria = ['name']
     analyzers = {
         'acronym': 'acronym_analyzer',
         'city': 'light',
         'country': 'light',
+        'country_code': 'light',
         'name': 'heavy_en'
     }
     criteria = exact_criteria + txt_criteria
@@ -93,14 +94,14 @@ def transform_grid_data(data):
         country_codes = list(set(country_codes))
         cities = list(set(cities))
         formatted_data['country'] = list(filter(None, countries))
-        formatted_data['country_alpha2'] = list(filter(None, country_codes))
+        formatted_data['country_code'] = list(filter(None, country_codes))
         formatted_data['city'] = list(filter(None, cities))
-        if len(formatted_data['country_alpha2']) == 0:
+        if len(formatted_data['country_code']) == 0:
             continue
-        if len(formatted_data['country_alpha2']) > 1:
+        if len(formatted_data['country_code']) > 1:
             logger.debug(f"BEWARE: more than 1 country for {grid}")
             logger.debug(f"Only one is kept !!")
-        formatted_data['country_alpha2'] = formatted_data['country_alpha2'][0]
+        formatted_data['country_alpha2'] = formatted_data['country_code'][0]
 
         res.append(formatted_data)
     return res
