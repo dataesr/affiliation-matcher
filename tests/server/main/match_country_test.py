@@ -1,6 +1,7 @@
 import pytest
 
 from matcher.server.main.load_grid import load_grid
+from matcher.server.main.load_country import load_country
 from matcher.server.main.match_country import match_country
 from matcher.server.main.my_elastic import MyElastic
 
@@ -9,8 +10,10 @@ from matcher.server.main.my_elastic import MyElastic
 def elasticsearch() -> dict:
     es = MyElastic()
     load_grid(index_prefix='test')
+    load_country(index_prefix='test')
     yield
     es.delete_index(index='test_grid_*')
+    es.delete_index(index='test_country_*')
 
 
 class TestMatchCountry:
@@ -26,7 +29,7 @@ class TestMatchCountry:
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.', [['test_grid_city']],
              ['lb', 'us'], 'test_grid_city'),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             [['test_grid_city', 'test_grid_name']], ['lb'], 'strategy'),
+             [['test_grid_city', 'test_grid_name', 'test_country_all_names']], ['lb'], 'strategy'),
             # Even if city is not unknown, the university name should match the associated country
             ('Université de technologie de Troyes', [['test_grid_name']], ['fr'], 'test_grid_name')
         ])
