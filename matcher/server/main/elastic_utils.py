@@ -1,3 +1,24 @@
+def get_mappings(analyzer) -> dict:
+    return {
+        'properties': {
+            'content': {
+                'type': 'text',
+                'analyzer': analyzer,
+                'term_vector': 'with_positions_offsets'
+            },
+            'ids': {
+                'type': 'text',
+                'analyzer': 'keyword',
+                'term_vector': 'with_positions_offsets'
+            },
+            'query': {
+                'type': 'percolator'
+            }
+        }
+    }
+
+
+
 def get_filters():
     return {
         'french_stop': {
