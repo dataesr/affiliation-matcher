@@ -1,74 +1,106 @@
-from matcher.server.main.elastic_utils import get_index_name
+from matcher.server.main.elastic_utils import get_filters, get_analyzers, get_char_filters, get_index_name, get_mappings
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import download_data_from_grid
+from matcher.server.main.utils import download_grid_data
+from matcher.server.main.logger import get_logger
+
+logger = get_logger(__name__)
 
 SOURCE = 'grid'
 
-es = MyElastic()
-
-
 def load_grid(index_prefix: str = '') -> None:
-    mappings = {
-        'properties': {
-            'content': {
-                'type': 'text',
-                'analyzer': 'standard',
-                'term_vector': 'with_positions_offsets'
-            },
-            'country': {
-                'type': 'text',
-                'analyzer': 'standard',
-                'term_vector': 'with_positions_offsets'
-            },
-            'query': {
-                'type': 'percolator'
-            }
+    es = MyElastic()
+    settings = {
+        'analysis': {
+            'char_filter': get_char_filters(),
+            'filter': get_filters(),
+            'analyzer': get_analyzers()
         }
     }
-    index_city = get_index_name(index_name='city', source=SOURCE, index_prefix=index_prefix)
-    index_institution = get_index_name(index_name='institution', source=SOURCE, index_prefix=index_prefix)
-    index_institution_acronym = get_index_name(index_name='institution_acronym', source=SOURCE,
-                                               index_prefix=index_prefix)
-    indexes = [index_city, index_institution, index_institution_acronym]
-    for index in indexes:
-        es.create_index(index=index, mappings=mappings)
-    data = download_data_from_grid()
-    grids = data.get('institutes', [])
-    # Iterate over grid data
+    exact_criteria = ['acronym', 'city', 'country']
+    txt_criteria = ['name']
+    analyzers = {
+        'acronym': 'acronym_analyzer',
+        'city': 'light',
+        'country': 'light',
+        'name': 'heavy_en'
+    }
+    criteria = exact_criteria + txt_criteria
     es_data = {}
+    for criterion in criteria:
+        index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
+        analyzer = analyzers[criterion]
+        es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
+        es_data[criterion] = {}
+
+    raw_grids = download_grid_data()
+    grids = transform_grid_data(raw_grids)
+    # Iterate over grid data
     for grid in grids:
+        for criterion in criteria:
+            criterion_values = grid.get(criterion)
+            for criterion_value in criterion_values:
+                if criterion_value not in es_data[criterion]:
+                    es_data[criterion][criterion_value] = []
+                es_data[criterion][criterion_value].append({'id': grid['id'], 'country_alpha2': grid['country_alpha2']})
+    # Bulk insert data into ES
+    actions = []
+    results = {}
+    for criterion in es_data:
+        index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
+        analyzer = analyzers[criterion]
+        results[index] = len(es_data[criterion])
+        for criterion_value in es_data[criterion]:
+            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]], 'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
+            if criterion in exact_criteria:
+                action['query'] = {
+                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}
+            elif criterion in txt_criteria:
+                action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': analyzer,
+                                                         'minimum_should_match': '-20%'}}}
+            actions.append(action)
+    es.parallel_bulk(actions=actions)
+    return results
+
+def transform_grid_data(data):
+    grids = data.get('institutes', [])
+    res = []
+    for grid in grids:
+        formatted_data = {'id': grid['id']}
+        # NAME
         institutions = [grid.get('name')]
         institutions += grid.get('aliases', [])
         institutions += [label.get('label') for label in grid.get('labels', [])]
+        institutions = list(set(institutions))
+        formatted_data['name'] = list(filter(None, institutions))
+        # ACRONYMS
         acronyms = grid.get('acronyms', [])
+        acronyms = list(set(acronyms))
+        formatted_data['acronym'] = list(filter(None, acronyms))
+        countries = []
+        # COUNTRY and CITY
+        countries, country_codes, cities = [], [], []
         for address in grid.get('addresses', []):
+            country = address.get('country')
+            countries.append(country)
             country_code = address.get('country_code').lower()
-            if country_code not in es_data:
-                es_data[country_code] = {'cities': [], 'institutions': [], 'acronyms': []}
-            es_data[country_code]['institutions'] += institutions
-            es_data[country_code]['acronyms'] += acronyms
-            es_data[country_code]['cities'].append(address.get('city'))
+            country_codes.append(country_code)
+            city1 = address.get('city')
+            cities.append(city1)
             if address.get('geonames_city', {}):
-                es_data[country_code]['cities'].append(address.get('geonames_city', {}).get('city'))
-    # Bulk insert data into ES
-    actions = []
-    for country_alpha2 in es_data:
-        action_template = {'_index': index_city, 'country_alpha2': country_alpha2}
-        cities = list(set(es_data[country_alpha2]['cities']))
-        for query in cities:
-            action = action_template.copy()
-            action.update({'query': {'match_phrase': {'content': {'query': query, 'analyzer': 'standard'}}}})
-            actions.append(action)
-        action_template = {'_index': index_institution, 'country_alpha2': country_alpha2}
-        institutions = list(set(es_data[country_alpha2]['institutions']))
-        for query in institutions:
-            action = action_template.copy()
-            action.update({'query': {'match_phrase': {'content': {'query': query, 'analyzer': 'standard'}}}})
-            actions.append(action)
-        action_template = {'_index': index_institution_acronym, 'country_alpha2': country_alpha2}
-        acronyms = list(set(es_data[country_alpha2]['acronyms']))
-        for query in acronyms:
-            action = action_template.copy()
-            action.update({'query': {'match_phrase': {'content': {'query': query, 'analyzer': 'standard'}}}})
-            actions.append(action)
-    es.parallel_bulk(actions=actions)
+                city2 = address.get('geonames_city', {}).get('city')
+                cities.append(city2)
+        countries = list(set(countries))
+        country_codes = list(set(country_codes))
+        cities = list(set(cities))
+        formatted_data['country'] = list(filter(None, countries))
+        formatted_data['country_alpha2'] = list(filter(None, country_codes))
+        formatted_data['city'] = list(filter(None, cities))
+        if len(formatted_data['country_alpha2']) == 0:
+            continue
+        if len(formatted_data['country_alpha2']) > 1:
+            logger.debug(f"BEWARE: more than 1 country for {grid}")
+            logger.debug(f"Only one is kept !!")
+        formatted_data['country_alpha2'] = formatted_data['country_alpha2'][0]
+
+        res.append(formatted_data)
+    return res
