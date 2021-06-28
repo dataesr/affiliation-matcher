@@ -2,7 +2,7 @@ from matcher.server.main.load_country import load_country
 from matcher.server.main.load_grid import load_grid
 from matcher.server.main.load_rnsr import load_rnsr
 from matcher.server.main.load_wikidata import load_wikidata
-from matcher.server.main.match_country import get_countries_from_query
+from matcher.server.main.match_country import match_country
 from matcher.server.main.match_finess import match_unstructured_finess
 from matcher.server.main.match_rnsr import match_rnsr
 
@@ -63,7 +63,7 @@ def create_task_rnsr(arg) -> dict:
 
 def create_task_country(arg) -> dict:
     query = arg.get('query', '')
-    return get_countries_from_query(query=query)
+    return match_country(query=query)
 
 
 def create_task_finess(arg) -> dict:
