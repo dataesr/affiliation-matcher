@@ -9,5 +9,5 @@ class TestLoadCountry:
         assert fra['hits']['total']['value'] == 1
         japan = es.search(index='test_country_all_names', body={'query': {'percolate': {'field': 'query',
                                                                                 'document': {'content': 'Japan'}}}})
-        assert japan['hits']['hits'][0]['_source']['country_alpha2'] == ['JP']
+        assert japan['hits']['hits'][0]['_source']['country_alpha2'] == ['jp']
         es.delete_index(index='test_country_*')
