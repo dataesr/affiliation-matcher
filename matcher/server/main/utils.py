@@ -41,7 +41,7 @@ def normalize_text(text: str = None, remove_separator: bool = True) -> str:
     return text or ''
 
 
-def download_data_from_grid() -> dict:
+def download_grid_data() -> dict:
     grid_downloaded_file = 'grid_data_dump.zip'
     grid_unzipped_folder = mkdtemp()
     response = requests.get(url=GRID_DUMP_URL, stream=True)

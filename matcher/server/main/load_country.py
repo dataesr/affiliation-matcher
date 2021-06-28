@@ -58,3 +58,5 @@ def load_country(index: str = ES_INDEX) -> None:
         body.update(names)
         actions.append(body)
     es.parallel_bulk(actions=actions)
+    #TODO ! fill-in the response
+    return {}
