@@ -108,7 +108,7 @@ def download_rnsr_data() -> list:
         if 'rnsr' in [e['type'] for e in external_ids]:
             d['rnsr'] = [e['id'] for e in external_ids if e['type'] == 'rnsr'][0]
             rnsrs.append(d)
-    logger.debug(f"{len(rnsrs)} rnsr elements detected in dump")
+    logger.debug(f'{len(rnsrs)} rnsr elements detected in dump')
     # setting a dict with all names, acronyms and cities
     name_acronym_city = {}
     for d in data:
@@ -121,7 +121,7 @@ def download_rnsr_data() -> list:
         # NAMES
         names = []
         if d.get('label'):
-            names = get_values(d.get('label', []))
+            names += get_values(d.get('label', []))
         if d.get('alias'):
             names += d.get('alias')
         names = list(set(names))
