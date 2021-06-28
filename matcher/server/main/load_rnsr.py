@@ -177,5 +177,4 @@ def download_rnsr_data() -> list:
         # Start date one year before official as it can be used before sometimes
         es_rnsr['year'] = [str(y) for y in list(range(start - 1, end + 1))]
         es_rnsrs.append(es_rnsr)
-
     return es_rnsrs
