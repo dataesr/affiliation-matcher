@@ -3,7 +3,16 @@ from matcher.server.main.my_elastic import MyElastic
 
 def match_country(query: str = '', strategies: list = None) -> dict:
     if strategies is None:
-        strategies = [['all_names']]
+        strategies = [
+                ['grid_city', 'grid_name', 'grid_acronym', 'country_all_names'],
+                ['grid_city', 'grid_name', 'country_all_names'],
+                ['grid_city', 'grid_acronym', 'country_all_names'],
+                ['grid_city', 'country_all_names'],
+                ['grid_city', 'grid_name', 'country_alpha3'],
+                ['grid_city', 'grid_acronym', 'country_alpha3'],
+                ['grid_city', 'country_alpha3'],
+                ['country_all_names']
+                ]
     es = MyElastic()
     for strategy in strategies:
         strategy_results = None
