@@ -11,22 +11,23 @@ def create_task_load(args: dict = None) -> dict:
     if args is None:
         args = {}
     matcher_type = args.get('type', 'all').lower()
+    res = {}
     if matcher_type == 'all':
-        load_country()
-        load_grid()
-        load_rnsr()
-        load_wikidata()
+        res.update(load_country())
+        res.update(load_grid())
+        res.update(load_rnsr())
+        res.update(load_wikidata())
     elif matcher_type == 'country':
-        load_country()
+        res.update(load_country())
     elif matcher_type == 'grid':
-        load_grid()
+        res.update(load_grid())
     elif matcher_type == 'rnsr':
-        load_rnsr()
+        res.update(load_rnsr())
     elif matcher_type == 'wikidata':
-        load_wikidata()
+        res.update(load_wikidata())
     else:
         return {'Error': f'Matcher type {matcher_type} unknown'}
-
+    return res
 
 def create_task_match(args: dict = None) -> dict:
     if args is None:
