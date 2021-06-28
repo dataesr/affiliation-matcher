@@ -39,6 +39,9 @@ def load_grid(index_prefix: str = '') -> None:
     for grid in grids:
         for criterion in criteria:
             criterion_values = grid.get(criterion)
+            if not criterion_values:
+                logger.debug(f"This element {country} has no {criterion}")
+                continue
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
