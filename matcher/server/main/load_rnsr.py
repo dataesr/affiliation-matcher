@@ -45,6 +45,9 @@ def load_rnsr(index_prefix: str = '') -> dict:
     for rnsr in rnsrs:
         for criterion in criteria:
             criterion_values = rnsr.get(criterion)
+            if not criterion_values:
+                logger.debug(f"This element {country} has no {criterion}")
+                continue
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
