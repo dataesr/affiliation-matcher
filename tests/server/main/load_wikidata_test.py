@@ -4,14 +4,14 @@ from matcher.server.main.my_elastic import MyElastic
 
 
 class TestLoadWikidata:
-    def test_get_cities_from_wikidata(self) -> None:
-        cities = get_cities_from_wikidata()
-        assert 5000 < len(cities) < 8000
-        city = [city for city in cities if city.get('label_fr', {}).get('value') == 'Nantes'][0]
-        keys = list(city.keys())
-        keys.sort()
-        assert keys == ['country_alpha2', 'label_en', 'label_es', 'label_fr', 'label_it', 'label_native',
-                        'label_official']
+    #def test_get_cities_from_wikidata(self) -> None:
+    #    cities = get_cities_from_wikidata()
+    #    assert 5000 < len(cities) < 8000
+    #    city = [city for city in cities if city.get('label_fr', {}).get('value') == 'Nantes'][0]
+    #    keys = list(city.keys())
+    #    keys.sort()
+    #    assert keys == ['country_alpha2', 'label_en', 'label_es', 'label_fr', 'label_it', 'label_native',
+    #                    'label_official']
 
     def test_data2actions(self) -> None:
         index = 'test_wikidata'

@@ -16,7 +16,6 @@ def create_task_load(args: dict = None) -> dict:
         res.update(load_country())
         res.update(load_grid())
         res.update(load_rnsr())
-        res.update(load_wikidata())
     elif matcher_type == 'country':
         res.update(load_country())
     elif matcher_type == 'grid':
