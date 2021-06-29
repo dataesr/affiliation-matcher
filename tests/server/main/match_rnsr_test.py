@@ -13,7 +13,7 @@ def get_data():
 def compute_precision_recall(data):
     nb_TP, nb_FP, nb_FN = 0, 0, 0
     false_positive, false_negative = [], []
-    for ix, d in enumerate(data_test):
+    for ix, d in enumerate(data):
         if d['rnsr']:
             res = match(d['label'])
             for x in res['results']:
