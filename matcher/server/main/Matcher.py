@@ -1,4 +1,5 @@
 from matcher.server.main.my_elastic import MyElastic
+from matcher.server.main.elastic_utils import get_index_name
 
 
 def identity(x: str = '') -> str:
@@ -9,7 +10,7 @@ class Matcher:
     def __init__(self) -> None:
         self.es = MyElastic()
 
-    def match(self, query: str, strategies: list, year: str = None, pre_treatment_query=None, field: str = 'ids')\
+    def match(self, query: str, strategies: list, year: str = None, pre_treatment_query=None, field: str = 'ids', index_prefix: str = '')\
             -> dict:
         if pre_treatment_query is None:
             pre_treatment_query = identity
@@ -23,7 +24,8 @@ class Matcher:
                 body = {'query': {'percolate': {'field': 'query', 'document': {'content': criterion_query}}},
                         '_source': {'includes': [field]},
                         'highlight': {'fields': {'content': {'type': 'fvh'}}}}
-                hits = self.es.search(index=criterion, body=body).get('hits', []).get('hits', [])
+                index = get_index_name(index_name=criterion, source='', index_prefix=index_prefix)
+                hits = self.es.search(index=index, body=body).get('hits', []).get('hits', [])
                 all_hits[criterion] = hits
                 highlights = [hit.get('highlight', {}).get('content') for hit in hits]
                 logs += '<br /><br />'.join(['<br />'.join(highlight) for highlight in highlights if highlight]) + '<br />'

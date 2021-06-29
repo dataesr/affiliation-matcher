@@ -6,7 +6,7 @@ from matcher.server.main.match_rnsr import match_rnsr
 from matcher.server.main.my_elastic import MyElastic
 
 def get_data():
-    url = "https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/models/match_pubmed_affiliations_with_countries_v3.json"
+    url = 'https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/models/match_pubmed_affiliations_with_countries_v3.json'
     data = requests.get(url).json()
     return data
 
@@ -15,7 +15,7 @@ def compute_precision_recall(data):
     false_positive, false_negative = [], []
     for ix, d in enumerate(data):
         if d['rnsr']:
-            res = match_rnsr(query=d['label'], year="2020")
+            res = match_rnsr(query=d['label'], year='2020', index_prefix='test')
             for x in res['results']:
                 if x in d['rnsr']:
                     nb_TP += 1
@@ -29,8 +29,8 @@ def compute_precision_recall(data):
 
     precision = nb_TP / (nb_TP + nb_FP)
     recall = nb_TP / (nb_TP + nb_FN)
-    res = {"precision" : precision, "recall" : recall}
-    logger.debug(f"Precision and recall for RNSR matcher: {res}")
+    res = {'precision' : precision, 'recall' : recall}
+    logger.debug(f'Precision and recall for RNSR matcher: {res}')
     return res
 
 @pytest.fixture(scope='module')
