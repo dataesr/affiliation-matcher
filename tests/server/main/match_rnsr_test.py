@@ -30,7 +30,7 @@ def compute_precision_recall(data):
     precision = nb_TP / (nb_TP + nb_FP)
     recall = nb_TP / (nb_TP + nb_FN)
     res = {"precision" : precision, "recall" : recall}
-    logger.debug(f"Precision and recall for RNSR matcher": {res})
+    logger.debug(f"Precision and recall for RNSR matcher: {res}")
     return res
 
 @pytest.fixture(scope='module')
