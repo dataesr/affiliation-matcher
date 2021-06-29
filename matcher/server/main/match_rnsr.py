@@ -36,7 +36,7 @@ def match_rnsr(query: str = '', strategies: list = None, year: str = None) -> di
     if strategies is None:
         strategies = DEFAULT_STRATEGIES
     if year:
-        strategies_with_year = [strategy.append('rnsr_year') for strategy in strategies.copy()]
+        strategies_with_year = [strategy + ['rnsr_year'] for strategy in strategies.copy()]
         strategies = strategies_with_year + strategies
     matcher = Matcher()
     return matcher.match(query=query, strategies=strategies, year=year, pre_treatment_query=pre_treatment_rnsr)

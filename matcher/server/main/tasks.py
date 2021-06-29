@@ -56,7 +56,7 @@ def create_task_rnsr(arg) -> dict:
     #if code or name or city or acronym or supervisor_acronym or supervisor_id or supervisor_name:
     #    return match_fields(year, code, name, city, acronym, supervisor_id)
     if query:
-        return match_rnsr(query, year)
+        return match_rnsr(query = query, year = year)
     else:
         return {'error': 'all inputs are empty'}
 
