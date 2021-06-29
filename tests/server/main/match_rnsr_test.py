@@ -15,7 +15,7 @@ def compute_precision_recall(data):
     false_positive, false_negative = [], []
     for ix, d in enumerate(data):
         if d['rnsr']:
-            res = match(d['label'])
+            res = match_rnsr(query=d['label'], year="2020")
             for x in res['results']:
                 if x in d['rnsr']:
                     nb_TP += 1
