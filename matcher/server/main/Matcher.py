@@ -26,7 +26,7 @@ class Matcher:
                 hits = self.es.search(index=criterion, body=body).get('hits', []).get('hits', [])
                 all_hits[criterion] = hits
                 highlights = [hit.get('highlight', {}).get('content') for hit in hits]
-                logs += '<br /><br />'.join(['<br />'.join(highlight) for highlight in highlights]) + '<br />'
+                logs += '<br /><br />'.join(['<br />'.join(highlight) for highlight in highlights if highlight]) + '<br />'
                 criteria_results = [hit.get('_source', {}).get(field) for hit in hits]
                 criteria_results = [item for sublist in criteria_results for item in sublist]
                 criteria_results = list(set(criteria_results))
