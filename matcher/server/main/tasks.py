@@ -5,6 +5,7 @@ from matcher.server.main.load_wikidata import load_wikidata
 from matcher.server.main.match_country import match_country
 from matcher.server.main.match_finess import match_unstructured_finess
 from matcher.server.main.match_rnsr import match_rnsr
+from matcher.server.main.match_grid import match_grid
 
 
 def create_task_load(args: dict = None) -> dict:
@@ -38,6 +39,8 @@ def create_task_match(args: dict = None) -> dict:
         return create_task_finess(args)
     elif matcher_type == 'country':
         return create_task_country(args)
+    elif matcher_type == 'grid':
+        return create_task_grid(args)
     else:
         return {'Error': f'Matcher type {matcher_type} unknown'}
 
@@ -63,6 +66,10 @@ def create_task_rnsr(arg) -> dict:
 def create_task_country(arg) -> dict:
     query = arg.get('query', '')
     return match_country(query=query)
+
+def create_task_grid(arg) -> dict:
+    query = arg.get('query', '')
+    return match_grid(query=query)
 
 
 def create_task_finess(arg) -> dict:

@@ -19,8 +19,11 @@ class Matcher:
             strategy_results = None
             all_hits = {}
             logs += f'<br/> - Matching strategy : {strategy}<br/>'
+            treated_query = pre_treatment_query(query)
             for criterion in strategy:
-                criterion_query = year if criterion in ['rnsr_year', 'grid_country'] else pre_treatment_query(query)
+                criterion_query = treated_query
+                if year and '_year' in criterion:
+                    criterion_query = year 
                 body = {'query': {'percolate': {'field': 'query', 'document': {'content': criterion_query}}},
                         '_source': {'includes': [field]},
                         'highlight': {'fields': {'content': {'type': 'fvh'}}}}
@@ -55,4 +58,5 @@ class Matcher:
                     for matching_criteria in all_highlights[matching_id]:
                         logs += f'{matching_criteria} : {all_highlights[matching_id][matching_criteria]}<br/>'
                 return {'results': strategy_results, 'logs': logs, 'highlights': all_highlights}
-        return {'results': [], 'logs': 'No results found', 'highlights': {}}
+        logs += "<br/> No results found"
+        return {'results': [], 'logs': logs, 'highlights': {}}
