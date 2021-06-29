@@ -32,7 +32,7 @@ def get_filters():
         'acronym_stop': {
             'type': 'stop',
             'ignore_case': True,
-            'stopwords': ['pasteur', 'cedex', 'paris', 'ea']
+            'stopwords': ['pasteur', 'cedex', 'paris', 'ea', 'team']
         },
         'french_elision': {
             'type': 'elision',
