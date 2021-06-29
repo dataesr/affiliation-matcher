@@ -66,3 +66,4 @@ To create a new release, do
 ```shell
 make release VERSION=x.x.x
 ```
+
