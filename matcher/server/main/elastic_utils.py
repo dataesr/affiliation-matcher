@@ -81,7 +81,7 @@ def get_analyzers():
                 'acronym_stop'
             ]
         },
-        'country_analyzer': {
+        'name_analyzer': {
             'tokenizer': 'icu_tokenizer',
             'filter': [
                 'lowercase',
@@ -118,6 +118,7 @@ def get_analyzers():
                 'lowercase',
                 'icu_folding',
                 'english_stop',
+                'french_stop',
                 'english_stemmer'
             ]
         }

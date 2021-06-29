@@ -58,14 +58,14 @@ def create_task_rnsr(arg) -> dict:
     #if code or name or city or acronym or supervisor_acronym or supervisor_id or supervisor_name:
     #    return match_fields(year, code, name, city, acronym, supervisor_id)
     if query:
-        return match_rnsr(query = query, year = year)
+        return match_rnsr(query = query, year = year, index_prefix = arg.get('index_prefix', ''))
     else:
         return {'error': 'all inputs are empty'}
 
 
 def create_task_country(arg) -> dict:
     query = arg.get('query', '')
-    return match_country(query=query)
+    return match_country(query=query, index_prefix = arg.get('index_prefix', ''))
 
 def create_task_grid(arg) -> dict:
     query = arg.get('query', '')
