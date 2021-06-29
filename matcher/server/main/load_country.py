@@ -13,18 +13,25 @@ def download_country_data():
     return countries
 
 def transform_country_data(raw_data):
-    subdivisions = {}
+    subdivisions, subdivisions_code = {}, {}
     for s in pycountry.subdivisions:
         alpha2 = s.country_code.lower()
         if alpha2 not in subdivisions:
             subdivisions[alpha2] = []
+            subdivisions_code[alpha2] = []
         subdivisions[alpha2].append(s.name)
+        if alpha2 == 'us':
+            subdivisions_code[alpha2].append(s.code[3:])
+        if alpha2 == 'gb':
+            subdivisions[alpha2].append('northern ireland')
 
     countries = []
     for c in raw_data:
         # ALPHA 2 - 3
         alpha2 = c['alpha_2'].lower()
         country = {'alpha2': alpha2, 'alpha3': [c['alpha_3']]}
+        if alpha2 == 'gb':
+            country['alpha3'].append('uk')
         # NAMES
         all_names = []
         for field_name in ['name', 'official_name', 'common_name']:
@@ -37,8 +44,7 @@ def transform_country_data(raw_data):
         #SUBDIVISIONS
         if alpha2 in subdivisions:
             country['subdivisions'] = list(set(subdivisions[alpha2]))
-            if alpha2 == 'gb':
-                country['subdivisions'].append('uk')
+            country['subdivisions_code'] = list(set(subdivisions_code[alpha2]))
         countries.append(country)
     return countries
 
@@ -52,8 +58,9 @@ def load_country(index_prefix: str = '') -> None:
         }
     }
     analyzers = {
-        'all_names': 'country_analyzer',
+        'all_names': 'name_analyzer',
         'subdivisions': 'light',
+        'subdivisions_code': 'light',
         'alpha3': 'light'
     }
     criteria = list(analyzers.keys())
