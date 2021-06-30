@@ -20,7 +20,7 @@ def load_grid(index_prefix: str = '') -> None:
     txt_criteria = ['name']
     analyzers = {
         'acronym': 'acronym_analyzer',
-        'city': 'light',
+        'city': 'city_analyzer',
         'country': 'light',
         'country_code': 'light',
         'name': 'heavy_en'

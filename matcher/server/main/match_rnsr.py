@@ -13,14 +13,16 @@ DEFAULT_STRATEGIES = [
     ['rnsr_code_number', 'rnsr_city'],
     ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_name', 'rnsr_city'],
     ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_city'],
+    ['rnsr_acronym', 'rnsr_name', 'rnsr_city'],
     ['rnsr_acronym', 'rnsr_supervisor_acronym', 'rnsr_city'],
     ['rnsr_acronym', 'rnsr_supervisor_name', 'rnsr_city'],
     ['rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_city'],
     ['rnsr_name', 'rnsr_supervisor_name', 'rnsr_city'],
-    ['rnsr_name', 'rnsr_acronym', 'rnsr_city'],
     ['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_acronym'],
     ['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_name'],
-    ['rnsr_acronym', 'rnsr_city']
+    ['rnsr_name', 'rnsr_city'],
+    ['rnsr_acronym', 'rnsr_city'],
+    ['rnsr_name', 'rnsr_acronym']
 ]
 
 

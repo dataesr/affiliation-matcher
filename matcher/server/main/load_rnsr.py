@@ -26,7 +26,7 @@ def load_rnsr(index_prefix: str = '') -> dict:
     txt_criteria = ['name', 'supervisor_name']
     analyzers = {
         'acronym': 'acronym_analyzer',
-        'city': 'light',
+        'city': 'city_analyzer',
         'country_code': 'light',
         'code_number': 'code_analyzer',
         'name': 'heavy_fr',
