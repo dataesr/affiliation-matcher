@@ -1,5 +1,5 @@
-from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.elastic_utils import get_index_name
+from matcher.server.main.my_elastic import MyElastic
 
 
 def identity(x: str = '') -> str:
