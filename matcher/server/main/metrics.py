@@ -14,7 +14,7 @@ def compute_precision_recall(match_type, index_prefix=''):
     false_positive, false_negative = [], []
     for ix, d in enumerate(data):
         if d.get(match_type):
-            res = create_task_match({'query': d['label'], 'year':'2020', 'index_prefix':'test', 'match_type': match_type, 'index_prefix': index_prefix})
+            res = create_task_match({'query': d['label'], 'year':'2020', 'index_prefix':'test', 'type': match_type, 'index_prefix': index_prefix})
             for x in res['results']:
                 if x in d[match_type]:
                     nb_TP += 1
