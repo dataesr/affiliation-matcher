@@ -1,6 +1,6 @@
 import re
 
-from matcher.server.main.Matcher import Matcher
+from matcher.server.main.matcher import Matcher
 from matcher.server.main.utils import remove_ref_index
 
 DEFAULT_STRATEGIES = [
@@ -38,5 +38,6 @@ def match_rnsr(query: str = '', strategies: list = None, year: str = None, index
     if year:
         strategies_with_year = [strategy + ['rnsr_year'] for strategy in strategies.copy()]
         strategies = strategies_with_year
+    condition = {'condition': 'rnsr_year', 'value': year}
     matcher = Matcher()
-    return matcher.match(query=query, strategies=strategies, year=year, pre_treatment_query=pre_treatment_rnsr, index_prefix=index_prefix)
+    return matcher.match(query=query, strategies=strategies, condition=condition, pre_treatment_query=pre_treatment_rnsr, index_prefix=index_prefix)
