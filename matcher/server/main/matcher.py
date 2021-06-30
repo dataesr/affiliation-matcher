@@ -9,8 +9,10 @@ class Matcher:
     def __init__(self) -> None:
         self.es = MyElastic()
 
-    def match(self, query: str, strategies: list, year: str = None, pre_treatment_query=None, field: str = 'ids')\
+    def match(self, query: str, strategies: list, condition: dict = None, pre_treatment_query=None, field: str = 'ids')\
             -> dict:
+        if condition is None:
+            condition = []
         if pre_treatment_query is None:
             pre_treatment_query = identity
         logs = f'<h1> &#128269; {query}</h1>'
@@ -19,7 +21,10 @@ class Matcher:
             all_hits = {}
             logs += f'<br/> - Matching strategy : {strategy}<br/>'
             for criterion in strategy:
-                criterion_query = year if criterion in ['rnsr_year', 'grid_country'] else pre_treatment_query(query)
+                if criterion == condition.get('condition'):
+                    criterion_query = condition.get('value')
+                else:
+                    criterion_query = pre_treatment_query(query)
                 body = {'query': {'percolate': {'field': 'query', 'document': {'content': criterion_query}}},
                         '_source': {'includes': [field]},
                         'highlight': {'fields': {'content': {'type': 'fvh'}}}}

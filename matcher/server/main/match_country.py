@@ -1,4 +1,4 @@
-from matcher.server.main.Matcher import Matcher
+from matcher.server.main.matcher import Matcher
 
 DEFAULT_STRATEGIES = [
                 ['grid_city', 'grid_name', 'grid_acronym', 'country_all_names'],
