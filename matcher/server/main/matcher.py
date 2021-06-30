@@ -13,7 +13,7 @@ class Matcher:
     def match(self, query: str, strategies: list, condition: dict = None, pre_treatment_query=None, field: str = 'ids', index_prefix: str = '')\
             -> dict:
         if condition is None:
-            condition = []
+            condition = {}
         if pre_treatment_query is None:
             pre_treatment_query = identity
         logs = f'<h1> &#128269; {query}</h1>'
