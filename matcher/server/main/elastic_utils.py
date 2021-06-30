@@ -32,7 +32,7 @@ def get_filters():
         'acronym_stop': {
             'type': 'stop',
             'ignore_case': True,
-            'stopwords': ['pasteur', 'cedex', 'paris', 'ea', 'team']
+            'stopwords': ['pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation']
         },
         'french_elision': {
             'type': 'elision',
@@ -50,6 +50,11 @@ def get_filters():
         'length_min_3_char': {
             'type': 'length',
             'min': 3
+        },
+        'city_synonym': {
+            "type": "synonym",
+            "lenient": true,
+            "synonyms": [ "st => saint" ]
         }
     }
 
@@ -70,6 +75,15 @@ def get_analyzers():
                 'lowercase',
                 'french_elision',
                 'icu_folding'
+            ]
+        },
+        'city_analyzer': {
+            'tokenizer': 'icu_tokenizer',
+            'filter': [
+                'lowercase',
+                'french_elision',
+                'icu_folding',
+                'city_synonym'
             ]
         },
         'acronym_analyzer': {
