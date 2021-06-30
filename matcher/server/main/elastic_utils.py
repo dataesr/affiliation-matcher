@@ -53,7 +53,7 @@ def get_filters():
         },
         'city_synonym': {
             "type": "synonym",
-            "lenient": true,
+            "lenient": True,
             "synonyms": [ "st => saint" ]
         }
     }
