@@ -3,7 +3,7 @@ from flask import Blueprint, current_app, jsonify, render_template, request
 from rq import Connection, Queue
 
 from matcher.server.main.logger import get_logger
-from matcher.server.main.tasks import create_task_load, create_task_match, create_task_rnsr
+from matcher.server.main.tasks import create_task_load, create_task_match
 
 logger = get_logger(__name__)
 main_blueprint = Blueprint('main', __name__, )
@@ -15,7 +15,7 @@ def home():
 
 
 @main_blueprint.route("/load", methods=["GET"])
-def run_task_load_rnsr():
+def run_task_load():
     args = request.args
     logger.debug(args)
     response_object = create_task_load(args=args)
@@ -27,14 +27,6 @@ def run_task_match():
     args = request.get_json(force=True)
     logger.debug(args)
     response_object = create_task_match(args=args)
-    return jsonify(response_object), 202
-
-
-@main_blueprint.route("/rnsr_match_api", methods=["POST"])
-def run_task_rnsr():
-    args = request.get_json(force=True)
-    logger.debug(args)
-    response_object = create_task_rnsr(args)
     return jsonify(response_object), 202
 
 

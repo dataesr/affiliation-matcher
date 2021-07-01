@@ -36,7 +36,9 @@ class TestMatchCountry:
         ])
     def test_get_countries_from_query(self, elasticsearch, query, strategies, expected_results,
                                       expected_logs) -> None:
-        response = match_country(query=query, strategies=strategies, index_prefix='test')
+        args = {'index_prefix': 'test'}
+        args['query'] = query
+        response = match_country(conditions=args, strategies=strategies)
         results = response['results']
         results.sort()
         assert results == expected_results

@@ -1,6 +1,8 @@
 from matcher.server.main.elastic_utils import get_index_name
 from matcher.server.main.my_elastic import MyElastic
+from matcher.server.main.logger import get_logger
 
+logger = get_logger(__name__)
 
 def identity(x: str = '') -> str:
     return x
@@ -10,20 +12,25 @@ class Matcher:
     def __init__(self) -> None:
         self.es = MyElastic()
 
-    def match(self, query: str, strategies: list, condition: dict = None, pre_treatment_query=None, field: str = 'ids', index_prefix: str = '')\
+    def match(self, conditions: dict, strategies: list, pre_treatment_query=None, field: str = 'ids')\
             -> dict:
-        if condition is None:
-            condition = {}
+        if conditions is None:
+            conditions = {}
         if pre_treatment_query is None:
             pre_treatment_query = identity
+        verbose = conditions.get('verbose', False)
+        index_prefix = conditions.get('index_prefix', '')
+        query = conditions.get('query', '')
         logs = f'<h1> &#128269; {query}</h1>'
         for strategy in strategies:
             strategy_results = None
             all_hits = {}
             logs += f'<br/> - Matching strategy : {strategy}<br/>'
             for criterion in strategy:
-                if criterion == condition.get('condition'):
-                    criterion_query = condition.get('value')
+                criterion_without_source = '_'.join(criterion.split('_')[1:])
+                if criterion_without_source in conditions:
+                    criterion_query = conditions[criterion_without_source]
+                    #logger.debug(f"using {criterion_query} for criterion {criterion_without_source}")
                 else:
                     criterion_query = pre_treatment_query(query)
                 body = {'query': {'percolate': {'field': 'query', 'document': {'content': criterion_query}}},
@@ -33,7 +40,7 @@ class Matcher:
                 hits = self.es.search(index=index, body=body).get('hits', []).get('hits', [])
                 all_hits[criterion] = hits
                 highlights = [hit.get('highlight', {}).get('content') for hit in hits]
-                logs += '<br /><br />'.join(['<br />'.join(highlight) for highlight in highlights if highlight]) + '<br />'
+                #logs += '<br /><br />'.join(['<br />'.join(highlight) for highlight in highlights if highlight]) + '<br />'
                 criteria_results = [hit.get('_source', {}).get(field) for hit in hits]
                 criteria_results = [item for sublist in criteria_results for item in sublist]
                 criteria_results = list(set(criteria_results))
@@ -59,6 +66,12 @@ class Matcher:
                     logs += f'<br/><hr>Explanation for {matching_id} :<br/>'
                     for matching_criteria in all_highlights[matching_id]:
                         logs += f'{matching_criteria} : {all_highlights[matching_id][matching_criteria]}<br/>'
-                return {'results': strategy_results, 'logs': logs, 'highlights': all_highlights}
+                final_res = {'results': strategy_results, 'highlights': all_highlights}
+                if verbose:
+                    final_res['logs'] = logs
+                return final_res
         logs += "<br/> No results found"
-        return {'results': [], 'logs': logs, 'highlights': {}}
+        final_res = {'results': [], 'highlights': {}}
+        if verbose:
+            final_res['logs'] = logs
+        return final_res

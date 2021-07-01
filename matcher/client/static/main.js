@@ -4,6 +4,7 @@ $('.submit').on('click', function() {
 	    type: $('#input_type option:selected').val(),
 	    year: $('#input_year option:selected').val(),
 	    query: $('#input_query').val(),
+	    verbose: true,
     }
     $.ajax({
         url: '/match_api',

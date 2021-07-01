@@ -17,8 +17,8 @@ DEFAULT_STRATEGIES = [
                 ]
 
 
-def match_country(query: str = '', strategies: list = None, index_prefix: str = '') -> dict:
+def match_country(conditions: dict, strategies: list = None, index_prefix: str = '') -> dict:
     if strategies is None:
         strategies = DEFAULT_STRATEGIES
     matcher = Matcher()
-    return matcher.match(query=query, strategies=strategies, field='country_alpha2', index_prefix=index_prefix)
+    return matcher.match(conditions=conditions, strategies=strategies, field='country_alpha2')
