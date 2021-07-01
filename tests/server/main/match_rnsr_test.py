@@ -20,9 +20,9 @@ class TestMatchRnsr:
              'Strategy has 1 possibilities that match all criteria')
         ])
     def test_match_rnsr(self, elasticsearch, query, strategies, expected_results, expected_logs) -> None:
-        args = {'index_prefix': 'test', 'verbose': True}
+        args = {'index_prefix': 'test', 'verbose': True, 'strategies': strategies}
         args['query'] = query
-        response = match_rnsr(conditions=args, strategies=strategies)
+        response = match_rnsr(conditions=args)
         results = response['results']
         results.sort()
         assert results == expected_results

@@ -34,7 +34,8 @@ def pre_treatment_rnsr(query: str = '') -> str:
     return rgx.sub("umr\\3\\5", query).lower()
 
 
-def match_rnsr(conditions: dict, strategies: list = None) -> dict:
+def match_rnsr(conditions: dict) -> dict:
+    strategies = conditions.get('strategies')
     if strategies is None:
         strategies = DEFAULT_STRATEGIES
     if 'year' in conditions:
