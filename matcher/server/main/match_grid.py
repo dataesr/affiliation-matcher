@@ -15,7 +15,8 @@ DEFAULT_STRATEGIES = [
 ]
 
 
-def match_grid(conditions: dict, strategies: list = None) -> dict:
+def match_grid(conditions: dict) -> dict:
+    strategies = conditions.get('strategies')
     if strategies is None:
         strategies = DEFAULT_STRATEGIES
     matcher = Matcher()
