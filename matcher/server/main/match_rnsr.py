@@ -34,12 +34,11 @@ def pre_treatment_rnsr(query: str = '') -> str:
     return rgx.sub("umr\\3\\5", query).lower()
 
 
-def match_rnsr(query: str = '', strategies: list = None, year: str = None, index_prefix: str = '') -> dict:
+def match_rnsr(conditions: dict, strategies: list = None) -> dict:
     if strategies is None:
         strategies = DEFAULT_STRATEGIES
-    if year:
+    if 'year' in conditions:
         strategies_with_year = [strategy + ['rnsr_year'] for strategy in strategies.copy()]
         strategies = strategies_with_year
-    condition = {'condition': 'rnsr_year', 'value': year}
     matcher = Matcher()
-    return matcher.match(query=query, strategies=strategies, condition=condition, pre_treatment_query=pre_treatment_rnsr, index_prefix=index_prefix)
+    return matcher.match(conditions=conditions, strategies=strategies, pre_treatment_query=pre_treatment_rnsr)
