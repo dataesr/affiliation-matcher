@@ -12,6 +12,10 @@ from matcher.server.main.config import GRID_DUMP_URL
 
 CHUNK_SIZE = 128
 
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
 
 def remove_ref_index(query):
     """Remove the first 2 digits of a string if any."""

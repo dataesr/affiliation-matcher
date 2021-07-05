@@ -3,7 +3,7 @@ from flask import Blueprint, current_app, jsonify, render_template, request
 from rq import Connection, Queue
 
 from matcher.server.main.logger import get_logger
-from matcher.server.main.tasks import create_task_load, create_task_match
+from matcher.server.main.tasks import create_task_load, create_task_match, create_task_enrich_filter
 
 logger = get_logger(__name__)
 main_blueprint = Blueprint('main', __name__, )
@@ -27,6 +27,13 @@ def run_task_match():
     args = request.get_json(force=True)
     logger.debug(args)
     response_object = create_task_match(args=args)
+    return jsonify(response_object), 202
+
+@main_blueprint.route("/enrich_filter", methods=["POST"])
+def run_task_enrich_filter():
+    args = request.get_json(force=True)
+    logger.debug(args)
+    response_object = create_task_enrich_filter(args=args)
     return jsonify(response_object), 202
 
 
