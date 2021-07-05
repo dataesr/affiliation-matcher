@@ -1,12 +1,16 @@
 from elasticsearch import Elasticsearch, helpers, RequestError
 
-from matcher.server.main.config import ELASTICSEARCH_HOST
+from matcher.server.main.config import ELASTICSEARCH_HOST, ELASTICSEARCH_LOGIN, ELASTICSEARCH_PASSWORD
 from matcher.server.main.logger import get_logger
 
 
 class MyElastic(Elasticsearch):
     def __init__(self) -> None:
-        super().__init__(hosts=ELASTICSEARCH_HOST)
+        if ELASTICSEARCH_LOGIN:
+            print("using es login!", flush=True)
+            super().__init__(hosts=ELASTICSEARCH_HOST, http_auth=(ELASTICSEARCH_LOGIN, ELASTICSEARCH_PASSWORD))
+        else:
+            super().__init__(hosts=ELASTICSEARCH_HOST)
         self.logger = get_logger(__name__)
 
     def create_index(self, index: str = None, mappings: dict = None, settings: dict = None):
