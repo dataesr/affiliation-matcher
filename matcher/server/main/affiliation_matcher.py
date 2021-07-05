@@ -12,17 +12,17 @@ logger = get_logger(__name__)
 client = MyElastic()
 
 def check_matcher_health():
-    res = match_country(conditions={'query': 'france'})
-    print(res, flush=True)
     try:
-        assert('results' in res)
+        res = match_country(conditions={'query': 'france'})
+        logger.debug(res)
+        assert('fr' in res['results'])
         logger.debug("matcher seems healthy")
         return True
     except:
         logger.debug("matcher does not seem loaded, lets load it")
         load_res = {}
-        load_res.update(load_country())
-        load_res.update(load_grid())
+        load_res.update(load_country(index_prefix='matcher'))
+        load_res.update(load_grid(index_prefix='matcher'))
         logger.debug(load_res)
         return True
 
@@ -37,8 +37,12 @@ def get_country(affiliation):
             }
         }
     }
-    r = client.search(index='bso-cache-country', body=params)
-    hits = r['hits']['hits']
+    try:
+        r = client.search(index='bso-cache-country', body=params)
+        hits = r['hits']['hits']
+    except:
+        logger.debug("error in search in bso-cache-country")
+        hits = []
     if len(hits)>=1:
         in_cache = True
         countries = hits[0]['_source']['countries']
