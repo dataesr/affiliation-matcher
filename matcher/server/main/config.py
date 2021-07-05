@@ -58,13 +58,13 @@ SCANR_DUMP_URL = 'https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957
 if APP_ENV == 'test':
     ELASTICSEARCH_HOST = 'localhost'
 elif APP_ENV == 'development':
-    ELASTICSEARCH_HOST = 'localhost'
+    ELASTICSEARCH_HOST = 'elasticsearch'
 
 if APP_ENV == 'production':
     ELASTICSEARCH_HOST = os.getenv('ES_URL')
     ELASTICSEARCH_URL = ELASTICSEARCH_HOST
-    ELASTICSEARCH_LOGIN = os.getenv('ES_LOGIN')
-    ELASTICSEARCH_PASSWORD = os.getenv('ES_PASSWORD')
+    ELASTICSEARCH_LOGIN = os.getenv('ES_LOGIN_MATCHER')
+    ELASTICSEARCH_PASSWORD = os.getenv('ES_PASSWORD_MATCHER')
 else:
     ELASTICSEARCH_URL = ELASTICSEARCH_HOST + ':' + ELASTICSEARCH_PORT
 # Export config

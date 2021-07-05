@@ -19,7 +19,7 @@ class Matcher:
         if pre_treatment_query is None:
             pre_treatment_query = identity
         verbose = conditions.get('verbose', False)
-        index_prefix = conditions.get('index_prefix', '')
+        index_prefix = conditions.get('index_prefix', 'matcher')
         query = conditions.get('query', '')
         logs = f'<h1> &#128269; {query}</h1>'
         for strategy in strategies:
