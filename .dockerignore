@@ -6,6 +6,7 @@ venv
 .cache
 
 docker-compose*
+notebooks/*
 
 # Unit tests
 .pytest_cache/

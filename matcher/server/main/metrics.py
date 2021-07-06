@@ -6,7 +6,7 @@ def get_annotated_data():
     data = requests.get(url).json()
     return data
 
-def compute_precision_recall(match_type, index_prefix=''):
+def compute_precision_recall(match_type, index_prefix='matcher'):
 
     data = get_annotated_data()
 
