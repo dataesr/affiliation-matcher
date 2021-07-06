@@ -55,6 +55,8 @@ ROR_DUMP_URL = get_last_ror_dump_url()
 
 SCANR_DUMP_URL = 'https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/scanR/organizations.json'
 
+ZONE_EMPLOI_INSEE_DUMP="https://www.insee.fr/fr/statistiques/fichier/4652957/ZE2020_au_01-01-2021.zip"
+
 if APP_ENV == 'test':
     ELASTICSEARCH_HOST = 'localhost'
 elif APP_ENV == 'development':

@@ -6,7 +6,7 @@ from matcher.server.main.config import SCANR_DUMP_URL
 from matcher.server.main.elastic_utils import get_filters, get_analyzers, get_char_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import get_alpha2_from_french
+from matcher.server.main.utils import get_alpha2_from_french, download_insee_data
 
 logger = get_logger(__name__)
 
@@ -22,11 +22,12 @@ def load_rnsr(index_prefix: str = '') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['city', 'country_code', 'acronym', 'code_number', 'supervisor_acronym', 'year']
+    exact_criteria = ['city', 'urban_unit', 'country_code', 'acronym', 'code_number', 'supervisor_acronym', 'year']
     txt_criteria = ['name', 'supervisor_name']
     analyzers = {
         'acronym': 'acronym_analyzer',
         'city': 'city_analyzer',
+        'urban_unit': 'city_analyzer',
         'country_code': 'light',
         'code_number': 'code_analyzer',
         'name': 'heavy_fr',
@@ -100,6 +101,7 @@ def transform_rnsr_data(data) -> list:
     logger.debug(f'{len(rnsrs)} rnsr elements detected in dump')
     # setting a dict with all names, acronyms and cities
     name_acronym_city = {}
+    urban_unit_composition = {}
     for d in data:
         current_id = d['id']
         name_acronym_city[current_id] = {}
@@ -116,17 +118,28 @@ def transform_rnsr_data(data) -> list:
         names = list(set(names))
         names = list(set(names) - set(acronyms))
         # CITIES, COUNTRIES
-        cities, country_alpha2 = [], []
+        cities, country_alpha2, urbanUnits = [], [], []
         for address in d.get('address', []):
             if 'city' in address and address['city']:
                 cities.append(address['city'])
+            if 'urbanUnitLabel' in address and address['urbanUnitLabel']:
+                urbanUnits.append(address['urbanUnitLabel'])
             if 'country' in address and address['country']:
                 alpha2 = get_alpha2_from_french(address['country'])
                 country_alpha2.append(alpha2)
+            if 'city' in address and address['city'] and 'urbanUnitLabel' in address and address['urbanUnitLabel']:
+                city = address['city']
+                urban_unit = address['urbanUnitLabel']
+                if urban_unit not in urban_unit_composition:
+                    urban_unit_composition[urban_unit] = []
+                if city not in urban_unit_composition[urban_unit]:
+                    urban_unit_composition[urban_unit].append(city)
 
         cities = list(set(cities))
         country_alpha2 = list(set(country_alpha2))
+        urbanUnits = list(set(urbanUnits))
         name_acronym_city[current_id]['city'] = list(filter(None, cities))
+        name_acronym_city[current_id]['urban_unit'] = list(filter(None, urbanUnits))
         name_acronym_city[current_id]['acronym'] = list(filter(None, acronyms))
         name_acronym_city[current_id]['name'] = list(filter(None, names))
         country_alpha2 = list(filter(None, country_alpha2))
@@ -162,6 +175,10 @@ def transform_rnsr_data(data) -> list:
             es_rnsr[f'supervisor_{f}'] = list(set(es_rnsr[f'supervisor_{f}']))
         # ADDRESSES
         es_rnsr['city'] = name_acronym_city[rnsr_id]['city']
+        es_rnsr['urban_unit'] = []
+        for uu in name_acronym_city[rnsr_id]['urban_unit']:
+            es_rnsr['urban_unit'] += urban_unit_composition[uu]
+        es_rnsr['urban_unit'] = list(set(es_rnsr['urban_unit']))
         es_rnsr['country_alpha2'] = name_acronym_city[rnsr_id]['country_alpha2']
         es_rnsr['country_code'] = [name_acronym_city[rnsr_id]['country_alpha2']]
         # DATES
