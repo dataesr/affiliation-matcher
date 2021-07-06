@@ -3,11 +3,11 @@ import os
 import shutil
 import string
 import unicodedata
+import pandas as pd
 from tempfile import mkdtemp
 from zipfile import ZipFile
 import requests
 import re
-
 from matcher.server.main.config import GRID_DUMP_URL, ZONE_EMPLOI_INSEE_DUMP
 
 CHUNK_SIZE = 128

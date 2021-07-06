@@ -22,12 +22,13 @@ def load_rnsr(index_prefix: str = '') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['city', 'urban_unit', 'country_code', 'acronym', 'code_number', 'supervisor_acronym', 'year']
+    exact_criteria = ['city', 'urban_unit', 'zone_emploi', 'country_code', 'acronym', 'code_number', 'supervisor_acronym', 'year']
     txt_criteria = ['name', 'supervisor_name']
     analyzers = {
         'acronym': 'acronym_analyzer',
         'city': 'city_analyzer',
         'urban_unit': 'city_analyzer',
+        'zone_emploi': 'city_analyzer',
         'country_code': 'light',
         'code_number': 'code_analyzer',
         'name': 'heavy_fr',
@@ -99,9 +100,24 @@ def transform_rnsr_data(data) -> list:
             d['rnsr'] = [e['id'] for e in external_ids if e['type'] == 'rnsr'][0]
             rnsrs.append(d)
     logger.debug(f'{len(rnsrs)} rnsr elements detected in dump')
+    zone_emploi_insee = download_insee_data()
+    # Loading zone emploi data
+    zone_emploi_composition = {}
+    city_zone_emploi = {}
+    for d in zone_emploi_insee:
+        city = d['LIBGEO']
+        dep_city = d['DEP']+d['LIBGEO']
+        if d['LIBZE2020'] not in zone_emploi_composition:
+            zone_emploi_composition[d['LIBZE2020']] = []
+        zone_emploi_composition[d['LIBZE2020']].append(city)
+        if dep_city not in city_zone_emploi:
+            city_zone_emploi[dep_city] = []
+        city_zone_emploi[dep_city].append(d['LIBZE2020'])
+    
     # setting a dict with all names, acronyms and cities
     name_acronym_city = {}
     urban_unit_composition = {}
+    
     for d in data:
         current_id = d['id']
         name_acronym_city[current_id] = {}
@@ -118,10 +134,15 @@ def transform_rnsr_data(data) -> list:
         names = list(set(names))
         names = list(set(names) - set(acronyms))
         # CITIES, COUNTRIES
-        cities, country_alpha2, urbanUnits = [], [], []
+        cities, country_alpha2, urbanUnits, zoneEmploi = [], [], [], []
         for address in d.get('address', []):
             if 'city' in address and address['city']:
                 cities.append(address['city'])
+            if 'city' in address and address['city'] and 'postcode' in address and address['postcode']:
+                dep = address['postcode'][0:2]
+                depCity = dep+address['city']
+                if depCity in city_zone_emploi:
+                    zoneEmploi += city_zone_emploi[depCity]
             if 'urbanUnitLabel' in address and address['urbanUnitLabel']:
                 urbanUnits.append(address['urbanUnitLabel'])
             if 'country' in address and address['country']:
@@ -136,9 +157,11 @@ def transform_rnsr_data(data) -> list:
                     urban_unit_composition[urban_unit].append(city)
 
         cities = list(set(cities))
+        zoneEmploi = list(set(zoneEmploi))
         country_alpha2 = list(set(country_alpha2))
         urbanUnits = list(set(urbanUnits))
         name_acronym_city[current_id]['city'] = list(filter(None, cities))
+        name_acronym_city[current_id]['zone_emploi'] = list(filter(None, zoneEmploi))
         name_acronym_city[current_id]['urban_unit'] = list(filter(None, urbanUnits))
         name_acronym_city[current_id]['acronym'] = list(filter(None, acronyms))
         name_acronym_city[current_id]['name'] = list(filter(None, names))
@@ -175,12 +198,18 @@ def transform_rnsr_data(data) -> list:
             es_rnsr[f'supervisor_{f}'] = list(set(es_rnsr[f'supervisor_{f}']))
         # ADDRESSES
         es_rnsr['city'] = name_acronym_city[rnsr_id]['city']
+        es_rnsr['country_alpha2'] = name_acronym_city[rnsr_id]['country_alpha2']
+        es_rnsr['country_code'] = [name_acronym_city[rnsr_id]['country_alpha2']]
+        # for urban units and zone emploi, all the cities around are added, so that, eg, Bordeaux is in zone_emploi of a lab located in Talence
         es_rnsr['urban_unit'] = []
         for uu in name_acronym_city[rnsr_id]['urban_unit']:
             es_rnsr['urban_unit'] += urban_unit_composition[uu]
         es_rnsr['urban_unit'] = list(set(es_rnsr['urban_unit']))
-        es_rnsr['country_alpha2'] = name_acronym_city[rnsr_id]['country_alpha2']
-        es_rnsr['country_code'] = [name_acronym_city[rnsr_id]['country_alpha2']]
+        #now zone emploi (larger than urban unit)
+        es_rnsr['zone_emploi'] = []
+        for ze in name_acronym_city[rnsr_id]['zone_emploi']:
+            es_rnsr['zone_emploi'] += zone_emploi_composition[ze]
+        es_rnsr['zone_emploi'] = list(set(es_rnsr['zone_emploi']))
         # DATES
         last_year = f'{datetime.date.today().year}'
         start_date = rnsr.get('startDate')
