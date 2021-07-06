@@ -4,24 +4,24 @@ from matcher.server.main.matcher import Matcher
 from matcher.server.main.utils import remove_ref_index
 
 DEFAULT_STRATEGIES = [
-    ['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_city'],
-    ['rnsr_code_number', 'rnsr_supervisor_name', 'rnsr_city'],
+    ['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_urban_unit'],
+    ['rnsr_code_number', 'rnsr_supervisor_name', 'rnsr_urban_unit'],
     ['rnsr_code_number', 'rnsr_acronym'],
     ['rnsr_code_number', 'rnsr_name'],
     ['rnsr_code_number', 'rnsr_supervisor_acronym'],
     ['rnsr_code_number', 'rnsr_supervisor_name'],
-    ['rnsr_code_number', 'rnsr_city'],
-    ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_name', 'rnsr_city'],
-    ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_city'],
-    ['rnsr_acronym', 'rnsr_name', 'rnsr_city'],
-    ['rnsr_acronym', 'rnsr_supervisor_acronym', 'rnsr_city'],
-    ['rnsr_acronym', 'rnsr_supervisor_name', 'rnsr_city'],
-    ['rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_city'],
-    ['rnsr_name', 'rnsr_supervisor_name', 'rnsr_city'],
+    ['rnsr_code_number', 'rnsr_urban_unit'],
+    ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_name', 'rnsr_urban_unit'],
+    ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_urban_unit'],
+    ['rnsr_acronym', 'rnsr_name', 'rnsr_urban_unit'],
+    ['rnsr_acronym', 'rnsr_supervisor_acronym', 'rnsr_urban_unit'],
+    ['rnsr_acronym', 'rnsr_supervisor_name', 'rnsr_urban_unit'],
+    ['rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_urban_unit'],
+    ['rnsr_name', 'rnsr_supervisor_name', 'rnsr_urban_unit'],
     ['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_acronym'],
     ['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_name'],
-    ['rnsr_name', 'rnsr_city'],
-    ['rnsr_acronym', 'rnsr_city'],
+    ['rnsr_name', 'rnsr_urban_unit'],
+    ['rnsr_acronym', 'rnsr_urban_unit'],
     ['rnsr_name', 'rnsr_acronym']
 ]
 

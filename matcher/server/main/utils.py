@@ -8,7 +8,7 @@ from zipfile import ZipFile
 import requests
 import re
 
-from matcher.server.main.config import GRID_DUMP_URL
+from matcher.server.main.config import GRID_DUMP_URL, ZONE_EMPLOI_INSEE_DUMP
 
 CHUNK_SIZE = 128
 
@@ -65,6 +65,20 @@ def download_grid_data() -> dict:
     shutil.rmtree(path=grid_unzipped_folder)
     return data
 
+
+def download_insee_data() -> dict:
+    insee_downloaded_file = 'insee_data_dump.zip'
+    insee_unzipped_folder = mkdtemp()
+    response = requests.get(url=ZONE_EMPLOI_INSEE_DUMP, stream=True)
+    with open(insee_downloaded_file, 'wb') as file:
+        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+            file.write(chunk)
+    with ZipFile(insee_downloaded_file, 'r') as file:
+        file.extractall(insee_unzipped_folder)
+    data = pd.read_excel(f'{insee_unzipped_folder}/ZE2020_au_01-01-2021.xlsx', sheet_name="Composition_communale", skiprows=5).to_dict(orient='records')
+    os.remove(path=insee_downloaded_file)
+    shutil.rmtree(path=insee_unzipped_folder)
+    return data
 
 def has_a_digit(text: str = '') -> bool:
     for char in text:
