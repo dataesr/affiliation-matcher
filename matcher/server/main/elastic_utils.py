@@ -66,6 +66,11 @@ def get_filters():
             "type": "synonym",
             "lenient": True,
             "synonyms": [ "st => saint" ]
+        },
+        'name_synonym': {
+            "type": "synonym",
+            "lenient": True,
+            "synonyms": [ "cic => centres d'investigation clinique" ]
         }
     }
 
@@ -132,6 +137,7 @@ def get_analyzers():
                 'lowercase',
                 'icu_folding',
                 'common_synonym',
+                'name_synonym',
                 'french_stop',
                 'english_stop',
                 'name_stop',
