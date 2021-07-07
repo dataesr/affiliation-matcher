@@ -56,7 +56,13 @@ def get_filters():
             'type': 'length',
             'min': 3
         },
-        'city_synonym': {
+        'linked_words': {
+            'type': 'common_grams',
+            'common_words': ['saint', 'sainte'],
+            'ignore_case': True,
+            'query_mode': True
+        },
+        'common_synonym': {
             "type": "synonym",
             "lenient": True,
             "synonyms": [ "st => saint" ]
@@ -88,7 +94,7 @@ def get_analyzers():
                 'lowercase',
                 'french_elision',
                 'icu_folding',
-                'city_synonym'
+                'common_synonym'
             ]
         },
         'acronym_analyzer': {
@@ -125,9 +131,11 @@ def get_analyzers():
             'filter': [
                 'lowercase',
                 'icu_folding',
+                'common_synonym',
                 'french_stop',
                 'english_stop',
                 'name_stop',
+                'linked_words',
                 'french_elision',
                 'french_stemmer'
             ]

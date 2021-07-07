@@ -86,14 +86,14 @@ def load_rnsr(index_prefix: str = '') -> dict:
                     if len(tokens) < 2:
                         logger.debug(f"not indexing {criterion_value} (not enough token to be relevant !)")
                         continue
-                    first_two_tokens = " ".join([t['token'] for t in tokens[0:2]])
-                    if first_two_tokens == "unit recherch":
+                    ref_tokens = get_tokens(indices_client, analyzer, index, "unité de recherche")
+                    ref_tokens_str = " ".join([t['token'] for t in ref_tokens])
+                    first_tokens_str = " ".join([t['token'] for t in tokens[0:len(ref_tokens)]])
+                    if first_tokens_str == ref_tokens_str:
                         new_criterion_value = " ".join(criterion_value.split(' ')[3:])
                         logger.debug(f"indexing also {new_criterion_value} along with {criterion_value}")
                         new_action = copy.deepcopy(action)
                         new_action['query']['match']['content']['query'] = new_criterion_value
-                        logger.debug(f"new action {new_action}")
-                        logger.debug(f"action {action}")
                         actions.append(new_action)
             actions.append(action)
     es.parallel_bulk(actions=actions)
