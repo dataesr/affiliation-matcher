@@ -1,20 +1,30 @@
 import datetime
-
+import copy
 import requests
 
 from matcher.server.main.config import SCANR_DUMP_URL
 from matcher.server.main.elastic_utils import get_filters, get_analyzers, get_char_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
+from elasticsearch.client import IndicesClient
 from matcher.server.main.utils import get_alpha2_from_french, download_insee_data
 
 logger = get_logger(__name__)
 
 SOURCE = 'rnsr'
 
+def get_tokens(indices_client, analyzer, index, text):
+    tokens = indices_client.analyze(body=
+        {
+            "analyzer": analyzer,
+            "text": text
+        },
+        index=index)['tokens']
+    return tokens
 
 def load_rnsr(index_prefix: str = '') -> dict:
     es = MyElastic()
+    indices_client = IndicesClient(es)
     settings = {
         'analysis': {
             'char_filter': get_char_filters(),
@@ -71,6 +81,20 @@ def load_rnsr(index_prefix: str = '') -> dict:
             elif criterion in txt_criteria:
                 action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': analyzer,
                                                          'minimum_should_match': '-20%'}}}
+                if criterion in ['name']:
+                    tokens = get_tokens(indices_client, analyzer, index, criterion_value)
+                    if len(tokens) < 2:
+                        logger.debug(f"not indexing {criterion_value} (not enough token to be relevant !)")
+                        continue
+                    first_two_tokens = " ".join([t['token'] for t in tokens[0:2]])
+                    if first_two_tokens == "unit recherch":
+                        new_criterion_value = " ".join(criterion_value.split(' ')[3:])
+                        logger.debug(f"indexing also {new_criterion_value} along with {criterion_value}")
+                        new_action = copy.deepcopy(action)
+                        new_action['query']['match']['content']['query'] = new_criterion_value
+                        logger.debug(f"new action {new_action}")
+                        logger.debug(f"action {action}")
+                        actions.append(new_action)
             actions.append(action)
     es.parallel_bulk(actions=actions)
     return results
