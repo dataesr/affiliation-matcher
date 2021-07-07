@@ -34,6 +34,11 @@ def get_filters():
             'ignore_case': True,
             'stopwords': ['pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation']
         },
+        'name_stop': {
+            'type': 'stop',
+            'ignore_case': True,
+            'stopwords': []
+        },
         'french_elision': {
             'type': 'elision',
             'articles_case': True,
@@ -122,6 +127,7 @@ def get_analyzers():
                 'icu_folding',
                 'french_stop',
                 'english_stop',
+                'name_stop',
                 'french_elision',
                 'french_stemmer'
             ]
