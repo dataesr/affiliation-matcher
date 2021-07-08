@@ -1,26 +1,24 @@
-import datetime
 import copy
+import datetime
 import requests
 
+from elasticsearch.client import IndicesClient
+
 from matcher.server.main.config import SCANR_DUMP_URL
-from matcher.server.main.elastic_utils import get_filters, get_analyzers, get_char_filters, get_index_name, get_mappings
+from matcher.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
-from elasticsearch.client import IndicesClient
-from matcher.server.main.utils import get_alpha2_from_french, download_insee_data
+from matcher.server.main.utils import download_insee_data, get_alpha2_from_french
 
 logger = get_logger(__name__)
 
 SOURCE = 'rnsr'
 
-def get_tokens(indices_client, analyzer, index, text):
-    tokens = indices_client.analyze(body=
-        {
-            "analyzer": analyzer,
-            "text": text
-        },
-        index=index)['tokens']
+
+def get_tokens(indices_client, analyzer, index, text) -> dict:
+    tokens = indices_client.analyze(body={'analyzer': analyzer, 'text': text}, index=index)['tokens']
     return tokens
+
 
 def load_rnsr(index_prefix: str = '') -> dict:
     es = MyElastic()
@@ -32,7 +30,8 @@ def load_rnsr(index_prefix: str = '') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['city', 'urban_unit', 'zone_emploi', 'country_code', 'acronym', 'code_number', 'supervisor_acronym', 'year']
+    exact_criteria = ['city', 'urban_unit', 'zone_emploi', 'country_code', 'acronym', 'code_number',
+                      'supervisor_acronym', 'year']
     txt_criteria = ['name', 'supervisor_name']
     analyzers = {
         'acronym': 'acronym_analyzer',
@@ -60,7 +59,7 @@ def load_rnsr(index_prefix: str = '') -> dict:
         for criterion in criteria:
             criterion_values = rnsr.get(criterion)
             if criterion_values is None:
-                logger.debug(f"This element {rnsr} has no {criterion}")
+                logger.debug(f'This element {rnsr} has no {criterion}')
                 continue
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
@@ -74,7 +73,8 @@ def load_rnsr(index_prefix: str = '') -> dict:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]], 'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
+            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]],
+                      'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
             if criterion in exact_criteria:
                 action['query'] = {
                     'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}
@@ -84,14 +84,14 @@ def load_rnsr(index_prefix: str = '') -> dict:
                 if criterion in ['name']:
                     tokens = get_tokens(indices_client, analyzer, index, criterion_value)
                     if len(tokens) < 2:
-                        logger.debug(f"not indexing {criterion_value} (not enough token to be relevant !)")
+                        logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
                         continue
-                    ref_tokens = get_tokens(indices_client, analyzer, index, "unité de recherche")
-                    ref_tokens_str = " ".join([t['token'] for t in ref_tokens])
-                    first_tokens_str = " ".join([t['token'] for t in tokens[0:len(ref_tokens)]])
+                    ref_tokens = get_tokens(indices_client, analyzer, index, 'unité de recherche')
+                    ref_tokens_str = ' '.join([t['token'] for t in ref_tokens])
+                    first_tokens_str = ' '.join([t['token'] for t in tokens[0:len(ref_tokens)]])
                     if first_tokens_str == ref_tokens_str:
-                        new_criterion_value = " ".join(criterion_value.split(' ')[3:])
-                        logger.debug(f"indexing also {new_criterion_value} along with {criterion_value}")
+                        new_criterion_value = ' '.join(criterion_value.split(' ')[3:])
+                        logger.debug(f'Indexing also {new_criterion_value} along with {criterion_value}')
                         new_action = copy.deepcopy(action)
                         new_action['query']['match']['content']['query'] = new_criterion_value
                         actions.append(new_action)
@@ -113,6 +113,7 @@ def download_rnsr_data() -> list:
     data = r.json()
     return data
 
+
 def transform_rnsr_data(data) -> list:
     # todo : use rnsr key when available in dump rather than the regex
     # rnsr_regex = re.compile("[0-9]{9}[A-Z]")
@@ -130,18 +131,16 @@ def transform_rnsr_data(data) -> list:
     city_zone_emploi = {}
     for d in zone_emploi_insee:
         city = d['LIBGEO']
-        dep_city = d['DEP']+d['LIBGEO']
+        dep_city = d['DEP'] + d['LIBGEO']
         if d['LIBZE2020'] not in zone_emploi_composition:
             zone_emploi_composition[d['LIBZE2020']] = []
         zone_emploi_composition[d['LIBZE2020']].append(city)
         if dep_city not in city_zone_emploi:
             city_zone_emploi[dep_city] = []
         city_zone_emploi[dep_city].append(d['LIBZE2020'])
-    
     # setting a dict with all names, acronyms and cities
     name_acronym_city = {}
     urban_unit_composition = {}
-    
     for d in data:
         current_id = d['id']
         name_acronym_city[current_id] = {}
@@ -158,17 +157,17 @@ def transform_rnsr_data(data) -> list:
         names = list(set(names))
         names = list(set(names) - set(acronyms))
         # CITIES, COUNTRIES
-        cities, country_alpha2, urbanUnits, zoneEmploi = [], [], [], []
+        cities, country_alpha2, urban_units, zone_emploi = [], [], [], []
         for address in d.get('address', []):
             if 'city' in address and address['city']:
                 cities.append(address['city'])
             if 'city' in address and address['city'] and 'postcode' in address and address['postcode']:
                 dep = address['postcode'][0:2]
-                depCity = dep+address['city']
-                if depCity in city_zone_emploi:
-                    zoneEmploi += city_zone_emploi[depCity]
+                dep_city = dep + address['city']
+                if dep_city in city_zone_emploi:
+                    zone_emploi += city_zone_emploi[dep_city]
             if 'urbanUnitLabel' in address and address['urbanUnitLabel']:
-                urbanUnits.append(address['urbanUnitLabel'])
+                urban_units.append(address['urbanUnitLabel'])
             if 'country' in address and address['country']:
                 alpha2 = get_alpha2_from_french(address['country'])
                 country_alpha2.append(alpha2)
@@ -181,19 +180,18 @@ def transform_rnsr_data(data) -> list:
                     urban_unit_composition[urban_unit].append(city)
 
         cities = list(set(cities))
-        zoneEmploi = list(set(zoneEmploi))
+        zone_emploi = list(set(zone_emploi))
         country_alpha2 = list(set(country_alpha2))
-        urbanUnits = list(set(urbanUnits))
+        urban_units = list(set(urban_units))
         name_acronym_city[current_id]['city'] = list(filter(None, cities))
-        name_acronym_city[current_id]['zone_emploi'] = list(filter(None, zoneEmploi))
-        name_acronym_city[current_id]['urban_unit'] = list(filter(None, urbanUnits))
+        name_acronym_city[current_id]['zone_emploi'] = list(filter(None, zone_emploi))
+        name_acronym_city[current_id]['urban_unit'] = list(filter(None, urban_units))
         name_acronym_city[current_id]['acronym'] = list(filter(None, acronyms))
         name_acronym_city[current_id]['name'] = list(filter(None, names))
         country_alpha2 = list(filter(None, country_alpha2))
         if not country_alpha2:
             country_alpha2 = ['fr']
-        name_acronym_city[current_id]['country_alpha2'] = country_alpha2[0] 
-
+        name_acronym_city[current_id]['country_alpha2'] = country_alpha2[0]
     es_rnsrs = []
     for rnsr in rnsrs:
         rnsr_id = rnsr['id']
@@ -210,7 +208,7 @@ def transform_rnsr_data(data) -> list:
         # SUPERVISORS ID
         es_rnsr['supervisor_id'] = [supervisor.get('structure') for supervisor in rnsr.get('institutions', [])
                                     if 'structure' in supervisor]
-        es_rnsr['supervisor_id'] += [e['id'][0:9] for e in rnsr.get('externalIds', []) if "sire" in e['type']]
+        es_rnsr['supervisor_id'] += [e['id'][0:9] for e in rnsr.get('externalIds', []) if 'sire' in e['type']]
         es_rnsr['supervisor_id'] = list(set(es_rnsr['supervisor_id']))
         es_rnsr['supervisor_id'] = list(filter(None, es_rnsr['supervisor_id']))
         # SUPERVISORS ACRONYM, NAME AND CITY
@@ -224,12 +222,13 @@ def transform_rnsr_data(data) -> list:
         es_rnsr['city'] = name_acronym_city[rnsr_id]['city']
         es_rnsr['country_alpha2'] = name_acronym_city[rnsr_id]['country_alpha2']
         es_rnsr['country_code'] = [name_acronym_city[rnsr_id]['country_alpha2']]
-        # for urban units and zone emploi, all the cities around are added, so that, eg, Bordeaux is in zone_emploi of a lab located in Talence
+        # for urban units and zone emploi, all the cities around are added, so that, eg, Bordeaux is in
+        # zone_emploi of a lab located in Talence
         es_rnsr['urban_unit'] = []
         for uu in name_acronym_city[rnsr_id]['urban_unit']:
             es_rnsr['urban_unit'] += urban_unit_composition[uu]
         es_rnsr['urban_unit'] = list(set(es_rnsr['urban_unit']))
-        #now zone emploi (larger than urban unit)
+        # now zone emploi (larger than urban unit)
         es_rnsr['zone_emploi'] = []
         for ze in name_acronym_city[rnsr_id]['zone_emploi']:
             es_rnsr['zone_emploi'] += zone_emploi_composition[ze]
