@@ -28,8 +28,7 @@ def check_matcher_health() -> bool:
 
 def get_country(affiliation):
     in_cache = False
-
-    params={
+    params = {
         "size": 1,
         "query": {
             "term": {

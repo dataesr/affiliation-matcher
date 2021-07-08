@@ -110,7 +110,7 @@ def data2actions(index: str, data: list = None) -> list:
     return actions
 
 
-def load_wikidata(index_prefix: str = '') -> None:
+def load_wikidata(index_prefix: str = '') -> dict:
     mappings = {
         'properties': {
             'content': {
@@ -142,5 +142,5 @@ def load_wikidata(index_prefix: str = '') -> None:
     universities = get_universities_from_wikidata()
     actions += data2actions(data=universities, index=index_university)
     es.parallel_bulk(actions=actions)
-    #TODO ! fill-in the response
+    # TODO ! fill-in the response
     return {}

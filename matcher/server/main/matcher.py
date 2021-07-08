@@ -1,8 +1,9 @@
 from matcher.server.main.elastic_utils import get_index_name
-from matcher.server.main.my_elastic import MyElastic
 from matcher.server.main.logger import get_logger
+from matcher.server.main.my_elastic import MyElastic
 
 logger = get_logger(__name__)
+
 
 def identity(x: str = '') -> str:
     return x
@@ -30,7 +31,6 @@ class Matcher:
                 criterion_without_source = '_'.join(criterion.split('_')[1:])
                 if criterion_without_source in conditions:
                     criterion_query = conditions[criterion_without_source]
-                    #logger.debug(f"using {criterion_query} for criterion {criterion_without_source}")
                 else:
                     criterion_query = pre_treatment_query(query)
                 body = {'query': {'percolate': {'field': 'query', 'document': {'content': criterion_query}}},
@@ -39,8 +39,6 @@ class Matcher:
                 index = get_index_name(index_name=criterion, source='', index_prefix=index_prefix)
                 hits = self.es.search(index=index, body=body).get('hits', []).get('hits', [])
                 all_hits[criterion] = hits
-                highlights = [hit.get('highlight', {}).get('content') for hit in hits]
-                #logs += '<br /><br />'.join(['<br />'.join(highlight) for highlight in highlights if highlight]) + '<br />'
                 criteria_results = [hit.get('_source', {}).get(field) for hit in hits]
                 criteria_results = [item for sublist in criteria_results for item in sublist]
                 criteria_results = list(set(criteria_results))
@@ -70,7 +68,7 @@ class Matcher:
                 if verbose:
                     final_res['logs'] = logs
                 return final_res
-        logs += "<br/> No results found"
+        logs += '<br/> No results found'
         final_res = {'results': [], 'highlights': {}}
         if verbose:
             final_res['logs'] = logs

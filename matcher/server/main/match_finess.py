@@ -1,11 +1,12 @@
 import requests
+
 from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 
-from matcher.server.main.config import config
+from matcher.server.main.config import ELASTICSEARCH_HOST, ELASTICSEARCH_URL
 
-es = Elasticsearch(config['ELASTICSEARCH_HOST'])
+es = Elasticsearch(ELASTICSEARCH_HOST)
 INDEX = 'index_finess'
 
 
@@ -15,7 +16,7 @@ def normalize_for_count(x, matching_field):
         analyzer = f'analyzer_{matching_field}'
     if analyzer:
         try:
-            r = requests.post(config['ELASTICSEARCH_URL'] + INDEX + "/_analyze", json={
+            r = requests.post(f'{ELASTICSEARCH_URL}{INDEX}/_analyze', json={
                 "analyzer": analyzer,
                 "text": x
             }).json()
