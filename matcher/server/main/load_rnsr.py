@@ -138,17 +138,17 @@ def transform_rnsr_data(data) -> list:
         if dep_city not in city_zone_emploi:
             city_zone_emploi[dep_city] = []
         city_zone_emploi[dep_city].append(d['LIBZE2020'])
-    # setting a dict with all names, acronyms and cities
+    # Setting a dict with all names, acronyms and cities
     name_acronym_city = {}
     urban_unit_composition = {}
     for d in data:
         current_id = d['id']
         name_acronym_city[current_id] = {}
-        # ACRONYMS
+        # Acronyms
         acronyms = []
         if d.get('acronym'):
             acronyms = get_values(d.get('acronym', []))
-        # NAMES
+        # Names
         names = []
         if d.get('label'):
             names += get_values(d.get('label', []))
@@ -156,7 +156,7 @@ def transform_rnsr_data(data) -> list:
             names += d.get('alias')
         names = list(set(names))
         names = list(set(names) - set(acronyms))
-        # CITIES, COUNTRIES
+        # Cities, country_alpha2, urban_units and zone_emploi
         cities, country_alpha2, urban_units, zone_emploi = [], [], [], []
         for address in d.get('address', []):
             if 'city' in address and address['city']:
@@ -178,7 +178,6 @@ def transform_rnsr_data(data) -> list:
                     urban_unit_composition[urban_unit] = []
                 if city not in urban_unit_composition[urban_unit]:
                     urban_unit_composition[urban_unit].append(city)
-
         cities = list(set(cities))
         zone_emploi = list(set(zone_emploi))
         country_alpha2 = list(set(country_alpha2))

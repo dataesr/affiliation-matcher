@@ -10,7 +10,7 @@ def get_annotated_data() -> dict:
     return data
 
 
-def compute_precision_recall(match_type: str, index_prefix: str = 'matcher'):
+def compute_precision_recall(match_type: str, index_prefix: str = '') -> dict:
     data = get_annotated_data()
     nb_tp = 0
     false_positive, false_negative = [], []

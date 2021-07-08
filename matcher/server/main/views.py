@@ -46,13 +46,13 @@ def get_status(task_id):
         task = q.fetch_job(task_id)
     if task:
         response_object = {
-            "status": "success",
-            "data": {
-                "task_id": task.get_id(),
-                "task_status": task.get_status(),
-                "task_result": task.result,
-            },
+            'status': 'success',
+            'data': {
+                'task_id': task.get_id(),
+                'task_status': task.get_status(),
+                'task_result': task.result,
+            }
         }
     else:
-        response_object = {"status": "error"}
-    return jsonify(response_object)
+        response_object = {'status': 'error'}
+    return jsonify(response_object), 202
