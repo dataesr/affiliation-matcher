@@ -5,21 +5,21 @@ from matcher.server.main.load_rnsr import load_rnsr
 from matcher.server.main.load_wikidata import load_wikidata
 from matcher.server.main.logger import get_logger
 from matcher.server.main.match_country import match_country
-from matcher.server.main.match_rnsr import match_rnsr
 from matcher.server.main.match_grid import match_grid
+from matcher.server.main.match_rnsr import match_rnsr
 
 logger = get_logger(__name__)
 
 
 def create_task_enrich_filter(args: dict = None) -> dict:
     check_matcher_health()
-    publications = args.get('publications')
-    countries_to_keep = args.get('countries_to_keep')
+    publications = args.get('publications', {})
+    countries_to_keep = args.get('countries_to_keep', {})
     if not isinstance(publications, list):
-        logger.debug("no valid publications args")
+        logger.debug('No valid publications args')
     if not isinstance(countries_to_keep, list):
-        logger.debug("no valid countries_to_keep args")
-    return enrich_and_filter_publications_by_country(publications, countries_to_keep)
+        logger.debug('No valid countries_to_keep args')
+    return enrich_and_filter_publications_by_country(publications=publications, countries_to_keep=countries_to_keep)
 
 
 def create_task_load(args: dict = None) -> dict:
