@@ -39,7 +39,7 @@ class TestLoadRnsr:
             }
         ]
         requests_mock.get(url=url, json=data)
-        load_rnsr('test')
+        load_rnsr(index_prefix='test')
         es = setup['es']
         cities = es.count(index='test_rnsr_city')
         assert cities['count'] == 2
