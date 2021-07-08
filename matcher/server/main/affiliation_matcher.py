@@ -18,7 +18,7 @@ def check_matcher_health() -> bool:
         logger.debug('Matcher seems healthy')
         return True
     except:
-        logger.debug("matcher does not seem loaded, lets load it")
+        logger.debug('Matcher does not seem loaded, lets load it')
         load_res = {}
         load_res.update(load_country(index_prefix='matcher'))
         load_res.update(load_grid(index_prefix='matcher'))
@@ -78,16 +78,9 @@ def enrich_and_filter_publications_by_country(publications: list, countries_to_k
     all_affiliations_dict = {}
     # Retrieve countries for all publications
     check_matcher_health()
-    use_parallel = False
     for all_affiliations_list_chunk in chunks(all_affiliations_list, 1000):
-        if use_parallel:
-            with ThreadPoolExecutor(max_workers=NB_AFFILIATION_MATCHER) as pool:
-                countries_list = list(pool.map(get_country,all_affiliations_list_chunk))
-            for ix, affiliation in enumerate(all_affiliations_list_chunk):
-                all_affiliations_dict[affiliation] = countries_list[ix]
-        else:
-            for affiliation in all_affiliations_list_chunk:
-                all_affiliations_dict[affiliation] = get_country(affiliation)
+        for affiliation in all_affiliations_list_chunk:
+            all_affiliations_dict[affiliation] = get_country(affiliation)
         logger.debug(f'{len(all_affiliations_dict)} / {len(all_affiliations_list)} treated in country_matcher')
         logger.debug(f'loading in cache')
         cache = []
