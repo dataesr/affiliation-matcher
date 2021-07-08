@@ -29,7 +29,7 @@ setup(
         'geopy==2.1.0',
         'lxml==4.6.3',
         'redis==3.3.11',
-        'requests==2.19.1',
+        'requests==2.20.0',
         'rq==1.1.0'
     ],
     tests_require=[
