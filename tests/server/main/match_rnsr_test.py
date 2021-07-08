@@ -30,5 +30,5 @@ class TestMatchRnsr:
 
     def test_precision_recall(self) -> None:
         precision_recall = compute_precision_recall(match_type='rnsr', index_prefix='test')
-        assert precision_recall['precision'] >= 0.97
+        assert precision_recall['precision'] >= 0.95
         assert precision_recall['recall'] >= 0.80
