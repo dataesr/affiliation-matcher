@@ -132,15 +132,18 @@ def load_wikidata(index_prefix: str = '') -> dict:
     index_hospital = get_index_name(index_name='hospital', source=SOURCE, index_prefix=index_prefix)
     index_university = get_index_name(index_name='university', source=SOURCE, index_prefix=index_prefix)
     indexes = [index_city, index_university, index_hospital]
+    results = {}
     for index in indexes:
         es.create_index(index=index, mappings=mappings)
     actions = []
     cities = get_cities_from_wikidata()
     actions += data2actions(data=cities, index=index_city)
+    results[index_city] = len(cities)
     hospitals = get_hospitals_from_wikidata()
     actions += data2actions(data=hospitals, index=index_hospital)
+    results[index_hospital] = len(hospitals)
     universities = get_universities_from_wikidata()
     actions += data2actions(data=universities, index=index_university)
+    results[index_university] = len(universities)
     es.parallel_bulk(actions=actions)
-    # TODO ! fill-in the response
-    return {}
+    return results
