@@ -6,12 +6,12 @@ from matcher.server.main.logger import get_logger
 
 class MyElastic(Elasticsearch):
     def __init__(self) -> None:
+        self.logger = get_logger(__name__)
         if ELASTICSEARCH_LOGIN:
-            print("using es login!", flush=True)
+            self.logger.error('Using es login!')
             super().__init__(hosts=ELASTICSEARCH_HOST, http_auth=(ELASTICSEARCH_LOGIN, ELASTICSEARCH_PASSWORD))
         else:
             super().__init__(hosts=ELASTICSEARCH_HOST)
-        self.logger = get_logger(__name__)
 
     def create_index(self, index: str = None, mappings: dict = None, settings: dict = None):
         if mappings is None:

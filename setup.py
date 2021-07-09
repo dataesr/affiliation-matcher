@@ -28,9 +28,13 @@ setup(
         'Flask-Bootstrap==3.3.7.1',
         'geopy==2.1.0',
         'lxml==4.6.3',
+        'pandas==0.25.3',
+        'pycountry==20.7.3',
         'redis==3.3.11',
-        'requests==2.19.1',
-        'rq==1.1.0'
+        'requests==2.20.0',
+        'rq==1.1.0',
+        'xlrd==1.1.0',
+        'XlsxWriter==1.0.4'
     ],
     tests_require=[
         'pytest==6.2.3',

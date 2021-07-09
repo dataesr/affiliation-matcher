@@ -18,8 +18,7 @@ def get_mappings(analyzer) -> dict:
     }
 
 
-
-def get_filters():
+def get_filters() -> dict:
     return {
         'french_stop': {
             'type': 'stop',
@@ -63,19 +62,20 @@ def get_filters():
             'query_mode': True
         },
         'common_synonym': {
-            "type": "synonym",
-            "lenient": True,
-            "synonyms": [ "st => saint" ]
+            'type': 'synonym',
+            'lenient': True,
+            'synonyms': ['st => saint']
         },
         'name_synonym': {
-            "type": "synonym",
-            "lenient": True,
-            "synonyms": [ "cic => centres d'investigation clinique" ]
+            'type': 'synonym',
+            'lenient': True,
+            'synonyms': ["cic => centres d'investigation clinique"]
         }
     }
 
-def get_char_filters():
-    return { 
+
+def get_char_filters() -> dict:
+    return {
         'remove_char_btw_digits': {
             'type': 'pattern_replace',
             'pattern': '(\\d+)\D(?=\\d)',
@@ -83,7 +83,8 @@ def get_char_filters():
         }
     }
 
-def get_analyzers():
+
+def get_analyzers() -> dict:
     return {
         'light': {
             'tokenizer': 'icu_tokenizer',
