@@ -114,10 +114,7 @@ def download_rnsr_data() -> list:
     return data
 
 
-def transform_rnsr_data(data) -> list:
-    # todo : use rnsr key when available in dump rather than the regex
-    # rnsr_regex = re.compile("[0-9]{9}[A-Z]")
-    # rnsrs = [d for d in data if re.search(rnsr_regex, d['id'])]
+def transform_rnsr_data(data: list) -> list:
     rnsrs = []
     for d in data:
         external_ids = d.get('externalIds', [])
