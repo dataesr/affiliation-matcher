@@ -1,7 +1,15 @@
+import json
+import os
+import requests
+import shutil
+
+from tempfile import mkdtemp
+from zipfile import ZipFile
+
+from matcher.server.main.config import CHUNK_SIZE, GRID_DUMP_URL
 from matcher.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import download_grid_data
 
 logger = get_logger(__name__)
 
@@ -67,7 +75,7 @@ def load_grid(index_prefix: str = '') -> dict:
     return results
 
 
-def transform_grid_data(data):
+def transform_grid_data(data: dict) -> list:
     grids = data.get('institutes', [])
     res = []
     for grid in grids:
@@ -108,3 +116,19 @@ def transform_grid_data(data):
         formatted_data['country_alpha2'] = formatted_data['country_code'][0]
         res.append(formatted_data)
     return res
+
+
+def download_grid_data() -> dict:
+    grid_downloaded_file = 'grid_data_dump.zip'
+    grid_unzipped_folder = mkdtemp()
+    response = requests.get(url=GRID_DUMP_URL, stream=True)
+    with open(grid_downloaded_file, 'wb') as file:
+        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+            file.write(chunk)
+    with ZipFile(grid_downloaded_file, 'r') as file:
+        file.extractall(grid_unzipped_folder)
+    with open(f'{grid_unzipped_folder}/grid.json', 'r') as file:
+        data = json.load(file)
+    os.remove(path=grid_downloaded_file)
+    shutil.rmtree(path=grid_unzipped_folder)
+    return data

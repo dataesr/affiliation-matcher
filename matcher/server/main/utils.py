@@ -1,4 +1,3 @@
-import json
 import os
 import pandas as pd
 import re
@@ -10,9 +9,7 @@ import unicodedata
 from tempfile import mkdtemp
 from zipfile import ZipFile
 
-from matcher.server.main.config import GRID_DUMP_URL, ZONE_EMPLOI_INSEE_DUMP
-
-CHUNK_SIZE = 128
+from matcher.server.main.config import CHUNK_SIZE, ZONE_EMPLOI_INSEE_DUMP
 
 
 def chunks(lst: list, n: int) -> list:
@@ -55,22 +52,6 @@ def get_alpha2_from_french(user_input):
            "Brésil": "br", "Chine": "cn", "Argentine": "ar", "Russie": "ru", "Italie": "it", "Ethiopie": "et",
            "Israël": "il", "Afrique du Sud": "za"}
     return ref.get(user_input)
-
-
-def download_grid_data() -> dict:
-    grid_downloaded_file = 'grid_data_dump.zip'
-    grid_unzipped_folder = mkdtemp()
-    response = requests.get(url=GRID_DUMP_URL, stream=True)
-    with open(grid_downloaded_file, 'wb') as file:
-        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
-            file.write(chunk)
-    with ZipFile(grid_downloaded_file, 'r') as file:
-        file.extractall(grid_unzipped_folder)
-    with open(f'{grid_unzipped_folder}/grid.json', 'r') as file:
-        data = json.load(file)
-    os.remove(path=grid_downloaded_file)
-    shutil.rmtree(path=grid_unzipped_folder)
-    return data
 
 
 def download_insee_data() -> dict:
