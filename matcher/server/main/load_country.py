@@ -50,7 +50,7 @@ def transform_country_data(raw_data):
     return countries
 
 
-def load_country(index_prefix: str = '') -> dict:
+def load_country(index_prefix: str = 'matcher') -> dict:
     es = MyElastic()
     settings = {
         'analysis': {

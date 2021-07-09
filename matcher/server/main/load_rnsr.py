@@ -20,7 +20,7 @@ def get_tokens(indices_client, analyzer, index, text) -> dict:
     return tokens
 
 
-def load_rnsr(index_prefix: str = '') -> dict:
+def load_rnsr(index_prefix: str = 'matcher') -> dict:
     es = MyElastic()
     indices_client = IndicesClient(es)
     settings = {
