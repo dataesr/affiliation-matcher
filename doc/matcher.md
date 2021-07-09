@@ -23,40 +23,125 @@ keywords:
 
 # 1. Introduction
 
+[@donner_comparing_2020] 
+[@cuxac_efficient_2013]
+[@jeangirard_monitoring_2019]
+
 # 2. Method
 
 ## 2.1 Our matching framework
-The problem we are looking for can be summarized as follows: let $q$ be a string, describing an affiliation, and let be a set $C$ \{ (condition_i, value_i ) \} (potentially empty) of additional conditions, giving structured information about the affiliation described by query. To fix the ideas, we can sometimes know the country of the affiliation. In this case, the set $C$ will contain an element : $("country", "France")$ for example.<br/>
+The problem we are looking for can be summarized as follows: let $q$ be a string, describing an affiliation, and let be a set $C$ \{ (condition_i, value_i ) \} (potentially empty) of additional conditions, giving structured information about the affiliation described by query. To fix the ideas, we can sometimes know the country of the affiliation. In this case, the set $C$ will contain an element : $(country, France)$ for example.<br/>
 On the other hand, either $R$ a repository of entities (laboratories, institutions, even countries, cities etc). $R$ is a set of objects with characteristics, such as, for example, in the case of a laboratory, one (or more) name, acronyms, one (or more) addresses, supervisors, etc. 
 The problem of affiliation recognition amounts to finding the (potentially empty) set of elements of $R$ that correspond to the $q$ and the conditions $C$.
 <br/>
 
-Let's give an example. With q="French Ministry of Higher Education, Research and Innovation, Paris, France", an empty condition set and the grid repository, the expected result is https://grid.ac/institutes/grid.425729.f <br/>
+Let's give an example. With q="French Ministry of Higher Education, Research and Innovation, Paris, France", an empty condition set and the grid [@noauthor_grid_2021] repository, the expected result is https://grid.ac/institutes/grid.425729.f <br/>
 
 This task seems relatively simple to the human mind, but it is actually not so simple to automate. 
 Rather than using a black-box technique, we propose a simple and modular approach where the user of the algorithm can keep control over the risk of error.
-There are two types of errors in reality, precision (the proportion of false positives, i.e. how many times the algorithm gives a result that is a bad match), and recall (the proportion of false negatives, i.e. how many times the algorithm does not give a match when there is a good match).
+
 <br>
-Let us now introduce two objects: criteria and strategies. A criterion is a type of element characteristic of the elements of the reference $R$. For example the name or the city is a criterion for the grid frame of reference. That is to say that this repository contains information on the names (or aliases) and cities of the entities it groups together. To take the previous example, the entity grid.425729.f has the following name and city criteria:
-  - grid_name:  
-    - Ministry of Higher Education and Research
-    - Ministry of Higher Education and Research
-    - Ministeri d'Educació Superior i Recerca francès
-  - grid_city : 
+
+There are two types of errors in reality, precision (the proportion of false positives, i.e. how many times the algorithm gives a result that is a bad match), and recall (the proportion of false negatives, i.e. how many times the algorithm does not give a match when there is a good match).
+
+<br>
+
+Let us now introduce two objects: **criteria** and **strategies**. 
+
+<br>
+
+A **criterion** is a type of element characteristic of the elements of the reference $R$. For example the name or the city is a criterion for the grid frame of reference. That is to say that this repository contains information on the names (or aliases) and cities of the entities it groups together. To take the previous example, the entity grid.425729.f has the following grid_country, grid_name and grid_city criteria (values of these criteria in the grid registry):
+
+ <br>
+
+ - grid_name : 
+   - Ministry of Higher Education and Research 
+   - Ministère de l’Enseignement Supérieur et de la Recherche 
+   - Ministeri d'Educació Superior i Recerca francès
+ 
+- grid_city : 
     - Paris 
-  - grid_country : 
+
+ - grid_country : 
     - France
+
 <br/>
-A strategy is a set of criteria.
+
+A **strategy** is a set of criteria. For example, ['grid_city', 'grid_country', 'grid_name'] is a strategy combining 3 criteria.
+
 <br/>
-Thus, applying the strategy name and country and city, amounts to returning all the elements of the repository $R$ for which there is both a match on the name, on the cityand on the country with respect to the query received in input q and C. Using the same example, a single match is appropriate, giving the expected results, with: 
-  - 'grid_city': ['Ministry of Higher Education, Research and Innovation, <b>Paris</b>, France']
-  - 'grid_country': ['Higher Education, Research and Innovation, Paris, <b>France</b>']
-  - 'grid_name': ['French <b>Ministry</b> of <b>Higher</b> <b>Education</b>, <b>Research</b> and Innovation, Paris, France']
+
+Thus, applying the strategy ['grid_city', 'grid_country', 'grid_name'], amounts to returning all the elements of the repository $R$ for which there is both a match on the name, the city and on the country with respect to the query received in input q and C. Using the same example, a single match is appropriate, giving the expected results, with: 
+<br>
+
+  - 'grid_city': ['Ministry of Higher Education, Research and Innovation, **Paris**, France']
+  - 'grid_country': ['Higher Education, Research and Innovation, Paris, **France**']
+  - 'grid_name': ['French **Ministry** of **Higher** **Education**, **Research** and Innovation, Paris, France']
 
 ## 2.2 Criteria and strategies
 
-## 2.3 Evaluation
+Depending on the repository R and the nature of the registered objects, many criteria are possible. For example, if a country repository is handled, criteria can be :
+
+<br>
+
+ - the name of the country in different languages and their possible abbreviations
+ - its regions / provinces
+ - its cities   
+ - its institutions, universities, hospitals etc...
+ - its rivers, mountains ...
+
+<br>
+
+In some cases, direct criteria such as these may be insufficient. For example, in the case of a laboratory matching, it can happen that the city present in the affiliation signature is not exactly the one indicated in the repository, while being geographically very close.
+To manage this case, we can imagine neighborhood criteria. For example, by establishing as criteria 'all cities within a radius of x kilometers', or better, by relying on a local geographic reference frame. In the French case, INSEE has developed in the COG (French Official Geographic Code) [@noauthor_code_2021] several divisions, such as urban units or employment zones, which can thus be used as criteria.
+
+<br>
+
+The possible strategies are simply all the combinations of the criteria. A risk level can be associated to each strategy, depending on the risk of false positives.
+
+<br>
+
+Thus, in the case of a country matcher, the strategy composed of the only criterion 'name of the country' can be risky.
+For example, for an affiliation like "Hotel Dieu de France, Beirut, Lebanon", this strategy would propose two matchings: France and Lebanon. In this case, France is a false positive. A more demanding strategy, searching for both the country name and a city, can avoid this pitfall in this case.
+
+<br>
+
+We therefore propose to test several strategies, more or less demanding, starting with the safest (in terms of risk of false positives). When a strategy has found one or more entries in the repository that meet all its criteria, the matching is complete.
+
+## 2.3 Implementation with Elasticsearch
+
+Elasticsearch is a very powerful and modular search engine technology. The implementation of our method is done in two main steps:
+
+ - loading the criteria, each corresponding to an index in elasticsearch
+ - the actual matching, by applying a set of strategies.
+
+The choice of strategies to apply is made at the matching level and not at the loading level. The user of the matcher can therefore control himself his level of risk of false positives (or in other words his precision / recall balance).
+
+One feature of elasticsearch is critical for the implementation of our matching method, it is percolation.  Usually, elasticsearch allows to store documents in an index, and then to perform a query on this index. Percolation allows us to do the opposite, i.e. to store queries in an index, and then to search for a document in this query index.
+Let's give an example to clarify.
+
+<br>
+
+If we take the query "Hotel Dieu de France Beirut Lebanon", we would like to match "Hotel Dieu de France" in the index storing the grid_name criteria without "CHU Fort de France" being matched. However, all of them have in common the token France. This is possible by using percolation, which will store "Hotel Dieu de France" and "CHU Fort de France" as queries.
+
+<br>
+
+In addition, these queries can use the diversity offered by elasticsearch. For now, we have implemented queries of type
+
+ - **match_phrase** queries (all terms, consecutively and in the same order) for short criteria where we want an exact match (like city names, or acronyms). 
+ - **match** with a *minimum_should_max* parameter at -20%, meaning that at most 20% (rounded down) of the terms can be missing, the order and the consecutive character not being taken into account : for longer criteria like the names of laboratories or supervisors.
+
+<br>
+
+All other implementation details can be read directly in the open source code made available.
+
+## 2.4 Evaluation
+
+For a given repository R, we fix an ordered list of strategies to apply, allowing us to set up an automatic matching. If we have a standard gold (composed of a list of affiliation signatures, and, for each, a list of corresponding entities in the R repository), we can apply the matcher on this list, and thus compute the precision and recall of the matcher.
+
+<br>
+
+We will apply this method in the following section for 3 types of matcher: at the country level, for the grid repository and for the French laboratory repository RNSR.
 
 # 3. Results
 
