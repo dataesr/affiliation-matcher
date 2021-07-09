@@ -1,23 +1,24 @@
-import json
 import os
+import pandas as pd
+import re
+import requests
 import shutil
 import string
 import unicodedata
-import pandas as pd
+
 from tempfile import mkdtemp
 from zipfile import ZipFile
-import requests
-import re
-from matcher.server.main.config import GRID_DUMP_URL, ZONE_EMPLOI_INSEE_DUMP
 
-CHUNK_SIZE = 128
+from matcher.server.main.config import CHUNK_SIZE, ZONE_EMPLOI_INSEE_DUMP
 
-def chunks(lst, n):
-    """Yield successive n-sized chunks from lst."""
+
+def chunks(lst: list, n: int) -> list:
+    """Yield successive n-sized chunks from list."""
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
-def remove_ref_index(query):
+
+def remove_ref_index(query: str) -> str:
     """Remove the first 2 digits of a string if any."""
     rgx = re.compile("^(\d){1,2}([A-Za-z])(.*)")
     return rgx.sub("\\2\\3", query).strip()
@@ -44,26 +45,13 @@ def normalize_text(text: str = None, remove_separator: bool = True) -> str:
         text = sep.join(text.split())
     return text or ''
 
-def get_alpha2_from_french(user_input):
-    ref = {"France": "fr", "Mexique": "mx", "Etats-Unis": "us", "Sénégal":"sn", "Chili": "cl", "Inde": "in", "Corée du Sud": "kr",
-"Singapour": "sg", "Canada": "ca", "Pays-Bas": "nl", "Autriche": "at", "Japon": "jp", "Brésil": "br", "Chine": "cn",
-          "Argentine": "ar", "Russie": "ru", "Italie": "it", "Ethiopie": "et", "Israël": "il", "Afrique du Sud": "za"}
-    return ref.get(user_input)
 
-def download_grid_data() -> dict:
-    grid_downloaded_file = 'grid_data_dump.zip'
-    grid_unzipped_folder = mkdtemp()
-    response = requests.get(url=GRID_DUMP_URL, stream=True)
-    with open(grid_downloaded_file, 'wb') as file:
-        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
-            file.write(chunk)
-    with ZipFile(grid_downloaded_file, 'r') as file:
-        file.extractall(grid_unzipped_folder)
-    with open(f'{grid_unzipped_folder}/grid.json', 'r') as file:
-        data = json.load(file)
-    os.remove(path=grid_downloaded_file)
-    shutil.rmtree(path=grid_unzipped_folder)
-    return data
+def get_alpha2_from_french(user_input):
+    ref = {"France": "fr", "Mexique": "mx", "Etats-Unis": "us", "Sénégal": "sn", "Chili": "cl", "Inde": "in",
+           "Corée du Sud": "kr", "Singapour": "sg", "Canada": "ca", "Pays-Bas": "nl", "Autriche": "at", "Japon": "jp",
+           "Brésil": "br", "Chine": "cn", "Argentine": "ar", "Russie": "ru", "Italie": "it", "Ethiopie": "et",
+           "Israël": "il", "Afrique du Sud": "za"}
+    return ref.get(user_input)
 
 
 def download_insee_data() -> dict:
@@ -75,10 +63,12 @@ def download_insee_data() -> dict:
             file.write(chunk)
     with ZipFile(insee_downloaded_file, 'r') as file:
         file.extractall(insee_unzipped_folder)
-    data = pd.read_excel(f'{insee_unzipped_folder}/ZE2020_au_01-01-2021.xlsx', sheet_name="Composition_communale", skiprows=5).to_dict(orient='records')
+    data = pd.read_excel(f'{insee_unzipped_folder}/ZE2020_au_01-01-2021.xlsx', sheet_name='Composition_communale',
+                         skiprows=5).to_dict(orient='records')
     os.remove(path=insee_downloaded_file)
     shutil.rmtree(path=insee_unzipped_folder)
     return data
+
 
 def has_a_digit(text: str = '') -> bool:
     for char in text:

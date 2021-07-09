@@ -1,6 +1,6 @@
 import os
-
 import requests
+
 from bs4 import BeautifulSoup
 
 from matcher.server.main.logger import get_logger
@@ -42,43 +42,29 @@ APP_ENV = os.getenv('APP_ENV')
 
 # Set default config
 APP_ORGA = 'http://185.161.45.213/organizations'
+CHUNK_SIZE = 128
 ELASTICSEARCH_HOST = 'elasticsearch'
 ELASTICSEARCH_PORT = '9200'
 ELASTICSEARCH_LOGIN = None
 ELASTICSEARCH_PASSWORD = None
 
-GRID_URL = "https://www.grid.ac/downloads"
-ROR_URL = "https://github.com/ror-community/ror-api/tree/master/rorapi/data"
+GRID_URL = 'https://www.grid.ac/downloads'
+ROR_URL = 'https://github.com/ror-community/ror-api/tree/master/rorapi/data'
+SCANR_DUMP_URL = 'https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/scanR/organizations.json'
+ZONE_EMPLOI_INSEE_DUMP = 'https://www.insee.fr/fr/statistiques/fichier/4652957/ZE2020_au_01-01-2021.zip'
 
 GRID_DUMP_URL = get_last_grid_dump_url()
 ROR_DUMP_URL = get_last_ror_dump_url()
 
-SCANR_DUMP_URL = 'https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/scanR/organizations.json'
-
-ZONE_EMPLOI_INSEE_DUMP="https://www.insee.fr/fr/statistiques/fichier/4652957/ZE2020_au_01-01-2021.zip"
 
 if APP_ENV == 'test':
     ELASTICSEARCH_HOST = 'localhost'
 elif APP_ENV == 'development':
     ELASTICSEARCH_HOST = 'elasticsearch'
-
-if APP_ENV == 'production':
+elif APP_ENV == 'production':
     ELASTICSEARCH_HOST = os.getenv('ES_URL')
     ELASTICSEARCH_URL = ELASTICSEARCH_HOST
     ELASTICSEARCH_LOGIN = os.getenv('ES_LOGIN_MATCHER')
     ELASTICSEARCH_PASSWORD = os.getenv('ES_PASSWORD_MATCHER')
 else:
     ELASTICSEARCH_URL = ELASTICSEARCH_HOST + ':' + ELASTICSEARCH_PORT
-# Export config
-config = {
-    'APP_ENV': APP_ENV,
-    'APP_ORGA': APP_ORGA,
-    'ELASTICSEARCH_HOST': ELASTICSEARCH_HOST,
-    'ELASTICSEARCH_PORT': ELASTICSEARCH_PORT,
-    'ELASTICSEARCH_URL': ELASTICSEARCH_URL,
-    'ELASTICSEARCH_LOGIN': ELASTICSEARCH_LOGIN,
-    'ELASTICSEARCH_PASSWORD': ELASTICSEARCH_PASSWORD,
-    'GRID_DUMP_URL': GRID_DUMP_URL,
-    'ROR_DUMP_URL': ROR_DUMP_URL,
-    'SCANR_DUMP_URL': SCANR_DUMP_URL
-}

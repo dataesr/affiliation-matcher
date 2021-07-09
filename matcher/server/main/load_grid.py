@@ -1,13 +1,22 @@
-from matcher.server.main.elastic_utils import get_filters, get_analyzers, get_char_filters, get_index_name, get_mappings
-from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import download_grid_data
+import json
+import os
+import requests
+import shutil
+
+from tempfile import mkdtemp
+from zipfile import ZipFile
+
+from matcher.server.main.config import CHUNK_SIZE, GRID_DUMP_URL
+from matcher.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
+from matcher.server.main.my_elastic import MyElastic
 
 logger = get_logger(__name__)
 
 SOURCE = 'grid'
 
-def load_grid(index_prefix: str = '') -> None:
+
+def load_grid(index_prefix: str = '') -> dict:
     es = MyElastic()
     settings = {
         'analysis': {
@@ -32,7 +41,6 @@ def load_grid(index_prefix: str = '') -> None:
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
-
     raw_grids = download_grid_data()
     grids = transform_grid_data(raw_grids)
     # Iterate over grid data
@@ -40,7 +48,7 @@ def load_grid(index_prefix: str = '') -> None:
         for criterion in criteria:
             criterion_values = grid.get(criterion)
             if criterion_values is None:
-                logger.debug(f"This element {grid} has no {criterion}")
+                logger.debug(f'This element {grid} has no {criterion}')
                 continue
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
@@ -54,7 +62,8 @@ def load_grid(index_prefix: str = '') -> None:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]], 'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
+            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]],
+                      'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
             if criterion in exact_criteria:
                 action['query'] = {
                     'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}
@@ -65,23 +74,23 @@ def load_grid(index_prefix: str = '') -> None:
     es.parallel_bulk(actions=actions)
     return results
 
-def transform_grid_data(data):
+
+def transform_grid_data(data: dict) -> list:
     grids = data.get('institutes', [])
     res = []
     for grid in grids:
         formatted_data = {'id': grid['id']}
-        # NAME
+        # Names
         institutions = [grid.get('name')]
         institutions += grid.get('aliases', [])
         institutions += [label.get('label') for label in grid.get('labels', [])]
         institutions = list(set(institutions))
         formatted_data['name'] = list(filter(None, institutions))
-        # ACRONYMS
+        # Acronyms
         acronyms = grid.get('acronyms', [])
         acronyms = list(set(acronyms))
         formatted_data['acronym'] = list(filter(None, acronyms))
-        countries = []
-        # COUNTRY and CITY
+        # countries, country_codes and cities
         countries, country_codes, cities = [], [], []
         for address in grid.get('addresses', []):
             country = address.get('country')
@@ -102,9 +111,24 @@ def transform_grid_data(data):
         if len(formatted_data['country_code']) == 0:
             continue
         if len(formatted_data['country_code']) > 1:
-            logger.debug(f"BEWARE: more than 1 country for {grid}")
-            logger.debug(f"Only one is kept !!")
+            logger.debug(f'BEWARE: more than 1 country for {grid}')
+            logger.debug(f'Only one is kept')
         formatted_data['country_alpha2'] = formatted_data['country_code'][0]
-
         res.append(formatted_data)
     return res
+
+
+def download_grid_data() -> dict:
+    grid_downloaded_file = 'grid_data_dump.zip'
+    grid_unzipped_folder = mkdtemp()
+    response = requests.get(url=GRID_DUMP_URL, stream=True)
+    with open(grid_downloaded_file, 'wb') as file:
+        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+            file.write(chunk)
+    with ZipFile(grid_downloaded_file, 'r') as file:
+        file.extractall(grid_unzipped_folder)
+    with open(f'{grid_unzipped_folder}/grid.json', 'r') as file:
+        data = json.load(file)
+    os.remove(path=grid_downloaded_file)
+    shutil.rmtree(path=grid_unzipped_folder)
+    return data

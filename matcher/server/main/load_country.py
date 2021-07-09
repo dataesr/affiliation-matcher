@@ -1,16 +1,18 @@
 import pycountry
 
+from matcher.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
-from matcher.server.main.elastic_utils import get_filters, get_analyzers, get_char_filters, get_index_name, get_mappings
 from matcher.server.main.my_elastic import MyElastic
 
 SOURCE = 'country'
 
 logger = get_logger(__name__)
 
+
 def download_country_data():
     countries = [c.__dict__['_fields'] for c in list(pycountry.countries)]
     return countries
+
 
 def transform_country_data(raw_data):
     subdivisions, subdivisions_code = {}, {}
@@ -24,15 +26,14 @@ def transform_country_data(raw_data):
             subdivisions_code[alpha2].append(s.code[3:])
         if alpha2 == 'gb':
             subdivisions[alpha2].append('northern ireland')
-
     countries = []
     for c in raw_data:
-        # ALPHA 2 - 3
+        # Alpha 2 - 3
         alpha2 = c['alpha_2'].lower()
         country = {'alpha2': alpha2, 'alpha3': [c['alpha_3']]}
         if alpha2 == 'gb':
             country['alpha3'].append('uk')
-        # NAMES
+        # Names
         all_names = []
         for field_name in ['name', 'official_name', 'common_name']:
             if field_name in c:
@@ -41,14 +42,15 @@ def transform_country_data(raw_data):
         country['all_names'] = all_names
         if 'name' in c:
             country['name'] = c['name']
-        #SUBDIVISIONS
+        # Subdivisions
         if alpha2 in subdivisions:
             country['subdivisions'] = list(set(subdivisions[alpha2]))
             country['subdivisions_code'] = list(set(subdivisions_code[alpha2]))
         countries.append(country)
     return countries
 
-def load_country(index_prefix: str = '') -> None:
+
+def load_country(index_prefix: str = '') -> dict:
     es = MyElastic()
     settings = {
         'analysis': {
@@ -70,7 +72,6 @@ def load_country(index_prefix: str = '') -> None:
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
-   
     raw_countries = download_country_data()
     countries = transform_country_data(raw_countries)
     # Iterate over country data
@@ -92,9 +93,10 @@ def load_country(index_prefix: str = '') -> None:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            action = {'_index': index, 'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
-            action['query'] = {
-                'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}
+            action = {'_index': index,
+                      'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]])),
+                      'query': {
+                          'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}}
             actions.append(action)
     es.parallel_bulk(actions=actions)
     return results
