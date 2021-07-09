@@ -16,7 +16,7 @@ logger = get_logger(__name__)
 SOURCE = 'grid'
 
 
-def load_grid(index_prefix: str = '') -> dict:
+def load_grid(index_prefix: str = 'matcher') -> dict:
     es = MyElastic()
     settings = {
         'analysis': {

@@ -26,7 +26,7 @@ def create_task_load(args: dict = None) -> dict:
     if args is None:
         args = {}
     matcher_type = args.get('type', 'all').lower()
-    index_prefix = args.get('index_prefix', '').lower()
+    index_prefix = args.get('index_prefix', 'matcher').lower()
     result = {}
     if matcher_type == 'all':
         result.update(load_country(index_prefix=index_prefix))
