@@ -10,12 +10,12 @@ logger = get_logger(__name__)
 main_blueprint = Blueprint('main', __name__, )
 
 
-@main_blueprint.route("/", methods=["GET"])
+@main_blueprint.route('/', methods=['GET'])
 def home():
-    return render_template("home.html")
+    return render_template('home.html')
 
 
-@main_blueprint.route("/load", methods=["GET"])
+@main_blueprint.route('/load', methods=['GET'])
 def run_task_load():
     args = request.args
     logger.debug(args)
@@ -23,7 +23,7 @@ def run_task_load():
     return jsonify(response_object), 202
 
 
-@main_blueprint.route("/match_api", methods=["POST"])
+@main_blueprint.route('/match_api', methods=['POST'])
 def run_task_match():
     args = request.get_json(force=True)
     logger.debug(args)
@@ -31,7 +31,7 @@ def run_task_match():
     return jsonify(response_object), 202
 
 
-@main_blueprint.route("/enrich_filter", methods=["POST"])
+@main_blueprint.route('/enrich_filter', methods=['POST'])
 def run_task_enrich_filter():
     args = request.get_json(force=True)
     logger.debug(args)
@@ -39,9 +39,9 @@ def run_task_enrich_filter():
     return jsonify(response_object), 202
 
 
-@main_blueprint.route("/tasks/<task_id>", methods=["GET"])
+@main_blueprint.route('/tasks/<task_id>', methods=['GET'])
 def get_status(task_id):
-    with Connection(redis.from_url(current_app.config["REDIS_URL"])):
+    with Connection(redis.from_url(current_app.config['REDIS_URL'])):
         q = Queue()
         task = q.fetch_job(task_id)
     if task:
