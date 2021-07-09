@@ -72,7 +72,6 @@ def load_country(index_prefix: str = '') -> dict:
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
-   
     raw_countries = download_country_data()
     countries = transform_country_data(raw_countries)
     # Iterate over country data
