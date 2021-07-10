@@ -142,6 +142,7 @@ def get_analyzers() -> dict:
                 'english_stop',
                 'name_stop',
                 'linked_words',
+                'unique',
                 'french_elision',
                 'french_stemmer'
             ]
