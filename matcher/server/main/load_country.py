@@ -38,6 +38,24 @@ def transform_country_data(raw_data):
         for field_name in ['name', 'official_name', 'common_name']:
             if field_name in c:
                 all_names.append(c[field_name])
+        if alpha2 == 'ru':
+            all_names.append('russia')
+        if alpha2 == 'ci':
+            all_names.append('ivory coast')
+        if alpha2 == 'cv':
+            all_names.append('cape verde')
+        if alpha2 == 'kp':
+            all_names.append('north korea')
+        if alpha2 == 'kr':
+            all_names.append('south korea')
+        if alpha2 == 'la':
+            all_names.append('laos')
+        if alpha2 == 'sy':
+            all_names.append('syria')
+        if alpha2 == 'tw':
+            all_names.append('taiwan')
+        if alpha2 == 'vn':
+            all_names.append('vietnam')
         all_names = list(set(all_names))
         country['all_names'] = all_names
         if 'name' in c:
