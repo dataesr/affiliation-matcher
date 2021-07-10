@@ -16,7 +16,10 @@ SOURCE = 'rnsr'
 
 
 def get_tokens(indices_client, analyzer, index, text) -> dict:
-    tokens = indices_client.analyze(body={'analyzer': analyzer, 'text': text}, index=index)['tokens']
+    try:
+        tokens = indices_client.analyze(body={'analyzer': analyzer, 'text': text}, index=index)['tokens']
+    except:
+        return [{'token': t} for t in text.split(' ')]
     return tokens
 
 
