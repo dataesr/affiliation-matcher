@@ -31,7 +31,7 @@ keywords:
 
 ## 2.1 Our matching framework
 The problem we are looking for can be summarized as follows: let $q$ be a string, describing an affiliation, and let be a set $C$ \{ (condition_i, value_i ) \} (potentially empty) of additional conditions, giving structured information about the affiliation described by query. To fix the ideas, we can sometimes know the country of the affiliation. In this case, the set $C$ will contain an element : $(country, France)$ for example.<br/>
-On the other hand, either $R$ a repository of entities (laboratories, institutions, even countries, cities etc). $R$ is a set of objects with characteristics, such as, for example, in the case of a laboratory, one (or more) name, acronyms, one (or more) addresses, supervisors, etc. 
+On the other hand, either $R$ a repository of entities (laboratories, institutions, even countries, cities etc). $R$ is a set of objects with characteristics, such as, for example, in the case of a laboratory, one (or more) name(s), acronym(s), one (or more) address(es), supervisor(s), etc. 
 The problem of affiliation recognition amounts to finding the (potentially empty) set of elements of $R$ that correspond to the $q$ and the conditions $C$.
 <br/>
 
@@ -71,7 +71,7 @@ A **strategy** is a set of criteria. For example, ['grid_city', 'grid_country', 
 
 <br/>
 
-Thus, applying the strategy ['grid_city', 'grid_country', 'grid_name'], amounts to returning all the elements of the repository $R$ for which there is both a match on the name, the city and on the country with respect to the query received in input q and C. Using the same example, a single match is appropriate, giving the expected results, with: 
+Thus, applying the strategy ['grid_city', 'grid_country', 'grid_name'], amounts to returning all the elements of the repository $R$ for which there is both a match on the name, the city and on the country with respect to the query received in input $q$ and $C$. Using the same example, a single match is appropriate, giving the expected results, with: 
 <br>
 
   - 'grid_city': ['Ministry of Higher Education, Research and Innovation, **Paris**, France']
@@ -80,12 +80,12 @@ Thus, applying the strategy ['grid_city', 'grid_country', 'grid_name'], amounts 
 
 ## 2.2 Criteria and strategies
 
-Depending on the repository R and the nature of the registered objects, many criteria are possible. For example, if a country repository is handled, criteria can be :
+Depending on the repository $R$ and the nature of the registered objects, many criteria are possible. For example, if a country repository is handled, criteria can be :
 
 <br>
 
- - the name of the country in different languages and their possible abbreviations
- - its regions / provinces
+ - the official name and the usual name of the country in different languages and their possible abbreviations (iso 3166 alpha-2, iso 3166 alpha-3)
+ - its subdivisions (regions, provinces...)
  - its cities   
  - its institutions, universities, hospitals etc...
  - its rivers, mountains ...
@@ -137,7 +137,7 @@ All other implementation details can be read directly in the open source code ma
 
 ## 2.4 Evaluation
 
-For a given repository R, we fix an ordered list of strategies to apply, allowing us to set up an automatic matching. If we have a standard gold (composed of a list of affiliation signatures, and, for each, a list of corresponding entities in the R repository), we can apply the matcher on this list, and thus compute the precision and recall of the matcher.
+For a given repository $R$, we fix an ordered list of strategies to apply, allowing us to set up an automatic matching. If we have a standard gold (composed of a list of affiliation signatures, and, for each, a list of corresponding entities in the $R$ repository), we can apply the matcher on this list, and thus compute the precision and recall of the matcher.
 
 <br>
 
