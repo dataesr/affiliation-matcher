@@ -74,10 +74,10 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
                       'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
             if criterion in exact_criteria:
                 action['query'] = {
-                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 1}}}
+                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 0}}}
             elif criterion in txt_criteria:
                 action['query'] = {
-                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 1}}}
+                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 0}}}
                 #action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': analyzer,
                 #                                         'minimum_should_match': '-20%'}}}
             actions.append(action)
