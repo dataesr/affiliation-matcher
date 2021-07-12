@@ -17,3 +17,10 @@ venv
 # Build
 dist
 *.egg-info
+
+# Documentation
+doc/*
+!doc/Makefile
+!doc/build_pdf.sh
+!doc/matcher.bib
+!doc/matcher.md
