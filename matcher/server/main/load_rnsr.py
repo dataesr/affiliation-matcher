@@ -2,25 +2,16 @@ import copy
 import datetime
 import requests
 
-from elasticsearch.client import IndicesClient
-
 from matcher.server.main.config import SCANR_DUMP_URL
 from matcher.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import download_insee_data, get_alpha2_from_french
+from elasticsearch.client import IndicesClient
+from matcher.server.main.utils import download_insee_data, get_alpha2_from_french, get_tokens
 
 logger = get_logger(__name__)
 
 SOURCE = 'rnsr'
-
-
-def get_tokens(indices_client, analyzer, index, text) -> dict:
-    try:
-        tokens = indices_client.analyze(body={'analyzer': analyzer, 'text': text}, index=index)['tokens']
-    except:
-        return [{'token': t} for t in text.split(' ')]
-    return tokens
 
 
 def load_rnsr(index_prefix: str = 'matcher') -> dict:
@@ -34,8 +25,8 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         }
     }
     exact_criteria = ['city', 'urban_unit', 'zone_emploi', 'country_code', 'acronym', 'code_number',
-                      'supervisor_acronym', 'year']
-    txt_criteria = ['name', 'supervisor_name']
+                      'supervisor_acronym', 'year', 'name', 'supervisor_name']
+    txt_criteria = ['name_txt']
     analyzers = {
         'acronym': 'acronym_analyzer',
         'city': 'city_analyzer',
@@ -44,6 +35,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         'country_code': 'light',
         'code_number': 'code_analyzer',
         'name': 'heavy_fr',
+        'name_txt': 'heavy_fr',
         'supervisor_acronym': 'acronym_analyzer',
         'supervisor_name': 'heavy_fr',
         'year': 'light',
@@ -60,7 +52,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
     # Iterate over rnsr data
     for rnsr in rnsrs:
         for criterion in criteria:
-            criterion_values = rnsr.get(criterion)
+            criterion_values = rnsr.get(criterion.replace('_txt', ''))
             if criterion_values is None:
                 logger.debug(f'This element {rnsr} has no {criterion}')
                 continue
@@ -76,28 +68,31 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
+            if criterion in ['name']:
+                tokens = get_tokens(indices_client, analyzer, index, criterion_value)
+                if len(tokens) < 2:
+                    logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
+                    continue
             action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]],
                       'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
             if criterion in exact_criteria:
                 action['query'] = {
-                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}
+                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 1}}}
             elif criterion in txt_criteria:
                 action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': analyzer,
-                                                         'minimum_should_match': '-20%'}}}
-                if criterion in ['name']:
-                    tokens = get_tokens(indices_client, analyzer, index, criterion_value)
-                    if len(tokens) < 2:
-                        logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
-                        continue
-                    ref_tokens = get_tokens(indices_client, analyzer, index, 'unité de recherche')
-                    ref_tokens_str = ' '.join([t['token'] for t in ref_tokens])
-                    first_tokens_str = ' '.join([t['token'] for t in tokens[0:len(ref_tokens)]])
-                    if first_tokens_str == ref_tokens_str:
-                        new_criterion_value = ' '.join(criterion_value.split(' ')[3:])
-                        logger.debug(f'Indexing also {new_criterion_value} along with {criterion_value}')
-                        new_action = copy.deepcopy(action)
-                        new_action['query']['match']['content']['query'] = new_criterion_value
-                        actions.append(new_action)
+                                                         'minimum_should_match': '-10%'}}}
+                #ref_tokens = get_tokens(indices_client, analyzer, index, 'unité de recherche')
+                #ref_tokens_str = ' '.join([t['token'] for t in ref_tokens])
+                #first_tokens_str = ' '.join([t['token'] for t in tokens[0:len(ref_tokens)]])
+                #if first_tokens_str == ref_tokens_str:
+                    #new_criterion_value = ' '.join(criterion_value.split(' ')[3:])
+                    #logger.debug(f'Indexing also {new_criterion_value} along with {criterion_value}')
+                    #new_action = copy.deepcopy(action)
+                    #new_action['query']['match_phrase']['content']['query'] = new_criterion_value
+                    #tokens = get_tokens(indices_client, analyzer, index, new_criterion_value)
+                    #if len(tokens) < 2:
+                        #continue
+                    #actions.append(new_action)
             actions.append(action)
     es.parallel_bulk(actions=actions)
     return results
