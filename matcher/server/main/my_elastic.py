@@ -8,7 +8,6 @@ class MyElastic(Elasticsearch):
     def __init__(self) -> None:
         self.logger = get_logger(__name__)
         if ELASTICSEARCH_LOGIN:
-            self.logger.error('Using es login!')
             super().__init__(hosts=ELASTICSEARCH_HOST, http_auth=(ELASTICSEARCH_LOGIN, ELASTICSEARCH_PASSWORD))
         else:
             super().__init__(hosts=ELASTICSEARCH_HOST)
