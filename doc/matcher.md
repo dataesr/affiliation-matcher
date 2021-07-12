@@ -151,7 +151,74 @@ Here are only practical examples but we should be able to add more indexes about
 
 ## 3.1 Country detection
 
+We here aimed at detecting a country in the affiliation label. As we said before we needed some information about 
+existing countries like name, official name, iso 3166 alpha-2 and alpha-3, subdivisions names, subdivisions codes. To
+grab this information, we use the well known python lib [pycountry](https://pypi.org/project/pycountry/). This lib 
+gather 249 countries, and all the information we needed for each. All we will have to do now, is to create an ES 
+index called `matcher_country_names`, iterate over each country, collect the different names (eg. the name of the French 
+country is "France" and its official name is "French Republic") and add each country name in the Elasticsearch index as 
+query, remember about the percolate query trix. We will take care to save the iso 3166 alpha-2 of the dedicated country 
+at the same time.
+Once done, I should get this :
+```shell
+curl -X GET "localhost:9200/matcher_country_name/_search?pretty" -H 'Content-Type: application/json' -d'                                         INT ✘  matcher   18:25:51  
+{
+  "query": {
+    "percolate": {
+      "field": "query",
+      "document": {
+        "content": "French Ministry of Higher Education, Research and Innovation, Paris, France"
+      }
+    }
+  },          
+  "_source": {                    
+    "includes": ["country_alpha2"]
+  }
+}
+'
+'
+```
+The above request will yield the following response:
+```shell
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 1,
+      "relation" : "eq"
+    },
+    "max_score" : 0.13076457,
+    "hits" : [
+      {
+        "_index" : "matcher_country_name",
+        "_type" : "_doc",
+        "_id" : "bPUam3oB-wyQTWl-dtqh",
+        "_score" : 0.13076457,
+        "_source" : {
+          "country_alpha2" : [
+            "fr"
+          ]
+        },
+        "fields" : {
+          "_percolator_document_slot" : [
+            0
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+We then do the same with iso 3166 alpha3, subdivisions names and subdivisions codes.
 
+_Add here explanations about how we had to adapt the ES mappings and and we completed the pycountry infos_
 
 ## 3.2 Grid detection
 
