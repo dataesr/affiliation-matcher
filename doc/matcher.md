@@ -145,7 +145,13 @@ We will apply this method in the following section for 3 types of matcher: at th
 
 # 3. Results
 
+In this part, we will explain more precisely the way we will build the indexes to be able to detect different granularity of information among the affiliations labels.
+This will be done against 3 granularities: country, GRID and French Registry RNSR.
+Here are only practical examples but we should be able to add more indexes about ROR, Wikidata or Siren (French institutions repository).
+
 ## 3.1 Country detection
+
+
 
 ## 3.2 Grid detection
 
