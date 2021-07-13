@@ -145,29 +145,32 @@ We will apply this method in the following section for 3 types of matcher: at th
 
 # 3. Results
 
-In this part, we will explain more precisely the way we will build the indexes to be able to detect different granularity of information among the affiliations labels.
-This will be done against 3 granularities: country, GRID and French Registry RNSR.
-Here are only practical examples but we should be able to add more indexes about ROR, Wikidata or Siren (French institutions repository).
+In this part, we will explain more precisely the way we will build the ES indexes to be able to detect different
+aspects of the affiliations labels. This will be done against 3 aspects: country, GRID and French Registry RNSR. Those
+are only a start but we should be able to add more aspects like ROR, Wikidata or even Siren (French institutions
+repository).
 
 ## 3.1 Country detection
 
-We here aimed at detecting a country in the affiliation label. As we said before we needed some information about 
-existing countries like name, official name, iso 3166 alpha-2 and alpha-3, subdivisions names, subdivisions codes. To
-grab this information, we use the well known python lib [pycountry](https://pypi.org/project/pycountry/). This lib 
+We here aimed at detecting the country of the affiliation label. As we said before we needed some information about 
+existing countries in the world like names, official names, iso 3166 alpha-2 and alpha-3, subdivisions names, subdivisions codes. To
+grab this information, we use the python lib [pycountry](https://pypi.org/project/pycountry/). This lib 
 gather 249 countries, and all the information we needed for each. All we will have to do now, is to create an ES 
-index called `matcher_country_names`, iterate over each country, collect the different names (eg. the name of the French 
+index called `matcher_country_name`, iterate over each country, collect the different names (eg. the name of the French 
 country is "France" and its official name is "French Republic") and add each country name in the Elasticsearch index as 
 query, remember about the percolate query trix. We will take care to save the iso 3166 alpha-2 of the dedicated country 
 at the same time.
 Once done, I should get this :
 ```shell
-curl -X GET "localhost:9200/matcher_country_name/_search?pretty" -H 'Content-Type: application/json' -d'                                         INT ✘  matcher   18:25:51  
+curl -X GET "localhost:9200/matcher_country_name/_search?pretty" 
+-H 'Content-Type: application/json' -d'
 {
   "query": {
     "percolate": {
       "field": "query",
       "document": {
-        "content": "French Ministry of Higher Education, Research and Innovation, Paris, France"
+        "content": "French Ministry of Higher Education, 
+        Research and Innovation, Paris, France"
       }
     }
   },          
@@ -216,9 +219,19 @@ The above request will yield the following response:
   }
 }
 ```
-We then do the same with iso 3166 alpha3, subdivisions names and subdivisions codes.
 
-_Add here explanations about how we had to adapt the ES mappings and and we completed the pycountry infos_
+We do the same with subdivisions names, subdivisions codes and iso 3166 alpha3. We now have 4 indexes:
+"matcher_country_name", "matcher_country_subdivision_name", "matcher_country_subdivision_code" and
+"matcher_country_alpha3". Each index will represent a criterion of strategies. We could then define a strategy like
+["matcher_country_name", "matcher_country_subdivision_name", "matcher_country_alpha3"].
+
+In order to improve performances, we had to do some adjustments with the ES settings and mappings. As default tokenizer,
+we use the ICU plugin that has a better support of Unicode. We introduced some Elasticsearch
+filters like stop words and stemmer token for both French and English and elisions for French ("l", "q", "jusqu" ...).
+We introduced some Elasticsearch analyzers too to arrange the previous filters.
+
+Plus we complete the pycountry informations about missing country names like "Vietnam" whose name was only "Viet
+Nam" or "Russia" whose name is "Russian Federation".
 
 ## 3.2 Grid detection
 
