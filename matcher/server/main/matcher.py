@@ -59,7 +59,11 @@ class Matcher:
                         for matching_id in matching_ids:
                             if matching_id not in all_highlights:
                                 all_highlights[matching_id] = {}
-                            all_highlights[matching_id][matching_criteria] = hit.get('highlight', {}).get('content', [])
+                            if matching_criteria not in all_highlights[matching_id]:
+                                all_highlights[matching_id][matching_criteria] = []
+                            current_highlight = hit.get('highlight', {}).get('content', [])
+                            if current_highlight not in all_highlights[matching_id][matching_criteria]:
+                                all_highlights[matching_id][matching_criteria].append(current_highlight)
                 for matching_id in all_highlights:
                     logs += f'<br/><hr>Explanation for {matching_id} :<br/>'
                     for matching_criteria in all_highlights[matching_id]:
