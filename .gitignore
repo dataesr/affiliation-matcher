@@ -17,3 +17,6 @@ venv
 # Build
 dist
 *.egg-info
+
+# Jupyter Notebooks
+.ipynb_checkpoints
