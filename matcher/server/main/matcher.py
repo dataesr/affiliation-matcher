@@ -35,7 +35,7 @@ class Matcher:
                     criterion_query = pre_treatment_query(query)
                 body = {'query': {'percolate': {'field': 'query', 'document': {'content': criterion_query}}},
                         '_source': {'includes': [field]},
-                        'highlight': {'fields': {'content': {'type': 'fvh'}}}}
+                        'highlight': {'fields': {'content': {'type': 'unified'}}}}
                 index = get_index_name(index_name=criterion, source='', index_prefix=index_prefix)
                 hits = self.es.search(index=index, body=body).get('hits', []).get('hits', [])
                 all_hits[criterion] = hits
