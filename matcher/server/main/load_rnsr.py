@@ -149,6 +149,9 @@ def transform_rnsr_data(data: list) -> list:
             names += get_values(d.get('label', []))
         if d.get('alias'):
             names += d.get('alias')
+        for n in names:
+            if n.lower()[0:18] in ["unité de recherche", "unite de recherche"]:
+                names.append(n[18:].strip())
         names = list(set(names))
         names = list(set(names) - set(acronyms))
         # Cities, country_alpha2, urban_units and zone_emploi
