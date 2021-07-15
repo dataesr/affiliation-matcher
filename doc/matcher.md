@@ -23,9 +23,18 @@ keywords:
 
 # 1. Introduction
 
-[@donner_comparing_2020] 
-[@cuxac_efficient_2013]
-[@jeangirard_monitoring_2019]
+The precise identification of the affiliations found in the bibliographic databases is a crucial point in various respects and in particular to follow the production of one or a group of laboratories or institutions, and thus be able to observe trends related to publications at the institutional level.<br/>
+ 
+Unfortunately, this exercise remains a complex task, giving part of the value of paid bibliographic databases. Nevertheless, [@donner_comparing_2020] have shown that relying solely on commercial databases is insufficient for any use with policy implications and that a specific cleanup effort is needed. <br/>
+
+Some techniques have been proposed, based on supervised or semi-supervised approaches with clustering [@cuxac_efficient_2013]. However, there are few, if any, labeled databases with an open license. 
+
+These difficulties have led us, for the French Open Science Monitoring [@jeangirard_monitoring_2019], to build our own methodology to detect publications with French affiliations. 
+This document aims at detailing the new methodology for detecting countries in affiliations, and also suggests good ways to link affiliations to entities listed in international repositories (such as RoR[@noauthor_research_2021], Grid[@noauthor_grid_2021]) or national ones (in France such as RNSR [@noauthor_rnsr_2021] and Sirene[@noauthor_systeme_2021]).
+
+<br/>
+
+We propose a new approach, using the Elasticsearch search engine, based only on open data, modular and easily adaptable to other international or local repositories.
 
 # 2. Method
 
@@ -35,7 +44,7 @@ On the other hand, either $R$ a repository of entities (laboratories, institutio
 The problem of affiliation recognition amounts to finding the (potentially empty) set of elements of $R$ that correspond to the $q$ and the conditions $C$.
 <br/>
 
-Let's give an example. With q="French Ministry of Higher Education, Research and Innovation, Paris, France", an empty condition set and the grid [@noauthor_grid_2021] repository, the expected result is https://grid.ac/institutes/grid.425729.f <br/>
+Let's give an example. With q="French Ministry of Higher Education, Research and Innovation, Paris, France", an empty condition set and the grid repository, the expected result is https://grid.ac/institutes/grid.425729.f <br/>
 
 This task seems relatively simple to the human mind, but it is actually not so simple to automate. 
 Rather than using a black-box technique, we propose a simple and modular approach where the user of the algorithm can keep control over the risk of error.
