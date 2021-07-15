@@ -5,7 +5,7 @@ import requests
 import shutil
 import string
 import unicodedata
-
+from elasticsearch.client import IndicesClient
 from tempfile import mkdtemp
 from zipfile import ZipFile
 
@@ -16,6 +16,14 @@ def chunks(lst: list, n: int) -> list:
     """Yield successive n-sized chunks from list."""
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
+
+
+def get_tokens(indices_client, analyzer: str, index: str, text: str) -> dict:
+    try:
+        tokens = indices_client.analyze(body={'analyzer': analyzer, 'text': text}, index=index)['tokens']
+    except:
+        return [{'token': t} for t in text.split(' ')]
+    return tokens
 
 
 def remove_ref_index(query: str) -> str:
