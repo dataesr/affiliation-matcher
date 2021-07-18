@@ -36,9 +36,13 @@ def run_task_match():
 def run_task_enrich_filter():
     args = request.get_json(force=True)
     logger.debug(args)
+
+    queue = 'matcher'
+    if 'queue' in args and args['queue'] != 'matcher':
+        queue = 'matcher_short'
     
     with Connection(redis.from_url(current_app.config['REDIS_URL'])):
-        q = Queue('matcher', default_timeout=default_timeout)
+        q = Queue(queue, default_timeout=default_timeout)
         task = q.enqueue(create_task_enrich_filter, args)
     response_object = {'status': 'success', 'data': {'task_id': task.get_id()}}
     #response_object = create_task_enrich_filter(args=args)
@@ -47,18 +51,20 @@ def run_task_enrich_filter():
 
 @main_blueprint.route('/tasks/<task_id>', methods=['GET'])
 def get_status(task_id):
-    with Connection(redis.from_url(current_app.config['REDIS_URL'])):
-        q = Queue('matcher')
-        task = q.fetch_job(task_id)
-    if task:
-        response_object = {
-            'status': 'success',
-            'data': {
-                'task_id': task.get_id(),
-                'task_status': task.get_status(),
-                'task_result': task.result,
+    for queue in ['matcher', 'matcher_short']:
+        with Connection(redis.from_url(current_app.config['REDIS_URL'])):
+            q = Queue(queue)
+            task = q.fetch_job(task_id)
+        if task:
+            response_object = {
+                'status': 'success',
+                'data': {
+                    'task_id': task.get_id(),
+                    'task_status': task.get_status(),
+                    'task_result': task.result,
+                }
             }
-        }
-    else:
-        response_object = {'status': 'error'}
+            return jsonify(response_object), 202
+    
+    response_object = {'status': 'error'}
     return jsonify(response_object), 202
