@@ -107,82 +107,93 @@ with:<br />
 Depending on the repository $R$ and the nature of the registered objects, many criteria are possible. For example, if a
 country repository is handled, criteria can be :<br />
 
- - the official name and the usual name of the country in different languages and their possible abbreviations (iso 3166 alpha-2, iso 3166 alpha-3)
+ - the official name and the usual name of the country in different languages and their possible abbreviations (iso 3166
+   alpha-2, iso 3166 alpha-3)
  - its subdivisions (regions, provinces...)
  - its cities
  - its institutions, universities, hospitals, etc
  - its rivers, mountains, etc
+<br />
 
-<br>
+In some cases, direct criteria such as these may be insufficient. For example, in the case of a laboratory matching, it 
+can happen that the city present in the affiliation signature is not exactly the one indicated in the repository, while 
+being geographically very close. To manage this case, we can imagine neighborhood criteria. For example, by establishing
+as criteria 'all cities within a radius of x kilometers', or better, by relying on a local geographic reference frame.
+In the French case, INSEE has developed in the COG (French Official Geographic Code) [@noauthor_code_2021] several 
+divisions, such as urban units or employment zones, which can thus be used as criteria.<br />
 
-In some cases, direct criteria such as these may be insufficient. For example, in the case of a laboratory matching, it can happen that the city present in the affiliation signature is not exactly the one indicated in the repository, while being geographically very close.
-To manage this case, we can imagine neighborhood criteria. For example, by establishing as criteria 'all cities within a radius of x kilometers', or better, by relying on a local geographic reference frame. In the French case, INSEE has developed in the COG (French Official Geographic Code) [@noauthor_code_2021] several divisions, such as urban units or employment zones, which can thus be used as criteria.
-
-<br>
-
-The possible strategies are simply all the combinations of the criteria. A risk level can be associated to each strategy, depending on the risk of false positives.
-
-<br>
+The possible strategies are simply all the combinations of the criteria. A risk level can be associated to each
+strategy, depending on the risk of false positives.<br />
 
 Thus, in the case of a country matcher, the strategy composed of the only criterion 'name of the country' can be risky.
-For example, for an affiliation like "Hotel Dieu de France, Beirut, Lebanon", this strategy would propose two matchings: France and Lebanon. In this case, France is a false positive. A more demanding strategy, searching for both the country name and a city, can avoid this pitfall in this case.
+For example, for an affiliation like "Hotel Dieu de France, Beirut, Lebanon", this strategy would propose two matchings:
+France and Lebanon. In this case, France is a false positive. A more demanding strategy, searching for both the country 
+name and a city, can avoid this pitfall in this case.<br />
 
-<br>
-
-We therefore propose to test several strategies, more or less demanding, starting with the safest (in terms of risk of false positives). When a strategy has found one or more entries in the repository that meet all its criteria, the matching is complete.
+We therefore propose to test several strategies, more or less demanding, starting with the safest (in terms of risk of
+false positives). When a strategy has found one or more entries in the repository that meet all its criteria, the
+matching is complete.
 
 ## 2.3 Implementation with Elasticsearch
 
-Elasticsearch is a very powerful and modular search engine technology. The implementation of our method is done in two main steps:
+Elasticsearch is a very powerful and modular search engine technology. The implementation of our method is done in two
+main steps:
 
  - loading the criteria, each corresponding to an index in elasticsearch
  - the actual matching, by applying a set of strategies.
 
-The choice of strategies to apply is made at the matching level and not at the loading level. The user of the matcher can therefore control himself his level of risk of false positives (or in other words his precision / recall balance).
+The choice of strategies to apply is made at the matching level and not at the loading level. The user of the matcher 
+can therefore control himself his level of risk of false positives (or in other words his precision / recall balance).
+<br />
 
-One feature of elasticsearch is critical for the implementation of our matching method, it is percolation.  Usually, elasticsearch allows to store documents in an index, and then to perform a query on this index. Percolation allows us to do the opposite, i.e. to store queries in an index, and then to search for a document in this query index.
-Let's give an example to clarify.
+One feature of elasticsearch is critical for the implementation of our matching method, it is percolation. Usually, 
+elasticsearch allows to store documents in an index, and then to perform a query on this index. Percolation allows us 
+to do the opposite, i.e. to store queries in an index, and then to search for a document in this query index. Let's
+give an example to clarify.<br />
 
-<br>
-
-If we take the query "Hotel Dieu de France Beirut Lebanon", we would like to match "Hotel Dieu de France" in the index storing the grid_name criteria without "CHU Fort de France" being matched. However, all of them have in common the token France. This is possible by using percolation, which will store "Hotel Dieu de France" and "CHU Fort de France" as queries.
-
-<br>
+If we take the query "Hotel Dieu de France Beirut Lebanon", we would like to match "Hotel Dieu de France" in the index 
+storing the grid_name criteria without "CHU Fort de France" being matched. However, all of them have in common the token 
+France. This is possible by using percolation, which will store "Hotel Dieu de France" and "CHU Fort de France" as 
+queries.<br />
 
 In addition, these queries can use the diversity offered by elasticsearch. For now, we have implemented queries of type
 
- - **match_phrase** queries (all terms, consecutively and in the same order) for short criteria where we want an exact match (like city names, or acronyms). 
- - **match** with a *minimum_should_max* parameter at -20%, meaning that at most 20% (rounded down) of the terms can be missing, the order and the consecutive character not being taken into account : for longer criteria like the names of laboratories or supervisors.
-
-<br>
+ - **match_phrase** queries (all terms, consecutively and in the same order) for short criteria where we want an exact 
+   match (like city names, or acronyms). 
+ - **match** with a *minimum_should_max* parameter at -20%, meaning that at most 20% (rounded down) of the terms can be 
+   missing, the order and the consecutive character not being taken into account : for longer criteria like the names 
+   of laboratories or supervisors.
+<br />
 
 All other implementation details can be read directly in the open source code made available.
 
 ## 2.4 Evaluation
 
-For a given repository $R$, we fix an ordered list of strategies to apply, allowing us to set up an automatic matching. If we have a standard gold (composed of a list of affiliation signatures, and, for each, a list of corresponding entities in the $R$ repository), we can apply the matcher on this list, and thus compute the precision and recall of the matcher.
+For a given repository $R$, we fix an ordered list of strategies to apply, allowing us to set up an automatic matching. 
+If we have a standard gold (composed of a list of affiliation signatures, and, for each, a list of corresponding 
+entities in the $R$ repository), we can apply the matcher on this list, and thus compute the precision and recall of 
+the matcher.<br />
 
-<br>
-
-We will apply this method in the following section for 3 types of matcher: at the country level, for the grid repository and for the French laboratory repository RNSR.
+We will apply this method in the following section for 3 types of matcher: at the country level, for the grid 
+repository and for the French laboratory repository RNSR.
 
 # 3. Results
 
 In this part, we will explain more precisely the way we will build the ES indexes to be able to detect different
 aspects of the affiliations labels. This will be done against 3 aspects: country, GRID and French Registry RNSR. Those
-are only a start but we should be able to add more aspects like ROR, Wikidata or even Siren (French institutions
-repository).
+are only a start but we should be able to add more aspects like ROR, Wikidata, Siren (French institutions
+repository), etc.
 
 ## 3.1 Country detection
 
 We here aimed at detecting the country of the affiliation label. As we said before we needed some information about 
-existing countries in the world like names, official names, iso 3166 alpha-2 and alpha-3, subdivisions names, subdivisions codes. To
-grab this information, we use the python lib [pycountry](https://pypi.org/project/pycountry/). This lib 
-gather 249 countries, and all the information we needed for each. All we will have to do now, is to create an ES 
-index called `matcher_country_name`, iterate over each country, collect the different names (eg. the name of the French 
-country is "France" and its official name is "French Republic") and add each country name in the Elasticsearch index as 
-query, remember about the percolate query trix. We will take care to save the iso 3166 alpha-2 of the dedicated country 
-at the same time.
+existing countries in the world like names, official names, iso 3166 alpha-2 and alpha-3, subdivisions names, 
+subdivisions codes. To grab this information we use the python lib [pycountry](https://pypi.org/project/pycountry/). 
+This lib gather 249 countries and all the information we needed for each of them. All we will have to do now is to 
+create an ES index called `matcher_country_name`, iterate over each country, collect the different names (eg. the name 
+of the French country is "France" and its official name is "French Republic") and add each country name in the 
+Elasticsearch index as query, remember about the percolate query trix. We will take care to save the iso 3166 alpha-2 
+of the dedicated country at the same time.
 Once done, I should get this :
 ```shell
 curl -X GET "localhost:9200/matcher_country_name/_search?pretty" 
@@ -201,7 +212,6 @@ curl -X GET "localhost:9200/matcher_country_name/_search?pretty"
     "includes": ["country_alpha2"]
   }
 }
-'
 '
 ```
 The above request will yield the following response:
@@ -245,13 +255,13 @@ The above request will yield the following response:
 
 We do the same with subdivisions names, subdivisions codes and iso 3166 alpha3. We now have 4 indexes:
 "matcher_country_name", "matcher_country_subdivision_name", "matcher_country_subdivision_code" and
-"matcher_country_alpha3". Each index will represent a criterion of strategies. We could then define a strategy like
+"matcher_country_alpha3". Each index will represent a criterion of strategy. We could then define a strategy like
 ["matcher_country_name", "matcher_country_subdivision_name", "matcher_country_alpha3"].
 
 In order to improve performances, we had to do some adjustments with the ES settings and mappings. As default tokenizer,
 we use the ICU plugin that has a better support of Unicode. We introduced some Elasticsearch
-filters like stop words and stemmer token for both French and English and elisions for French ("l", "q", "jusqu" ...).
-We introduced some Elasticsearch analyzers too to arrange the previous filters.
+filters like stop words and stemmer token for both French and English and elisions for French ("l", "q", "jusqu", etc).
+We introduced some Elasticsearch analyzers to arrange the previous filters.
 
 Plus we complete the pycountry informations about missing country names like "Vietnam" whose name was only "Viet
 Nam" or "Russia" whose name is "Russian Federation".
