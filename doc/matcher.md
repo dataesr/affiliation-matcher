@@ -23,45 +23,59 @@ keywords:
 
 # 1. Introduction
 
-The precise identification of the affiliations found in the bibliographic databases is a crucial point in various respects and in particular to follow the production of one or a group of laboratories or institutions, and thus be able to observe trends related to publications at the institutional level.<br/>
- 
-Unfortunately, this exercise remains a complex task, giving part of the value of paid bibliographic databases. Nevertheless, [@donner_comparing_2020] have shown that relying solely on commercial databases is insufficient for any use with policy implications and that a specific cleanup effort is needed. <br/>
+The precise identification of the affiliations found in the bibliographic databases is a crucial point in various 
+aspects and in particular to follow the production of one or a group of laboratories or institutions, and thus be able
+to observe trends related to publications at the institutional level.<br />
 
-Some techniques have been proposed, based on supervised or semi-supervised approaches with clustering [@cuxac_efficient_2013]. However, there are few, if any, labeled databases with an open license. 
+Unfortunately, this exercise remains a complex task, giving part of the value of paid bibliographic databases. 
+Nevertheless, [@donner_comparing_2020] have shown that relying solely on commercial databases is insufficient for any
+use with policy implications and that a specific cleanup effort is needed.<br />
 
-These difficulties have led us, for the French Open Science Monitoring [@jeangirard_monitoring_2019], to build our own methodology to detect publications with French affiliations. 
-This document aims at detailing the new methodology for detecting countries in affiliations, and also suggests good ways to link affiliations to entities listed in international repositories (such as RoR[@noauthor_research_2021], Grid[@noauthor_grid_2021]) or national ones (in France such as RNSR [@noauthor_rnsr_2021] and Sirene[@noauthor_systeme_2021]).
+Some techniques have been proposed, based on supervised or semi-supervised approaches with clustering 
+[@cuxac_efficient_2013]. However, there are few, if any, labeled databases with an open license.<br />
+These difficulties have led us, for the French Open Science Monitoring [@jeangirard_monitoring_2019], to build our own
+methodology to detect publications with French affiliations.<br />
 
-<br/>
+This document aims at detailing the new methodology for detecting countries in affiliations, and also suggests good
+ways to link affiliations to entities listed in international repositories (such as RoR [@noauthor_research_2021],
+Grid [@noauthor_grid_2021]) or national ones (in France such as RNSR [@noauthor_rnsr_2021] and Sirene 
+[@noauthor_systeme_2021]).<br />
 
-We propose a new approach, using the Elasticsearch search engine, based only on open data, modular and easily adaptable to other international or local repositories.
+We propose a new approach, using the Elasticsearch search engine, based only on open data, modular and easily adaptable
+to other international or local repositories.
 
 # 2. Method
 
 ## 2.1 Our matching framework
-The problem we are looking for can be summarized as follows: let $q$ be a string, describing an affiliation, and let be a set $C$ \{ (condition_i, value_i ) \} (potentially empty) of additional conditions, giving structured information about the affiliation described by query. To fix the ideas, we can sometimes know the country of the affiliation. In this case, the set $C$ will contain an element : $(country, France)$ for example.<br/>
-On the other hand, either $R$ a repository of entities (laboratories, institutions, even countries, cities etc). $R$ is a set of objects with characteristics, such as, for example, in the case of a laboratory, one (or more) name(s), acronym(s), one (or more) address(es), supervisor(s), etc. 
-The problem of affiliation recognition amounts to finding the (potentially empty) set of elements of $R$ that correspond to the $q$ and the conditions $C$.
-<br/>
+The problem we are looking for can be summarized as follows: let $q$ be a string, describing an affiliation, and let be 
+a set $C$ \{ (condition_i, value_i ) \} (potentially empty) of additional conditions, giving structured information 
+about the affiliation described by query. To fix the ideas, we can sometimes know the country of the affiliation. In 
+this case, the set $C$ will contain an element : $(country, France)$ for example.<br />
 
-Let's give an example. With q="French Ministry of Higher Education, Research and Innovation, Paris, France", an empty condition set and the grid repository, the expected result is https://grid.ac/institutes/grid.425729.f <br/>
+On the other hand, either $R$ a repository of entities (laboratories, institutions, even countries, cities etc). $R$ is
+a set of objects with characteristics, such as, for example, in the case of a laboratory, one (or more) name(s),
+acronym(s), one (or more) address(es), supervisor(s), etc. The problem of affiliation recognition amounts to finding
+the (potentially empty) set of elements of $R$ that correspond to the $q$ and the conditions $C$.<br/>
 
-This task seems relatively simple to the human mind, but it is actually not so simple to automate. 
-Rather than using a black-box technique, we propose a simple and modular approach where the user of the algorithm can keep control over the risk of error.
+Let's give an example. With q="French Ministry of Higher Education, Research and Innovation, Paris, France", an empty 
+condition set and the grid repository, the expected result is 
+[https://grid.ac/institutes/grid.425729.f](https://grid.ac/institutes/grid.425729.f).<br />
 
-<br>
+This task seems relatively simple to the human mind, but it is actually not so simple to automate. Rather than using a
+black-box technique, we propose a simple and modular approach where the user of the algorithm can keep control over the 
+risk of error.<br />
 
-There are two types of errors in reality, precision (the proportion of false positives, i.e. how many times the algorithm gives a result that is a bad match), and recall (the proportion of false negatives, i.e. how many times the algorithm does not give a match when there is a good match).
+There are two types of errors in reality, precision (the proportion of false positives, i.e. how many times the 
+algorithm gives a result that is a bad match), and recall (the proportion of false negatives, i.e. how many times the 
+algorithm does not give a match when there is a good match).<br />
 
-<br>
+Let us now introduce two objects: **criterion** and **strategy**.<br />
 
-Let us now introduce two objects: **criteria** and **strategies**. 
-
-<br>
-
-A **criterion** is a type of element characteristic of the elements of the reference $R$. For example the name or the city is a criterion for the grid frame of reference. That is to say that this repository contains information on the names (or aliases) and cities of the entities it groups together. To take the previous example, the entity grid.425729.f has the following grid_country, grid_name and grid_city criteria (values of these criteria in the grid registry):
-
- <br>
+A **criterion** is a type of element characteristic of the elements of the reference $R$. For example the name or the 
+city is a criterion for the grid frame of reference. That is to say that this repository contains information on the 
+names (or aliases) and cities of the entities it groups together. To take the previous example, the entity 
+grid.425729.f has the following grid_country, grid_name and grid_city criteria (values of these criteria in the grid 
+registry):<br />
 
  - grid_name : 
    - Ministry of Higher Education and Research 
@@ -76,12 +90,13 @@ A **criterion** is a type of element characteristic of the elements of the refer
 
 <br/>
 
-A **strategy** is a set of criteria. For example, ['grid_city', 'grid_country', 'grid_name'] is a strategy combining 3 criteria.
+A **strategy** is a set of criteria. For example, ['grid_city', 'grid_country', 'grid_name'] is a strategy combining 3 
+criteria.<br />
 
-<br/>
-
-Thus, applying the strategy ['grid_city', 'grid_country', 'grid_name'], amounts to returning all the elements of the repository $R$ for which there is both a match on the name, the city and on the country with respect to the query received in input $q$ and $C$. Using the same example, a single match is appropriate, giving the expected results, with: 
-<br>
+Thus, applying the strategy ['grid_city', 'grid_country', 'grid_name'], amounts to returning all the elements of the
+repository $R$ for which there is both a match on the name, the city and on the country with respect to the query
+received in input $q$ and $C$. Using the same example, a single match is appropriate, giving the expected results,
+with:<br />
 
   - 'grid_city': ['Ministry of Higher Education, Research and Innovation, **Paris**, France']
   - 'grid_country': ['Higher Education, Research and Innovation, Paris, **France**']
@@ -89,15 +104,14 @@ Thus, applying the strategy ['grid_city', 'grid_country', 'grid_name'], amounts 
 
 ## 2.2 Criteria and strategies
 
-Depending on the repository $R$ and the nature of the registered objects, many criteria are possible. For example, if a country repository is handled, criteria can be :
-
-<br>
+Depending on the repository $R$ and the nature of the registered objects, many criteria are possible. For example, if a
+country repository is handled, criteria can be :<br />
 
  - the official name and the usual name of the country in different languages and their possible abbreviations (iso 3166 alpha-2, iso 3166 alpha-3)
  - its subdivisions (regions, provinces...)
- - its cities   
- - its institutions, universities, hospitals etc...
- - its rivers, mountains ...
+ - its cities
+ - its institutions, universities, hospitals, etc
+ - its rivers, mountains, etc
 
 <br>
 
@@ -254,6 +268,7 @@ Nam" or "Russia" whose name is "Russian Federation".
 
 # Software and code availability
 
-The source code is released under an MIT license in the GitHub repository https://github.com/dataesr/matcher
+The source code is released under an MIT license in the GitHub repository 
+[https://github.com/dataesr/matcher](https://github.com/dataesr/matcher).
 
 # References
