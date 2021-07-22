@@ -167,24 +167,12 @@ In addition, these queries can use the diversity offered by elasticsearch. For n
 
 All other implementation details can be read directly in the open source code made available.
 
-## 2.4 Evaluation
-
-For a given repository $R$, we fix an ordered list of strategies to apply, allowing us to set up an automatic matching. 
-If we have a standard gold (composed of a list of affiliation signatures, and, for each, a list of corresponding 
-entities in the $R$ repository), we can apply the matcher on this list, and thus compute the precision and recall of 
-the matcher.<br />
-
-We will apply this method in the following section for 3 types of matcher: at the country level, for the grid 
-repository and for the French laboratory repository RNSR.
-
-# 3. Results
+### 2.3.1 ES index building
 
 In this part, we will explain more precisely the way we will build the ES indexes to be able to detect different
 aspects of the affiliations labels. This will be done against 3 aspects: country, GRID and French Registry RNSR. Those
 are only a start but we should be able to add more aspects like ROR, Wikidata, Siren (French institutions
 repository), etc.
-
-## 3.1 Country detection
 
 We here aimed at detecting the country of the affiliation label. As we said before we needed some information about 
 existing countries in the world like names, official names, iso 3166 alpha-2 and alpha-3, subdivisions names, 
@@ -266,11 +254,93 @@ We introduced some Elasticsearch analyzers to arrange the previous filters.
 Plus we complete the pycountry informations about missing country names like "Vietnam" whose name was only "Viet
 Nam" or "Russia" whose name is "Russian Federation".
 
+## 2.4 Evaluation
+
+For a given repository $R$, we fix an ordered list of strategies to apply, allowing us to set up an automatic matching. 
+If we have a standard gold (composed of a list of affiliation signatures, and, for each, a list of corresponding 
+entities in the $R$ repository), we can apply the matcher on this list, and thus compute the precision and recall of 
+the matcher.<br />
+
+We will apply this method in the following section for 3 types of matcher: at the country level, for the grid 
+repository and for the French laboratory repository RNSR.
+
+# 3. Results
+
+In order to test our methodology and our strategies, we use a set of 4.705 data. The set of data and the affiliation of 
+each data is collected from the Pubmed API. Each data has 5 attributes : affiliation, RNSR, siren, grid, country. The 
+affiliation label is a string but it can contain multiple affiliations. The other attributes (rnsr, siren, grid and 
+country) are manually collected. This dataset let us compute the precision and recall of each matcher by measuring the 
+difference between the expected result and the computed one.
+
+## 3.1 Country detection
+
+For the country matcher, the default strategies are :
+
+['grid_city', 'grid_name', 'grid_acronym', 'country_all_names'],
+['grid_city', 'grid_name', 'country_all_names'],
+['grid_city', 'grid_acronym', 'country_all_names'],
+['grid_city', 'country_all_names'],
+['grid_city', 'grid_name', 'country_subdivisions', 'country_alpha3'],
+['grid_city', 'grid_name', 'country_alpha3'],
+['grid_city', 'grid_acronym', 'country_subdivisions', 'country_alpha3'],
+['grid_city', 'country_subdivisions', 'country_alpha3'],
+['grid_name', 'country_all_names'],
+['country_subdivisions', 'country_all_names'],
+['country_all_names'],
+['country_subdivisions', 'country_alpha3'],
+['grid_name', 'country_subdivisions', 'country_subdivisions_code']
+
+Precision ~= 0.99
+Recall ~= 0.93
+
 ## 3.2 Grid detection
+
+For the grid matcher, the default strategies are :
+
+['grid_name', 'grid_acronym', 'grid_city', 'grid_country_code'],
+['grid_name', 'grid_acronym', 'grid_city', 'grid_country'],
+['grid_name', 'grid_city', 'grid_country_code'],
+['grid_name', 'grid_city', 'grid_country'],
+['grid_acronym', 'grid_city', 'grid_country_code'],
+['grid_acronym', 'grid_city', 'grid_country'],
+['grid_name', 'grid_country'],
+['grid_name', 'grid_country_code'],
+['grid_name', 'grid_city']
+
+Precision ~= 0.81
+Recall ~= 0.64
 
 ## 3.3 French registry RNSR detection
 
+For the RNSR matcher, the default strategies are :
+
+['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_zone_emploi'],
+['rnsr_code_number', 'rnsr_supervisor_name', 'rnsr_zone_emploi'],
+['rnsr_code_number', 'rnsr_acronym'],
+['rnsr_code_number', 'rnsr_name'],
+['rnsr_code_number', 'rnsr_supervisor_acronym'],
+['rnsr_code_number', 'rnsr_supervisor_name'],
+['rnsr_code_number', 'rnsr_zone_emploi'],
+['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_name', 'rnsr_zone_emploi'],
+['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_zone_emploi'],
+['rnsr_acronym', 'rnsr_name', 'rnsr_zone_emploi'],
+['rnsr_acronym', 'rnsr_supervisor_acronym', 'rnsr_zone_emploi'],
+['rnsr_acronym', 'rnsr_supervisor_name', 'rnsr_zone_emploi'],
+['rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_zone_emploi'],
+['rnsr_name', 'rnsr_supervisor_name', 'rnsr_zone_emploi'],
+['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_acronym'],
+['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_name'],
+['rnsr_name', 'rnsr_zone_emploi'],
+['rnsr_acronym', 'rnsr_zone_emploi'],
+['rnsr_name', 'rnsr_acronym']
+
+Precision ~= 0.99
+Recall ~= 0.80
+
 # 4. Discussion and conclusion
+
+We plan to develop more matchers like RoR and Siren but the methodology will 
+
 
 ## 4.1 Findings
 

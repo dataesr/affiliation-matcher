@@ -32,5 +32,5 @@ class TestMatchGrid:
 
     def test_precision_recall(self, elasticsearch) -> None:
         precision_recall = compute_precision_recall(match_type='grid', index_prefix=elasticsearch['index_prefix'])
-        assert precision_recall['precision'] >= 0.80
-        assert precision_recall['recall'] >= 0.56
+        assert precision_recall['precision'] >= 0.81
+        assert precision_recall['recall'] >= 0.64

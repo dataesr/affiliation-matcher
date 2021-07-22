@@ -33,4 +33,4 @@ class TestMatchRnsr:
     def test_precision_recall(self, elasticsearch) -> None:
         precision_recall = compute_precision_recall(match_type='rnsr', index_prefix=elasticsearch['index_prefix'])
         assert precision_recall['precision'] >= 0.99
-        assert precision_recall['recall'] >= 0.78
+        assert precision_recall['recall'] >= 0.80
