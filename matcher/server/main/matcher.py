@@ -1,5 +1,7 @@
 import itertools
+
 from bs4 import BeautifulSoup
+
 from matcher.server.main.elastic_utils import get_index_name
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
@@ -9,6 +11,7 @@ logger = get_logger(__name__)
 
 def identity(x: str = '') -> str:
     return x
+
 
 def filter_submatching_results(res: dict) -> dict:
     highlights = res['highlights']
@@ -25,13 +28,15 @@ def filter_submatching_results(res: dict) -> dict:
             matching_elements_1 = BeautifulSoup(str(highlights[id1][criterion]), 'lxml').find_all('em')
             matching_elements_2 = BeautifulSoup(str(highlights[id2][criterion]), 'lxml').find_all('em')
             if set(matching_elements_1) < set(matching_elements_2):
-                logs += f"<br> removing {id1} as its {criterion} is included in the same for {id2}"
+                logs += f'<br> Removing {id1} as its {criterion} is included in the same for {id2}'
                 ids_to_remove.append(id1)
             elif set(matching_elements_2) < set(matching_elements_1):
-                logs += f"<br> removing {id2} as its {criterion} is included in the same for {id1}"
+                logs += f'<br> Removing {id2} as its {criterion} is included in the same for {id1}'
                 ids_to_remove.append(id2)
     new_results = [r for r in results if r not in ids_to_remove]
-    return {'highlights': {k: v for k, v in highlights.items() if k in new_results}, 'logs': logs, 'results': new_results}
+    return {'highlights': {k: v for k, v in highlights.items() if k in new_results}, 'logs': logs,
+            'results': new_results}
+
 
 class Matcher:
     def __init__(self) -> None:

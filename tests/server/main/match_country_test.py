@@ -9,12 +9,13 @@ from matcher.server.main.my_elastic import MyElastic
 
 @pytest.fixture(scope='module')
 def elasticsearch() -> dict:
+    index_prefix = 'test'
+    load_grid(index_prefix=index_prefix)
+    load_country(index_prefix=index_prefix)
+    yield {'index_prefix': index_prefix}
     es = MyElastic()
-    load_grid(index_prefix='test')
-    load_country(index_prefix='test')
-    yield
-    es.delete_index(index='test_grid_*')
-    es.delete_index(index='test_country_*')
+    es.delete_index(index=f'{index_prefix}_grid_*')
+    es.delete_index(index=f'{index_prefix}_country_*')
 
 
 class TestMatchCountry:
@@ -30,13 +31,14 @@ class TestMatchCountry:
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.', [['grid_city']],
              ['lb', 'us'], 'grid_city'),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             [['grid_city', 'grid_name', 'country_all_names']], ['lb'], 'strategy'),
+             [['grid_city', 'grid_name', 'country_name']], ['lb'], 'strategy'),
             # Even if city is not unknown, the university name should match the associated country
             ('Université de technologie de Troyes', [['grid_name']], ['fr'], 'grid_name')
         ])
     def test_get_countries_from_query(self, elasticsearch, query, strategies, expected_results,
                                       expected_logs) -> None:
-        args = {'index_prefix': 'test', 'verbose': True, 'strategies': strategies, 'query': query}
+        args = {'index_prefix': elasticsearch['index_prefix'], 'verbose': True, 'strategies': strategies,
+                'query': query}
         response = match_country(conditions=args)
         results = response['results']
         results.sort()
@@ -46,4 +48,4 @@ class TestMatchCountry:
     def test_precision_recall(self, elasticsearch):
         precision_recall = compute_precision_recall(match_type='country', index_prefix='test')
         assert precision_recall['precision'] >= 0.99
-        assert precision_recall['recall'] >= 0.93
+        assert precision_recall['recall'] >= 0.92
