@@ -57,13 +57,13 @@ def transform_country_data(raw_data):
         if alpha2 == 'vn':
             all_names.append('vietnam')
         all_names = list(set(all_names))
-        country['all_names'] = all_names
+        country['name'] = all_names
         if 'name' in c:
             country['name'] = c['name']
         # Subdivisions
         if alpha2 in subdivisions:
-            country['subdivisions'] = list(set(subdivisions[alpha2]))
-            country['subdivisions_code'] = list(set(subdivisions_code[alpha2]))
+            country['subdivision_name'] = list(set(subdivisions[alpha2]))
+            country['subdivision_code'] = list(set(subdivisions_code[alpha2]))
         countries.append(country)
     return countries
 
@@ -78,9 +78,9 @@ def load_country(index_prefix: str = 'matcher') -> dict:
         }
     }
     analyzers = {
-        'all_names': 'name_analyzer',
-        'subdivisions': 'light',
-        'subdivisions_code': 'light',
+        'name': 'name_analyzer',
+        'subdivision_name': 'light',
+        'subdivision_code': 'light',
         'alpha3': 'light'
     }
     criteria = list(analyzers.keys())
@@ -96,8 +96,9 @@ def load_country(index_prefix: str = 'matcher') -> dict:
     for country in countries:
         for criterion in criteria:
             criterion_values = country.get(criterion)
+            criterion_values = criterion_values if isinstance(criterion_values, list) else [criterion_values]
             if criterion_values is None:
-                logger.debug(f"This element {country} has no {criterion}")
+                logger.debug(f'This element {country} has no {criterion}')
                 continue
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
@@ -111,10 +112,11 @@ def load_country(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            action = {'_index': index,
-                      'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]])),
-                      'query': {
-                          'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}}
-            actions.append(action)
+            if criterion_value:
+                action = {'_index': index,
+                          'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]])),
+                          'query': {
+                              'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}}
+                actions.append(action)
     es.parallel_bulk(actions=actions)
     return results

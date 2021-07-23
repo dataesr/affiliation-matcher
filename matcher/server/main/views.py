@@ -45,7 +45,6 @@ def run_task_enrich_filter():
         q = Queue(queue, default_timeout=default_timeout)
         task = q.enqueue(create_task_enrich_filter, args)
     response_object = {'status': 'success', 'data': {'task_id': task.get_id()}}
-    #response_object = create_task_enrich_filter(args=args)
     return jsonify(response_object), 202
 
 

@@ -276,22 +276,22 @@ difference between the expected result and the computed one.
 
 For the country matcher, the default strategies are :
 
-['grid_city', 'grid_name', 'grid_acronym', 'country_all_names'],
-['grid_city', 'grid_name', 'country_all_names'],
-['grid_city', 'grid_acronym', 'country_all_names'],
-['grid_city', 'country_all_names'],
-['grid_city', 'grid_name', 'country_subdivisions', 'country_alpha3'],
+['grid_city', 'grid_name', 'grid_acronym', 'country_name'],
+['grid_city', 'grid_name', 'country_name'],
+['grid_city', 'grid_acronym', 'country_name'],
+['grid_city', 'country_name'],
+['grid_city', 'grid_name', 'country_subdivision_name', 'country_alpha3'],
 ['grid_city', 'grid_name', 'country_alpha3'],
-['grid_city', 'grid_acronym', 'country_subdivisions', 'country_alpha3'],
-['grid_city', 'country_subdivisions', 'country_alpha3'],
-['grid_name', 'country_all_names'],
-['country_subdivisions', 'country_all_names'],
-['country_all_names'],
-['country_subdivisions', 'country_alpha3'],
-['grid_name', 'country_subdivisions', 'country_subdivisions_code']
+['grid_city', 'grid_acronym', 'country_subdivision_name', 'country_alpha3'],
+['grid_city', 'country_subdivision_name', 'country_alpha3'],
+['grid_name', 'country_name'],
+['country_subdivision_name', 'country_name'],
+['country_name'],
+['country_subdivision_name', 'country_alpha3'],
+['grid_name', 'country_subdivision_name', 'country_subdivision_code']
 
 Precision ~= 0.99
-Recall ~= 0.93
+Recall ~= 0.92
 
 ## 3.2 Grid detection
 
