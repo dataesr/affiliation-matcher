@@ -12,10 +12,10 @@ class MyElastic(Elasticsearch):
         else:
             super().__init__(hosts=ELASTICSEARCH_HOST)
 
-    def exception_handler(self, func):
-        def inner_function(*args, **kwargs):
+    def exception_handler(func):
+        def inner_function(self, *args, **kwargs):
             try:
-                return func(*args, **kwargs)
+                return func(self, *args, **kwargs)
             except Exception as exception:
                 self.logger.error(f'{func.__name__} raises an error through decorator "exception_handler".')
                 self.logger.error(exception)
