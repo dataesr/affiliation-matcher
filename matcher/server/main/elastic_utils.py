@@ -51,6 +51,10 @@ def get_filters() -> dict:
             'type': 'stemmer',
             'language': 'light_english'
         },
+        'length_min_2_char': {
+            'type': 'length',
+            'min': 2
+        },
         'length_min_3_char': {
             'type': 'length',
             'min': 3
@@ -64,7 +68,23 @@ def get_filters() -> dict:
         'common_synonym': {
             'type': 'synonym',
             'lenient': True,
-            'synonyms': ['st => saint']
+            'synonyms': [
+                'acad => academy',
+                'cent => central',
+                'ctr => center',
+                'dev => development',
+                'lab => laboratory',
+                'labs => laboratories',
+                'med => medical',
+                'ntl => national',
+                'res => research',
+                'st => saint',
+                'trop => tropical',
+                'univ => university',
+                'universite => university',
+                'universitaet => university',
+                'universitat => university'
+            ]
         },
         'name_synonym': {
             'type': 'synonym',
@@ -118,7 +138,7 @@ def get_analyzers() -> dict:
                 'lowercase',
                 'french_elision',
                 'icu_folding',
-                'length_min_3_char'
+                'length_min_2_char'
             ]
         },
         'code_analyzer': {
@@ -153,7 +173,8 @@ def get_analyzers() -> dict:
                 'icu_folding',
                 'common_synonym',
                 'english_stop',
-                'english_stemmer'
+                'english_stemmer',
+                'length_min_2_char'
             ]
         }
     }
