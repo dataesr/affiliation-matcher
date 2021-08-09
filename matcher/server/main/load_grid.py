@@ -72,15 +72,12 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
                     continue
             action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]],
                       'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
-            if criterion in exact_criteria:
-                action['query'] = {
-                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 0}}}
-            elif criterion in txt_criteria:
-                action['query'] = {
-                    'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 0}}}
-                #action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': analyzer,
-                #                                         'minimum_should_match': '-20%'}}}
-            actions.append(action)
+            if criterion in criteria:
+                action['query'] = {'match_phrase': {'content': {'query': criterion_value,
+                                                                'analyzer': analyzer, 'slop': 0}}}
+            # Do not add "USA" as grid acronym in order to not mix it together with the country alpha3
+            if criterion != 'acronym' or criterion_value != 'USA':
+                actions.append(action)
     es.parallel_bulk(actions=actions)
     return results
 
