@@ -1,12 +1,12 @@
-import copy
 import datetime
 import requests
+
+from elasticsearch.client import IndicesClient
 
 from matcher.server.main.config import SCANR_DUMP_URL
 from matcher.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
-from elasticsearch.client import IndicesClient
 from matcher.server.main.utils import download_insee_data, get_alpha2_from_french, get_tokens
 
 logger = get_logger(__name__)
@@ -81,18 +81,6 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
             elif criterion in txt_criteria:
                 action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': analyzer,
                                                          'minimum_should_match': '-10%'}}}
-                #ref_tokens = get_tokens(indices_client, analyzer, index, 'unité de recherche')
-                #ref_tokens_str = ' '.join([t['token'] for t in ref_tokens])
-                #first_tokens_str = ' '.join([t['token'] for t in tokens[0:len(ref_tokens)]])
-                #if first_tokens_str == ref_tokens_str:
-                    #new_criterion_value = ' '.join(criterion_value.split(' ')[3:])
-                    #logger.debug(f'Indexing also {new_criterion_value} along with {criterion_value}')
-                    #new_action = copy.deepcopy(action)
-                    #new_action['query']['match_phrase']['content']['query'] = new_criterion_value
-                    #tokens = get_tokens(indices_client, analyzer, index, new_criterion_value)
-                    #if len(tokens) < 2:
-                        #continue
-                    #actions.append(new_action)
             actions.append(action)
     es.parallel_bulk(actions=actions)
     return results
@@ -193,29 +181,31 @@ def transform_rnsr_data(data: list) -> list:
     for rnsr in rnsrs:
         rnsr_id = rnsr['id']
         es_rnsr = {'id': rnsr['rnsr']}  # the 'id' field can be different from the rnsr, in some cases
-        # CODE_NUMBERS
+        # Code numbers
         code_numbers = []
         for code in [e['id'] for e in rnsr.get('externalIds', []) if e['type'] == 'label_numero']:
             code_numbers.extend([code, code.replace(' ', ''), code.replace(' ', '-'), code.replace(' ', '_')])
         es_rnsr['code_number'] = list(set(code_numbers))
-        # ACRONYMS & NAMES
+        # Acronyms & names
         es_rnsr['acronym'] = name_acronym_city[rnsr_id]['acronym']
         names = name_acronym_city[rnsr_id]['name']
         es_rnsr['name'] = list(set(names) - set(es_rnsr['acronym']) - set(es_rnsr['code_number']))
-        # SUPERVISORS ID
+        # Supervisors id
         es_rnsr['supervisor_id'] = [supervisor.get('structure') for supervisor in rnsr.get('institutions', [])
                                     if 'structure' in supervisor]
-        es_rnsr['supervisor_id'] += [e['id'][0:9] for e in rnsr.get('externalIds', []) if 'sire' in e['type']]
+        logger.debug(rnsr)
+        es_rnsr['supervisor_id'] += [external_id['id'][0:9] for external_id in rnsr.get('externalIds', [])
+                                     if external_id['type'] and 'sire' in external_id['type']]
         es_rnsr['supervisor_id'] = list(set(es_rnsr['supervisor_id']))
         es_rnsr['supervisor_id'] = list(filter(None, es_rnsr['supervisor_id']))
-        # SUPERVISORS ACRONYM, NAME AND CITY
+        # Supervisors acronym, name and city
         for f in ['acronym', 'name', 'city']:
             es_rnsr[f'supervisor_{f}'] = []
             for supervisor_id in es_rnsr['supervisor_id']:
                 if supervisor_id in name_acronym_city:
                     es_rnsr[f'supervisor_{f}'] += name_acronym_city[supervisor_id][f'{f}']
             es_rnsr[f'supervisor_{f}'] = list(set(es_rnsr[f'supervisor_{f}']))
-        # ADDRESSES
+        # Addresses
         es_rnsr['city'] = name_acronym_city[rnsr_id]['city']
         es_rnsr['country_alpha2'] = name_acronym_city[rnsr_id]['country_alpha2']
         es_rnsr['country_code'] = [name_acronym_city[rnsr_id]['country_alpha2']]
@@ -225,12 +215,12 @@ def transform_rnsr_data(data: list) -> list:
         for uu in name_acronym_city[rnsr_id]['urban_unit']:
             es_rnsr['urban_unit'] += urban_unit_composition[uu]
         es_rnsr['urban_unit'] = list(set(es_rnsr['urban_unit']))
-        # now zone emploi (larger than urban unit)
+        # Now zone emploi (larger than urban unit)
         es_rnsr['zone_emploi'] = []
         for ze in name_acronym_city[rnsr_id]['zone_emploi']:
             es_rnsr['zone_emploi'] += zone_emploi_composition[ze]
         es_rnsr['zone_emploi'] = list(set(es_rnsr['zone_emploi']))
-        # DATES
+        # Dates
         last_year = f'{datetime.date.today().year}'
         start_date = rnsr.get('startDate')
         if not start_date:
