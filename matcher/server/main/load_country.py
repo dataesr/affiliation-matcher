@@ -20,6 +20,7 @@ def transform_country_data(raw_data):
         alpha2 = subdivision.country_code.lower()
         if alpha2 not in subdivision_name:
             subdivision_name[alpha2] = []
+        if alpha2 not in subdivision_code:
             subdivision_code[alpha2] = []
         subdivision_name[alpha2].append(subdivision.name)
         if alpha2 == 'us':
@@ -30,7 +31,8 @@ def transform_country_data(raw_data):
     for c in raw_data:
         # Alpha 2 - 3
         alpha2 = c['alpha_2'].lower()
-        country = {'alpha2': alpha2, 'alpha3': [c['alpha_3']]}
+        alpha3 = c['alpha_3'].lower()
+        country = {'alpha2': alpha2, 'alpha3': [alpha3]}
         if alpha2 == 'gb':
             country['alpha3'].append('uk')
         # Names
@@ -38,28 +40,29 @@ def transform_country_data(raw_data):
         for field_name in ['name', 'official_name', 'common_name']:
             if field_name in c:
                 names.append(c[field_name])
-        if alpha2 == 'ru':
-            names.append('russia')
-        if alpha2 == 'ci':
-            names.append('ivory coast')
-        if alpha2 == 'cv':
-            names.append('cape verde')
-        if alpha2 == 'kp':
-            names.append('north korea')
-        if alpha2 == 'kr':
-            names.append('south korea')
-        if alpha2 == 'la':
-            names.append('laos')
-        if alpha2 == 'sy':
-            names.append('syria')
-        if alpha2 == 'tw':
-            names.append('taiwan')
-        if alpha2 == 'vn':
-            names.append('vietnam')
+        switcher = {
+            'bn': 'brunei',
+            'ci': 'ivory coast',
+            'cv': 'cape verde',
+            'cz': 'czech',
+            'de': 'deutschland',
+            'gb': 'uk',
+            'ir': 'iran',
+            'kp': 'north korea',
+            'kr': 'south korea',
+            'la': 'laos',
+            'mo': 'macau',
+            'ru': 'russia',
+            'sy': 'syria',
+            'tw': 'taiwan',
+            'us': 'USA',
+            'vn': 'vietnam'
+        }
+        new_name = switcher.get(alpha2, None)
+        if new_name:
+            names.append(new_name)
         names = list(set(names))
         country['name'] = names
-        if 'name' in c:
-            country['name'] = c['name']
         # Subdivisions
         if alpha2 in subdivision_name:
             country['subdivision_name'] = list(set(subdivision_name[alpha2]))
@@ -114,7 +117,8 @@ def load_country(index_prefix: str = 'matcher') -> dict:
         for criterion_value in es_data[criterion]:
             if criterion_value:
                 action = {'_index': index,
-                          'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]])),
+                          'country_alpha2': list(set([k['country_alpha2'] for k in
+                                                      es_data[criterion][criterion_value]])),
                           'query': {
                               'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 2}}}}
                 actions.append(action)
