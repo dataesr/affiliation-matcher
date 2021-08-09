@@ -22,7 +22,13 @@ And specifically for French affiliations :
 ```shell
 git clone git@github.com:dataesr/matcher.git
 cd matcher
-make start load
+make docker-build start
+```
+
+Wait for Elasticsearch to be up. Then run :
+
+```shell
+make load
 ```
 
 In your browser, you now have :
@@ -37,15 +43,21 @@ In your browser, you now have :
 make test
 ```
 
+## Build docker image
+
+```shell
+make docker-build
+```
+
 ## Build python package
 
-To generate the tarball package into the **dist** folder
+To generate the tarball package into the **dist** folder :
 
 ```shell
 make python-build
 ```
 
-To install the generated package into your project
+To install the generated package into your project :
 
 ```shell
 pip install /path/to/your/package.tar.gz
