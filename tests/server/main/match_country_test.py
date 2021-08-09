@@ -45,7 +45,7 @@ class TestMatchCountry:
         assert results == expected_results
         assert expected_logs in response['logs']
     
-    def test_precision_recall(self, elasticsearch):
+    def test_precision_recall(self):
         precision_recall = compute_precision_recall(match_type='country', index_prefix='test')
         assert precision_recall['precision'] >= 0.99
-        assert precision_recall['recall'] >= 0.92
+        assert precision_recall['recall'] >= 0.96
