@@ -22,7 +22,8 @@ DEFAULT_STRATEGIES = [
     ['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_name'],
     ['rnsr_name', 'rnsr_zone_emploi'],
     ['rnsr_acronym', 'rnsr_zone_emploi'],
-    ['rnsr_name', 'rnsr_acronym']
+    ['rnsr_name', 'rnsr_acronym'],
+    ['rnsr_acronym', 'rnsr_city']
 ]
 
 
