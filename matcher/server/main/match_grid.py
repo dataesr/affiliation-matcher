@@ -3,15 +3,15 @@ from matcher.server.main.utils import remove_ref_index
 
 
 DEFAULT_STRATEGIES = [
-    ['grid_name', 'grid_acronym', 'grid_city', 'grid_country_code'],
-    ['grid_name', 'grid_acronym', 'grid_city', 'grid_country'],
-    ['grid_name', 'grid_city', 'grid_country_code'],
-    ['grid_name', 'grid_city', 'grid_country'],
-    ['grid_acronym', 'grid_city', 'grid_country_code'],
-    ['grid_acronym', 'grid_city', 'grid_country'],
-    ['grid_name', 'grid_country'],
-    ['grid_name', 'grid_country_code'],
-    ['grid_name', 'grid_city']
+    [['grid_name', 'grid_acronym', 'grid_city', 'grid_country_code']],
+    [['grid_name', 'grid_acronym', 'grid_city', 'grid_country']],
+    [['grid_name', 'grid_city', 'grid_country_code']],
+    [['grid_name', 'grid_city', 'grid_country']],
+    [['grid_acronym', 'grid_city', 'grid_country_code']],
+    [['grid_acronym', 'grid_city', 'grid_country']],
+    [['grid_name', 'grid_country']],
+    [['grid_name', 'grid_country_code']],
+    [['grid_name', 'grid_city']]
 ]
 
 
