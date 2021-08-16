@@ -5,7 +5,7 @@ import requests
 import shutil
 import string
 import unicodedata
-from elasticsearch.client import IndicesClient
+
 from tempfile import mkdtemp
 from zipfile import ZipFile
 
@@ -55,10 +55,28 @@ def normalize_text(text: str = None, remove_separator: bool = True) -> str:
 
 
 def get_alpha2_from_french(user_input):
-    ref = {"France": "fr", "Mexique": "mx", "Etats-Unis": "us", "Sénégal": "sn", "Chili": "cl", "Inde": "in",
-           "Corée du Sud": "kr", "Singapour": "sg", "Canada": "ca", "Pays-Bas": "nl", "Autriche": "at", "Japon": "jp",
-           "Brésil": "br", "Chine": "cn", "Argentine": "ar", "Russie": "ru", "Italie": "it", "Ethiopie": "et",
-           "Israël": "il", "Afrique du Sud": "za"}
+    ref = {
+        'Afrique du Sud': 'za',
+        'Argentine': 'ar',
+        'Autriche': 'at',
+        'Brésil': 'br',
+        'Canada': 'ca',
+        'Chili': 'cl',
+        'Chine': 'cn',
+        'Corée du Sud': 'kr',
+        'Etats-Unis': 'us',
+        'Ethiopie': 'et',
+        'France': 'fr',
+        'Inde': 'in',
+        'Israël': 'il',
+        'Italie': 'it',
+        'Japon': 'jp',
+        'Mexique': 'mx',
+        'Pays-Bas': 'nl',
+        'Russie': 'ru',
+        'Sénégal': 'sn',
+        'Singapour': 'sg'
+    }
     return ref.get(user_input)
 
 
