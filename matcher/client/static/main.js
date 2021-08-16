@@ -4,7 +4,7 @@ $('.submit').on('click', function() {
 	    type: $('#input_type option:selected').val(),
 	    year: $('#input_year option:selected').val(),
 	    query: $('#input_query').val(),
-	    verbose: true,
+	    verbose: true
     }
     $.ajax({
         url: '/match_api',
@@ -13,11 +13,11 @@ $('.submit').on('click', function() {
         dataType: 'json',
         method: 'POST'
     })
-    .done(res => {
-        $('#logs').html(res.logs);
+    .done(result => {
+        $('#logs').html(result.logs);
     })
-    .fail(err => {
-        console.log(err)
+    .fail(error => {
+        console.log(error)
     });
 });
 
