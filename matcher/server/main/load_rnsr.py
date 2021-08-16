@@ -114,13 +114,14 @@ def transform_rnsr_data(data: list) -> list:
     city_zone_emploi = {}
     for d in zone_emploi_insee:
         city = d['LIBGEO']
-        dep_city = d['DEP'] + d['LIBGEO']
-        if d['LIBZE2020'] not in zone_emploi_composition:
-            zone_emploi_composition[d['LIBZE2020']] = []
-        zone_emploi_composition[d['LIBZE2020']].append(city)
-        if dep_city not in city_zone_emploi:
-            city_zone_emploi[dep_city] = []
-        city_zone_emploi[dep_city].append(d['LIBZE2020'])
+        city_code = d['CODGEO']
+        ze = d['LIBZE2020']
+        if ze not in zone_emploi_composition:
+            zone_emploi_composition[ze] = []
+        zone_emploi_composition[ze].append(city)
+        if city_code not in city_zone_emploi:
+            city_zone_emploi[city_code] = []
+        city_zone_emploi[city_code].append(ze)
     # Setting a dict with all names, acronyms and cities
     name_acronym_city = {}
     urban_unit_composition = {}
@@ -138,7 +139,7 @@ def transform_rnsr_data(data: list) -> list:
         if d.get('alias'):
             names += d.get('alias')
         for n in names:
-            if n.lower()[0:18] in ["unité de recherche", "unite de recherche"]:
+            if n.lower()[0:18] in ['unité de recherche', 'unite de recherche']:
                 names.append(n[18:].strip())
         names = list(set(names))
         names = list(set(names) - set(acronyms))
@@ -148,10 +149,9 @@ def transform_rnsr_data(data: list) -> list:
             if 'city' in address and address['city']:
                 cities.append(address['city'])
             if 'city' in address and address['city'] and 'postcode' in address and address['postcode']:
-                dep = address['postcode'][0:2]
-                dep_city = dep + address['city']
-                if dep_city in city_zone_emploi:
-                    zone_emploi += city_zone_emploi[dep_city]
+                city_code = address['citycode']
+                if city_code in city_zone_emploi:
+                    zone_emploi += city_zone_emploi[city_code]
             if 'urbanUnitLabel' in address and address['urbanUnitLabel']:
                 urban_units.append(address['urbanUnitLabel'])
             if 'country' in address and address['country']:
