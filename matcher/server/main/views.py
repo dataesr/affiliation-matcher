@@ -36,11 +36,9 @@ def run_task_match():
 def run_task_enrich_filter():
     args = request.get_json(force=True)
     logger.debug(args)
-
     queue = 'matcher'
     if 'queue' in args and args['queue'] != 'matcher':
         queue = 'matcher_short'
-    
     with Connection(redis.from_url(current_app.config['REDIS_URL'])):
         q = Queue(queue, default_timeout=default_timeout)
         task = q.enqueue(create_task_enrich_filter, args)

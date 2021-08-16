@@ -38,7 +38,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         'name_txt': 'heavy_fr',
         'supervisor_acronym': 'acronym_analyzer',
         'supervisor_name': 'heavy_fr',
-        'year': 'light',
+        'year': 'light'
     }
     criteria = exact_criteria + txt_criteria
     es_data = {}
@@ -193,7 +193,6 @@ def transform_rnsr_data(data: list) -> list:
         # Supervisors id
         es_rnsr['supervisor_id'] = [supervisor.get('structure') for supervisor in rnsr.get('institutions', [])
                                     if 'structure' in supervisor]
-        logger.debug(rnsr)
         es_rnsr['supervisor_id'] += [external_id['id'][0:9] for external_id in rnsr.get('externalIds', [])
                                      if external_id['type'] and 'sire' in external_id['type']]
         es_rnsr['supervisor_id'] = list(set(es_rnsr['supervisor_id']))
