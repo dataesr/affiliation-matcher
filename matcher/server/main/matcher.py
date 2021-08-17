@@ -30,13 +30,32 @@ def filter_submatching_results(res: dict) -> dict:
         for criterion in criteria:
             matching_elements_1 = BeautifulSoup(str(highlights[id1].get(criterion, '')), 'lxml').find_all('em')
             matching_elements_2 = BeautifulSoup(str(highlights[id2].get(criterion, '')), 'lxml').find_all('em')
-            if set(matching_elements_1) < set(matching_elements_2):
-                logs += f'<br> Removing {id1} as its {criterion} is included in the same for {id2}'
+            # Get HTML node text
+            matching_elements_1 = [div.text for div in matching_elements_1]
+            matching_elements_2 = [div.text for div in matching_elements_2]
+            # Remove duplicates
+            matching_elements_1 = list(set(matching_elements_1))
+            matching_elements_2 = list(set(matching_elements_2))
+            for needle in matching_elements_1 + matching_elements_2:
+                for word in matching_elements_1:
+                    if word in needle and word != needle:
+                        matching_elements_1.remove(word)
+                for word in matching_elements_2:
+                    if word in needle and word != needle:
+                        matching_elements_2.remove(word)
+            for needle in matching_elements_1:
+                for word in matching_elements_2:
+                    if needle == word and len(matching_elements_2) == 1:
+                        matching_elements_1.remove(needle)
+            for needle in matching_elements_2:
+                for word in matching_elements_1:
+                    if needle == word and len(matching_elements_1) == 1:
+                        matching_elements_2.remove(needle)
+            if len(matching_elements_1) == 0:
                 ids_to_remove.append(id1)
-            elif set(matching_elements_2) < set(matching_elements_1):
-                logs += f'<br> Removing {id2} as its {criterion} is included in the same for {id1}'
+            if len(matching_elements_2) == 0:
                 ids_to_remove.append(id2)
-    new_results = [r for r in results if r not in ids_to_remove]
+    new_results = [result for result in results if result not in ids_to_remove]
     return {'highlights': {k: v for k, v in highlights.items() if k in new_results}, 'logs': logs,
             'results': new_results}
 
