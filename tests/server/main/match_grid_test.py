@@ -19,7 +19,7 @@ class TestMatchGrid:
     @pytest.mark.parametrize(
         'query,strategies,expected_results,expected_logs', [
             ('institut pasteur shanghai', [[['grid_name']]], ['grid.428999.7'],
-             'Strategy has 1 possibilities that match all criteria')
+             'Equivalent strategies has 1 possibilities that match one of the strategy')
         ])
     def test_match_grid(self, elasticsearch, query, strategies, expected_results, expected_logs) -> None:
         args = {'index_prefix': elasticsearch['index_prefix'], 'verbose': True, 'strategies': strategies,
