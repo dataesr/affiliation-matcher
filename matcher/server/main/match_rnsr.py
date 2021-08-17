@@ -40,7 +40,12 @@ def match_rnsr(conditions: dict) -> dict:
     if strategies is None:
         strategies = DEFAULT_STRATEGIES
     if 'year' in conditions:
-        strategies_with_year = [strategy + ['rnsr_year'] for strategy in strategies.copy()]
-        strategies = strategies_with_year
+        strategies_copy = []
+        for equivalent_strategies in strategies:
+            equivalent_strategies_copy = []
+            for strategy in equivalent_strategies:
+                equivalent_strategies_copy.append(strategy + ['rnsr_year'])
+            strategies_copy.append(equivalent_strategies_copy)
+        strategies = strategies_copy
     matcher = Matcher()
     return matcher.match(conditions=conditions, strategies=strategies, pre_treatment_query=pre_treatment_rnsr)

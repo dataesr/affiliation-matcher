@@ -18,8 +18,8 @@ def elasticsearch() -> dict:
 class TestMatchRnsr:
     @pytest.mark.parametrize(
         'query,strategies,expected_results,expected_logs', [
-            ('Laboratoire de planétologie de Grenoble', [['rnsr_name']], ['199911794D'],
-             'Strategy has 1 possibilities that match all criteria')
+            ('Laboratoire de planétologie de Grenoble', [[['rnsr_name']]], ['199911794D'],
+             'Equivalent strategies has 1 possibilities that match one of the strategy')
         ])
     def test_match_rnsr(self, elasticsearch, query, strategies, expected_results, expected_logs) -> None:
         args = {'index_prefix': elasticsearch['index_prefix'], 'verbose': True, 'strategies': strategies,
