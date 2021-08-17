@@ -15,14 +15,13 @@ def identity(x: str = '') -> str:
 
 def filter_submatching_results(res: dict) -> dict:
     highlights = res['highlights']
-    logger.debug(highlights)
     logs = res['logs']
     results = res['results']
     if len(results) == 0:
         return res
     ids_to_remove = []
     matching_ids = list(highlights.keys())
-    logger.debug(matching_ids)
+    # Create all combinaisons of 2 ids among the matching_ids
     all_id_combinations = itertools.combinations(matching_ids, 2)
     criteria_01 = highlights[matching_ids[0]].keys()
     criteria_02 = highlights[matching_ids[1]].keys() if len(matching_ids) > 1 else []
