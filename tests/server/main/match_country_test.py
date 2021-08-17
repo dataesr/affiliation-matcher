@@ -22,18 +22,18 @@ class TestMatchCountry:
     @pytest.mark.parametrize(
         'query,strategies,expected_results,expected_logs', [
             # Query with no meaningful should return no country
-            ('Not meaningful string', [['grid_city']], [], 'No results'),
+            ('Not meaningful string', [[['grid_city']]], [], 'No results'),
             # Simple query with a city should match the associated country
-            ('Tour Mirabeau Paris', [['grid_city']], ['ca', 'fr', 'us'], 'grid_city'),
+            ('Tour Mirabeau Paris', [[['grid_city']]], ['ca', 'fr', 'us'], 'grid_city'),
             # Complex query with a city should match the associated country
-            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', [['grid_city']],
+            ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', [[['grid_city']]],
              ['fr'], 'grid_city'),
-            ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.', [['grid_city']],
+            ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.', [[['grid_city']]],
              ['lb', 'us'], 'grid_city'),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
-             [['grid_city', 'grid_name', 'country_name']], ['lb'], 'strategy'),
+             [[['grid_city', 'grid_name', 'country_name']]], ['lb'], 'strategy'),
             # Even if city is not unknown, the university name should match the associated country
-            ('Université de technologie de Troyes', [['grid_name']], ['fr'], 'grid_name')
+            ('Université de technologie de Troyes', [[['grid_name']]], ['fr'], 'grid_name')
         ])
     def test_get_countries_from_query(self, elasticsearch, query, strategies, expected_results,
                                       expected_logs) -> None:
