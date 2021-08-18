@@ -23,7 +23,7 @@ class TestMatchCountry:
         'query,strategies,expected_results,expected_logs', [
             # Query with no meaningful should return no country
             ('Not meaningful string', [[['grid_city']]], [], 'No results'),
-            # Simple query with a city should match the associated country
+            # Simple query with a city should match the associated countries
             ('Tour Mirabeau Paris', [[['grid_city']]], ['ca', 'fr', 'us'], 'grid_city'),
             # Complex query with a city should match the associated country
             ('Inserm U1190 European Genomic Institute of Diabetes, CHU Lille, Lille, France', [[['grid_city']]],
