@@ -6,10 +6,27 @@ from matcher.server.main.matcher import filter_submatching_results
 class TestMatcher:
     @pytest.mark.parametrize(
         'highlights,results,expected_results', [
-            ({'us': {'grid_city': ['<em>Paris</em>', '<em>Philadelphia</em>']},
-              'fr': {'grid_city': ['<em>Paris</em>']}}, ['us', 'fr'], ['us']),
-            ({'us': {'grid_name': ['<em>Cambridge Public School</em>', '<em>Cambridge School</em>']},
-              'pt': {'grid_name': ['<em>Cambridge School</em>']}}, ['us', 'pt'], ['us'])
+            ({'grid.1': {'grid_name': ['<em>Medical</em> <em>Cambridge</em> <em>University</em>'],
+                         'grid_country': ['<em>United</em> <em>Kingdom</em>']},
+              'grid.2': {'grid_name': ['<em>Cambridge</em> <em>University</em>'],
+                         'grid_country': ['<em>United</em> <em>Kingdom</em>']},
+              'grid.3': {'grid_name': ['<em>Cambridge</em> <em>University</em>'],
+                         'grid_country': ['<em>United</em> <em>States</em>']},
+              },
+             ['grid.1', 'grid.2', 'grid.3'], ['grid.1', 'grid.3']),
+            ({'us': {'grid_city': ['<em>Paris</em>', '<em>Philadelphia</em>'],
+                     'grid_name': ['<em>University</em> of <em>Philadelphia</em>']},
+              'fr': {'grid_city': ['<em>Paris</em>'], 'grid_name': ['<em>University</em> of <em>Paris</em>']}},
+             ['us', 'fr'], ['us', 'fr']),
+            ({'us': {'grid_city': [['Tour Mirabeau <em>Paris</em>']]},
+              'fr': {'grid_city': [['Tour Mirabeau <em>Paris</em>']]},
+              'ca': {'grid_city': [['Tour Mirabeau <em>Paris</em>']]}},
+             ['us', 'fr', 'ca'], ['us', 'fr', 'ca']),
+            # Cas limite
+            ({'us': {'grid_city': ['<em>New</em>', '<em>York</em>'],
+                     'grid_name': ['<em>University</em> of <em>New</em> <em>York</em>']},
+              'uk': {'grid_city': ['<em>York</em>'], 'grid_name': ['<em>University</em> of <em>York</em>']}},
+             ['us', 'uk'], ['us'])
         ])
     def test_filter_submatching_results(self, highlights, results, expected_results) -> None:
         res = {'highlights': highlights, 'logs': '', 'results': results}
