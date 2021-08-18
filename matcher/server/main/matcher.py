@@ -27,16 +27,19 @@ def filter_submatching_results(res: dict) -> dict:
     criteria_02 = highlights[matching_ids[1]].keys() if len(matching_ids) > 1 else []
     criteria = list(set(list(criteria_01) + list(criteria_02)))
     for (id1, id2) in all_id_combinations:
+        is_inf_or_equal_1, is_inf_or_equal_2, is_strict_inf_1, is_strict_inf_2 = True, True, False, False
         for criterion in criteria:
-            matching_elements_1 = BeautifulSoup(str(highlights[id1].get(criterion, '')), 'lxml').find_all('em')
-            matching_elements_2 = BeautifulSoup(str(highlights[id2].get(criterion, '')), 'lxml').find_all('em')
-            if set(matching_elements_1) < set(matching_elements_2):
-                logs += f'<br> Removing {id1} as its {criterion} is included in the same for {id2}'
-                ids_to_remove.append(id1)
-            elif set(matching_elements_2) < set(matching_elements_1):
-                logs += f'<br> Removing {id2} as its {criterion} is included in the same for {id1}'
-                ids_to_remove.append(id2)
-    new_results = [r for r in results if r not in ids_to_remove]
+            matching_elements_1 = set(BeautifulSoup(str(highlights[id1].get(criterion, '')), 'lxml').find_all('em'))
+            matching_elements_2 = set(BeautifulSoup(str(highlights[id2].get(criterion, '')), 'lxml').find_all('em'))
+            is_inf_or_equal_1 = is_inf_or_equal_1 and matching_elements_1 <= matching_elements_2
+            is_inf_or_equal_2 = is_inf_or_equal_2 and matching_elements_2 <= matching_elements_1
+            is_strict_inf_1 = is_strict_inf_1 or matching_elements_1 < matching_elements_2
+            is_strict_inf_2 = is_strict_inf_2 or matching_elements_2 < matching_elements_1
+        if is_inf_or_equal_1 and is_strict_inf_1:
+            ids_to_remove.append(id1)
+        if is_inf_or_equal_2 and is_strict_inf_2:
+            ids_to_remove.append(id2)
+    new_results = [result for result in results if result not in ids_to_remove]
     return {'highlights': {k: v for k, v in highlights.items() if k in new_results}, 'logs': logs,
             'results': new_results}
 
