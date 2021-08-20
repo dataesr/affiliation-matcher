@@ -2,6 +2,7 @@ from matcher.server.main.affiliation_matcher import check_matcher_health, enrich
 from matcher.server.main.load_country import load_country
 from matcher.server.main.load_grid import load_grid
 from matcher.server.main.load_rnsr import load_rnsr
+from matcher.server.main.load_ror import load_ror
 from matcher.server.main.load_wikidata import load_wikidata
 from matcher.server.main.logger import get_logger
 from matcher.server.main.match_country import match_country
@@ -32,12 +33,15 @@ def create_task_load(args: dict = None) -> dict:
         result.update(load_country(index_prefix=index_prefix))
         result.update(load_grid(index_prefix=index_prefix))
         result.update(load_rnsr(index_prefix=index_prefix))
+        result.update(load_ror(index_prefix=index_prefix))
     elif matcher_type == 'country':
         result.update(load_country(index_prefix=index_prefix))
     elif matcher_type == 'grid':
         result.update(load_grid(index_prefix=index_prefix))
     elif matcher_type == 'rnsr':
         result.update(load_rnsr(index_prefix=index_prefix))
+    elif matcher_type == 'ror':
+        result.update(load_ror(index_prefix=index_prefix))
     elif matcher_type == 'wikidata':
         result.update(load_wikidata(index_prefix=index_prefix))
     else:

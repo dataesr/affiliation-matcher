@@ -3,6 +3,7 @@ import os
 import requests
 import shutil
 
+from elasticsearch.client import IndicesClient
 from tempfile import mkdtemp
 from zipfile import ZipFile
 
@@ -10,11 +11,9 @@ from matcher.server.main.config import CHUNK_SIZE, GRID_DUMP_URL
 from matcher.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
-from elasticsearch.client import IndicesClient
 from matcher.server.main.utils import get_tokens
 
 logger = get_logger(__name__)
-
 SOURCE = 'grid'
 
 
