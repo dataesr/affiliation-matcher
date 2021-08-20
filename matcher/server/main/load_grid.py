@@ -88,11 +88,11 @@ def transform_grid_data(data: dict) -> list:
     for grid in grids:
         formatted_data = {'id': grid['id']}
         # Names
-        institutions = [grid.get('name')]
-        institutions += grid.get('aliases', [])
-        institutions += [label.get('label') for label in grid.get('labels', [])]
-        institutions = list(set(institutions))
-        formatted_data['name'] = list(filter(None, institutions))
+        names = [grid.get('name')]
+        names += grid.get('aliases', [])
+        names += [label.get('label') for label in grid.get('labels', [])]
+        names = list(set(names))
+        formatted_data['name'] = list(filter(None, names))
         # Acronyms
         acronyms = grid.get('acronyms', [])
         acronyms = list(set(acronyms))
@@ -109,6 +109,11 @@ def transform_grid_data(data: dict) -> list:
             if address.get('geonames_city', {}):
                 city2 = address.get('geonames_city', {}).get('city')
                 cities.append(city2)
+        # Add country aliases
+        if 'United Kingdom' in countries:
+            countries.append('UK')
+        elif 'United States' in countries:
+            countries.append('USA')
         countries = list(set(countries))
         country_codes = list(set(country_codes))
         cities = list(set(cities))
