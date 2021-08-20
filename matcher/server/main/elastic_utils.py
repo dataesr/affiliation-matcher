@@ -3,13 +3,11 @@ def get_mappings(analyzer) -> dict:
         'properties': {
             'content': {
                 'type': 'text',
-                'analyzer': analyzer,
-                'term_vector': 'with_positions_offsets'
+                'analyzer': analyzer
             },
             'ids': {
                 'type': 'text',
-                'analyzer': 'keyword',
-                'term_vector': 'with_positions_offsets'
+                'analyzer': 'keyword'
             },
             'query': {
                 'type': 'percolator'
@@ -83,7 +81,8 @@ def get_filters() -> dict:
                 'univ => university',
                 'universite => university',
                 'universitaet => university',
-                'universitat => university'
+                'universitat => university',
+                'newyork => new york'
             ]
         },
         'name_synonym': {
