@@ -41,26 +41,26 @@ def transform_country_data(raw_data):
             if field_name in c:
                 names.append(c[field_name])
         switcher = {
-            'bn': 'brunei',
-            'ci': 'ivory coast',
-            'cv': 'cape verde',
-            'cz': 'czech',
-            'de': 'deutschland',
-            'gb': 'uk',
-            'ir': 'iran',
-            'kp': 'north korea',
-            'kr': 'south korea',
-            'la': 'laos',
-            'mo': 'macau',
-            'ru': 'russia',
-            'sy': 'syria',
-            'tw': 'taiwan',
-            'us': 'USA',
-            'vn': 'vietnam'
+            'bn': ['brunei'],
+            'ci': ['ivory coast'],
+            'cv': ['cape verde'],
+            'cz': ['czech'],
+            'de': ['deutschland'],
+            'gb': ['uk'],
+            'ir': ['iran'],
+            'kp': ['north korea'],
+            'kr': ['south korea', 'republic of korea'],
+            'la': ['laos'],
+            'mo': ['macau'],
+            'ru': ['russia'],
+            'sy': ['syria'],
+            'tw': ['taiwan'],
+            'us': ['usa'],
+            'vn': ['vietnam']
         }
-        new_name = switcher.get(alpha2, None)
+        new_name = switcher.get(alpha2,[])
         if new_name:
-            names.append(new_name)
+            names += new_name
         names = list(set(names))
         country['name'] = names
         # Subdivisions
