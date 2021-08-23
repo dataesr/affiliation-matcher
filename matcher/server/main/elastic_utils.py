@@ -171,7 +171,6 @@ def get_analyzers() -> dict:
                 'lowercase',
                 'icu_folding',
                 'common_synonym',
-                'english_stop',
                 'english_stemmer',
                 'length_min_2_char'
             ]
