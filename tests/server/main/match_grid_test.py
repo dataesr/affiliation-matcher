@@ -18,7 +18,7 @@ def elasticsearch() -> dict:
 class TestMatchGrid:
     @pytest.mark.parametrize(
         'query,strategies,expected_results,expected_logs', [
-            ('institut pasteur shanghai', [[['grid_name']]], ['grid.428999.7'],
+            ('institut pasteur shanghai', [[['grid_name']]], ['grid.429007.8'],
              'Equivalent strategies has 1 possibilities that match one of the strategy')
         ])
     def test_match_grid(self, elasticsearch, query, strategies, expected_results, expected_logs) -> None:
@@ -32,5 +32,5 @@ class TestMatchGrid:
 
     def test_precision_recall(self, elasticsearch) -> None:
         precision_recall = compute_precision_recall(match_type='grid', index_prefix=elasticsearch['index_prefix'])
-        assert precision_recall['precision'] >= 0.78
-        assert precision_recall['recall'] >= 0.66
+        assert precision_recall['precision'] >= 0.77
+        assert precision_recall['recall'] >= 0.67
