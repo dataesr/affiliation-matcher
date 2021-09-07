@@ -29,7 +29,7 @@ def get_filters() -> dict:
         'acronym_stop': {
             'type': 'stop',
             'ignore_case': True,
-            'stopwords': ['pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere']
+            'stopwords': ['pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu']
         },
         'name_stop': {
             'type': 'stop',
@@ -171,7 +171,6 @@ def get_analyzers() -> dict:
                 'lowercase',
                 'icu_folding',
                 'common_synonym',
-                'english_stop',
                 'english_stemmer',
                 'length_min_2_char'
             ]

@@ -11,7 +11,7 @@ from matcher.server.main.config import CHUNK_SIZE, GRID_DUMP_URL
 from matcher.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import get_tokens
+from matcher.server.main.utils import get_tokens, remove_stop, ENGLISH_STOP
 
 logger = get_logger(__name__)
 SOURCE = 'grid'
@@ -91,7 +91,10 @@ def transform_grid_data(data: dict) -> list:
         names += grid.get('aliases', [])
         names += [label.get('label') for label in grid.get('labels', [])]
         names = list(set(names))
-        formatted_data['name'] = list(filter(None, names))
+        names = list(filter(None, names))
+        #stop words is handled here as stop filter in es keep track of positions even of removed stop words
+        formatted_data['name'] = [remove_stop(n, ENGLISH_STOP) for n in names]
+
         # Acronyms
         acronyms = grid.get('acronyms', [])
         acronyms = list(set(acronyms))
