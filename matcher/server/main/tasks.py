@@ -8,6 +8,7 @@ from matcher.server.main.logger import get_logger
 from matcher.server.main.match_country import match_country
 from matcher.server.main.match_grid import match_grid
 from matcher.server.main.match_rnsr import match_rnsr
+from matcher.server.main.match_ror import match_ror
 
 logger = get_logger(__name__)
 
@@ -59,6 +60,8 @@ def create_task_match(args: dict = None) -> dict:
         result = match_country(args)
     elif matcher_type == 'grid':
         result = match_grid(args)
+    elif matcher_type == 'ror':
+        result = match_ror(args)
     else:
         result = {'Error': f'Matcher type {matcher_type} unknown'}
     return result

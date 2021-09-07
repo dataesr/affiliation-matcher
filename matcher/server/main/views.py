@@ -1,5 +1,5 @@
 import redis
-import time
+
 from flask import Blueprint, current_app, jsonify, render_template, request
 from rq import Connection, Queue
 
@@ -62,6 +62,5 @@ def get_status(task_id):
                 }
             }
             return jsonify(response_object), 202
-    
     response_object = {'status': 'error'}
     return jsonify(response_object), 202
