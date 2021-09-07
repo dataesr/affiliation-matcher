@@ -36,7 +36,9 @@ def pre_treatment_rnsr(query: str = '') -> str:
 
 
 def match_rnsr(conditions: dict) -> dict:
-    strategies = conditions.get('strategies', DEFAULT_STRATEGIES)
+    strategies = conditions.get('strategies')
+    if strategies is None:
+        strategies = DEFAULT_STRATEGIES
     if 'year' in conditions:
         strategies_copy = []
         for equivalent_strategies in strategies:
