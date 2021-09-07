@@ -20,8 +20,6 @@ DEFAULT_STRATEGIES = [
 
 
 def match_country(conditions: dict) -> dict:
-    strategies = conditions.get('strategies')
-    if strategies is None:
-        strategies = DEFAULT_STRATEGIES
+    strategies = conditions.get('strategies', DEFAULT_STRATEGIES)
     matcher = Matcher()
     return matcher.match(conditions=conditions, strategies=strategies, field='country_alpha2')
