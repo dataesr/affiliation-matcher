@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from matcher.server.main.elastic_utils import get_index_name
 from matcher.server.main.logger import get_logger
 from matcher.server.main.my_elastic import MyElastic
+from matcher.server.main.utils import remove_stop
 
 logger = get_logger(__name__)
 
@@ -48,7 +49,7 @@ class Matcher:
     def __init__(self) -> None:
         self.es = MyElastic()
 
-    def match(self, conditions: dict, strategies: list, pre_treatment_query=None, field: str = 'ids')\
+    def match(self, conditions: dict, strategies: list, pre_treatment_query=None, field: str = 'ids', stopwords_strategies={})\
             -> dict:
         if conditions is None:
             conditions = {}
@@ -71,6 +72,9 @@ class Matcher:
                         criterion_query = conditions[criterion_without_source]
                     else:
                         criterion_query = pre_treatment_query(query)
+                    if criterion in stopwords_strategies:
+                        stopwords = stopwords_strategies[criterion]
+                        criterion_query = remove_stop(criterion_query, stopwords)
                     body = {
                         'query': {'percolate': {'field': 'query', 'document': {'content': criterion_query}}},
                         '_source': {'includes': [field]},
