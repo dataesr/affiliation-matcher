@@ -13,9 +13,10 @@ from matcher.server.main.config import CHUNK_SIZE, ZONE_EMPLOI_INSEE_DUMP
 
 ENGLISH_STOP = ['a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', 'if', 'in', 'into', 'is', 'it', 'no', 'not', 'of', 'on', 'or', 'such', 'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this', 'to', 'was', 'will', 'with']
 
+
 def remove_stop(text: str, stopwords: list) -> str:
     pattern = re.compile(r'\b(' + r'|'.join(stopwords) + r')\b\s*', re.IGNORECASE)
-    return  pattern.sub('', text)
+    return pattern.sub('', text)
 
 
 def chunks(lst: list, n: int) -> list:
