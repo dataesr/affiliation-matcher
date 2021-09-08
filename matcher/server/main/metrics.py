@@ -5,7 +5,7 @@ from matcher.server.main.tasks import create_task_match
 
 def get_annotated_data() -> dict:
     url = 'https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/models/' \
-          'match_pubmed_affiliations_with_countries_v3.json'
+          'pubmed_and_h2020_affiliations.json'
     data = requests.get(url).json()
     return data
 
