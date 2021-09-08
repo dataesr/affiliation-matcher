@@ -1,5 +1,5 @@
 from matcher.server.main.matcher import Matcher
-from matcher.server.main.utils import remove_ref_index, ENGLISH_STOP
+from matcher.server.main.utils import ENGLISH_STOP, remove_ref_index
 
 
 DEFAULT_STRATEGIES = [
@@ -19,4 +19,5 @@ def match_grid(conditions: dict) -> dict:
     if strategies is None:
         strategies = DEFAULT_STRATEGIES
     matcher = Matcher()
-    return matcher.match(conditions=conditions, strategies=strategies, pre_treatment_query=remove_ref_index, stopwords_strategies=STOPWORDS_STRATEGIES)
+    return matcher.match(conditions=conditions, strategies=strategies, pre_treatment_query=remove_ref_index,
+                         stopwords_strategies=STOPWORDS_STRATEGIES)
