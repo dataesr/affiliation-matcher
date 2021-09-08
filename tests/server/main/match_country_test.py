@@ -47,5 +47,5 @@ class TestMatchCountry:
     
     def test_precision_recall(self, elasticsearch):
         precision_recall = compute_precision_recall(match_type='country', index_prefix=elasticsearch['index_prefix'])
-        assert precision_recall['precision'] >= 0.99
+        assert precision_recall['precision'] >= 0.95
         assert precision_recall['recall'] >= 0.965
