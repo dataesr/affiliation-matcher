@@ -27,14 +27,15 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['acronym', 'city', 'country', 'country_code']
+    exact_criteria = ['acronym', 'city', 'country', 'country_code', 'parent']
     txt_criteria = ['name']
     analyzers = {
         'acronym': 'acronym_analyzer',
         'city': 'city_analyzer',
         'country': 'light',
         'country_code': 'light',
-        'name': 'heavy_en'
+        'name': 'heavy_en',
+        'parent': 'light'
     }
     criteria = exact_criteria + txt_criteria
     es_data = {}
@@ -121,6 +122,10 @@ def transform_grid_data(data: dict) -> list:
         formatted_data['country'] = list(filter(None, countries))
         formatted_data['country_code'] = list(filter(None, country_codes))
         formatted_data['city'] = list(filter(None, cities))
+        # Parents
+        relationships = grid.get('relationships', [])
+        formatted_data['parent'] = [relationship.get('id') for relationship in relationships if
+                                     relationship.get('type') == 'Parent' and relationship.get('id')]
         if len(formatted_data['country_code']) == 0:
             continue
         if len(formatted_data['country_code']) > 1:
