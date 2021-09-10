@@ -49,12 +49,14 @@ class Matcher:
     def __init__(self) -> None:
         self.es = MyElastic()
 
-    def match(self, conditions: dict, strategies: list, pre_treatment_query=None, field: str = 'ids', stopwords_strategies={})\
-            -> dict:
+    def match(self, conditions: dict = None, strategies: list = None, pre_treatment_query=None, field: str = 'ids',
+              stopwords_strategies: dict = None) -> dict:
         if conditions is None:
             conditions = {}
         if pre_treatment_query is None:
             pre_treatment_query = identity
+        if stopwords_strategies is None:
+            stopwords_strategies = {}
         verbose = conditions.get('verbose', False)
         index_prefix = conditions.get('index_prefix', 'matcher')
         query = conditions.get('query', '')
