@@ -92,15 +92,14 @@ def transform_grid_data(data: dict) -> list:
         names += [label.get('label') for label in grid.get('labels', [])]
         names = list(set(names))
         names = list(filter(None, names))
-        #stop words is handled here as stop filter in es keep track of positions even of removed stop words
-        formatted_data['name'] = [remove_stop(n, ENGLISH_STOP) for n in names]
-
+        # Stop words is handled here as stop filter in ES keep track of positions even of removed stop words
+        formatted_data['name'] = [remove_stop(name, ENGLISH_STOP) for name in names]
         # Acronyms
         acronyms = grid.get('acronyms', [])
         acronyms = list(set(acronyms))
         formatted_data['acronym'] = list(filter(None, acronyms))
-        # countries, country_codes and cities
-        countries, country_codes, cities = [], [], []
+        # Countries, country_codes, regions and cities
+        countries, country_codes, regions, cities = [], [], [], []
         for address in grid.get('addresses', []):
             country = address.get('country')
             countries.append(country)
@@ -125,8 +124,7 @@ def transform_grid_data(data: dict) -> list:
         if len(formatted_data['country_code']) == 0:
             continue
         if len(formatted_data['country_code']) > 1:
-            logger.debug(f'BEWARE: more than 1 country for {grid}')
-            logger.debug(f'Only one is kept')
+            logger.debug(f'BEWARE: more than 1 country for {grid}. Only one is kept.')
         formatted_data['country_alpha2'] = formatted_data['country_code'][0]
         res.append(formatted_data)
     return res
