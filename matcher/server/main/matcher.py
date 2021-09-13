@@ -50,7 +50,7 @@ class Matcher:
         self.es = MyElastic()
 
     def match(self, conditions: dict = None, strategies: list = None, pre_treatment_query=None, field: str = 'ids',
-              stopwords_strategies: dict = None) -> dict:
+              stopwords_strategies: dict = None, post_treatment_results=None) -> dict:
         if conditions is None:
             conditions = {}
         if pre_treatment_query is None:
@@ -102,7 +102,7 @@ class Matcher:
                     # Remove duplicates
                     equivalent_strategies_results = list(set(equivalent_strategies_results))
                 logs += f'Strategy : {strategy} : {len(strategy_results)} matches <br/>'
-                logs += f'Equivalent strategies has {len(equivalent_strategies_results)} possibilities that match ' \
+                logs += f'Equivalent strategies have {len(equivalent_strategies_results)} possibilities that match ' \
                         f'one of the strategy<br/>'
             # Strategies stopped as soon as a first result is met for an equivalent_strategies
             all_highlights = {}
@@ -119,6 +119,9 @@ class Matcher:
                             current_highlight = hit.get('highlight', {}).get('content', [])
                             if current_highlight not in all_highlights[matching_id][matching_criteria]:
                                 all_highlights[matching_id][matching_criteria].append(current_highlight)
+                if post_treatment_results:
+                    equivalent_strategies_results = post_treatment_results(equivalent_strategies_results, self.es,
+                                                                           index_prefix)
                 final_res = {'results': equivalent_strategies_results, 'highlights': all_highlights, 'logs': logs}
                 final_res = filter_submatching_results(final_res)
                 logs = final_res['logs']
