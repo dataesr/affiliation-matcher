@@ -108,15 +108,6 @@ class Matcher:
             all_highlights = {}
             if len(equivalent_strategies_results) > 0:
                 logs += f'<hr>Results: '
-                for equivalent_strategies_result in equivalent_strategies_results:
-                    if method == 'grid':
-                        logs += f' <a target="_blank" href="https://grid.ac/institutes/' \
-                                f'{equivalent_strategies_result}">{equivalent_strategies_result}</a>'
-                    if method == 'ror':
-                        logs += f' <a target="_blank" href="https://ror.org/{equivalent_strategies_result}">' \
-                                f'{equivalent_strategies_result}</a>'
-                    else:
-                        logs += f' {equivalent_strategies_result}'
                 for matching_criteria in all_hits:
                     for hit in all_hits[matching_criteria]:
                         matching_ids = list(set(hit['_source'][field]) & set(equivalent_strategies_results))
@@ -131,9 +122,17 @@ class Matcher:
                 if post_treatment_results:
                     equivalent_strategies_results = post_treatment_results(equivalent_strategies_results, self.es,
                                                                            index_prefix)
+                for equivalent_strategies_result in equivalent_strategies_results:
+                    if method == 'grid':
+                        logs += f' <a target="_blank" href="https://grid.ac/institutes/' \
+                                f'{equivalent_strategies_result}">{equivalent_strategies_result}</a>'
+                    elif method == 'ror':
+                        logs += f' <a target="_blank" href="https://ror.org/{equivalent_strategies_result}">' \
+                                f'{equivalent_strategies_result}</a>'
+                    else:
+                        logs += f' {equivalent_strategies_result}'
                 final_res = {'results': equivalent_strategies_results, 'highlights': all_highlights, 'logs': logs}
                 final_res = filter_submatching_results(final_res)
-                logs = final_res['logs']
                 for matching_id in final_res['highlights']:
                     logs += f'<br/><hr>Explanation for {matching_id} :<br/>'
                     for matching_criteria in final_res['highlights'][matching_id]:
