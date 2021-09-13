@@ -37,5 +37,6 @@ def match_grid(conditions: dict) -> dict:
     if strategies is None:
         strategies = DEFAULT_STRATEGIES
     matcher = Matcher()
-    return matcher.match(conditions=conditions, strategies=strategies, pre_treatment_query=remove_ref_index,
-                         stopwords_strategies=STOPWORDS_STRATEGIES, post_treatment_results=remove_ancestors)
+    return matcher.match(method='grid', conditions=conditions, strategies=strategies,
+                         pre_treatment_query=remove_ref_index, stopwords_strategies=STOPWORDS_STRATEGIES,
+                         post_treatment_results=remove_ancestors)

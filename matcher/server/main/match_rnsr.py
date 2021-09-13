@@ -48,4 +48,5 @@ def match_rnsr(conditions: dict) -> dict:
             strategies_copy.append(equivalent_strategies_copy)
         strategies = strategies_copy
     matcher = Matcher()
-    return matcher.match(conditions=conditions, strategies=strategies, pre_treatment_query=pre_treatment_rnsr)
+    return matcher.match(method='rnsr', conditions=conditions, strategies=strategies,
+                         pre_treatment_query=pre_treatment_rnsr)

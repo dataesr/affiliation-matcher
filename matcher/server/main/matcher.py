@@ -49,7 +49,7 @@ class Matcher:
     def __init__(self) -> None:
         self.es = MyElastic()
 
-    def match(self, conditions: dict = None, strategies: list = None, pre_treatment_query=None, field: str = 'ids',
+    def match(self, method: str = None, conditions: dict = None, strategies: list = None, pre_treatment_query=None, field: str = 'ids',
               stopwords_strategies: dict = None, post_treatment_results=None) -> dict:
         if conditions is None:
             conditions = {}
@@ -107,7 +107,16 @@ class Matcher:
             # Strategies stopped as soon as a first result is met for an equivalent_strategies
             all_highlights = {}
             if len(equivalent_strategies_results) > 0:
-                logs += f'<hr>Results: {equivalent_strategies_results}'
+                logs += f'<hr>Results: '
+                for equivalent_strategies_result in equivalent_strategies_results:
+                    if method == 'grid':
+                        logs += f' <a target="_blank" href="https://grid.ac/institutes/' \
+                                f'{equivalent_strategies_result}">{equivalent_strategies_result}</a>'
+                    if method == 'ror':
+                        logs += f' <a target="_blank" href="https://ror.org/{equivalent_strategies_result}">' \
+                                f'{equivalent_strategies_result}</a>'
+                    else:
+                        logs += f' {equivalent_strategies_result}'
                 for matching_criteria in all_hits:
                     for hit in all_hits[matching_criteria]:
                         matching_ids = list(set(hit['_source'][field]) & set(equivalent_strategies_results))

@@ -8,4 +8,4 @@ DEFAULT_STRATEGIES = [
 def match_ror(conditions: dict) -> dict:
     strategies = conditions.get('strategies', DEFAULT_STRATEGIES)
     matcher = Matcher()
-    return matcher.match(conditions=conditions, strategies=strategies)
+    return matcher.match(method='ror', conditions=conditions, strategies=strategies)
