@@ -125,7 +125,7 @@ def transform_grid_data(data: dict) -> list:
         # Parents
         relationships = grid.get('relationships', [])
         formatted_data['parent'] = [relationship.get('id') for relationship in relationships if
-                                     relationship.get('type') == 'Parent' and relationship.get('id')]
+                                    relationship.get('type') == 'Parent' and relationship.get('id')]
         if len(formatted_data['country_code']) == 0:
             continue
         if len(formatted_data['country_code']) > 1:

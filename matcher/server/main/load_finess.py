@@ -67,127 +67,94 @@ def init_es_finess():
 
 
 def get_char_filters():
-    char_filters = {}
-    char_filters["keep_digits_only"] = {
+    char_filters = {"keep_digits_only": {
         "type": "pattern_replace",
-        "pattern": "\D+",
+        "pattern": r"\D+",
         "replacement": " "
-    }
-    char_filters["remove_digits"] = {
+    }, "remove_digits": {
         "type": "pattern_replace",
         "pattern": "[0-9]",
         "replacement": " "
-    }
-    char_filters["remove_space"] = {
+    }, "remove_space": {
         "type": "pattern_replace",
         "pattern": " |_",
         "replacement": ""
-    }
-    char_filters["curie"] = {
+    }, "curie": {
         "type": "pattern_replace",
         "pattern": "(pierre).*(marie).*(curie)",
         "replacement": ""
-    }
+    }}
     return char_filters
 
 
 def get_filters(main_cities, main_names):
-    filters = {}
-    filters["keep_cities"] = {
+    filters = {"keep_cities": {
         "type": "keep",
         "keep_words": main_cities
-    }
-    filters["city_remover"] = {
+    }, "city_remover": {
         "type": "stop",
         "ignore_case": True,
         "stopwords": main_cities
-    }
-    filters["common_names_filter"] = {
+    }, "common_names_filter": {
         "type": "stop",
         "ignore_case": True,
         "stopwords": main_names
-    }
-    filters["french_stop"] = {
+    }, "french_stop": {
         "type": "stop",
         "stopwords": "_french_"
-    }
-    filters["english_stop"] = {
+    }, "english_stop": {
         "type": "stop",
         "stopwords": "_english_"
-    }
-
-    filters["extract_digits"] = {
+    }, "extract_digits": {
         "type": "keep_types",
         "types": ["<NUM>"]
-    }
-
-    filters["length_min_2_char"] = {
+    }, "length_min_2_char": {
         "type": "length",
         "min": 2
-    }
-
-    filters["length_min_3_char"] = {
+    }, "length_min_3_char": {
         "type": "length",
         "min": 3
-    }
-
-    filters["length_min_4_char"] = {
+    }, "length_min_4_char": {
         "type": "length",
         "min": 4
-    }
-
-    filters["length_min_5_char"] = {
+    }, "length_min_5_char": {
         "type": "length",
         "min": 5
-    }
-
-    filters["length_2_5_char"] = {
+    }, "length_2_5_char": {
         "type": "length",
         "min": 2,
         "max": 5
-    }
-
-    filters["french_elision"] = {
+    }, "french_elision": {
         "type": "elision",
         "articles_case": True,
         "articles": ["l", "m", "t", "qu", "n", "s", "j", "d", "c", "jusqu", "quoiqu", "lorsqu", "puisqu"]
-    }
-
-    filters["french_stemmer"] = {
+    }, "french_stemmer": {
         "type": "stemmer",
         "language": "light_french"
-    }
-
-    filters["english_stemmer"] = {
+    }, "english_stemmer": {
         "type": "stemmer",
         "language": "light_english"
-    }
-
-    filters["underscore_remove"] = {
+    }, "underscore_remove": {
         "type": "pattern_replace",
         "pattern": "(-|_)",
         "replacement": " "
-    }
-
-    filters["remove_space"] = {
+    }, "remove_space": {
         "type": "pattern_replace",
         "pattern": " ",
         "replacement": ""
-    }
-
-    filters["name_synonym"] = {
+    }, "name_synonym": {
         "type": "synonym_graph",
         "synonyms": [
             "ch ,centre hospitalier",
             "chu ,centre hospitalier universitaire"
         ]
-    }
+    }}
+
     return filters
 
 
 def get_tokenizers():
-    tokenizers = {}
-    tokenizers["tokenizer_ngram_3_8"] = {
+    tokenizers = {"tokenizer_ngram_3_8": {
         "type": "ngram",
         "min_gram": 3,
         "max_gram": 8,
@@ -195,42 +162,34 @@ def get_tokenizers():
             "letter",
             "digit"
         ]
-    }
+    }, 'code_tokenizer': {
+        "type": "pattern",
+        "pattern": r"_|\W+"
+    }, "code_tokenizer_lucky": {
+        "type": "simple_pattern",
+        "pattern": "(UMR|U|FR|EA|UPR|UR|CIC|GDR)(.{0,4})([0-9]{2,4})"
+    }}
     # tokenizers["code_tokenizer"]= {
     #          "type": "simple_pattern",
     #          "pattern": "([A-Za-z\-\_]{1,5})(.{0,1})([0-9]{1,5})"
     #        }
 
-    tokenizers['code_tokenizer'] = {
-        "type": "pattern",
-        "pattern": "_|\W+"
-    }
-
-    tokenizers["code_tokenizer_lucky"] = {
-        "type": "simple_pattern",
-        "pattern": "(UMR|U|FR|EA|UPR|UR|CIC|GDR)(.{0,4})([0-9]{2,4})"
-    }
     return tokenizers
 
 
 def get_analyzers():
-    analyzers = {}
-    analyzers['analyzer_digits'] = {
+    analyzers = {'analyzer_digits': {
         "tokenizer": "standard",
         "char_filter": ["keep_digits_only"],
         "filter": ["length_2_5_char"]
-    }
-
-    analyzers["analyzer_city"] = {
+    }, "analyzer_city": {
         "tokenizer": "standard",
         "char_filter": ["remove_digits"],
         "filter": ["lowercase",
                    "icu_folding",
                    "keep_cities"
                    ]
-    }
-
-    analyzers["analyzer_name"] = {
+    }, "analyzer_name": {
         "tokenizer": "icu_tokenizer",
         "char_filter": ["curie"],
         "filter": [
@@ -243,7 +202,7 @@ def get_analyzers():
             "common_names_filter",
             "name_synonym"
         ]
-    }
+    }}
 
     return analyzers
 
@@ -290,8 +249,8 @@ def reset_index_finess(filters, char_filters, tokenizers, analyzers):
                     "digits": {
                         "type": "text",
                         "analyzer": "analyzer_digits"
-                    }
-                    , "city": {
+                    },
+                    "city": {
                         "type": "text",
                         "analyzer": "analyzer_city"
                     }
@@ -311,7 +270,7 @@ def reset_index_finess(filters, char_filters, tokenizers, analyzers):
     )
 
     if 'acknowledged' in response:
-        if response['acknowledged'] == True:
+        if response['acknowledged']:
             print("INDEX MAPPING SUCCESS FOR INDEX:", response['index'], flush=True)
 
     print(response, flush=True)

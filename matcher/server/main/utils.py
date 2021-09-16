@@ -27,7 +27,7 @@ def chunks(lst: list, n: int) -> list:
         yield lst[i:i + n]
 
 
-def get_tokens(indices_client, analyzer: str, index: str, text: str) -> dict:
+def get_tokens(indices_client, analyzer: str, index: str, text: str) -> list:
     try:
         tokens = indices_client.analyze(body={'analyzer': analyzer, 'text': text}, index=index)['tokens']
     except:
@@ -37,7 +37,7 @@ def get_tokens(indices_client, analyzer: str, index: str, text: str) -> dict:
 
 def remove_ref_index(query: str) -> str:
     """Remove the first 2 digits of a string if any."""
-    rgx = re.compile("^(\d){1,2}([A-Za-z])(.*)")
+    rgx = re.compile(r"^(\d){1,2}([A-Za-z])(.*)")
     return rgx.sub("\\2\\3", query).strip()
 
 
