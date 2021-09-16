@@ -71,9 +71,11 @@ def get_filters() -> dict:
                 'cent => central',
                 'ctr => center',
                 'dev => development',
+                'inst => institute',
                 'lab => laboratory',
                 'labs => laboratories',
                 'med => medical',
+                'newyork => new york',
                 'ntl => national',
                 'res => research',
                 'st => saint',
@@ -81,8 +83,7 @@ def get_filters() -> dict:
                 'univ => university',
                 'universite => university',
                 'universitaet => university',
-                'universitat => university',
-                'newyork => new york'
+                'universitat => university'
             ]
         },
         'name_synonym': {
@@ -97,7 +98,7 @@ def get_char_filters() -> dict:
     return {
         'remove_char_btw_digits': {
             'type': 'pattern_replace',
-            'pattern': '(\\d+)\D(?=\\d)',
+            'pattern': r'(\\d+)\D(?=\\d)',
             'replacement': '$1'
         }
     }
