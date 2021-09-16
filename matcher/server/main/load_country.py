@@ -58,8 +58,7 @@ def transform_country_data(raw_data):
             'us': ['usa'],
             'vn': ['vietnam']
         }
-        new_name = switcher.get(alpha2, [])
-        names += new_name
+        names += switcher.get(alpha2, [])
         names = list(set(names))
         country['name'] = names
         # Subdivisions

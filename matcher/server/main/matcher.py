@@ -49,8 +49,8 @@ class Matcher:
     def __init__(self) -> None:
         self.es = MyElastic()
 
-    def match(self, method: str = None, conditions: dict = None, strategies: list = None, pre_treatment_query=None, field: str = 'ids',
-              stopwords_strategies: dict = None, post_treatment_results=None) -> dict:
+    def match(self, method: str = None, conditions: dict = None, strategies: list = None, pre_treatment_query=None,
+              field: str = 'ids', stopwords_strategies: dict = None, post_treatment_results=None) -> dict:
         if conditions is None:
             conditions = {}
         if pre_treatment_query is None:

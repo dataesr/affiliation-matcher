@@ -7,7 +7,7 @@ from flask_bootstrap import Bootstrap
 bootstrap = Bootstrap()
 
 
-def create_app(script_info=None):
+def create_app():
     # instantiate the app
     app = Flask(
         __name__,

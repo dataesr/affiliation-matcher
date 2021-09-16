@@ -29,15 +29,8 @@ def normalize_for_count(x, matching_field):
 def match_unstructured_finess(query=''):
     logs = f'<h1> &#128269; {query}</h1>'
     x = query
-
-    matching_info = {}
-    matching_info['city'] = get_match_city(x)
-    matching_info['name'] = get_match_name(x)
-
-    strategies = []
-
-    strategies.append("name;city")
-
+    matching_info = {'city': get_match_city(x), 'name': get_match_name(x)}
+    strategies = ["name;city"]
     return match_structured(matching_info, strategies, logs)
 
 
@@ -53,45 +46,31 @@ def match_structured(matching_info, strategies, logs):
             all_matches[match_id] += matching_info[f].get('nb_matches', {})[match_id]
             if f not in field_matches[match_id]:
                 field_matches[match_id].append(f)
-
         min_match_for_field[f] = 1
-
-    relevant_matches = {}
-
     final_results = {}
     forbidden_id = []
-
     logs += "<ol> "
     for strat in strategies:
-        stop_current_start = False
         current_strat_answers = []
         strat_fields = strat.split(';')
         logs += f"<li>Strategie testée : {strat}"
-
         indiv_ids = [matching_info[field]['ids'] for field in strat_fields]
         strat_ids = set(indiv_ids[0]).intersection(*indiv_ids)
-
         if len(strat_ids) == 0:
             logs += " &empty; </li>"
             continue
         logs += "</li></br>"
-
         max_number = {}
         logs += "<ol> "
-
         potential_sirens = []
-
         for potential_id in strat_ids:
             logs += f" <li> Id potentiel : {potential_id}<br/></li>"
             current_match = {'id': potential_id}
-
             if 'sire' in potential_id:
                 potential_sirens.append(potential_id[5:14])
-
             for field in strat_fields:
                 current_match[field + '_match'] = 0
                 # probleme avec les highlights
-                bbb = matching_info[field]['nb_matches'][potential_id]
                 if potential_id in matching_info[field]['nb_matches']:
                     current_match[field + '_match'] = matching_info[field]['nb_matches'][potential_id]
 
@@ -102,21 +81,13 @@ def match_structured(matching_info, strategies, logs):
                             f" {current_highlights}<br/>"
                 if field not in max_number:
                     max_number[field] = 0
-                    # if field == 'name':
-                    #    max_number[field] = 2
-
                 max_number[field] = max(max_number[field], current_match[field + '_match'])
-
             current_strat_answers.append(current_match)
-
         if len(max_number) > 0:
             logs += f"<li> &#9989; Nombre de match par champ : {max_number}<br/></li>"
-
         logs += "</ol>"  # end of potential ids
-
         if len(strat_ids) == 0:
             continue
-
         current_potential_ids = strat_ids
         retained_id_for_strat = []
         ignored_id = []
@@ -126,7 +97,6 @@ def match_structured(matching_info, strategies, logs):
             if field in ["city", "code_fuzzy"]:
                 logs += "(ignoré)..."
                 continue
-
             for potential_id in current_potential_ids:
                 if potential_id in matching_info[field]['nb_matches']:
                     if matching_info[field]['nb_matches'][potential_id] == max_number[field]:
@@ -149,9 +119,6 @@ def match_structured(matching_info, strategies, logs):
                     break
                 else:
                     pass
-                    # if verbose:
-                    # print("not stopping because strategy has no code or acronym")
-                    # print(matching_info.get('name',{}).get('highlights', {}).get(potential_id))
             else:
                 current_potential_ids = retained_id_for_strat
                 retained_id_for_strat = []
@@ -159,21 +126,15 @@ def match_structured(matching_info, strategies, logs):
             if x in retained_id_for_strat:
                 retained_id_for_strat.remove(x)
         final_results[strat] = list(set(retained_id_for_strat))
-
-        # for res in final_results:
         if len(final_results[strat]) == 1:
             logs += f"<br/> 1&#65039;&#8419; unique match pour cette stratégie : {final_results[strat][0]} "
             if final_results[strat][0] in forbidden_id:
                 logs += "&#10060; car dans la black-list"
                 continue
-
-
             else:
                 logs += " &#128076;<br/>"
                 logs += f"<h3>{final_results[strat][0]}</h3>"
                 return {'match': final_results[strat][0], 'logs': logs}
-
-
         else:
             potential_sirens = list(set(potential_sirens))
             if len(potential_sirens) == 1:
@@ -181,61 +142,47 @@ def match_structured(matching_info, strategies, logs):
                 logs += " &#128076;<br/>"
                 logs += f"<h3>{potential_sirens[0]}</h3>"
                 return {'match': "siren" + potential_sirens[0], 'logs': logs}
-
     return {'match': None, 'logs': logs}
 
 
-def get_match_name(x, verbose=False):
-    return get_info(x, ['name'], size=2000, verbose=verbose, highlights=['name'])
+def get_match_name(x):
+    return get_info(x, ['name'], size=2000, highlights=['name'])
 
 
-def get_match_city(x, verbose=False):
-    return get_info(x, ['city.city'], size=2000, verbose=verbose, highlights=['city.city'])
+def get_match_city(x):
+    return get_info(x, ['city.city'], size=2000, highlights=['city.city'])
 
 
-def get_info(input_str, search_fields, size=20, verbose=False, highlights=[], fuzzy_ok=False):
+def get_info(input_str, search_fields, size=20, highlights: list = None):
+    if highlights is None:
+        highlights = []
     s = Search(using=es, index=INDEX)
     for f in highlights:
         s = s.highlight(f)
-
     s = s.query("multi_match", query=input_str,
                 minimum_should_match=1,
-                # fuzziness="auto",
                 fields=search_fields)
-
     s = s[0:size]
     res = s.execute()
     hits = res.hits
-
-    id_res = ""
-    if len(hits) > 0:
-        max_score = hits[0].meta.score
-
     res_ids = []
     scores = []
     highlights = {}
     nb_matches = {}
     matches_frag = {}
-
     for hit in hits:
-
         res_ids.append(hit.id)
         scores.append(hit.meta.score)
         highlights[hit.id] = []
-
         for matching_field in hit.meta.highlight:
             for fragment in hit.meta.highlight[matching_field]:
                 highlights[hit.id].append(fragment)
-
                 matches = [normalize_for_count(e.get_text(), matching_field) for e in
                            BeautifulSoup(fragment, 'lxml').find_all('em')]
-
                 if hit.id not in nb_matches:
                     nb_matches[hit.id] = 0
                     matches_frag[hit.id] = []
                 matches_frag[hit.id] += matches
                 matches_frag[hit.id] = list(set(matches_frag[hit.id]))
                 nb_matches[hit.id] = len(matches_frag[hit.id])
-
-    # print(scores)
     return {'ids': res_ids, 'highlights': highlights, 'nb_matches': nb_matches}
