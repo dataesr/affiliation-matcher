@@ -73,9 +73,7 @@ import matcher
 
 It uses [semver](https://semver.org/).
 
-To create a new release, do
-
+To create a new release:
 ```shell
 make release VERSION=x.x.x
 ```
-
