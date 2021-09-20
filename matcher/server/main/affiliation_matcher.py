@@ -84,7 +84,7 @@ def enrich_and_filter_publications_by_country(publications: list, countries_to_k
         for affiliation in all_affiliations_list_chunk:
             all_affiliations_dict[affiliation] = get_country(affiliation)
         logger.debug(f'{len(all_affiliations_dict)} / {len(all_affiliations_list)} treated in country_matcher')
-        is use_cache:
+        if use_cache:
             logger.debug(f'loading in cache')
             cache = []
             for ix, affiliation in enumerate(all_affiliations_list_chunk):
