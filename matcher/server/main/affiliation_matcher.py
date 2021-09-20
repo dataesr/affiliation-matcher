@@ -27,6 +27,7 @@ def check_matcher_health() -> bool:
 
 
 def get_country(affiliation):
+    use_cache = False
     in_cache = False
     params = {
         "size": 1,
@@ -36,15 +37,16 @@ def get_country(affiliation):
             }
         }
     }
-    try:
-        r = client.search(index='bso-cache-country', body=params)
-        hits = r['hits']['hits']
-    except:
-        logger.debug("error in search in bso-cache-country")
-        hits = []
-    if len(hits) >= 1:
+    hits_in_cache = []
+    if use_cache:
+        try:
+            r = client.search(index='bso-cache-country', body=params)
+            hits_in_cache = r['hits']['hits']
+        except:
+            logger.debug("error in search in bso-cache-country")
+    if len(hits_in_cache) >= 1:
         in_cache = True
-        countries = hits[0]['_source']['countries']
+        countries = hits_in_cache[0]['_source']['countries']
     else:
         countries = match_country(conditions={'query': affiliation})['results']
     return {'countries': countries, 'in_cache': in_cache}
