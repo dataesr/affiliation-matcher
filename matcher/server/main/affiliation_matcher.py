@@ -9,6 +9,7 @@ logger = get_logger(__name__)
     
 client = MyElastic()
 
+use_cache = False
 
 def check_matcher_health() -> bool:
     try:
@@ -27,7 +28,6 @@ def check_matcher_health() -> bool:
 
 
 def get_country(affiliation):
-    use_cache = False
     in_cache = False
     params = {
         "size": 1,
@@ -84,13 +84,14 @@ def enrich_and_filter_publications_by_country(publications: list, countries_to_k
         for affiliation in all_affiliations_list_chunk:
             all_affiliations_dict[affiliation] = get_country(affiliation)
         logger.debug(f'{len(all_affiliations_dict)} / {len(all_affiliations_list)} treated in country_matcher')
-        logger.debug(f'loading in cache')
-        cache = []
-        for ix, affiliation in enumerate(all_affiliations_list_chunk):
-            if affiliation in all_affiliations_dict and all_affiliations_dict[affiliation]['in_cache'] is False:
-                cache.append({'_index': 'bso-cache-country', 'affiliation': affiliation,
+        is use_cache:
+            logger.debug(f'loading in cache')
+            cache = []
+            for ix, affiliation in enumerate(all_affiliations_list_chunk):
+                if affiliation in all_affiliations_dict and all_affiliations_dict[affiliation]['in_cache'] is False:
+                    cache.append({'_index': 'bso-cache-country', 'affiliation': affiliation,
                               'countries': all_affiliations_dict[affiliation]['countries']})
-        client.parallel_bulk(actions=cache)
+            client.parallel_bulk(actions=cache)
     logger.debug('All countries of all affiliations have been retrieved.')
     # Map countries with affiliations
     for publication in publications:
