@@ -50,6 +50,10 @@ services:
     environment:
       FLASK_DEBUG: 1
       APP_SETTINGS: matcher.server.config.DevelopmentConfig
+      APP_ENV: 'development'
+      ES_LOGIN_MATCHER: 'matcher'
+      ES_PASSWORD_MATCHER: '4M4LyTyV*MR==@Cd'
+      ES_URL: 'https://cluster.elasticsearch.dataesr.ovh/'
     volumes:
       - '/tmp/.X11-unix:/tmp/.X11-unix'
     networks:
