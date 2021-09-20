@@ -8,9 +8,9 @@ class MyElastic(Elasticsearch):
     def __init__(self) -> None:
         self.logger = get_logger(__name__)
         if ELASTICSEARCH_LOGIN:
-            super().__init__(hosts=ELASTICSEARCH_HOST, http_auth=(ELASTICSEARCH_LOGIN, ELASTICSEARCH_PASSWORD))
+            super().__init__(hosts=ELASTICSEARCH_HOST, http_auth=(ELASTICSEARCH_LOGIN, ELASTICSEARCH_PASSWORD), timeout=30, max_retries=10, retry_on_timeout=True)
         else:
-            super().__init__(hosts=ELASTICSEARCH_HOST)
+            super().__init__(hosts=ELASTICSEARCH_HOST, timeout=30, max_retries=10, retry_on_timeout=True)
 
     def exception_handler(func):
         def inner_function(self, *args, **kwargs):
