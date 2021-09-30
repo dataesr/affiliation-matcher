@@ -24,6 +24,7 @@ doc/*
 !doc/build_pdf.sh
 !doc/matcher.bib
 !doc/matcher.md
+!doc/matcher.pdf
 
 # Jupyter Notebooks
 .ipynb_checkpoints
