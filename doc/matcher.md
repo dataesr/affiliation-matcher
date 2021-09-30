@@ -52,7 +52,6 @@ This document aims at detailing a new methodology for linking affiliations to en
 We propose a new approach, using the Elasticsearch search engine, based only on open data. This approach is built to be modular and easily adaptable
 to other international or local registries.
 
-
 # 2. Method
 
 ## 2.1 Our matching framework
@@ -96,12 +95,6 @@ registry):<br />
    - Ministry of Higher Education and Research 
    - Ministère de l’Enseignement Supérieur et de la Recherche 
    - Ministeri d'Educació Superior i Recerca francès
- 
-
-<br/>
-
-A **strategy** is a set of criteria. For example, ['grid_city', 'grid_country', 'grid_name'] is a strategy combining 3 
-criteria.<br />
 
 Thus, applying the strategy ['grid_city', 'grid_country', 'grid_name'], consists in returning all the elements of the
 registry $R$ for which there is, at the same time, a match on the name, on the city and on the country with respect to the query
@@ -277,10 +270,6 @@ The matching implementation itself is rather straightorward and relies and the E
 ## 2.4 Evaluation
 
 For a given repository $R$, we fix the strategies to apply, allowing us to set up an automatic matching. 
-If we have a standard gold (composed of a list of affiliation signatures, and, for each, a list of corresponding 
-entities in the $R$ repository), we can apply the matcher on this list, and thus compute the precision and recall of 
-the matcher.<br />
-
 We will apply this method in the following section for 3 types of matcher: at the country level, for the GRID 
 registry and for the French laboratory repository RNSR.
 
