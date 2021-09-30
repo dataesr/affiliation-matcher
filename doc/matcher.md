@@ -52,6 +52,7 @@ This document aims at detailing a new methodology for linking affiliations to en
 We propose a new approach, using the Elasticsearch search engine, based only on open data. This approach is built to be modular and easily adaptable
 to other international or local registries.
 
+
 # 2. Method
 
 ## 2.1 Our matching framework
