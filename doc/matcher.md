@@ -163,7 +163,7 @@ For each criterion, the second result (grid.21729.3f) has either the same match 
 
 ### 2.2.5 Strategy groups
 
-As explained above, different strategies should be tested, from the most demanding (meaning with many matching criteria) to the least demaning (few matching criteria). If a strategy give one or more result, the loop over the strategies can be stopped. However, it does not always make sense to have a strict order between the strategies. That would have no impact if only one registry entry (at most) could be matched, but, in some cases, the affiliation signature in input should be matched with multiple registry entries. In that case, stopping at the first result of the most demanding strategy may impact the recall, especially if all the entries to be matched are not described with the same amount of details in the affiliation signature. So, instead of having an ordered list of strategies, we implemented an order list of strategy groups. A strategy group is itself a set of strategies, all the strategies within the group being tested for the matching. 
+As explained above, different strategies should be tested, from the most demanding (meaning with many matching criteria) to the least demanding (few matching criteria). If a strategy give one or more result, the loop over the strategies can be stopped. However, it does not always make sense to have a strict order between the strategies. That would have no impact if only one registry entry (at most) could be matched, but, in some cases, the affiliation signature in input should be matched with multiple registry entries. In that case, stopping at the first result of the most demanding strategy may impact the recall, especially if all the entries to be matched are not described with the same amount of details in the affiliation signature. So, instead of having an ordered list of strategies, we implemented an order list of strategy groups. A strategy group is itself a set of strategies, all the strategies within the group being tested for the matching. 
 
 ## 2.3 Implementation with Elasticsearch
 
@@ -263,7 +263,7 @@ In particular, we observe two entries in the GRID registry share the same acrony
 
 ### 2.3.4 Elasticsearch matching
 
-The matching implementation itself is rather straightorward and relies and the Elasticsearch **percolate** queries.  
+The matching implementation itself is rather straightforward and relies and the Elasticsearch **percolate** queries.  
 
 <br/>
 
