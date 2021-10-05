@@ -16,11 +16,15 @@ keywords:
   - Elasticsearch
   - affiliation disambiguation
   - entity recognition
+  - open science
 ---
 
-**Keywords**: Elasticsearch, affiliation disambiguation, entity recognition
+**Keywords**: Elasticsearch, affiliation disambiguation, entity recognition, open science
 
 # Abstract
+
+Automatic recognition of affiliations in the metadata of scholarly publications is a key point for monitoring and analyzing trends in scientific production, especially in an open science context.
+We propose an automatic alignment method on registries, based on Elasticsearch. The proposed method is modular and leaves the choice of the alignment criteria to the user, allowing him to keep control over the precision and recall of the method. An implementation is proposed for an automatic alignment on three registries: countries, GRID.ac and RNSR (research laboratory directory in France) on the Github https://github.com/dataesr/matcher and the performances are analyzed in this paper.
 
 # 1. Introduction
 
@@ -295,7 +299,6 @@ In particular, we observe two entries in the GRID registry share the same acrony
 |rnsr_code_number|39718
 |rnsr_country_code|20
 |rnsr_name|23504
-|rnsr_name_txt|23504
 |rnsr_supervisor_acronym|339
 |rnsr_supervisor_name|645
 |rnsr_urban_unit|1922
@@ -384,7 +387,7 @@ The result we get for country matcher and the RNSR registry, on the corpus we te
 
 The first limitation is that this matcher, and in particular the chosen criteria and strategies should be tested against
 more data. That would probably highlights new issues to solve. We also plan to develop more matchers for the
-international registry ROR and the French registry Siren.
+international registry ROR and the French registry Sirene.
 
 # Software and code availability
 
