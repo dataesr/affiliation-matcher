@@ -46,7 +46,7 @@ def run_task_enrich_filter():
     return jsonify(response_object), 202
 
 @main_blueprint.route('/enrich_with_affiliations_id', methods=['POST'])
-def run_task_enrich_filter():
+def run_task_enrich_with_affiliations_id():
     args = request.get_json(force=True)
     logger.debug(args)
     queue = 'matcher'
