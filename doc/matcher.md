@@ -225,7 +225,7 @@ The matching leverage on the diversity of features offered by Elasticsearch, in 
 ### 2.3.1 Percolation in Elasticsearch
 One feature of Elasticsearch that is critical for the implementation of our matching method is percolation. Usually, 
 Elasticsearch allows to store documents in an index, and then to perform a query on this index. A typical example would
-be to perform a search query "InstitutionXYZ" against an indexed containing documents like "InstitutenXYZ Paris France".
+be to perform a search query "InstitutionXYZ" against an indexed containing documents like "InstitutionXYZ Paris France".
 The searched term is actually contained in some of the indexed documents, that are then retrieved by Elasticsearch, with 
 a computed score. However, in our use case, we face queries that look like "Hotel Dieu de France Beirut Lebanon". With
 the regular Elasticsearch behaviour, the document "Hotel Dieu de France" is matched, but the document "CHU
