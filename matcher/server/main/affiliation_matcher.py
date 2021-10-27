@@ -158,7 +158,7 @@ def enrich_publications_with_affiliations_id(publications: list) -> dict:
     for all_affiliations_list_chunk in chunks(all_affiliations_list, 1000):
         for affiliation in all_affiliations_list_chunk:
             all_affiliations_dict[affiliation] = get_matches(affiliation)
-        logger.debug(f'{len(all_affiliations_dict)} / {len(all_affiliations_list)} treated in country_matcher')
+        logger.debug(f'{len(all_affiliations_dict)} / {len(all_affiliations_list)} treated in affiliation matcher')
     logger.debug('All countries of all affiliations have been retrieved.')
     # Map countries with affiliations
     for publication in publications:
