@@ -77,3 +77,9 @@ To create a new release:
 ```shell
 make release VERSION=x.x.x
 ```
+
+## API
+
+Querying the API but setting your own strategies :
+
+`curl "YOUR_API_IP" -X POST -d '{"type": "grid","query": "YOUR_QUERY", "conditions": [["grid_name", "grid_country"], ["grid_name", "grid_country_code"]]}'`
