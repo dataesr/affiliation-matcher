@@ -1,3 +1,12 @@
+$(document).on('change', '#input_type', function() {
+    type = $('#input_type option:selected').val().toLowerCase();
+    if(type == 'rnsr') {
+        $('#select_year').removeClass('d-none');
+    } else {
+        $('#select_year').addClass('d-none');
+    }
+});
+
 $('.submit').on('click', function() {
     $('#logs').html('... en cours ...');
     input_json = { 
@@ -17,7 +26,7 @@ $('.submit').on('click', function() {
         $('#logs').html(result.logs);
     })
     .fail(error => {
-        console.log(error)
+        console.log(error);
     });
 });
 
