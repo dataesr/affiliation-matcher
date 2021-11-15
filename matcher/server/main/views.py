@@ -4,7 +4,8 @@ from flask import Blueprint, current_app, jsonify, render_template, request
 from rq import Connection, Queue
 
 from matcher.server.main.logger import get_logger
-from matcher.server.main.tasks import create_task_enrich_filter, create_task_load, create_task_match, create_task_enrich_with_affiliations_id
+from matcher.server.main.tasks import create_task_enrich_filter, create_task_enrich_with_affiliations_id,\
+    create_task_load, create_task_match
 
 logger = get_logger(__name__)
 main_blueprint = Blueprint('main', __name__, )
@@ -44,6 +45,7 @@ def run_task_enrich_filter():
         task = q.enqueue(create_task_enrich_filter, args)
     response_object = {'status': 'success', 'data': {'task_id': task.get_id()}}
     return jsonify(response_object), 202
+
 
 @main_blueprint.route('/enrich_with_affiliations_id', methods=['POST'])
 def run_task_enrich_with_affiliations_id():
