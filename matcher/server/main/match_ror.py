@@ -1,7 +1,8 @@
 from matcher.server.main.matcher import Matcher
 
 DEFAULT_STRATEGIES = [
-    [['ror_name', 'ror_acronym', 'ror_city', 'ror_country']]
+    [['ror_name', 'ror_acronym', 'ror_city', 'ror_country']],
+    [['ror_name', 'ror_city', 'ror_country']]
 ]
 
 
