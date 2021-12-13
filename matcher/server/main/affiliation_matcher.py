@@ -22,11 +22,7 @@ def check_matcher_health() -> bool:
         return True
     except:
         logger.debug('Matcher does not seem loaded, lets load it')
-        load_res = {}
-        load_res.update(load_country(index_prefix='matcher'))
-        load_res.update(load_grid(index_prefix='matcher'))
-        logger.debug(load_res)
-        return True
+        return False
 
 
 def get_country(affiliation):
@@ -89,7 +85,7 @@ def enrich_and_filter_publications_by_country(publications: list, countries_to_k
     # Transform list into dict
     all_affiliations_dict = {}
     # Retrieve countries for all publications
-    check_matcher_health()
+    assert(check_matcher_health())
     for all_affiliations_list_chunk in chunks(all_affiliations_list, 1000):
         for affiliation in all_affiliations_list_chunk:
             all_affiliations_dict[affiliation] = get_country(affiliation)
@@ -154,7 +150,7 @@ def enrich_publications_with_affiliations_id(publications: list) -> dict:
     # Transform list into dict
     all_affiliations_dict = {}
     # Retrieve countries for all publications
-    check_matcher_health()
+    assert(check_matcher_health())
     for all_affiliations_list_chunk in chunks(all_affiliations_list, 1000):
         for affiliation in all_affiliations_list_chunk:
             all_affiliations_dict[affiliation] = get_matches(affiliation)
