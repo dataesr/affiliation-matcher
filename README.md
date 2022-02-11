@@ -2,7 +2,7 @@
 
 ![Tests](https://github.com/dataesr/matcher/actions/workflows/tests.yml/badge.svg)
 ![Build](https://github.com/dataesr/matcher/actions/workflows/build.yml/badge.svg)
-![Docker Image Version (latest by date)](https://img.shields.io/docker/v/dataesr/matcher)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/dataesr/matcher?display_name=tag)
 
 ## Goal
 
