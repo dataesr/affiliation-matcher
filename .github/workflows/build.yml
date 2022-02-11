@@ -24,11 +24,11 @@ jobs:
           file: dist/matcher-${{ steps.tag.outputs.TAG_NAME }}.tar.gz
           tag: ${{ github.ref }}
 
+      - name: 🔑 Docker login
+        run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+
       - name: 🐋 Build docker image
         run: make docker-build
-
-      - name: 🔑 Login docker
-        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 📦 Push docker image
         run: make docker-push
@@ -44,4 +44,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN}}
           slack_token: ${{ secrets.SLACK_TOKEN }}
-          slack_channel: '#bsso_bso2'
+          slack_channel: '#bso-bot'
