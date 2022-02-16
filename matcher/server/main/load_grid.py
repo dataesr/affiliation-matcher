@@ -17,6 +17,75 @@ logger = get_logger(__name__)
 SOURCE = 'grid'
 
 
+def download_grid_data() -> dict:
+    grid_downloaded_file = 'grid_data_dump.zip'
+    grid_unzipped_folder = mkdtemp()
+    response = requests.get(url=GRID_DUMP_URL, stream=True)
+    with open(grid_downloaded_file, 'wb') as file:
+        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+            file.write(chunk)
+    with ZipFile(grid_downloaded_file, 'r') as file:
+        file.extractall(grid_unzipped_folder)
+    with open(f'{grid_unzipped_folder}/grid.json', 'r') as file:
+        data = json.load(file)
+    os.remove(path=grid_downloaded_file)
+    shutil.rmtree(path=grid_unzipped_folder)
+    return data
+
+
+def transform_grid_data(data: dict) -> list:
+    grids = data.get('institutes', [])
+    res = []
+    for grid in grids:
+        formatted_data = {'id': grid['id']}
+        # Names
+        names = [grid.get('name')]
+        names += grid.get('aliases', [])
+        names += [label.get('label') for label in grid.get('labels', [])]
+        names = list(set(names))
+        names = list(filter(None, names))
+        # Stop words is handled here as stop filter in ES keep track of positions even of removed stop words
+        formatted_data['name'] = [remove_stop(name, ENGLISH_STOP) for name in names]
+        # Acronyms
+        acronyms = grid.get('acronyms', [])
+        acronyms = list(set(acronyms))
+        formatted_data['acronym'] = list(filter(None, acronyms))
+        # Countries, country_codes, regions and cities
+        countries, country_codes, regions, cities = [], [], [], []
+        for address in grid.get('addresses', []):
+            country = address.get('country')
+            countries.append(country)
+            country_code = address.get('country_code').lower()
+            country_codes.append(country_code)
+            city1 = address.get('city')
+            cities.append(city1)
+            if address.get('geonames_city', {}):
+                city2 = address.get('geonames_city', {}).get('city')
+                cities.append(city2)
+        # Add country aliases
+        if 'United Kingdom' in countries:
+            countries.append('UK')
+        elif 'United States' in countries:
+            countries.append('USA')
+        countries = list(set(countries))
+        country_codes = list(set(country_codes))
+        cities = list(set(cities))
+        formatted_data['country'] = list(filter(None, countries))
+        formatted_data['country_code'] = list(filter(None, country_codes))
+        formatted_data['city'] = list(filter(None, cities))
+        # Parents
+        relationships = grid.get('relationships', [])
+        formatted_data['parent'] = [relationship.get('id') for relationship in relationships if
+                                    relationship.get('type') == 'Parent' and relationship.get('id')]
+        if len(formatted_data['country_code']) == 0:
+            continue
+        if len(formatted_data['country_code']) > 1:
+            logger.debug(f'BEWARE: more than 1 country for {grid}. Only one is kept.')
+        formatted_data['country_alpha2'] = formatted_data['country_code'][0]
+        res.append(formatted_data)
+    return res
+
+
 def load_grid(index_prefix: str = 'matcher') -> dict:
     es = MyElastic()
     indices_client = IndicesClient(es)
@@ -80,72 +149,3 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
                 actions.append(action)
     es.parallel_bulk(actions=actions)
     return results
-
-
-def transform_grid_data(data: dict) -> list:
-    grids = data.get('institutes', [])
-    res = []
-    for grid in grids:
-        formatted_data = {'id': grid['id']}
-        # Names
-        names = [grid.get('name')]
-        names += grid.get('aliases', [])
-        names += [label.get('label') for label in grid.get('labels', [])]
-        names = list(set(names))
-        names = list(filter(None, names))
-        # Stop words is handled here as stop filter in ES keep track of positions even of removed stop words
-        formatted_data['name'] = [remove_stop(name, ENGLISH_STOP) for name in names]
-        # Acronyms
-        acronyms = grid.get('acronyms', [])
-        acronyms = list(set(acronyms))
-        formatted_data['acronym'] = list(filter(None, acronyms))
-        # Countries, country_codes, regions and cities
-        countries, country_codes, regions, cities = [], [], [], []
-        for address in grid.get('addresses', []):
-            country = address.get('country')
-            countries.append(country)
-            country_code = address.get('country_code').lower()
-            country_codes.append(country_code)
-            city1 = address.get('city')
-            cities.append(city1)
-            if address.get('geonames_city', {}):
-                city2 = address.get('geonames_city', {}).get('city')
-                cities.append(city2)
-        # Add country aliases
-        if 'United Kingdom' in countries:
-            countries.append('UK')
-        elif 'United States' in countries:
-            countries.append('USA')
-        countries = list(set(countries))
-        country_codes = list(set(country_codes))
-        cities = list(set(cities))
-        formatted_data['country'] = list(filter(None, countries))
-        formatted_data['country_code'] = list(filter(None, country_codes))
-        formatted_data['city'] = list(filter(None, cities))
-        # Parents
-        relationships = grid.get('relationships', [])
-        formatted_data['parent'] = [relationship.get('id') for relationship in relationships if
-                                    relationship.get('type') == 'Parent' and relationship.get('id')]
-        if len(formatted_data['country_code']) == 0:
-            continue
-        if len(formatted_data['country_code']) > 1:
-            logger.debug(f'BEWARE: more than 1 country for {grid}. Only one is kept.')
-        formatted_data['country_alpha2'] = formatted_data['country_code'][0]
-        res.append(formatted_data)
-    return res
-
-
-def download_grid_data() -> dict:
-    grid_downloaded_file = 'grid_data_dump.zip'
-    grid_unzipped_folder = mkdtemp()
-    response = requests.get(url=GRID_DUMP_URL, stream=True)
-    with open(grid_downloaded_file, 'wb') as file:
-        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
-            file.write(chunk)
-    with ZipFile(grid_downloaded_file, 'r') as file:
-        file.extractall(grid_unzipped_folder)
-    with open(f'{grid_unzipped_folder}/grid.json', 'r') as file:
-        data = json.load(file)
-    os.remove(path=grid_downloaded_file)
-    shutil.rmtree(path=grid_unzipped_folder)
-    return data

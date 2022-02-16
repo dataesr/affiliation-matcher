@@ -31,7 +31,7 @@ def get_last_ror_dump_url():
         ror_dump_url = f'https://github.com/ror-community/ror-api/blob/master/rorapi/data/{last_date}/ror.zip?raw=true'
         logger.debug(f'Last ROR dump url found: {ror_dump_url}')
     except:
-        ror_dump_url = 'https://github.com/ror-community/ror-api/blob/master/rorapi/data/ror-2021-04-06/ror.zip?' \
+        ror_dump_url = 'https://github.com/ror-community/ror-api/blob/master/rorapi/data/ror-2021-09-23/ror.zip?' \
                        'raw=true'
         logger.error(f'ROR dump url detection failed, using {ror_dump_url} instead')
     return ror_dump_url

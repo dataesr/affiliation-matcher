@@ -48,7 +48,7 @@ def transform_ror_data(rors: list) -> list:
         acronym = ror.get('acronyms', [])
         city = [address.get('city') for address in ror.get('addresses', [])]
         country = [ror.get('country', {}).get('country_name')]
-        country_code = [ror.get('country', {}).get('country_code')]
+        country_code = [ror.get('country', {}).get('country_code').lower()]
         id = ror.get('id').replace('https://ror.org/', '')
         name = [ror.get('name')]
         name += ror.get('aliases', [])
@@ -97,7 +97,10 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
-                es_data[criterion][criterion_value].append({'id': ror['id']})
+                es_data[criterion][criterion_value].append({
+                    'id': ror.get('id'),
+                    'country_code': ror.get('country_code')
+                })
     # Bulk insert data into ES
     actions = []
     results = {}
@@ -106,7 +109,11 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]]}
+            country_codes = [k.get('country_code', '') for k in es_data[criterion][criterion_value]]
+            action = {
+                '_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]],
+                'country_alpha2': list(set([j for sub in country_codes for j in sub]))
+            }
             if criterion in criteria:
                 action['query'] = {'match_phrase': {'content': {'query': criterion_value,
                                                                 'analyzer': analyzer, 'slop': 0}}}
