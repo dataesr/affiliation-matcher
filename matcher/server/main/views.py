@@ -1,3 +1,5 @@
+import io
+import pandas as pd
 import redis
 
 from flask import Blueprint, current_app, jsonify, render_template, request
@@ -27,10 +29,26 @@ def run_task_load():
 
 @main_blueprint.route('/match_api', methods=['POST'])
 def run_task_match():
-    args = request.get_json(force=True)
-    logger.debug(args)
-    response_object = create_task_match(args=args)
-    return jsonify(response_object), 202
+    if request.files.get('file') is None:
+        args = request.get_json(force=True)
+        logger.debug(args)
+        response = create_task_match(args=args)
+        return jsonify(response), 202
+    else:
+        args = request.form.to_dict(flat=True)
+        decoded_file = request.files.get('file').read().decode('utf-8')
+        df_input = pd.read_csv(io.StringIO(decoded_file), header=None)
+        queries = []
+        results = []
+        for _, row in df_input.iterrows():
+            query = row[0]
+            args['query'] = query
+            queries.append(query)
+            response = create_task_match(args=args)
+            result = response.get('results')[0] if len(response.get('results')) > 0 else ''
+            results.append(result)
+        df_output = pd.DataFrame({'queries': queries, 'results': results})
+        return jsonify({'logs': df_output.to_csv(index=False)}), 202
 
 
 @main_blueprint.route('/enrich_filter', methods=['POST'])

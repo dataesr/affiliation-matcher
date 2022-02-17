@@ -1,3 +1,16 @@
+const matchApi = (request) => {
+    request.url = '/match_api';
+    request.method = 'POST';
+    $.ajax(request)
+    .done(result => {
+        $('#logs').html(result.logs.replace(/\n/g, '<br />'));
+    })
+    .fail(error => {
+        console.log(error);
+        $('#error').text('Erreur rencontrée et logguée dans la console.');
+    });
+};
+
 $(document).ready(() => {
     $(document).on('change', '#input_type', () => {
         type = $('#input_type option:selected').val().toLowerCase();
@@ -31,26 +44,47 @@ $(document).ready(() => {
     });
 
     $('.submit').on('click', () => {
+        $('#error').text('');
         $('#logs').html('... en cours ...');
-        input_json = {
-            type: $('#input_type option:selected').val(),
-            year: $('#input_year option:selected').val(),
-            query: $('#input_query').val(),
-            verbose: true
+        const files = $('#fileinput').prop('files');
+        const query = $('#input_query').val();
+        const type = $('#input_type option:selected').val();
+        const year = $('#input_year option:selected').val();
+        if(query.length != 0) {
+            input_json = {
+                type,
+                year,
+                query,
+                verbose: true
+            }
+            const request = {
+                data: JSON.stringify(input_json),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json'
+            };
+            matchApi(request);
+        } else if (files.length != 0) {
+            input_json = {
+                type,
+                year,
+                verbose: false
+            }
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('filename', files[0].name);
+            data.append('type', $('#input_type option:selected').val());
+            data.append('year', $('#input_year option:selected').val());
+            data.append('verbose', true);
+            const request = {
+                data,
+                processData: false,
+                contentType: false,
+                cache: false
+            };
+            matchApi(request);
+        } else {
+            $('#error').text('Merci de saisir une affiliation textuelle ou un fichier.');
         }
-        $.ajax({
-            url: '/match_api',
-            data: JSON.stringify(input_json),
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            method: 'POST'
-        })
-        .done(result => {
-            $('#logs').html(result.logs);
-        })
-        .fail(error => {
-            console.log(error);
-        });
     });
 });
 

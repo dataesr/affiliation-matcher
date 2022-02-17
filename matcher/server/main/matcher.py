@@ -129,6 +129,10 @@ class Matcher:
                     elif method == 'ror':
                         logs += f' <a target="_blank" href="https://ror.org/{equivalent_strategies_result}">' \
                                 f'{equivalent_strategies_result}</a>'
+                    elif method == 'rnsr':
+                        logs += f' <a target="_blank" href="https://appliweb.dgri.education.fr/rnsr/PresenteStruct.jsp?' \
+                                f'numNatStruct={equivalent_strategies_result}&PUBLIC=OK">' \
+                                f'{equivalent_strategies_result}</a>'
                     else:
                         logs += f' {equivalent_strategies_result}'
                 final_res = {'results': equivalent_strategies_results, 'highlights': all_highlights, 'logs': logs}

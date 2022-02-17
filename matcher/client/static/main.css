@@ -1,6 +1,6 @@
 html {
-  position: relative;
   min-height: 100%;
+  position: relative;
 }
 
 em {
@@ -8,20 +8,24 @@ em {
 }
 
 body {
-  padding-top: 2rem;
   margin-bottom: 60px;
+  padding-top: 2rem;
 }
 
 .footer {
-  position: absolute;
   bottom: 0;
-  width: 100%;
   height: 50px;
   line-height: 50px;
+  position: absolute;
+  width: 100%;
 }
 
 .example {
   color: gray;
   font-size: 12px;
   font-style: italic;
+}
+
+.error {
+  color: red;
 }

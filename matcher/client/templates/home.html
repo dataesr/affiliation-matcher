@@ -10,7 +10,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="input_query">Affiliation</label>
+                    <label for="input_query">Affiliation(s)</label>
                     <textarea class="form-control" data-error="A query is required" id="input_query" name="query"
                               placeholder="Entrez ici une signature d'affiliation"
                               required="required" rows="4"></textarea>
@@ -18,6 +18,7 @@
                         Exemple:
                         "<span id="input_example">IPAG Institut de Planétologie et d'Astrophysique de Grenoble</span>"
                     </p>
+                    <input type="file" id="fileinput" />
                 </div>
             </div>
             <div class="col-md-2">
@@ -53,5 +54,6 @@
     </div>
 </div>
 <div id="logs"></div>
+<div id="error" class="error"></div>
 
 {% endblock %}
