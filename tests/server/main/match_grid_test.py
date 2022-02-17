@@ -23,7 +23,7 @@ class TestMatchGrid:
         ]
     )
     def test_get_ancestors(self, elasticsearch, grid, expected_ancestors) -> None:
-        ancestors = get_ancestors(grid=grid, es=elasticsearch['es'], index_prefix=elasticsearch['index_prefix'])
+        ancestors = get_ancestors(query=grid, es=elasticsearch['es'], index_prefix=elasticsearch['index_prefix'])
         ancestors.sort()
         expected_ancestors.sort()
         assert ancestors == expected_ancestors
