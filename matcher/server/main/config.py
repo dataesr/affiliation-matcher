@@ -14,7 +14,7 @@ def get_last_grid_dump_url():
         grid_dump_url = soup.find('a', class_='btn-red')['href'].strip()
         logger.debug(f'Last grid dump url found: {grid_dump_url}')
     except:
-        grid_dump_url = 'https://ndownloader.figshare.com/files/28431024'
+        grid_dump_url = 'https://ndownloader.figshare.com/files/30895309'
         logger.error(f'Grid dump url detection failed, using {grid_dump_url} instead')
     return grid_dump_url
 
