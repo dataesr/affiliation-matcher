@@ -53,7 +53,7 @@ def transform_grid_data(data: dict) -> list:
                 if region not in cities_by_region:
                     cities_by_region[region] = []
                 cities_by_region[region].append(city)
-                ids[id] = {'country': country, 'region': region}
+                ids[id] = {'region': region}
     # In the cities by region dictionnary, remove duplicated cities
     for region, cities in cities_by_region.items():
         cities_by_region[region] = list(set(cities_by_region[region]))
@@ -71,7 +71,7 @@ def transform_grid_data(data: dict) -> list:
         acronyms = grid.get('acronyms', [])
         acronyms = list(set(acronyms))
         formatted_data['acronym'] = list(filter(None, acronyms))
-        # Countries, country_codes and cities
+        # Countries, country_codes, regions and cities
         countries, country_codes, regions, cities = [], [], [], []
         for address in grid.get('addresses', []):
             country = address.get('country')
@@ -108,10 +108,10 @@ def transform_grid_data(data: dict) -> list:
         if len(formatted_data['country_code']) > 1:
             logger.debug(f'BEWARE: more than 1 country for {grid}. Only one is kept.')
         formatted_data['country_alpha2'] = formatted_data['country_code'][0]
-        # Add the cities from the corresponding region
-        formatted_data['region'] = []
+        # Add the cities from the first founded region
+        formatted_data['cities_by_region'] = []
         if len(countries) > 0 and len(regions) > 0:
-            formatted_data['region'] = cities_by_region.get(regions[0])
+            formatted_data['cities_by_region'] = cities_by_region.get(regions[0])
         res.append(formatted_data)
     return res
 
@@ -126,7 +126,7 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['acronym', 'city', 'country', 'country_code', 'parent', 'region']
+    exact_criteria = ['acronym', 'city', 'country', 'country_code', 'parent', 'cities_by_region']
     txt_criteria = ['name']
     analyzers = {
         'acronym': 'acronym_analyzer',
@@ -135,7 +135,7 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
         'country_code': 'light',
         'name': 'heavy_en',
         'parent': 'light',
-        'region': 'light',
+        'cities_by_region': 'light',
     }
     criteria = exact_criteria + txt_criteria
     es_data = {}
