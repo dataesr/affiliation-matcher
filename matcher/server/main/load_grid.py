@@ -36,6 +36,30 @@ def download_grid_data() -> dict:
 def transform_grid_data(data: dict) -> list:
     grids = data.get('institutes', [])
     res = []
+    # Create a geonames dictionnary about the cities by region by country
+    cities_by_region_by_country = {}
+    ids = {}
+    grids = data.get('institutes', [])
+    for grid in grids:
+        id = grid['id']
+        for address in grid.get('addresses', []):
+            country = address.get('country')
+            if country not in cities_by_region_by_country:
+                cities_by_region_by_country[country] = {}
+            city = address.get('city')
+            if 'geonames_city' in address and address.get('geonames_city'):
+                geonames_city = address.get('geonames_city')
+                if 'geonames_admin1' in geonames_city and geonames_city.get('geonames_admin1'):
+                    region = geonames_city.get('geonames_admin1').get('name')
+            if region:
+                if region not in cities_by_region_by_country.get(country):
+                    cities_by_region_by_country[country][region] = []
+                cities_by_region_by_country[country][region].append(city)
+                ids[id] = {'country': country, 'region': region}
+    # In the cities by region by country dictionnary, remove duplicated cities
+    for country, regions in cities_by_region_by_country.items():
+        for region, cities in regions.items():
+            cities_by_region_by_country[country][region] = list(set(cities_by_region_by_country[country][region]))
     for grid in grids:
         formatted_data = {'id': grid['id']}
         # Names
@@ -50,7 +74,7 @@ def transform_grid_data(data: dict) -> list:
         acronyms = grid.get('acronyms', [])
         acronyms = list(set(acronyms))
         formatted_data['acronym'] = list(filter(None, acronyms))
-        # Countries, country_codes, regions and cities
+        # Countries, country_codes and cities
         countries, country_codes, regions, cities = [], [], [], []
         for address in grid.get('addresses', []):
             country = address.get('country')
@@ -62,6 +86,11 @@ def transform_grid_data(data: dict) -> list:
             if address.get('geonames_city', {}):
                 city2 = address.get('geonames_city', {}).get('city')
                 cities.append(city2)
+            if 'geonames_city' in address and address.get('geonames_city'):
+                geonames_city = address.get('geonames_city')
+                if 'geonames_admin1' in geonames_city and geonames_city.get('geonames_admin1'):
+                    region = geonames_city.get('geonames_admin1').get('name')
+                    regions.append(region)
         # Add country aliases
         if 'United Kingdom' in countries:
             countries.append('UK')
@@ -82,6 +111,10 @@ def transform_grid_data(data: dict) -> list:
         if len(formatted_data['country_code']) > 1:
             logger.debug(f'BEWARE: more than 1 country for {grid}. Only one is kept.')
         formatted_data['country_alpha2'] = formatted_data['country_code'][0]
+        # Add the cities from the corresponding region
+        formatted_data['region'] = []
+        if len(countries) > 0 and len(regions) > 0:
+            formatted_data['region'] = cities_by_region_by_country.get(countries[0], {}).get(regions[0])
         res.append(formatted_data)
     return res
 
@@ -96,7 +129,7 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['acronym', 'city', 'country', 'country_code', 'parent']
+    exact_criteria = ['acronym', 'city', 'country', 'country_code', 'parent', 'region']
     txt_criteria = ['name']
     analyzers = {
         'acronym': 'acronym_analyzer',
@@ -104,7 +137,8 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
         'country': 'light',
         'country_code': 'light',
         'name': 'heavy_en',
-        'parent': 'light'
+        'parent': 'light',
+        'region': 'light',
     }
     criteria = exact_criteria + txt_criteria
     es_data = {}
