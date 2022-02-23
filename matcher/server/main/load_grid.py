@@ -72,7 +72,7 @@ def transform_grid_data(data: dict) -> list:
         acronyms = list(set(acronyms))
         formatted_data['acronym'] = list(filter(None, acronyms))
         # Countries, country_codes, regions, departments and cities
-        countries, country_codes, regions, departments, cities = [], [], [], []
+        countries, country_codes, regions, departments, cities = [], [], [], [], []
         for address in grid.get('addresses', []):
             country = address.get('country')
             countries.append(country)
