@@ -36,30 +36,27 @@ def download_grid_data() -> dict:
 def transform_grid_data(data: dict) -> list:
     grids = data.get('institutes', [])
     res = []
-    # Create a geonames dictionnary about the cities by region by country
-    cities_by_region_by_country = {}
+    # Create a geonames dictionnary about the cities by region
+    cities_by_region = {}
     ids = {}
     grids = data.get('institutes', [])
     for grid in grids:
         id = grid['id']
         for address in grid.get('addresses', []):
             country = address.get('country')
-            if country not in cities_by_region_by_country:
-                cities_by_region_by_country[country] = {}
             city = address.get('city')
             if 'geonames_city' in address and address.get('geonames_city'):
                 geonames_city = address.get('geonames_city')
                 if 'geonames_admin1' in geonames_city and geonames_city.get('geonames_admin1'):
                     region = geonames_city.get('geonames_admin1').get('name')
             if region:
-                if region not in cities_by_region_by_country.get(country):
-                    cities_by_region_by_country[country][region] = []
-                cities_by_region_by_country[country][region].append(city)
+                if region not in cities_by_region:
+                    cities_by_region[region] = []
+                cities_by_region[region].append(city)
                 ids[id] = {'country': country, 'region': region}
-    # In the cities by region by country dictionnary, remove duplicated cities
-    for country, regions in cities_by_region_by_country.items():
-        for region, cities in regions.items():
-            cities_by_region_by_country[country][region] = list(set(cities_by_region_by_country[country][region]))
+    # In the cities by region dictionnary, remove duplicated cities
+    for region, cities in cities_by_region.items():
+        cities_by_region[region] = list(set(cities_by_region[region]))
     for grid in grids:
         formatted_data = {'id': grid['id']}
         # Names
@@ -114,7 +111,7 @@ def transform_grid_data(data: dict) -> list:
         # Add the cities from the corresponding region
         formatted_data['region'] = []
         if len(countries) > 0 and len(regions) > 0:
-            formatted_data['region'] = cities_by_region_by_country.get(countries[0], {}).get(regions[0])
+            formatted_data['region'] = cities_by_region.get(regions[0])
         res.append(formatted_data)
     return res
 
