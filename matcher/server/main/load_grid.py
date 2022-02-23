@@ -71,23 +71,32 @@ def transform_grid_data(data: dict) -> list:
         acronyms = grid.get('acronyms', [])
         acronyms = list(set(acronyms))
         formatted_data['acronym'] = list(filter(None, acronyms))
-        # Countries, country_codes, regions and cities
-        countries, country_codes, regions, cities = [], [], [], []
+        # Countries, country_codes, regions, departments and cities
+        countries, country_codes, regions, departments, cities = [], [], [], []
         for address in grid.get('addresses', []):
             country = address.get('country')
             countries.append(country)
             country_code = address.get('country_code').lower()
             country_codes.append(country_code)
-            city1 = address.get('city')
-            cities.append(city1)
-            if address.get('geonames_city', {}):
-                city2 = address.get('geonames_city', {}).get('city')
-                cities.append(city2)
+            city = address.get('city')
+            cities.append(city)
             if 'geonames_city' in address and address.get('geonames_city'):
                 geonames_city = address.get('geonames_city')
                 if 'geonames_admin1' in geonames_city and geonames_city.get('geonames_admin1'):
                     region = geonames_city.get('geonames_admin1').get('name')
                     regions.append(region)
+                if 'nuts_level2' in geonames_city and geonames_city.get('nuts_level2'):
+                    region = geonames_city.get('nuts_level2').get('name')
+                    regions.append(region)
+                if 'geonames_admin2' in geonames_city and geonames_city.get('geonames_admin2'):
+                    department = geonames_city.get('geonames_admin2').get('name')
+                    departments.append(department)
+                if 'nuts_level3' in geonames_city and geonames_city.get('nuts_level3'):
+                    department = geonames_city.get('nuts_level3').get('name')
+                    departments.append(department)
+                if 'city' in geonames_city and geonames_city.get('city'):
+                    city = geonames_city.get('city')
+                    cities.append(city)
         # Add country aliases
         if 'United Kingdom' in countries:
             countries.append('UK')
@@ -95,9 +104,13 @@ def transform_grid_data(data: dict) -> list:
             countries.append('USA')
         countries = list(set(countries))
         country_codes = list(set(country_codes))
+        regions = list(set(regions))
+        departments = list(set(departments))
         cities = list(set(cities))
         formatted_data['country'] = list(filter(None, countries))
         formatted_data['country_code'] = list(filter(None, country_codes))
+        formatted_data['region'] = list(filter(None, regions))
+        formatted_data['department'] = list(filter(None, departments))
         formatted_data['city'] = list(filter(None, cities))
         # Parents
         relationships = grid.get('relationships', [])
@@ -126,16 +139,19 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['acronym', 'city', 'country', 'country_code', 'parent', 'cities_by_region']
+    exact_criteria = ['acronym', 'cities_by_region', 'city', 'country',
+                      'country_code', 'department', 'parent', 'region']
     txt_criteria = ['name']
     analyzers = {
         'acronym': 'acronym_analyzer',
+        'cities_by_region': 'light',
         'city': 'city_analyzer',
         'country': 'light',
         'country_code': 'light',
+        'department': 'light',
         'name': 'heavy_en',
         'parent': 'light',
-        'cities_by_region': 'light',
+        'region': 'light',
     }
     criteria = exact_criteria + txt_criteria
     es_data = {}
