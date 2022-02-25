@@ -90,3 +90,23 @@ make release VERSION=x.x.x
 Querying the API but setting your own strategies :
 
 `curl "YOUR_API_IP" -X POST -d '{"type": "grid", "query": "YOUR_QUERY", "strategies": [[["grid_name", "grid_country"], ["grid_name", "grid_country_code"]]]}'`
+
+
+## Criteria
+
+Here is a list of the 9 criteria available for the Grid matcher:
+* grid_acronym
+* grid_cities_by_region [indirect]
+* grid_city
+* grid_country
+* grid_country_code
+* grid_department
+* grid_name
+* grid_parent
+* grid_region
+
+
+1. You can combine criteria to create a strategy.
+2. You can cumulate strategies to create a family of strategies.
+3. And then you can cumulate families of strategies to create the final object.
+4. This final object is then a 3 dicmensional array that you will give as an argument to the "/match_api" API endpoint.
