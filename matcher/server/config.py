@@ -7,8 +7,8 @@ class BaseConfig(object):
     """Base configuration."""
 
     WTF_CSRF_ENABLED = True
-    REDIS_URL = "redis://redis:6379/0"
-    QUEUES = ["matcher", "matcher_short"]
+    REDIS_URL = 'redis://redis:6379/0'
+    QUEUES = ['matcher', 'matcher_short']
 
 
 class DevelopmentConfig(BaseConfig):

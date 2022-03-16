@@ -1,4 +1,4 @@
-DOCKER_IMAGE_NAME=dataesr/matcher
+DOCKER_IMAGE_NAME=dataesr/matcher-affiliation
 CURRENT_VERSION=$(shell cat matcher/__init__.py | cut -d "'" -f 2)
 
 test: unit
@@ -10,7 +10,7 @@ unit:
 
 start:
 	@echo Matcher starting...
-	docker-compose up -d
+	docker-compose up --build
 	@echo Matcher started http://localhost:5004
 
 stop:
