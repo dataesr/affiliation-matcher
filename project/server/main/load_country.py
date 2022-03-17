@@ -1,8 +1,8 @@
 import pycountry
 
-from matcher.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
-from matcher.server.main.logger import get_logger
-from matcher.server.main.my_elastic import MyElastic
+from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
+from project.server.main.logger import get_logger
+from project.server.main.my_elastic import MyElastic
 
 SOURCE = 'country'
 

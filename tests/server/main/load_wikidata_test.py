@@ -1,5 +1,5 @@
-from matcher.server.main.load_wikidata import data2actions, load_wikidata
-from matcher.server.main.my_elastic import MyElastic
+from project.server.main.load_wikidata import data2actions, load_wikidata
+from project.server.main.my_elastic import MyElastic
 
 
 class TestLoadWikidata:

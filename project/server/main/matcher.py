@@ -2,10 +2,10 @@ import itertools
 
 from bs4 import BeautifulSoup
 
-from matcher.server.main.elastic_utils import get_index_name
-from matcher.server.main.logger import get_logger
-from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import remove_stop
+from project.server.main.elastic_utils import get_index_name
+from project.server.main.logger import get_logger
+from project.server.main.my_elastic import MyElastic
+from project.server.main.utils import remove_stop
 
 logger = get_logger(__name__)
 

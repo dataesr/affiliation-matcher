@@ -1,6 +1,6 @@
 import pytest
 
-from matcher.server.main.matcher import filter_submatching_results
+from project.server.main.matcher import filter_submatching_results
 
 
 class TestMatcher:

@@ -1,10 +1,10 @@
 import pytest
 
-from matcher.server.main.load_country import load_country
-from matcher.server.main.load_grid import load_grid
-from matcher.server.main.match_country import match_country
-from matcher.server.main.metrics import compute_precision_recall
-from matcher.server.main.my_elastic import MyElastic
+from project.server.main.load_country import load_country
+from project.server.main.load_grid import load_grid
+from project.server.main.match_country import match_country
+from project.server.main.metrics import compute_precision_recall
+from project.server.main.my_elastic import MyElastic
 
 
 @pytest.fixture(scope='module')

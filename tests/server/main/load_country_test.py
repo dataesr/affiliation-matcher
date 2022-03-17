@@ -1,5 +1,5 @@
-from matcher.server.main.load_country import load_country
-from matcher.server.main.my_elastic import MyElastic
+from project.server.main.load_country import load_country
+from project.server.main.my_elastic import MyElastic
 
 
 class TestLoadCountry:

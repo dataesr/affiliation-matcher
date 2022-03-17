@@ -3,11 +3,11 @@ import requests
 
 from elasticsearch.client import IndicesClient
 
-from matcher.server.main.config import SCANR_DUMP_URL
-from matcher.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
-from matcher.server.main.logger import get_logger
-from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import download_insee_data, get_alpha2_from_french, get_tokens
+from project.server.main.config import SCANR_DUMP_URL
+from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
+from project.server.main.logger import get_logger
+from project.server.main.my_elastic import MyElastic
+from project.server.main.utils import download_insee_data, get_alpha2_from_french, get_tokens
 
 logger = get_logger(__name__)
 

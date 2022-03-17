@@ -1,15 +1,15 @@
-from matcher.server.main.affiliation_matcher import check_matcher_health, enrich_and_filter_publications_by_country,\
+from project.server.main.affiliation_matcher import check_matcher_health, enrich_and_filter_publications_by_country,\
     enrich_publications_with_affiliations_id
-from matcher.server.main.load_country import load_country
-from matcher.server.main.load_grid import load_grid
-from matcher.server.main.load_rnsr import load_rnsr
-from matcher.server.main.load_ror import load_ror
-from matcher.server.main.load_wikidata import load_wikidata
-from matcher.server.main.logger import get_logger
-from matcher.server.main.match_country import match_country
-from matcher.server.main.match_grid import match_grid
-from matcher.server.main.match_rnsr import match_rnsr
-from matcher.server.main.match_ror import match_ror
+from project.server.main.load_country import load_country
+from project.server.main.load_grid import load_grid
+from project.server.main.load_rnsr import load_rnsr
+from project.server.main.load_ror import load_ror
+from project.server.main.load_wikidata import load_wikidata
+from project.server.main.logger import get_logger
+from project.server.main.match_country import match_country
+from project.server.main.match_grid import match_grid
+from project.server.main.match_rnsr import match_rnsr
+from project.server.main.match_ror import match_ror
 
 logger = get_logger(__name__)
 

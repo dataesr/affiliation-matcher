@@ -2,7 +2,7 @@ services:
   redis:
     image: redis:5.0.7-alpine
     networks:
-      - matcher-network
+      - matcher-affiliation-network
 
   dashboard:
     image: dataesr/dashboard-crawler:1.1
@@ -10,7 +10,7 @@ services:
       - 9181:9181
     command: rq-dashboard -H redis
     networks:
-      - matcher-network
+      - matcher-affiliation-network
     depends_on:
       - redis
 
@@ -23,20 +23,20 @@ services:
     volumes:
       - elastic:/usr/share/elasticsearch/data
     networks:
-      - matcher-network
+      - matcher-affiliation-network
 
   worker:
-    image: ghcr.io/dataesr/matcher:0.1.1
+    image: ghcr.io/dataesr/matcher-affiliation:0.1.1
     privileged: true
     command: >
       /bin/sh -c "sysctl -w vm.max_map_count=262144
       && python3 manage.py run_worker"
     environment:
-      APP_SETTINGS: matcher.server.config.DevelopmentConfig
+      APP_SETTINGS: project.server.config.DevelopmentConfig
     volumes:
       - '/tmp/.X11-unix:/tmp/.X11-unix'
     networks:
-      - matcher-network
+      - matcher-affiliation-network
     depends_on:
       - redis
       - elasticsearch
@@ -49,17 +49,17 @@ services:
     command: python3 manage.py run -h 0.0.0.0
     environment:
       FLASK_DEBUG: 1
-      APP_SETTINGS: matcher.server.config.DevelopmentConfig
+      APP_SETTINGS: project.server.config.DevelopmentConfig
       APP_ENV: 'development'
     volumes:
       - '/tmp/.X11-unix:/tmp/.X11-unix'
     networks:
-      - matcher-network
+      - matcher-affiliation-network
     depends_on:
       - worker
 
 networks:
-  matcher-network:
+  matcher-affiliation-network:
     driver: bridge
 
 volumes:

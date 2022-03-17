@@ -1,4 +1,4 @@
-from matcher.server.main.elastic_utils import get_index_name
+from project.server.main.elastic_utils import get_index_name
 
 
 class TestElasticUtils:

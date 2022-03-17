@@ -1,6 +1,6 @@
 import requests
 
-from matcher.server.main.tasks import create_task_match
+from project.server.main.tasks import create_task_match
 
 
 def get_annotated_data() -> dict:

@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 
-from matcher.server.main.config import ELASTICSEARCH_HOST, ELASTICSEARCH_URL
+from project.server.main.config import ELASTICSEARCH_HOST, ELASTICSEARCH_URL
 
 es = Elasticsearch(ELASTICSEARCH_HOST)
 INDEX = 'index_finess'

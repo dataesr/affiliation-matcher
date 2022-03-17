@@ -5,8 +5,8 @@ import redis
 from flask import Blueprint, current_app, jsonify, render_template, request
 from rq import Connection, Queue
 
-from matcher.server.main.logger import get_logger
-from matcher.server.main.tasks import create_task_enrich_filter, create_task_enrich_with_affiliations_id,\
+from project.server.main.logger import get_logger
+from project.server.main.tasks import create_task_enrich_filter, create_task_enrich_with_affiliations_id,\
     create_task_load, create_task_match
 
 logger = get_logger(__name__)

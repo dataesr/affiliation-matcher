@@ -1,5 +1,5 @@
-from matcher.server.main.matcher import Matcher
-from matcher.server.main.utils import ENGLISH_STOP, remove_ref_index
+from project.server.main.matcher import Matcher
+from project.server.main.utils import ENGLISH_STOP, remove_ref_index
 
 DEFAULT_STRATEGIES = [
     [['ror_name', 'ror_acronym', 'ror_city', 'ror_country'],

@@ -1,5 +1,5 @@
-from matcher.server.main.load_grid import load_grid
-from matcher.server.main.my_elastic import MyElastic
+from project.server.main.load_grid import load_grid
+from project.server.main.my_elastic import MyElastic
 
 
 class TestLoadGrid:

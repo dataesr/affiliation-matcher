@@ -1,5 +1,5 @@
-from matcher.server.main.matcher import Matcher
-from matcher.server.main.utils import ENGLISH_STOP, remove_ref_index
+from project.server.main.matcher import Matcher
+from project.server.main.utils import ENGLISH_STOP, remove_ref_index
 
 DEFAULT_STRATEGIES = [
     [['grid_name', 'grid_acronym', 'grid_city', 'grid_country'],

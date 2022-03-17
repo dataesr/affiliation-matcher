@@ -1,7 +1,7 @@
 import re
 
-from matcher.server.main.matcher import Matcher
-from matcher.server.main.utils import remove_ref_index
+from project.server.main.matcher import Matcher
+from project.server.main.utils import remove_ref_index
 
 DEFAULT_STRATEGIES = [
     [['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_zone_emploi']],

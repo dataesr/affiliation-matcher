@@ -3,7 +3,7 @@ import requests
 
 from bs4 import BeautifulSoup
 
-from matcher.server.main.logger import get_logger
+from project.server.main.logger import get_logger
 
 logger = get_logger(__name__)
 

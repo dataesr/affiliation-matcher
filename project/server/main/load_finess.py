@@ -3,7 +3,7 @@ import pickle
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 
-from matcher.server.main.utils import normalize_text
+from project.server.main.utils import normalize_text
 
 es = Elasticsearch(['localhost', 'elasticsearch'])
 INDEX = 'index_finess'

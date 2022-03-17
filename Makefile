@@ -1,5 +1,5 @@
 DOCKER_IMAGE_NAME=dataesr/matcher-affiliation
-CURRENT_VERSION=$(shell cat matcher/__init__.py | cut -d "'" -f 2)
+CURRENT_VERSION=$(shell cat project/__init__.py | cut -d "'" -f 2)
 
 test: unit
 
@@ -9,14 +9,14 @@ unit:
 	@echo End of unit tests
 
 start:
-	@echo Matcher starting...
+	@echo Matcher affiliation starting...
 	docker-compose up --build
-	@echo Matcher started http://localhost:5004
+	@echo Matcher affiliation started http://localhost:5004
 
 stop:
-	@echo Matcher stopping...
+	@echo Matcher affiliation stopping...
 	docker-compose down
-	@echo Matcher stopped
+	@echo Matcher affiliation stopped
 
 install:
 	@echo Installing dependencies...
@@ -36,16 +36,16 @@ docker-push:
 
 python-build:
 	@echo Building a python package
-	python setup.py sdist
+	python3 setup.py sdist
 	@echo Python package built
 
 load:
 	@echo Load all data into ES
 	curl http://localhost:5004/load
-	@echo Matcher is now populated
+	@echo Matcher affiliation is now populated
 
 release:
-	echo "__version__ = '$(VERSION)'" > matcher/__init__.py
+	echo "__version__ = '$(VERSION)'" > project/__init__.py
 	git commit -am '[release] version $(VERSION)'
 	git tag $(VERSION)
 	@echo If everything is OK, you can push with tags i.e. git push origin master --tags

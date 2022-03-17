@@ -1,8 +1,8 @@
 import requests
 
-from matcher.server.main.elastic_utils import get_index_name
-from matcher.server.main.logger import get_logger
-from matcher.server.main.my_elastic import MyElastic
+from project.server.main.elastic_utils import get_index_name
+from project.server.main.logger import get_logger
+from project.server.main.my_elastic import MyElastic
 
 QUERY_CITY_POPULATION_LIMIT = 50000
 SOURCE = 'wikidata'

@@ -1,11 +1,11 @@
-from matcher.server.main.load_grid import load_grid
-from matcher.server.main.load_country import load_country
-from matcher.server.main.logger import get_logger
-from matcher.server.main.match_country import match_country
-from matcher.server.main.match_rnsr import match_rnsr
-from matcher.server.main.match_grid import match_grid
-from matcher.server.main.my_elastic import MyElastic
-from matcher.server.main.utils import chunks
+from project.server.main.load_grid import load_grid
+from project.server.main.load_country import load_country
+from project.server.main.logger import get_logger
+from project.server.main.match_country import match_country
+from project.server.main.match_rnsr import match_rnsr
+from project.server.main.match_grid import match_grid
+from project.server.main.my_elastic import MyElastic
+from project.server.main.utils import chunks
 
 logger = get_logger(__name__)
     

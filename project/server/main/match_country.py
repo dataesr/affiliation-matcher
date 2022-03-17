@@ -1,4 +1,4 @@
-from matcher.server.main.matcher import Matcher
+from project.server.main.matcher import Matcher
 
 DEFAULT_STRATEGIES = [
     # group 1

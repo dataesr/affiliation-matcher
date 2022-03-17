@@ -1,8 +1,8 @@
 import pytest
 
-from matcher.server.main.config import SCANR_DUMP_URL
-from matcher.server.main.load_rnsr import load_rnsr
-from matcher.server.main.my_elastic import MyElastic
+from project.server.main.config import SCANR_DUMP_URL
+from project.server.main.load_rnsr import load_rnsr
+from project.server.main.my_elastic import MyElastic
 
 
 class TestLoadRnsr:

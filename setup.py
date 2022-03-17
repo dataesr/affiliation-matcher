@@ -1,17 +1,17 @@
 from setuptools import find_packages, setup
 
-from matcher import __version__
+from project import __version__
 
 with open('./README.md', 'r') as f:
     long_description = f.read()
 
 setup(
-    name='matcher',
+    name='matcher-affiliation',
     version=__version__,
     description='Matcher for French affiliations',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/dataesr/matcher',
+    url='https://github.com/dataesr/matcher-affiliation',
     license='MIT',
     author='Eric Jeangirard, Anne L\'Hôte',
     author_email='eric.jeangirard@recherche.gouv.fr, anne.lhote@gmail.com',

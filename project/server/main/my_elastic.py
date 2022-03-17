@@ -1,7 +1,7 @@
 from elasticsearch import Elasticsearch, helpers
 
-from matcher.server.main.config import ELASTICSEARCH_HOST, ELASTICSEARCH_LOGIN, ELASTICSEARCH_PASSWORD
-from matcher.server.main.logger import get_logger
+from project.server.main.config import ELASTICSEARCH_HOST, ELASTICSEARCH_LOGIN, ELASTICSEARCH_PASSWORD
+from project.server.main.logger import get_logger
 
 
 class MyElastic(Elasticsearch):

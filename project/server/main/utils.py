@@ -9,7 +9,7 @@ import unicodedata
 from tempfile import mkdtemp
 from zipfile import ZipFile
 
-from matcher.server.main.config import CHUNK_SIZE, ZONE_EMPLOI_INSEE_DUMP
+from project.server.main.config import CHUNK_SIZE, ZONE_EMPLOI_INSEE_DUMP
 
 ENGLISH_STOP = ['a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', 'if', 'in', 'into', 'is', 'it', 'no',
                 'not', 'of', 'on', 'or', 'such', 'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this',

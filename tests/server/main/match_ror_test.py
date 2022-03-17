@@ -1,9 +1,9 @@
 import pytest
 
-from matcher.server.main.load_ror import load_ror
-from matcher.server.main.match_ror import match_ror
-from matcher.server.main.metrics import compute_precision_recall
-from matcher.server.main.my_elastic import MyElastic
+from project.server.main.load_ror import load_ror
+from project.server.main.match_ror import match_ror
+from project.server.main.metrics import compute_precision_recall
+from project.server.main.my_elastic import MyElastic
 
 
 @pytest.fixture(scope='module')
