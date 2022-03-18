@@ -20,15 +20,10 @@ def get_last_grid_dump_url():
 
 
 def get_last_ror_dump_url():
-    soup = BeautifulSoup(requests.get(ROR_URL).text, 'lxml')
     try:
-        last_title = 'ror-2021'
-        last_date = ''
-        for elt in soup.find_all('div', {'role': 'rowheader'}):
-            elt_title = elt.get_text().strip()
-            if elt_title > last_title:
-                last_date = elt.find('a')['href'].split('/')[-1]
-        ror_dump_url = f'https://github.com/ror-community/ror-api/blob/master/rorapi/data/{last_date}/ror.zip?raw=true'
+        ROR_URL = 'https://zenodo.org/api/records/?communities=ror-data&sort=mostrecent'
+        response = requests.get(url=ROR_URL).json()
+        ror_dump_url = response['hits']['hits'][0]['files'][0]['links']['self']
         logger.debug(f'Last ROR dump url found: {ror_dump_url}')
     except:
         ror_dump_url = 'https://github.com/ror-community/ror-api/blob/master/rorapi/data/ror-2021-09-23/ror.zip?' \
@@ -49,7 +44,6 @@ ELASTICSEARCH_LOGIN = None
 ELASTICSEARCH_PASSWORD = None
 
 GRID_URL = 'https://www.grid.ac/downloads'
-ROR_URL = 'https://github.com/ror-community/ror-api/tree/master/rorapi/data'
 SCANR_DUMP_URL = 'https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/scanR/organizations.json'
 ZONE_EMPLOI_INSEE_DUMP = 'https://www.insee.fr/fr/statistiques/fichier/4652957/ZE2020_au_01-01-2021.zip'
 
