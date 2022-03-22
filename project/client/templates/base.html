@@ -8,7 +8,6 @@
     <meta content="width=device-width,initial-scale=1" name="viewport">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{url_for('static', filename='main.css')}}" media="screen" rel="stylesheet">
-    {% block css %}{% endblock %}
 </head>
 <body>
 <div class="container">
@@ -17,10 +16,12 @@
 <footer class="footer">
     <div class="container">
         <small>
-                    <span class="text-muted">
-                        ©
-                        <a href="http://scanr.enseignementsup-recherche.gouv.fr/" target="_blank">MESRI - scanR</a>
-                    </span>
+            <span class="float-right">
+                {% include 'version.html' %}
+            </span>
+            <span class="float-left">
+                <a href="https://barometredelascienceouverte.esr.gouv.fr/" target="_blank">MESRI - BSO</a>
+            </span>
         </small>
     </div>
 </footer>
@@ -28,6 +29,5 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="{{url_for('static', filename='main.js')}}" type="text/javascript"></script>
-{% block js %}{% endblock %}
 </body>
 </html>

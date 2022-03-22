@@ -10,7 +10,7 @@ unit:
 
 start:
 	@echo Matcher affiliation starting...
-	docker-compose up --build
+	docker-compose up -d
 	@echo Matcher affiliation started http://localhost:5004
 
 stop:
@@ -46,6 +46,7 @@ load:
 
 release:
 	echo "__version__ = '$(VERSION)'" > project/__init__.py
+	echo "$(VERSION)" > project/client/version.html
 	git commit -am '[release] version $(VERSION)'
 	git tag $(VERSION)
 	@echo If everything is OK, you can push with tags i.e. git push origin master --tags
