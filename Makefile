@@ -5,7 +5,7 @@ test: unit
 
 unit:
 	@echo Running unit tests...
-	APP_ENV=test python3 -m pytest
+	APP_ENV=test venv/bin/python -m pytest
 	@echo End of unit tests
 
 start:
@@ -36,7 +36,7 @@ docker-push:
 
 python-build:
 	@echo Building a python package
-	python3 setup.py sdist
+	venv/bin/python setup.py sdist
 	@echo Python package built
 
 load:

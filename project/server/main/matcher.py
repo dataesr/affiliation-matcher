@@ -14,7 +14,36 @@ def identity(x: str = '') -> str:
     return x
 
 
-def filter_submatching_results(res: dict) -> dict:
+def get_highlights_length_by_grid(highlights: dict) -> int:
+    values = list(highlights.values())
+    values_flat = [j for sub in values for i in sub for j in i]
+    all_highlights = ' '.join(values_flat)
+    return len(set(BeautifulSoup(all_highlights, 'lxml').find_all('em')))
+
+
+def filter_submatching_results_by_all(res: dict) -> dict:
+    highlights = res['highlights']
+    logs = res['logs']
+    results = res['results']
+    if len(results) == 0:
+        return res
+    ids_to_remove = []
+    matching_ids = list(highlights.keys())
+    # Create all combinaisons of 2 ids among the matching_ids
+    all_id_combinations = itertools.combinations(matching_ids, 2)
+    for (id1, id2) in all_id_combinations:
+        highlights_length_01 = get_highlights_length_by_grid(highlights=highlights[id1])
+        highlights_length_02 = get_highlights_length_by_grid(highlights=highlights[id2])
+        if highlights_length_01 < highlights_length_02:
+            ids_to_remove.append(id1)
+        elif highlights_length_02 < highlights_length_01:
+            ids_to_remove.append(id2)
+    new_results = [result for result in results if result not in ids_to_remove]
+    return {'highlights': {k: v for k, v in highlights.items() if k in new_results}, 'logs': logs,
+            'results': new_results}
+
+
+def filter_submatching_results_by_criterion(res: dict) -> dict:
     highlights = res['highlights']
     logs = res['logs']
     results = res['results']
@@ -123,7 +152,8 @@ class Matcher:
                     equivalent_strategies_results = post_treatment_results(equivalent_strategies_results, self.es,
                                                                            index_prefix)
                 final_res = {'results': equivalent_strategies_results, 'highlights': all_highlights, 'logs': logs}
-                final_res = filter_submatching_results(final_res)
+                final_res = filter_submatching_results_by_criterion(final_res)
+                final_res = filter_submatching_results_by_all(final_res)
                 for result in final_res['results']:
                     if method == 'grid':
                         logs += f' <a target="_blank" href="https://grid.ac/institutes/' \
@@ -137,7 +167,6 @@ class Matcher:
                                 f'{result}</a>'
                     else:
                         logs += f' {result}'
-                final_res['logs'] = logs
                 for matching_id in final_res['highlights']:
                     logs += f'<br/><hr>Explanation for {matching_id} :<br/>'
                     for matching_criteria in final_res['highlights'][matching_id]:

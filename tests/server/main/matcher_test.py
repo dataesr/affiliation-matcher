@@ -1,6 +1,6 @@
 import pytest
 
-from project.server.main.matcher import filter_submatching_results
+from project.server.main.matcher import filter_submatching_results_by_all, filter_submatching_results_by_criterion
 
 
 class TestMatcher:
@@ -28,8 +28,25 @@ class TestMatcher:
               'uk': {'grid_city': ['<em>York</em>'], 'grid_name': ['<em>University</em> of <em>York</em>']}},
              ['us', 'uk'], ['us'])
         ])
-    def test_filter_submatching_results(self, highlights, results, expected_results) -> None:
+    def test_filter_submatching_results_by_criterion(self, highlights, results, expected_results) -> None:
         res = {'highlights': highlights, 'logs': '', 'results': results}
-        results = filter_submatching_results(res=res)
+        results = filter_submatching_results_by_criterion(res=res)
         assert len(results['results']) == len(expected_results)
         assert results['results'][0] == expected_results[0]
+
+    @pytest.mark.parametrize(
+        'highlights,results,expected_results', [
+            ({'grid.1': {'grid_name': [['<em>Paris</em> <em>University</em>']],
+                         'grid_city': [['<em>Paris</em>']],
+                         'grid_country': [['<em>France</em>']]},
+              'grid.2': {'grid_name': [['<em>Sorbonne</em> <em>University</em>']],
+                         'grid_city': [['<em>Paris</em>']],
+                         'grid_country': [['<em>France</em>']]},
+              },
+             ['grid.1', 'grid.2'], ['grid.2'])
+        ])
+    def test_filter_submatching_results_by_all(self, highlights, results, expected_results) -> None:
+        res = {'highlights': highlights, 'logs': '', 'results': results}
+        results2 = filter_submatching_results_by_all(res=res)
+        assert len(results2['results']) == len(expected_results)
+        assert results2['results'][0] == expected_results[0]

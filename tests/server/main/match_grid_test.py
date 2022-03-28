@@ -35,20 +35,20 @@ class TestMatchGrid:
         assert grids == ['grid.489990.5']
 
     @pytest.mark.parametrize(
-        'query,strategies,expected_results,expected_logs', [
-            ('institut pasteur shanghai', [[['grid_name']]], ['grid.429007.8'], '')
+        'query,strategies,expected_results', [
+            ('institut pasteur shanghai', [[['grid_name']]], ['grid.429007.8']),
+            ('Semmelweis University Budapest Hungary', [[['grid_name', 'grid_city', 'grid_country']]], ['grid.11804.3c'])
         ]
     )
-    def test_match_grid(self, elasticsearch, query, strategies, expected_results, expected_logs) -> None:
+    def test_match_grid(self, elasticsearch, query, strategies, expected_results) -> None:
         args = {'index_prefix': elasticsearch['index_prefix'], 'verbose': True, 'strategies': strategies,
                 'query': query}
         response = match_grid(conditions=args)
         results = response['results']
         results.sort()
         assert results == expected_results
-        assert expected_logs in response['logs']
 
     def test_precision_recall(self, elasticsearch) -> None:
         precision_recall = compute_precision_recall(match_type='grid', index_prefix=elasticsearch['index_prefix'])
-        assert precision_recall['precision'] >= 0.87
-        assert precision_recall['recall'] >= 0.24
+        assert precision_recall['precision'] >= 0.91
+        assert precision_recall['recall'] >= 0.23
