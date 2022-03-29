@@ -24,8 +24,10 @@ def download_ror_data() -> list:
             file.write(chunk)
     with ZipFile(file=ror_downloaded_file, mode='r') as file:
         file.extractall(ror_unzipped_folder)
-    with open(f'{ror_unzipped_folder}/ror.json', 'r') as file:
-        data = json.load(file)
+    for data_file in os.listdir(ror_unzipped_folder):
+        if data_file.endswith('.json'):
+            with open(f'{ror_unzipped_folder}/{data_file}', 'r') as file:
+                data = json.load(file)
     os.remove(path=ror_downloaded_file)
     shutil.rmtree(path=ror_unzipped_folder)
     return data

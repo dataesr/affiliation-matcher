@@ -2,13 +2,13 @@ const matchApi = (request) => {
     request.url = '/match_api';
     request.method = 'POST';
     $.ajax(request)
-    .done(result => {
-        $('#logs').html(result.logs.replace(/\n/g, '<br />'));
-    })
-    .fail(error => {
-        console.log(error);
-        $('#error').text('Erreur rencontrée et logguée dans la console.');
-    });
+        .done(response => {
+            $('#logs').html(response.logs.replace(/\n/g, '<br />'));
+        })
+        .fail(error => {
+            console.log(error);
+            $('#error').text('Erreur rencontrée et logguée dans la console.');
+        });
 };
 
 $(document).ready(() => {

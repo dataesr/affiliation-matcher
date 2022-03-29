@@ -26,8 +26,7 @@ def get_last_ror_dump_url():
         ror_dump_url = response['hits']['hits'][0]['files'][0]['links']['self']
         logger.debug(f'Last ROR dump url found: {ror_dump_url}')
     except:
-        ror_dump_url = 'https://github.com/ror-community/ror-api/blob/master/rorapi/data/ror-2021-09-23/ror.zip?' \
-                       'raw=true'
+        ror_dump_url = 'https://zenodo.org/api/files/b3deada8-9485-45f9-a6e5-50c2a512b12d/v1.0-2022-03-17-ror-data.json.zip'
         logger.error(f'ROR dump url detection failed, using {ror_dump_url} instead')
     return ror_dump_url
 
