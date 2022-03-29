@@ -3,6 +3,11 @@ const matchApi = (request) => {
     request.method = 'POST';
     $.ajax(request)
         .done(response => {
+            content = '<h1>🎯 Résultats</h1>';
+            content += '<ul><li>';
+            content += response.results.join('</li><li>');
+            content += '</li></ul>';
+            $('#results').html(content);
             $('#logs').html(response.logs.replace(/\n/g, '<br />'));
         })
         .fail(error => {
