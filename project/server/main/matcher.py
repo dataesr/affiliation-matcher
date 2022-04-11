@@ -6,9 +6,11 @@ from project.server.main.elastic_utils import get_index_name
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import remove_stop
+from project.server.main.load_rnsr import get_siren
 
 logger = get_logger(__name__)
 
+correspondance = get_siren()
 
 def identity(x: str = '') -> str:
     return x
@@ -151,10 +153,16 @@ class Matcher:
                 if post_treatment_results:
                     equivalent_strategies_results = post_treatment_results(equivalent_strategies_results, self.es,
                                                                            index_prefix)
-                final_res = {'results': equivalent_strategies_results, 'highlights': all_highlights, 'logs': logs}
+                final_res = {'results': equivalent_strategies_results, 'highlights': all_highlights, 'logs': logs, 'other_ids': []}
                 final_res = filter_submatching_results_by_criterion(final_res)
                 final_res = filter_submatching_results_by_all(final_res)
+                other_ids = []
                 for result in final_res['results']:
+                    if result in correspondance:
+                        for e in correspondance[result]:
+                            if e not in other_ids:
+                                other_ids.append(e)
+                    final_res['other_ids'] = other_ids
                     if method == 'grid':
                         logs += f' <a target="_blank" href="https://grid.ac/institutes/' \
                                 f'{result}">{result}</a>'
@@ -176,7 +184,7 @@ class Matcher:
                     del final_res['logs']
                 return final_res
         logs += '<br/> No results found'
-        final_res = {'results': [], 'highlights': {}}
+        final_res = {'results': [], 'highlights': {}, 'other_ids': []}
         if verbose:
             final_res['logs'] = logs
         return final_res

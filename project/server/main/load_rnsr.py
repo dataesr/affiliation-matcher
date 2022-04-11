@@ -99,6 +99,30 @@ def download_rnsr_data() -> list:
     data = r.json()
     return data
 
+def get_siren():
+    correspondance = {}
+    raw_rnsrs = download_rnsr_data()
+    for r in raw_rnsrs:
+        current_id = None
+        for e in r.get('externalIds', []):
+            if e['type'] in ['rnsr', 'grid']:
+                current_id = e['id']
+                if current_id not in correspondance:
+                    correspondance[current_id] = []
+        if current_id is None:
+            continue
+
+        for e in r.get('externalIds', []):
+            if e not in correspondance[current_id]:
+                correspondance[current_id].append(e)
+
+        for e in r.get('institutions'):
+            if e.get('structure'):
+                elt = {'id': e['structure'], 'type': 'siren'}
+                if elt not in correspondance[current_id]:
+                    correspondance[current_id].append(elt)
+    logger.debug(f'{len(correspondance)} ids loaded with equivalent ids')
+    return correspondance
 
 def transform_rnsr_data(data: list) -> list:
     rnsrs = []
