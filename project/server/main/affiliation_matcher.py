@@ -50,11 +50,15 @@ def get_country(affiliation):
     return {'countries': countries, 'in_cache': in_cache}
 
 def get_matches(affiliation):
-    rnsrs = match_rnsr(conditions={'query': affiliation})['results']
-    grids = match_grid(conditions={'query': affiliation})['results']
+    rnsrs = match_rnsr(conditions={'query': affiliation})
+    grids = match_grid(conditions={'query': affiliation})
     results = []
-    results += [{'id': e, 'type': 'rnsr'} for e in rnsrs]
-    results += [{'id': e, 'type': 'grid'} for e in grids]
+    results += [{'id': e, 'type': 'rnsr'} for e in rnsrs['results']]
+    results += [{'id': e, 'type': 'grid'} for e in grids['results']]
+    other_ids = rnsrs['other_ids'] + grids['other_ids']
+    for r in other_ids:
+        if r['type'] in ['siren', 'siret'] and r not in results:
+            results.append(r)
     return results
 
 
