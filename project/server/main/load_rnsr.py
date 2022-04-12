@@ -113,7 +113,7 @@ def get_siren():
             continue
 
         for e in r.get('externalIds', []):
-            if e not in correspondance[current_id]:
+            if e not in correspondance[current_id] and e['type'] in ['siren', 'siret', 'sirene']:
                 correspondance[current_id].append(e)
 
         for e in r.get('institutions'):
