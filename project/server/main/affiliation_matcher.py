@@ -55,9 +55,19 @@ def get_matches(affiliation):
     results = []
     results += [{'id': e, 'type': 'rnsr'} for e in rnsrs['results']]
     results += [{'id': e, 'type': 'grid'} for e in grids['results']]
-    other_ids = rnsrs['other_ids'] + grids['other_ids']
+    other_ids = []
+    if 'other_ids' in rnsrs:
+        other_ids += rnsrs['other_ids']
+    else:
+        logger.debug('field other_id missing ?')
+        logger.debug(rnsrs)
+    if 'other_ids' in grids:
+        other_ids += grids['other_ids']
+    else:
+        logger.debug('field other_id missing ?')
+        logger.debug(grids)
     for r in other_ids:
-        if r['type'] in ['siren', 'siret'] and r not in results:
+        if r['type'] in ['siren', 'sirene', 'siret'] and r not in results:
             results.append(r)
     return results
 
