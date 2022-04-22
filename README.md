@@ -114,7 +114,7 @@ Here is a list of the 9 criteria available for the Grid matcher:
 
 ## Results
 
-| strategy | precision | recall |
+| repository | precision | recall |
 | ----- | ----- | ----- |
 | grid | 0.9157 | 0.2334 |
 | rnsr | 0.9856 | 0.7534 |
