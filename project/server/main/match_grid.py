@@ -1,5 +1,5 @@
 from project.server.main.matcher import Matcher
-from project.server.main.utils import ENGLISH_STOP, remove_ref_index
+from project.server.main.utils import ENGLISH_STOP, FRENCH_STOP, remove_ref_index
 
 DEFAULT_STRATEGIES = [
     [['grid_name', 'grid_acronym', 'grid_city', 'grid_country'],
@@ -10,7 +10,7 @@ DEFAULT_STRATEGIES = [
      ['grid_name', 'grid_acronym', 'grid_country_code']],
     [['grid_name', 'grid_city']]
 ]
-STOPWORDS_STRATEGIES = {'grid_name': ENGLISH_STOP}
+STOPWORDS_STRATEGIES = {'grid_name': ENGLISH_STOP + FRENCH_STOP}
 
 
 def get_ancestors(query: str, es, index_prefix: str) -> list:

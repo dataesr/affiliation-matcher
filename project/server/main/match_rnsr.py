@@ -1,7 +1,7 @@
 import re
 
 from project.server.main.matcher import Matcher
-from project.server.main.utils import remove_ref_index
+from project.server.main.utils import FRENCH_STOP, remove_ref_index
 
 DEFAULT_STRATEGIES = [
     [['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_zone_emploi'], ['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_city']],
@@ -26,6 +26,7 @@ DEFAULT_STRATEGIES = [
     [['rnsr_acronym', 'rnsr_city']]
 ]
 
+STOPWORDS_STRATEGIES = {'rnsr_name': FRENCH_STOP}
 
 # Done here rather than in synonym settings in ES as they seem to cause highlight bugs
 def pre_treatment_rnsr(query: str = '') -> str:
@@ -49,4 +50,5 @@ def match_rnsr(conditions: dict) -> dict:
         strategies = strategies_copy
     matcher = Matcher()
     return matcher.match(method='rnsr', conditions=conditions, strategies=strategies,
+                         stopwords_strategies=STOPWORDS_STRATEGIES,
                          pre_treatment_query=pre_treatment_rnsr)

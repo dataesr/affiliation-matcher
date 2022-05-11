@@ -7,7 +7,7 @@ from project.server.main.config import SCANR_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import download_insee_data, get_alpha2_from_french, get_tokens
+from project.server.main.utils import download_insee_data, get_alpha2_from_french, get_tokens, remove_stop, FRENCH_STOP
 
 logger = get_logger(__name__)
 
@@ -57,6 +57,8 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
                 logger.debug(f'This element {rnsr} has no {criterion}')
                 continue
             for criterion_value in criterion_values:
+                if criterion in ['name']:
+                    criterion_value = remove_stop(criterion_value, FRENCH_STOP)
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
                 es_data[criterion][criterion_value].append({'id': rnsr['id'], 'country_alpha2': rnsr['country_alpha2']})

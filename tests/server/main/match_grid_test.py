@@ -36,6 +36,8 @@ class TestMatchGrid:
 
     @pytest.mark.parametrize(
         'query,strategies,expected_results', [
+            ('université de rennes 2', [[['grid_name']]], ['grid.11619.3e']),
+            ('université de paris sorbonne', [[['grid_name']]], ['grid.462844.8']),
             ('institut pasteur shanghai', [[['grid_name']]], ['grid.429007.8']),
             ('Semmelweis University Budapest Hungary', [[['grid_name', 'grid_city', 'grid_country']]], ['grid.11804.3c'])
         ]

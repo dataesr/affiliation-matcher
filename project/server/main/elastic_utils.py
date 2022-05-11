@@ -18,23 +18,10 @@ def get_mappings(analyzer) -> dict:
 
 def get_filters() -> dict:
     return {
-        'french_stop': {
-            'type': 'stop',
-            'stopwords': '_french_'
-        },
-        'english_stop': {
-            'type': 'stop',
-            'stopwords': '_english_'
-        },
         'acronym_stop': {
             'type': 'stop',
             'ignore_case': True,
-            'stopwords': ['pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu']
-        },
-        'name_stop': {
-            'type': 'stop',
-            'ignore_case': True,
-            'stopwords': []
+            'stopwords': ['pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu', 'care', 'medecine']
         },
         'french_elision': {
             'type': 'elision',
@@ -137,8 +124,7 @@ def get_analyzers() -> dict:
             'filter': [
                 'lowercase',
                 'french_elision',
-                'icu_folding',
-                'length_min_2_char'
+                'icu_folding'
             ]
         },
         'code_analyzer': {
@@ -158,9 +144,6 @@ def get_analyzers() -> dict:
                 'lowercase',
                 'icu_folding',
                 'common_synonym',
-                'french_stop',
-                'english_stop',
-                'name_stop',
                 'linked_words',
                 'french_elision',
                 'french_stemmer'
@@ -172,8 +155,7 @@ def get_analyzers() -> dict:
                 'lowercase',
                 'icu_folding',
                 'common_synonym',
-                'english_stemmer',
-                'length_min_2_char'
+                'english_stemmer'
             ]
         }
     }

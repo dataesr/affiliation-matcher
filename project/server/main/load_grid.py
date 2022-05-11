@@ -11,7 +11,7 @@ from project.server.main.config import CHUNK_SIZE, GRID_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import get_tokens, remove_stop, ENGLISH_STOP
+from project.server.main.utils import get_tokens, remove_stop, ENGLISH_STOP, FRENCH_STOP
 
 logger = get_logger(__name__)
 SOURCE = 'grid'
@@ -66,7 +66,7 @@ def transform_grid_data(data: dict) -> list:
         names = list(set(names))
         names = list(filter(None, names))
         # Stop words is handled here as stop filter in ES keep track of positions even of removed stop words
-        formatted_data['name'] = [remove_stop(name, ENGLISH_STOP) for name in names]
+        formatted_data['name'] = [remove_stop(name, ENGLISH_STOP + FRENCH_STOP) for name in names]
         # Acronyms
         acronyms = grid.get('acronyms', [])
         acronyms = list(set(acronyms))
