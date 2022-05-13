@@ -5,7 +5,15 @@ def get_mappings(analyzer) -> dict:
                 'type': 'text',
                 'analyzer': analyzer
             },
-            'ids': {
+            'grids': {
+                'type': 'text',
+                'analyzer': 'keyword'
+            },
+            'rnsrs': {
+                'type': 'text',
+                'analyzer': 'keyword'
+            },
+            'rors': {
                 'type': 'text',
                 'analyzer': 'keyword'
             },

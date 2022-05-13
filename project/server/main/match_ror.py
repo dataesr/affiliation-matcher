@@ -1,5 +1,5 @@
 from project.server.main.matcher import Matcher
-from project.server.main.utils import ENGLISH_STOP, remove_ref_index
+from project.server.main.utils import ENGLISH_STOP, FRENCH_STOP, remove_ref_index
 
 DEFAULT_STRATEGIES = [
     [['ror_name', 'ror_acronym', 'ror_city', 'ror_country'],
@@ -10,7 +10,7 @@ DEFAULT_STRATEGIES = [
      ['ror_name', 'ror_acronym', 'ror_country_code']],
     [['ror_name', 'ror_city']]
 ]
-STOPWORDS_STRATEGIES = {'ror_name': ENGLISH_STOP}
+STOPWORDS_STRATEGIES = {'ror_name': ENGLISH_STOP + FRENCH_STOP}
 
 
 def match_ror(conditions: dict) -> dict:
@@ -20,6 +20,7 @@ def match_ror(conditions: dict) -> dict:
     matcher = Matcher()
     return matcher.match(
         method='ror',
+        field='rors',
         conditions=conditions,
         strategies=strategies,
         pre_treatment_query=remove_ref_index,

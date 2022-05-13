@@ -40,6 +40,7 @@ def match_grid(conditions: dict) -> dict:
     matcher = Matcher()
     return matcher.match(
         method='grid',
+        field='grids',
         conditions=conditions,
         strategies=strategies,
         pre_treatment_query=remove_ref_index,

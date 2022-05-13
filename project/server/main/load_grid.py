@@ -121,10 +121,12 @@ def transform_grid_data(data: dict) -> list:
         if len(formatted_data['country_code']) > 1:
             logger.debug(f'BEWARE: more than 1 country for {grid}. Only one is kept.')
         formatted_data['country_alpha2'] = formatted_data['country_code'][0]
-        # Add the cities from the first founded region
+        # Add the cities from the regions
         formatted_data['cities_by_region'] = []
-        if len(countries) > 0 and len(regions) > 0:
-            formatted_data['cities_by_region'] = cities_by_region.get(regions[0])
+        if regions:
+            for r in regions:
+                formatted_data['cities_by_region'] += cities_by_region.get(r, [])
+            formatted_data['cities_by_region'] = list(set(formatted_data['cities_by_region']))
         res.append(formatted_data)
     return res
 
@@ -184,9 +186,9 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
             if criterion in ['name']:
                 tokens = get_tokens(indices_client, analyzer, index, criterion_value)
                 if len(tokens) < 2:
-                    logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
+                    #logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
                     continue
-            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]],
+            action = {'_index': index, 'grids': [k['id'] for k in es_data[criterion][criterion_value]],
                       'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
             if criterion in criteria:
                 action['query'] = {'match_phrase': {'content': {'query': criterion_value,

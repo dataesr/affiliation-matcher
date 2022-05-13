@@ -75,7 +75,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
                 if len(tokens) < 2:
                     logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
                     continue
-            action = {'_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]],
+            action = {'_index': index, 'rnsrs': [k['id'] for k in es_data[criterion][criterion_value]],
                       'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
             if criterion in exact_criteria:
                 action['query'] = {

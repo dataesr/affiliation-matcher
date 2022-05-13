@@ -43,6 +43,14 @@ def clean(data: list) -> list:
     data = list(filter(None, data))
     return data
 
+def get_external_ids(external):
+    ids = []
+    for k in external:
+        if isinstance(external[k], list):
+            ids += external[k]
+        elif isinstance(external[k], str):
+            ids.append(external[k])
+    return list(set(ids))
 
 def transform_ror_data(rors: list) -> list:
     data = []
@@ -55,6 +63,10 @@ def transform_ror_data(rors: list) -> list:
         name = [ror.get('name')]
         name += ror.get('aliases', [])
         name += [label.get('label') for label in ror.get('labels', [])]
+        externals = ror.get('external_ids', [])
+        external_ids = {}
+        for ext_id in list(externals.keys()):
+            external_ids[ext_id.lower()+'s'] = get_external_ids(externals[ext_id])
         data.append({
             'acronym': clean(data=acronym),
             'city': clean(data=city),
@@ -92,6 +104,7 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
+    external_ids_label = []
     # Iterate over ror data
     for ror in rors:
         for criterion in criteria:
@@ -99,10 +112,15 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
-                es_data[criterion][criterion_value].append({
+                current_elt = { 
                     'id': ror.get('id'),
                     'country_code': ror.get('country_code')
-                })
+                }
+                for ext_id in ror.get('external_ids', {}):
+                    current_elt[ext_id] = ror['external_ids'][ext_id]
+                    if ext_id not in external_ids_label:
+                        external_ids_label.append(ext_id)
+                es_data[criterion][criterion_value].append(current_elt)
     # Bulk insert data into ES
     actions = []
     results = {}
@@ -113,9 +131,12 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         for criterion_value in es_data[criterion]:
             country_codes = [k.get('country_code', '') for k in es_data[criterion][criterion_value]]
             action = {
-                '_index': index, 'ids': [k['id'] for k in es_data[criterion][criterion_value]],
+                '_index': index,
+                'rors': [k['id'] for k in es_data[criterion][criterion_value]],
                 'country_alpha2': list(set([j for sub in country_codes for j in sub]))
             }
+            for ext_id in external_ids_label:
+                action[ext_id] = list(set([k[ext_id] for k in es_data[criterion][criterion_value]]))
             if criterion in criteria:
                 action['query'] = {'match_phrase': {'content': {'query': criterion_value,
                                                                 'analyzer': analyzer, 'slop': 0}}}
