@@ -16,65 +16,96 @@ def identity(x: str = '') -> str:
     return x
 
 
-def get_highlights_length_by_grid(highlights: dict) -> int:
-    values = list(highlights.values())
-    values_flat = [j for sub in values for i in sub for j in i]
-    all_highlights = ' '.join(values_flat)
-    return len(set(BeautifulSoup(all_highlights, 'lxml').find_all('em')))
+#def get_highlights_length_by_grid(highlights: dict) -> int:
+#    values = list(highlights.values())
+#    values_flat = [j for sub in values for i in sub for j in i]
+#    all_highlights = ' '.join(values_flat)
+#    return len(set(BeautifulSoup(all_highlights, 'lxml').find_all('em')))
 
-
-def filter_submatching_results_by_all(res: dict) -> dict:
-    highlights = res['highlights']
-    logs = res['logs']
-    results = res['results']
-    if len(results) == 0:
-        return res
-    ids_to_remove = []
-    matching_ids = list(highlights.keys())
-    # Create all combinaisons of 2 ids among the matching_ids
-    all_id_combinations = itertools.combinations(matching_ids, 2)
-    for (id1, id2) in all_id_combinations:
-        highlights_length_01 = get_highlights_length_by_grid(highlights=highlights[id1])
-        highlights_length_02 = get_highlights_length_by_grid(highlights=highlights[id2])
-        if highlights_length_01 < highlights_length_02:
-            ids_to_remove.append(id1)
-        elif highlights_length_02 < highlights_length_01:
-            ids_to_remove.append(id2)
-    new_results = [result for result in results if result not in ids_to_remove]
-    return {'highlights': {k: v for k, v in highlights.items() if k in new_results}, 'logs': logs,
-            'results': new_results}
-
+def get_highlights_length_by_match(highlights: dict):
+    criteria_per_token = {}
+    nb_criteria_per_token = {}
+    for criterion in highlights:
+        values = highlights[criterion]
+        all_highlights = values[0][0]
+        matching_tokens = list(set(BeautifulSoup(all_highlights, 'lxml').find_all('em')))
+        for m in matching_tokens:
+            current_token = m.get_text()
+            if current_token not in criteria_per_token:
+                criteria_per_token[current_token] = []
+            criteria_per_token[current_token].append(criterion)
+    for current_token in criteria_per_token:
+        criteria_per_token[current_token] = list(set(criteria_per_token[current_token]))
+        nb_criteria_per_token[current_token] = len(criteria_per_token[current_token])
+    max_nb_criteria = max(list(nb_criteria_per_token.values()))
+    min_nb_criteria = min(list(nb_criteria_per_token.values()))
+    return {'max': max_nb_criteria, 'min': min_nb_criteria,
+            'token_with_max':[{t:criteria_per_token[t]} for t in nb_criteria_per_token if nb_criteria_per_token[t] == max_nb_criteria]}
 
 def filter_submatching_results_by_criterion(res: dict) -> dict:
-    highlights = res['highlights']
     logs = res['logs']
     results = res['results']
     if len(results) == 0:
         return res
     ids_to_remove = []
-    matching_ids = list(highlights.keys())
-    # Create all combinaisons of 2 ids among the matching_ids
-    all_id_combinations = itertools.combinations(matching_ids, 2)
-    criteria_01 = highlights[matching_ids[0]].keys()
-    criteria_02 = highlights[matching_ids[1]].keys() if len(matching_ids) > 1 else []
-    criteria = list(set(list(criteria_01) + list(criteria_02)))
-    for (id1, id2) in all_id_combinations:
-        is_inf_or_equal_1, is_inf_or_equal_2, is_strict_inf_1, is_strict_inf_2 = True, True, False, False
-        for criterion in criteria:
-            matching_elements_1 = set(BeautifulSoup(str(highlights[id1].get(criterion, '')), 'lxml').find_all('em'))
-            matching_elements_2 = set(BeautifulSoup(str(highlights[id2].get(criterion, '')), 'lxml').find_all('em'))
-            is_inf_or_equal_1 = is_inf_or_equal_1 and matching_elements_1 <= matching_elements_2
-            is_inf_or_equal_2 = is_inf_or_equal_2 and matching_elements_2 <= matching_elements_1
-            is_strict_inf_1 = is_strict_inf_1 or matching_elements_1 < matching_elements_2
-            is_strict_inf_2 = is_strict_inf_2 or matching_elements_2 < matching_elements_1
-        if is_inf_or_equal_1 and is_strict_inf_1:
-            ids_to_remove.append(id1)
-        if is_inf_or_equal_2 and is_strict_inf_2:
-            ids_to_remove.append(id2)
+    for strategy in res['highlights']:
+        highlights = res['highlights'][strategy]
+        matching_ids = list(highlights.keys())
+        # Create all combinaisons of 2 ids among the matching_ids
+        all_id_combinations = itertools.combinations(matching_ids, 2)
+        criteria_01 = highlights[matching_ids[0]].keys()
+        criteria_02 = highlights[matching_ids[1]].keys() if len(matching_ids) > 1 else []
+        criteria = list(set(list(criteria_01) + list(criteria_02)))
+        for (id1, id2) in all_id_combinations:
+            is_inf_or_equal_1, is_inf_or_equal_2, is_strict_inf_1, is_strict_inf_2 = True, True, False, False
+            for criterion in criteria:
+                matching_elements_1 = set(BeautifulSoup(str(highlights[id1].get(criterion, '')), 'lxml').find_all('em'))
+                matching_elements_2 = set(BeautifulSoup(str(highlights[id2].get(criterion, '')), 'lxml').find_all('em'))
+                is_inf_or_equal_1 = is_inf_or_equal_1 and matching_elements_1 <= matching_elements_2
+                is_inf_or_equal_2 = is_inf_or_equal_2 and matching_elements_2 <= matching_elements_1
+                is_strict_inf_1 = is_strict_inf_1 or matching_elements_1 < matching_elements_2
+                is_strict_inf_2 = is_strict_inf_2 or matching_elements_2 < matching_elements_1
+            if is_inf_or_equal_1 and is_strict_inf_1:
+                ids_to_remove.append(id1)
+            if is_inf_or_equal_2 and is_strict_inf_2:
+                ids_to_remove.append(id2)
     new_results = [result for result in results if result not in ids_to_remove]
-    return {'highlights': {k: v for k, v in highlights.items() if k in new_results}, 'logs': logs,
+    new_highlights = {}
+    for strategy in res['highlights']:
+        current_highlights = res['highlights'][strategy]
+        new_highlights[strategy] = {k: v for k, v in current_highlights.items() if k in new_results}
+    return {'highlights': new_highlights, 'logs': logs,
             'results': new_results}
-
+    
+def filter_submatching_results_by_all(res: dict) -> dict:
+    logs = res['logs']
+    results = res['results']
+    if len(results) == 0:
+        return res
+    ids_to_remove = []
+    for strategy in res['highlights']:
+        highlights = res['highlights'][strategy]
+        matching_ids = list(highlights.keys())
+        # Create all combinaisons of 2 ids among the matching_ids
+        all_id_combinations = itertools.combinations(matching_ids, 2)
+        for (id1, id2) in all_id_combinations:
+            highlights_length_01 = get_highlights_length_by_match(highlights=highlights[id1])
+            highlights_length_02 = get_highlights_length_by_match(highlights=highlights[id2])
+            max_1 = highlights_length_01['max']
+            max_2 = highlights_length_02['max']
+            if max_1 > max_2:
+                logs += f"<br>remove id1 {id1} because {highlights_length_02} better than {highlights_length_01}"
+                ids_to_remove.append(id1)
+            elif max_2 > max_1:
+                logs += f"<br>remove id1 {id2} because {highlights_length_01} better than {highlights_length_02}"
+                ids_to_remove.append(id2)
+    new_results = [result for result in results if result not in ids_to_remove]
+    new_highlights = {}
+    for strategy in res['highlights']:
+        current_highlights = res['highlights'][strategy]
+        new_highlights[strategy] = {k: v for k, v in current_highlights.items() if k in new_results}
+    return {'highlights': new_highlights, 'logs': logs,
+            'results': new_results}
 
 class Matcher:
     def __init__(self) -> None:
@@ -115,7 +146,10 @@ class Matcher:
                     }
                     index = get_index_name(index_name=criterion, source='', index_prefix=index_prefix)
                     hits = self.es.search(index=index, body=body).get('hits', []).get('hits', [])
-                    all_hits[criterion] = hits
+                    strategy_label = ';'.join(strategy)
+                    if strategy_label not in all_hits:
+                        all_hits[strategy_label] = {}
+                    all_hits[strategy_label][criterion] = hits
                     criteria_results = [hit.get('_source', {}).get(field) for hit in hits]
                     criteria_results = [item for sublist in criteria_results for item in sublist]
                     criteria_results = list(set(criteria_results))
@@ -139,23 +173,26 @@ class Matcher:
             all_highlights = {}
             if len(equivalent_strategies_results) > 0:
                 logs += '<hr>Results: '
-                for matching_criteria in all_hits:
-                    for hit in all_hits[matching_criteria]:
-                        matching_ids = list(set(hit['_source'][field]) & set(equivalent_strategies_results))
-                        for matching_id in matching_ids:
-                            if matching_id not in all_highlights:
-                                all_highlights[matching_id] = {}
-                            if matching_criteria not in all_highlights[matching_id]:
-                                all_highlights[matching_id][matching_criteria] = []
-                            current_highlight = hit.get('highlight', {}).get('content', [])
-                            if current_highlight not in all_highlights[matching_id][matching_criteria]:
-                                all_highlights[matching_id][matching_criteria].append(current_highlight)
+                for strategy in all_hits:
+                    all_highlights[strategy] = {}
+                    for matching_criteria in all_hits[strategy]:
+                        for hit in all_hits[strategy][matching_criteria]:
+                            matching_ids = list(set(hit['_source'][field]) & set(equivalent_strategies_results))
+                            for matching_id in matching_ids:
+                                if matching_id not in all_highlights[strategy]:
+                                    all_highlights[strategy][matching_id] = {}
+                                if matching_criteria not in all_highlights[strategy][matching_id]:
+                                    all_highlights[strategy][matching_id][matching_criteria] = []
+                                current_highlight = hit.get('highlight', {}).get('content', [])
+                                if current_highlight not in all_highlights[strategy][matching_id][matching_criteria]:
+                                    all_highlights[strategy][matching_id][matching_criteria].append(current_highlight)
                 if post_treatment_results:
                     equivalent_strategies_results = post_treatment_results(equivalent_strategies_results, self.es,
                                                                            index_prefix)
                 final_res = {'results': equivalent_strategies_results, 'highlights': all_highlights, 'logs': logs, 'other_ids': []}
                 final_res = filter_submatching_results_by_criterion(final_res)
                 final_res = filter_submatching_results_by_all(final_res)
+                logs = final_res['logs']
                 other_ids = []
                 for result in final_res['results']:
                     if result in correspondance:

@@ -29,7 +29,7 @@ def get_filters() -> dict:
         'acronym_stop': {
             'type': 'stop',
             'ignore_case': True,
-            'stopwords': ['pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu', 'care', 'medecine']
+            'stopwords': ['pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu', 'care', 'medecine', 'unite']
         },
         'french_elision': {
             'type': 'elision',

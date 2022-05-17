@@ -32,6 +32,8 @@ class TestMatchCountry:
              ['lb', 'us'], 'grid_city'),
             ('Department of Medical Genetics, Hotel Dieu de France, Beirut, Lebanon.',
              [[['grid_city', 'grid_name', 'country_name']]], ['lb'], 'strategy'),
+            ('University Nottingham, Chair, Nomenclature and Standards Committee International Union Basic Clinical Pharmacology (NC-IUPHAR)',
+             [[['grid_name', 'grid_cities_by_region']]], ['gb'], 'strategy'),
             # Even if city is not unknown, the university name should match the associated country
             ('Université de technologie de Troyes', [[['grid_name']]], ['fr'], 'grid_name')
         ])

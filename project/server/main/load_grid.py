@@ -16,6 +16,7 @@ from project.server.main.utils import get_tokens, remove_stop, ENGLISH_STOP, FRE
 logger = get_logger(__name__)
 SOURCE = 'grid'
 
+IGNORED_GEO = ['union']
 
 def download_grid_data() -> dict:
     grid_downloaded_file = 'grid_data_dump.zip'
@@ -109,9 +110,9 @@ def transform_grid_data(data: dict) -> list:
         cities = list(set(cities))
         formatted_data['country'] = list(filter(None, countries))
         formatted_data['country_code'] = list(filter(None, country_codes))
-        formatted_data['region'] = list(filter(None, regions))
-        formatted_data['department'] = list(filter(None, departments))
-        formatted_data['city'] = list(filter(None, cities))
+        formatted_data['region'] = [k for k in list(filter(None, regions)) if k.lower() not in IGNORED_GEO]
+        formatted_data['department'] = [k for k in list(filter(None, departments)) if k.lower() not in IGNORED_GEO]
+        formatted_data['city'] = [k for k in list(filter(None, cities)) if k.lower() not in IGNORED_GEO]
         # Parents
         relationships = grid.get('relationships', [])
         formatted_data['parent'] = [relationship.get('id') for relationship in relationships if
@@ -126,7 +127,7 @@ def transform_grid_data(data: dict) -> list:
         if regions:
             for r in regions:
                 formatted_data['cities_by_region'] += cities_by_region.get(r, [])
-            formatted_data['cities_by_region'] = list(set(formatted_data['cities_by_region']))
+            formatted_data['cities_by_region'] = [k for k in list(set(formatted_data['cities_by_region'])) if k and (k.lower() not in IGNORED_GEO)]
         res.append(formatted_data)
     return res
 

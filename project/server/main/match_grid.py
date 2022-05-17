@@ -2,13 +2,25 @@ from project.server.main.matcher import Matcher
 from project.server.main.utils import ENGLISH_STOP, FRENCH_STOP, remove_ref_index
 
 DEFAULT_STRATEGIES = [
-    [['grid_name', 'grid_acronym', 'grid_city', 'grid_country'],
-     ['grid_name', 'grid_acronym', 'grid_city', 'grid_country_code']],
-    [['grid_name', 'grid_city', 'grid_country'], ['grid_name', 'grid_city', 'grid_country_code']],
-    [['grid_acronym', 'grid_city', 'grid_country'], ['grid_acronym', 'grid_city', 'grid_country_code']],
-    [['grid_name', 'grid_acronym', 'grid_city'], ['grid_name', 'grid_acronym', 'grid_country'],
+    #[['grid_name', 'grid_acronym', 'grid_city', 'grid_country'],
+    # ['grid_name', 'grid_acronym', 'grid_city', 'grid_country_code']],
+    #[['grid_name', 'grid_city', 'grid_country'], ['grid_name', 'grid_city', 'grid_country_code']],
+    #[['grid_acronym', 'grid_city', 'grid_country'], ['grid_acronym', 'grid_city', 'grid_country_code']],
+    #[['grid_name', 'grid_acronym', 'grid_city'], ['grid_name', 'grid_acronym', 'grid_country'],
+    # ['grid_name', 'grid_acronym', 'grid_country_code']],
+    #[['grid_name', 'grid_city']],
+    # group 1
+    [['grid_name', 'grid_acronym', 'grid_cities_by_region', 'grid_country'],
+     ['grid_name', 'grid_acronym', 'grid_cities_by_region', 'grid_country_code']],
+    # group 2
+    [['grid_name', 'grid_cities_by_region', 'grid_country'], ['grid_name', 'grid_cities_by_region', 'grid_country_code']],
+    # group 3
+    [['grid_acronym', 'grid_cities_by_region', 'grid_country'], ['grid_acronym', 'grid_cities_by_region', 'grid_country_code']],
+    # group 4
+    [['grid_name', 'grid_acronym', 'grid_cities_by_region'], ['grid_name', 'grid_acronym', 'grid_country'],
      ['grid_name', 'grid_acronym', 'grid_country_code']],
-    [['grid_name', 'grid_city']]
+    # group 5
+    [['grid_name', 'grid_cities_by_region']],
 ]
 STOPWORDS_STRATEGIES = {'grid_name': ENGLISH_STOP + FRENCH_STOP}
 
