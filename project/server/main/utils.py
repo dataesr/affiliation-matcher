@@ -21,6 +21,10 @@ def remove_stop(text: str, stopwords: list) -> str:
     pattern = re.compile(r'\b(' + r'|'.join(stopwords) + r')\b\s*', re.IGNORECASE)
     return pattern.sub('', text)
 
+def remove_parenthesis(x):
+    if isinstance(x, str):
+        return re.sub("[\(\[].*?[\)\]]", "", x)
+    return x
 
 def chunks(lst: list, n: int) -> list:
     """Yield successive n-sized chunks from list."""

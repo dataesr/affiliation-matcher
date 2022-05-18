@@ -11,14 +11,14 @@ from project.server.main.config import CHUNK_SIZE, GRID_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import get_tokens, remove_stop, ENGLISH_STOP, FRENCH_STOP
+from project.server.main.utils import get_tokens, remove_stop, remove_parenthesis, ENGLISH_STOP, FRENCH_STOP
 
 logger = get_logger(__name__)
 SOURCE = 'grid'
 
 IGNORED_GEO = ['union']
 
-def download_grid_data() -> dict:
+def download_data() -> dict:
     grid_downloaded_file = 'grid_data_dump.zip'
     grid_unzipped_folder = mkdtemp()
     response = requests.get(url=GRID_DUMP_URL, stream=True)
@@ -66,6 +66,7 @@ def transform_grid_data(data: dict) -> list:
         names += [label.get('label') for label in grid.get('labels', [])]
         names = list(set(names))
         names = list(filter(None, names))
+        names = [remove_parenthesis(n) for n in names]
         # Stop words is handled here as stop filter in ES keep track of positions even of removed stop words
         formatted_data['name'] = [remove_stop(name, ENGLISH_STOP + FRENCH_STOP) for name in names]
         # Acronyms
@@ -163,7 +164,7 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
-    raw_grids = download_grid_data()
+    raw_grids = download_data()
     grids = transform_grid_data(raw_grids)
     # Iterate over grid data
     for grid in grids:

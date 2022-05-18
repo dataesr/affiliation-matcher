@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 SOURCE = 'ror'
 
 
-def download_ror_data() -> list:
+def download_data() -> list:
     ror_downloaded_file = 'ror_data_dump.zip'
     ror_unzipped_folder = mkdtemp()
     response = requests.get(url=ROR_DUMP_URL, stream=True)
@@ -79,7 +79,7 @@ def transform_ror_data(rors: list) -> list:
 
 
 def load_ror(index_prefix: str = 'matcher') -> dict:
-    rors = download_ror_data()
+    rors = download_data()
     rors = transform_ror_data(rors=rors)
     # Init ES
     es_data = {}
