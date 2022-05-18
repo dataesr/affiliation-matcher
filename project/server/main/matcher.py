@@ -27,7 +27,7 @@ def get_highlights_length_by_match(highlights: dict):
     nb_criteria_per_token = {}
     for criterion in highlights:
         values = highlights[criterion]
-        all_highlights = values[0][0]
+        all_highlights = ' '.join(values[0])
         matching_tokens = list(set(BeautifulSoup(all_highlights, 'lxml').find_all('em')))
         for m in matching_tokens:
             current_token = m.get_text()
@@ -66,8 +66,10 @@ def filter_submatching_results_by_criterion(res: dict) -> dict:
                 is_strict_inf_1 = is_strict_inf_1 or matching_elements_1 < matching_elements_2
                 is_strict_inf_2 = is_strict_inf_2 or matching_elements_2 < matching_elements_1
             if is_inf_or_equal_1 and is_strict_inf_1:
+                logs += f"<br>remove id1 {id1} because {matching_elements_2} better than {matching_elements_1}"
                 ids_to_remove.append(id1)
             if is_inf_or_equal_2 and is_strict_inf_2:
+                logs += f"<br>remove id2 {id2} because {matching_elements_1} better than {matching_elements_2}"
                 ids_to_remove.append(id2)
     new_results = [result for result in results if result not in ids_to_remove]
     new_highlights = {}
@@ -172,7 +174,6 @@ class Matcher:
             # Strategies stopped as soon as a first result is met for an equivalent_strategies
             all_highlights = {}
             if len(equivalent_strategies_results) > 0:
-                logs += '<hr>Results: '
                 for strategy in all_hits:
                     all_highlights[strategy] = {}
                     for matching_criteria in all_hits[strategy]:
@@ -194,6 +195,7 @@ class Matcher:
                 final_res = filter_submatching_results_by_all(final_res)
                 logs = final_res['logs']
                 other_ids = []
+                logs += '<br><hr>Results: '
                 for result in final_res['results']:
                     if result in correspondance:
                         for e in correspondance[result]:
