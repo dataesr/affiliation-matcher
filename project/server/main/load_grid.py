@@ -11,12 +11,10 @@ from project.server.main.config import CHUNK_SIZE, GRID_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import get_tokens, remove_stop, remove_parenthesis, ENGLISH_STOP, FRENCH_STOP
+from project.server.main.utils import get_tokens, clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED
 
 logger = get_logger(__name__)
 SOURCE = 'grid'
-
-IGNORED_GEO = ['union']
 
 def download_data() -> dict:
     grid_downloaded_file = 'grid_data_dump.zip'
@@ -34,7 +32,7 @@ def download_data() -> dict:
     return data
 
 
-def transform_grid_data(data: dict) -> list:
+def transform_data(data: dict) -> list:
     grids = data.get('institutes', [])
     res = []
     # Create a geonames dictionnary about the cities by region
@@ -64,15 +62,11 @@ def transform_grid_data(data: dict) -> list:
         names = [grid.get('name')]
         names += grid.get('aliases', [])
         names += [label.get('label') for label in grid.get('labels', [])]
-        names = list(set(names))
-        names = list(filter(None, names))
-        names = [remove_parenthesis(n) for n in names]
         # Stop words is handled here as stop filter in ES keep track of positions even of removed stop words
-        formatted_data['name'] = [remove_stop(name, ENGLISH_STOP + FRENCH_STOP) for name in names]
+        formatted_data['name'] = clean_list(data = names, stopwords = ENGLISH_STOP+FRENCH_STOP)
         # Acronyms
         acronyms = grid.get('acronyms', [])
-        acronyms = list(set(acronyms))
-        formatted_data['acronym'] = list(filter(None, acronyms))
+        formatted_data['acronym'] = clean_list(data = acronyms, ignored = ACRONYM_IGNORED)
         # Countries, country_codes, regions, departments and cities
         countries, country_codes, regions, departments, cities = [], [], [], [], []
         for address in grid.get('addresses', []):
@@ -104,16 +98,11 @@ def transform_grid_data(data: dict) -> list:
             countries.append('UK')
         elif 'United States' in countries:
             countries.append('USA')
-        countries = list(set(countries))
-        country_codes = list(set(country_codes))
-        regions = list(set(regions))
-        departments = list(set(departments))
-        cities = list(set(cities))
-        formatted_data['country'] = list(filter(None, countries))
-        formatted_data['country_code'] = list(filter(None, country_codes))
-        formatted_data['region'] = [k for k in list(filter(None, regions)) if k.lower() not in IGNORED_GEO]
-        formatted_data['department'] = [k for k in list(filter(None, departments)) if k.lower() not in IGNORED_GEO]
-        formatted_data['city'] = [k for k in list(filter(None, cities)) if k.lower() not in IGNORED_GEO]
+        formatted_data['country'] = clean_list(data = countries)
+        formatted_data['country_code'] = clean_list(data = country_codes)
+        formatted_data['region'] = clean_list(data = regions, ignored = GEO_IGNORED)
+        formatted_data['department'] = clean_list(data = departments, ignored = GEO_IGNORED)
+        formatted_data['city'] = clean_list(data = cities, ignored = GEO_IGNORED)
         # Parents
         relationships = grid.get('relationships', [])
         formatted_data['parent'] = [relationship.get('id') for relationship in relationships if
@@ -128,12 +117,15 @@ def transform_grid_data(data: dict) -> list:
         if regions:
             for r in regions:
                 formatted_data['cities_by_region'] += cities_by_region.get(r, [])
-            formatted_data['cities_by_region'] = [k for k in list(set(formatted_data['cities_by_region'])) if k and (k.lower() not in IGNORED_GEO)]
+            formatted_data['cities_by_region'] = clean_list(data = formatted_data['cities_by_region'], ignored=GEO_IGNORED)
         res.append(formatted_data)
     return res
 
 
 def load_grid(index_prefix: str = 'matcher') -> dict:
+    raw_data = download_data()
+    transformed_data = transform_data(raw_data)
+    
     es = MyElastic()
     indices_client = IndicesClient(es)
     settings = {
@@ -143,9 +135,8 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['acronym', 'cities_by_region', 'city', 'country',
-                      'country_code', 'department', 'parent', 'region']
-    txt_criteria = ['name']
+    criteria = ['acronym', 'cities_by_region', 'city', 'country',
+                      'country_code', 'department', 'parent', 'region', 'name']
     analyzers = {
         'acronym': 'acronym_analyzer',
         'cities_by_region': 'light',
@@ -157,26 +148,23 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
         'parent': 'light',
         'region': 'light',
     }
-    criteria = exact_criteria + txt_criteria
     es_data = {}
     for criterion in criteria:
         index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
-    raw_grids = download_data()
-    grids = transform_grid_data(raw_grids)
     # Iterate over grid data
-    for grid in grids:
+    for data_point in transformed_data:
         for criterion in criteria:
-            criterion_values = grid.get(criterion)
+            criterion_values = data_point.get(criterion)
             if criterion_values is None:
-                logger.debug(f'This element {grid} has no {criterion}')
+                logger.debug(f'This element {data_point} has no {criterion}')
                 continue
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
-                es_data[criterion][criterion_value].append({'id': grid['id'], 'country_alpha2': grid['country_alpha2']})
+                es_data[criterion][criterion_value].append({'id': data_point['id'], 'country_alpha2': data_point['country_alpha2']})
     # Bulk insert data into ES
     actions = []
     results = {}
@@ -192,11 +180,8 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
                     continue
             action = {'_index': index, 'grids': [k['id'] for k in es_data[criterion][criterion_value]],
                       'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
-            if criterion in criteria:
-                action['query'] = {'match_phrase': {'content': {'query': criterion_value,
+            action['query'] = {'match_phrase': {'content': {'query': criterion_value,
                                                                 'analyzer': analyzer, 'slop': 0}}}
-            # Do not add "USA" as grid acronym in order to not mix it together with the country alpha3
-            if criterion != 'acronym' or criterion_value != 'USA':
-                actions.append(action)
+            actions.append(action)
     es.parallel_bulk(actions=actions)
     return results

@@ -17,6 +17,10 @@ ENGLISH_STOP = ['a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', '
 
 FRENCH_STOP = ["au","aux","avec","ce","ces","dans","de","des","du","elle","en","et","eux","il","je","la","le","leur","lui","ma","mais","me","même","mes","moi","mon","ne","nos","notre","nous","on","ou","par","pas","pour","qu","que","qui","sa","se","ses","sur","ta","te","tes","toi","ton","tu","un","une","vos","votre","vous","c","d","j","l","à","m","n","s","t","y","étée","étées","étant","suis","es","êtes","sont","serai","seras","sera","serons","serez","seront","serais","serait","serions","seriez","seraient","étais","était","étions","étiez","étaient","fus","fut","fûmes","fûtes","furent","sois","soit","soyons","soyez","soient","fusse","fusses","fussions","fussiez","fussent","ayant","eu","eue","eues","eus","ai","avons","avez","ont","aurai","aurons","aurez","auront","aurais","aurait","aurions","auriez","auraient","avais","avait","aviez","avaient","eut","eûmes","eûtes","eurent","aie","aies","ait","ayons","ayez","aient","eusse","eusses","eût","eussions","eussiez","eussent","ceci","cela","celà","cet","cette","ici","ils","les","leurs","quel","quels","quelle","quelles","sans","soi"]
 
+GEO_IGNORED = ['union']
+
+ACRONYM_IGNORED = ['usa']
+
 def remove_stop(text: str, stopwords: list) -> str:
     pattern = re.compile(r'\b(' + r'|'.join(stopwords) + r')\b\s*', re.IGNORECASE)
     return pattern.sub('', text)
@@ -25,6 +29,22 @@ def remove_parenthesis(x):
     if isinstance(x, str):
         return re.sub("[\(\[].*?[\)\]]", "", x)
     return x
+
+def clean_list(data: list, stopwords = [], ignored = [], remove_inside_parenthesis = True) -> list:
+    # Cast data into list if needed
+    if not isinstance(data, list):
+        data = [data]
+    data = list(filter(None, data))
+    # Remove duplicates
+    data = [k for k in list(set(data)) if k and isinstance(k, str)]
+    for ix, e in enumerate(data):
+        if remove_inside_parenthesis:
+            e = remove_parenthesis(e)
+        if stopwords:
+            e = remove_stop(e, stopwords)
+        data[ix] = e
+    data = [k for k in data if k.lower() not in ignored]
+    return data
 
 def chunks(lst: list, n: int) -> list:
     """Yield successive n-sized chunks from list."""
