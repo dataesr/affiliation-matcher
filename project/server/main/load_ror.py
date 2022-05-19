@@ -10,7 +10,7 @@ from project.server.main.config import CHUNK_SIZE, ROR_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import get_tokens, clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED
+from project.server.main.utils import clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED
 
 logger = get_logger(__name__)
 SOURCE = 'ror'
@@ -32,8 +32,6 @@ def download_data() -> list:
     os.remove(path=ror_downloaded_file)
     shutil.rmtree(path=ror_unzipped_folder)
     return data
-
-
 
 def get_external_ids(external):
     ids = []
@@ -66,7 +64,7 @@ def transform_data(rors: list) -> list:
             'country': clean_list(data=country),
             'country_code': countries_code,
             'id': current_id,
-            'name': clean_list(data=name, stopwords=FRENCH_STOP+ENGLISH_STOP ),
+            'name': clean_list(data=name, stopwords=FRENCH_STOP+ENGLISH_STOP, min_token = 2),
         }
         if countries_code:
             current_data['country_alpha2'] = countries_code[0]

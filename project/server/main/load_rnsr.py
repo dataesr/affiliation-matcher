@@ -7,7 +7,7 @@ from project.server.main.config import SCANR_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import download_insee_data, get_alpha2_from_french, get_tokens, remove_stop, FRENCH_STOP
+from project.server.main.utils import download_insee_data, get_alpha2_from_french, FRENCH_STOP, clean_list, ACRONYM_IGNORED
 
 logger = get_logger(__name__)
 
@@ -47,21 +47,19 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
-    raw_rnsrs = download_rnsr_data()
-    rnsrs = transform_rnsr_data(raw_rnsrs)
+    raw_data = download_data()
+    transformed_data = transform_data(raw_data)
     # Iterate over rnsr data
-    for rnsr in rnsrs:
+    for data_point in transformed_data:
         for criterion in criteria:
-            criterion_values = rnsr.get(criterion.replace('_txt', ''))
+            criterion_values = data_point.get(criterion.replace('_txt', ''))
             if criterion_values is None:
-                logger.debug(f'This element {rnsr} has no {criterion}')
+                logger.debug(f'This element {data_point} has no {criterion}')
                 continue
             for criterion_value in criterion_values:
-                if criterion in ['name']:
-                    criterion_value = remove_stop(criterion_value, FRENCH_STOP)
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
-                es_data[criterion][criterion_value].append({'id': rnsr['id'], 'country_alpha2': rnsr['country_alpha2']})
+                es_data[criterion][criterion_value].append({'id': data_point['id'], 'country_alpha2': data_point['country_alpha2']})
     # Bulk insert data into ES
     actions = []
     results = {}
@@ -70,11 +68,11 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            if criterion in ['name']:
-                tokens = get_tokens(indices_client, analyzer, index, criterion_value)
-                if len(tokens) < 2:
-                    logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
-                    continue
+            #if criterion in ['name']:
+            #    tokens = get_tokens(indices_client, analyzer, index, criterion_value)
+            #    if len(tokens) < 2:
+            #        logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
+            #        continue
             action = {'_index': index, 'rnsrs': [k['id'] for k in es_data[criterion][criterion_value]],
                       'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
             if criterion in exact_criteria:
@@ -96,14 +94,14 @@ def get_values(x: dict) -> list:
     return list(set(x.values()))
 
 
-def download_rnsr_data() -> list:
+def download_data() -> list:
     r = requests.get(SCANR_DUMP_URL)
     data = r.json()
     return data
 
 def get_siren():
     correspondance = {}
-    raw_rnsrs = download_rnsr_data()
+    raw_rnsrs = download_data()
     for r in raw_rnsrs:
         current_id = None
         for e in r.get('externalIds', []):
@@ -126,7 +124,7 @@ def get_siren():
     logger.debug(f'{len(correspondance)} ids loaded with equivalent ids')
     return correspondance
 
-def transform_rnsr_data(data: list) -> list:
+def transform_data(data: list) -> list:
     rnsrs = []
     for d in data:
         external_ids = d.get('externalIds', [])
@@ -190,16 +188,12 @@ def transform_rnsr_data(data: list) -> list:
                     urban_unit_composition[urban_unit] = []
                 if city not in urban_unit_composition[urban_unit]:
                     urban_unit_composition[urban_unit].append(city)
-        cities = list(set(cities))
-        zone_emploi = list(set(zone_emploi))
-        country_alpha2 = list(set(country_alpha2))
-        urban_units = list(set(urban_units))
-        name_acronym_city[current_id]['city'] = list(filter(None, cities))
-        name_acronym_city[current_id]['zone_emploi'] = list(filter(None, zone_emploi))
-        name_acronym_city[current_id]['urban_unit'] = list(filter(None, urban_units))
-        name_acronym_city[current_id]['acronym'] = list(filter(None, acronyms))
-        name_acronym_city[current_id]['name'] = list(filter(None, names))
-        country_alpha2 = list(filter(None, country_alpha2))
+        name_acronym_city[current_id]['city'] = clean_list(data = cities)
+        name_acronym_city[current_id]['zone_emploi'] = clean_list(data = zone_emploi)
+        name_acronym_city[current_id]['urban_unit'] = clean_list(data = urban_units)
+        name_acronym_city[current_id]['acronym'] = clean_list(data = acronyms, ignored=ACRONYM_IGNORED)
+        name_acronym_city[current_id]['name'] = clean_list(data = names, stopwords = FRENCH_STOP, min_token = 2)
+        country_alpha2 = clean_list(data = country_alpha2)
         if not country_alpha2:
             country_alpha2 = ['fr']
         name_acronym_city[current_id]['country_alpha2'] = country_alpha2[0]
@@ -221,15 +215,14 @@ def transform_rnsr_data(data: list) -> list:
                                     if 'structure' in supervisor]
         es_rnsr['supervisor_id'] += [external_id['id'][0:9] for external_id in rnsr.get('externalIds', [])
                                      if external_id['type'] and 'sire' in external_id['type']]
-        es_rnsr['supervisor_id'] = list(set(es_rnsr['supervisor_id']))
-        es_rnsr['supervisor_id'] = list(filter(None, es_rnsr['supervisor_id']))
+        es_rnsr['supervisor_id'] = clean_list(data = es_rnsr['supervisor_id'])
         # Supervisors acronym, name and city
         for f in ['acronym', 'name', 'city']:
             es_rnsr[f'supervisor_{f}'] = []
             for supervisor_id in es_rnsr['supervisor_id']:
                 if supervisor_id in name_acronym_city:
                     es_rnsr[f'supervisor_{f}'] += name_acronym_city[supervisor_id][f'{f}']
-            es_rnsr[f'supervisor_{f}'] = list(set(es_rnsr[f'supervisor_{f}']))
+            es_rnsr[f'supervisor_{f}'] = clean_list(es_rnsr[f'supervisor_{f}'])
         # Addresses
         es_rnsr['city'] = name_acronym_city[rnsr_id]['city']
         es_rnsr['country_alpha2'] = name_acronym_city[rnsr_id]['country_alpha2']
@@ -244,7 +237,7 @@ def transform_rnsr_data(data: list) -> list:
         es_rnsr['zone_emploi'] = []
         for ze in name_acronym_city[rnsr_id]['zone_emploi']:
             es_rnsr['zone_emploi'] += zone_emploi_composition[ze]
-        es_rnsr['zone_emploi'] = list(set(es_rnsr['zone_emploi']))
+        es_rnsr['zone_emploi'] = clean_list(es_rnsr['zone_emploi'])
         # Dates
         last_year = f'{datetime.date.today().year}'
         start_date = rnsr.get('startDate')

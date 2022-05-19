@@ -124,7 +124,7 @@ def get_analyzers() -> dict:
                 'lowercase',
                 'french_elision',
                 'icu_folding',
-                'acronym_stop'
+                #'acronym_stop'
             ]
         },
         'name_analyzer': {

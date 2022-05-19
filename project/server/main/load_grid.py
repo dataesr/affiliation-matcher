@@ -11,7 +11,7 @@ from project.server.main.config import CHUNK_SIZE, GRID_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import get_tokens, clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED
+from project.server.main.utils import clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED
 
 logger = get_logger(__name__)
 SOURCE = 'grid'
@@ -63,7 +63,7 @@ def transform_data(data: dict) -> list:
         names += grid.get('aliases', [])
         names += [label.get('label') for label in grid.get('labels', [])]
         # Stop words is handled here as stop filter in ES keep track of positions even of removed stop words
-        formatted_data['name'] = clean_list(data = names, stopwords = ENGLISH_STOP+FRENCH_STOP)
+        formatted_data['name'] = clean_list(data = names, stopwords = ENGLISH_STOP+FRENCH_STOP, min_token = 2)
         # Acronyms
         acronyms = grid.get('acronyms', [])
         formatted_data['acronym'] = clean_list(data = acronyms, ignored = ACRONYM_IGNORED)
@@ -127,7 +127,7 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
     transformed_data = transform_data(raw_data)
     
     es = MyElastic()
-    indices_client = IndicesClient(es)
+    # indices_client = IndicesClient(es)
     settings = {
         'analysis': {
             'char_filter': get_char_filters(),
@@ -173,11 +173,11 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            if criterion in ['name']:
-                tokens = get_tokens(indices_client, analyzer, index, criterion_value)
-                if len(tokens) < 2:
-                    #logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
-                    continue
+            #if criterion in ['name']:
+            #    tokens = get_tokens(indices_client, analyzer, index, criterion_value)
+            #    if len(tokens) < 2:
+            #        #logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
+            #        continue
             action = {'_index': index, 'grids': [k['id'] for k in es_data[criterion][criterion_value]],
                       'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
             action['query'] = {'match_phrase': {'content': {'query': criterion_value,

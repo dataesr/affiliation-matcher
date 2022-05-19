@@ -19,7 +19,7 @@ FRENCH_STOP = ["au","aux","avec","ce","ces","dans","de","des","du","elle","en","
 
 GEO_IGNORED = ['union']
 
-ACRONYM_IGNORED = ['usa']
+ACRONYM_IGNORED = ['usa', 'pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu', 'care', 'medecine', 'unite']
 
 def remove_stop(text: str, stopwords: list) -> str:
     pattern = re.compile(r'\b(' + r'|'.join(stopwords) + r')\b\s*', re.IGNORECASE)
@@ -30,7 +30,7 @@ def remove_parenthesis(x):
         return re.sub("[\(\[].*?[\)\]]", "", x)
     return x
 
-def clean_list(data: list, stopwords = [], ignored = [], remove_inside_parenthesis = True) -> list:
+def clean_list(data: list, stopwords = [], ignored = [], remove_inside_parenthesis = True, min_token = 1) -> list:
     # Cast data into list if needed
     if not isinstance(data, list):
         data = [data]
@@ -44,6 +44,7 @@ def clean_list(data: list, stopwords = [], ignored = [], remove_inside_parenthes
             e = remove_stop(e, stopwords)
         data[ix] = e
     data = [k for k in data if k.lower() not in ignored]
+    data = [k for k in data if len(get_token_basic(k)) >= min_token]
     return data
 
 def chunks(lst: list, n: int) -> list:
@@ -51,6 +52,8 @@ def chunks(lst: list, n: int) -> list:
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
+def get_token_basic(x):
+    return x.split(' ')
 
 def get_tokens(indices_client, analyzer: str, index: str, text: str) -> list:
     try:
