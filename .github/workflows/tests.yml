@@ -27,4 +27,4 @@ jobs:
 
       - name: 🟩 Run unit tests
         run: |
-          make test
+          python -m pytest
