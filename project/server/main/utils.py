@@ -19,7 +19,7 @@ FRENCH_STOP = ["au","aux","avec","ce","ces","dans","de","des","du","elle","en","
 
 GEO_IGNORED = ['union'] + FRENCH_STOP + ENGLISH_STOP
 
-ACRONYM_IGNORED = ['usa', 'pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu', 'care', 'medecine', 'unite'] + FRENCH_STOP + ENSGLISH_STOP
+ACRONYM_IGNORED = ['usa', 'pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu', 'care', 'medecine', 'unite'] + FRENCH_STOP + ENGLISH_STOP
 
 def remove_stop(text: str, stopwords: list) -> str:
     pattern = re.compile(r'\b(' + r'|'.join(stopwords) + r')\b\s*', re.IGNORECASE)
