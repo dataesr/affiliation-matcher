@@ -123,6 +123,7 @@ def transform_data(data: dict) -> list:
 
 
 def load_grid(index_prefix: str = 'matcher') -> dict:
+    logger.debug('load grid ...')
     raw_data = download_data()
     transformed_data = transform_data(raw_data)
     

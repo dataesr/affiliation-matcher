@@ -15,6 +15,7 @@ SOURCE = 'rnsr'
 
 
 def load_rnsr(index_prefix: str = 'matcher') -> dict:
+    logger.debug('load rnsr ...')
     es = MyElastic()
     indices_client = IndicesClient(es)
     settings = {

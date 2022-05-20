@@ -70,6 +70,7 @@ def transform_country_data(raw_data):
 
 
 def load_country(index_prefix: str = 'matcher') -> dict:
+    logger.debug('load country ...')
     es = MyElastic()
     settings = {
         'analysis': {

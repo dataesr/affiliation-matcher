@@ -125,6 +125,9 @@ class Matcher:
         index_prefix = conditions.get('index_prefix', 'matcher')
         query = conditions.get('query', '')
         logs = f'<h1> &#128269; {query}</h1>'
+        # to limit the nb of ES requests
+        # avoid call ES if a search on the same criterion has been done for a strategy before
+        cache = {}
         for equivalent_strategies in strategies:
             equivalent_strategies_results = None
             all_hits = {}
@@ -141,13 +144,18 @@ class Matcher:
                     if criterion in stopwords_strategies:
                         stopwords = stopwords_strategies[criterion]
                         criterion_query = remove_stop(criterion_query, stopwords)
-                    body = {
-                        'query': {'percolate': {'field': 'query', 'document': {'content': criterion_query}}},
-                        '_source': {'includes': [field]},
-                        'highlight': {'fields': {'content': {'type': 'unified'}}}
-                    }
                     index = get_index_name(index_name=criterion, source='', index_prefix=index_prefix)
-                    hits = self.es.search(index=index, body=body).get('hits', []).get('hits', [])
+                    cache_key = f'{index};{field};{criterion_query}'
+                    if cache_key in cache:
+                        hits = cache[cache_key]
+                    else:
+                        body = {
+                            'query': {'percolate': {'field': 'query', 'document': {'content': criterion_query}}},
+                            '_source': {'includes': [field]},
+                            'highlight': {'fields': {'content': {'type': 'unified'}}}
+                        }
+                        hits = self.es.search(index=index, body=body).get('hits', []).get('hits', [])
+                        cache[cache_key] = hits 
                     strategy_label = ';'.join(strategy)
                     if strategy_label not in all_hits:
                         all_hits[strategy_label] = {}
@@ -226,4 +234,6 @@ class Matcher:
         final_res = {'results': [], 'highlights': {}, 'other_ids': []}
         if verbose:
             final_res['logs'] = logs
+        else:
+            del final_res['highlights']
         return final_res

@@ -73,6 +73,7 @@ def transform_data(rors: list) -> list:
 
 
 def load_ror(index_prefix: str = 'matcher') -> dict:
+    logger.debug('load_ror ...')
     raw_data = download_data()
     transformed_data = transform_data(raw_data)
     # Init ES
