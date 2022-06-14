@@ -109,7 +109,7 @@ Here is a list of the 9 criteria available for the Grid matcher:
 1. You can combine criteria to create a strategy.
 2. You can cumulate strategies to create a family of strategies.
 3. And then you can cumulate families of strategies to create the final object.
-4. This final object is then a 3 dicmensional array that you will give as an argument to the "/match_api" API endpoint.
+4. This final object is then a 3 dimensional array that you will give as an argument to the "/match_api" API endpoint.
 
 
 ## Results
