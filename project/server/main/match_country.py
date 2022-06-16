@@ -28,7 +28,12 @@ DEFAULT_STRATEGIES = [
     # group 7
     [['grid_acronym', 'grid_cities_by_region']],
     # group 8
-    [['grid_name', 'country_subdivision_name']]
+    [['grid_name', 'country_subdivision_name']],
+    # group 9
+    [['rnsr_code_number'], ['rnsr_acronym', 'rnsr_supervisor_acronym'], ['rnsr_acronym', 'rnsr_zone_emploi'], ['rnsr_acronym', 'rnsr_city'],
+        ['rnsr_name', 'rnsr_zone_emploi'], ['rnsr_name', 'rnsr_city']],
+    #group 10
+    [['rnsr_code_prefix', 'rnsr_acronym'], ['rnsr_code_prefix', 'rnsr_supervisor_acronym'], ['rnsr_code_prefix', 'rnsr_zone_emploi']]
 ]
 
 

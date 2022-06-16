@@ -25,7 +25,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    exact_criteria = ['city', 'urban_unit', 'zone_emploi', 'country_code', 'acronym', 'code_number',
+    exact_criteria = ['city', 'urban_unit', 'zone_emploi', 'country_code', 'acronym', 'code_number', 'code_prefix',
                       'supervisor_acronym', 'year', 'name', 'supervisor_name']
     txt_criteria = ['name_txt']
     analyzers = {
@@ -34,6 +34,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         'urban_unit': 'city_analyzer',
         'zone_emploi': 'city_analyzer',
         'country_code': 'light',
+        'code_prefix': 'light',
         'code_number': 'code_analyzer',
         'name': 'heavy_fr',
         'name_txt': 'heavy_fr',
@@ -204,9 +205,12 @@ def transform_data(data: list) -> list:
         es_rnsr = {'id': rnsr['rnsr']}  # the 'id' field can be different from the rnsr, in some cases
         # Code numbers
         code_numbers = []
+        code_prefixes = []
         for code in [e['id'] for e in rnsr.get('externalIds', []) if e['type'] == 'label_numero']:
             code_numbers.extend([code, code.replace(' ', ''), code.replace(' ', '-'), code.replace(' ', '_')])
+            code_prefixes.append(code.split(' ')[0])
         es_rnsr['code_number'] = list(set(code_numbers))
+        es_rnsr['code_prefix'] = list(set(code_prefixes))
         # Acronyms & names
         es_rnsr['acronym'] = name_acronym_city[rnsr_id]['acronym']
         names = name_acronym_city[rnsr_id]['name']

@@ -51,6 +51,9 @@ def filter_submatching_results_by_criterion(res: dict) -> dict:
     for strategy in res['highlights']:
         highlights = res['highlights'][strategy]
         matching_ids = list(highlights.keys())
+        if len(matching_ids)<1:
+            logger.debug(f'SHOULD NOT HAPPEN ? not highlights but results {results} in strategy {strategy}')
+            continue
         # Create all combinaisons of 2 ids among the matching_ids
         all_id_combinations = itertools.combinations(matching_ids, 2)
         criteria_01 = highlights[matching_ids[0]].keys()
