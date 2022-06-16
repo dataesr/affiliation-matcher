@@ -23,6 +23,8 @@ class TestMatchCountry:
         'query,strategies,expected_results,expected_logs', [
             # Query with no meaningful should return no country
             ('Not meaningful string', [[['grid_city']]], [], 'No results'),
+            # Vague french affiliation,
+            ('UMR CNRS', [[['rnsr_code_prefix', 'rnsr_supervisor_acronym']]], ['fr'], 'strategy'),
             # Simple query with a city should match the associated countries
             ('Tour Mirabeau Paris', [[['grid_city']]], ['ca', 'fr', 'us'], 'grid_city'),
             # Complex query with a city should match the associated country
