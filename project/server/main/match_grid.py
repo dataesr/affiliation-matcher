@@ -2,6 +2,7 @@ from project.server.main.matcher import Matcher
 from project.server.main.utils import ENGLISH_STOP, FRENCH_STOP, remove_ref_index
 
 DEFAULT_STRATEGIES_GRID = [
+    [['grid_id'], ['ror_id']],
     # group 1
     [['grid_name', 'grid_acronym', 'grid_city', 'grid_country'],
      ['grid_name', 'grid_acronym', 'grid_city', 'grid_country_code']],

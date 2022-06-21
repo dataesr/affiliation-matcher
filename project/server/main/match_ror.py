@@ -3,6 +3,7 @@ from project.server.main.utils import ENGLISH_STOP, FRENCH_STOP, remove_ref_inde
 
 DEFAULT_STRATEGIES = [
     [['ror_id']],
+    [['ror_grid_id']],
     [['ror_name', 'ror_acronym', 'ror_city', 'ror_country'],
      ['ror_name', 'ror_acronym', 'ror_city', 'ror_country_code']],
     [['ror_name', 'ror_city', 'ror_country'], ['ror_name', 'ror_city', 'ror_country_code']],

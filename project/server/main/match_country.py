@@ -5,7 +5,7 @@ STOPWORDS_STRATEGIES = {'grid_name': ENGLISH_STOP + FRENCH_STOP}
 
 DEFAULT_STRATEGIES = [
     # group 0
-    [['ror_id']],
+    [['ror_id'], ['grid_id'], ['rnsr_id']],
     # group 1
     [['grid_cities_by_region', 'grid_name', 'grid_acronym', 'country_name'],
         ['grid_cities_by_region', 'grid_name', 'country_name'], ['grid_cities_by_region', 'grid_acronym', 'country_name'],

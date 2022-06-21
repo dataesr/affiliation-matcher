@@ -4,6 +4,7 @@ from project.server.main.matcher import Matcher
 from project.server.main.utils import FRENCH_STOP, remove_ref_index
 
 DEFAULT_STRATEGIES = [
+    [['rnsr_id']],
     [['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_zone_emploi'], ['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_city']],
     [['rnsr_code_number', 'rnsr_supervisor_name', 'rnsr_zone_emploi'], ['rnsr_code_number', 'rnsr_supervisor_name', 'rnsr_city']],
     [['rnsr_code_number', 'rnsr_acronym']],

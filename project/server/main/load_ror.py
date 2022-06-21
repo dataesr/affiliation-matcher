@@ -55,8 +55,11 @@ def transform_data(rors: list) -> list:
         name += [label.get('label') for label in ror.get('labels', [])]
         externals = ror.get('external_ids', [])
         external_ids = {}
+        grids = []
         for ext_id in list(externals.keys()):
             external_ids[ext_id.lower()+'s'] = get_external_ids(externals[ext_id])
+            if ext_id.lower() == 'grid':
+                grids = get_external_ids(externals[ext_id])
         countries_code = clean_list(data=country_code)
         current_data = {
             'acronym': clean_list(data=acronym, ignored=ACRONYM_IGNORED),
@@ -66,8 +69,10 @@ def transform_data(rors: list) -> list:
             'id': current_id,
             'name': clean_list(data=name, stopwords=FRENCH_STOP+ENGLISH_STOP, min_token = 2),
         }
-        if countries_code:
-            current_data['country_alpha2'] = countries_code[0]
+        if grids:
+            current_data['grid_id'] = grids
+        if external_ids:
+            current_data['external_ids'] = external_ids
         data.append(current_data)
     return data
 
@@ -88,13 +93,14 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
     }
     analyzers = {
         'id': 'light',
+        'grid_id': 'light',
         'acronym': 'acronym_analyzer',
         'city': 'city_analyzer',
         'country': 'light',
         'country_code': 'light',
         'name': 'heavy_en'
     }
-    criteria = ['id', 'acronym', 'city', 'country', 'country_code', 'name']
+    criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name']
     for criterion in criteria:
         index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
@@ -115,7 +121,7 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
                     es_data[criterion][criterion_value] = []
                 current_elt = { 
                     'id': data_point.get('id'),
-                    'country_code': data_point.get('country_code')
+                    'country_alpha2': data_point.get('country_code')
                 }
                 for ext_id in data_point.get('external_ids', {}):
                     current_elt[ext_id] = data_point['external_ids'][ext_id]
@@ -130,14 +136,15 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            country_codes = [k.get('country_code', '') for k in es_data[criterion][criterion_value]]
             action = {
                 '_index': index,
                 'rors': [k['id'] for k in es_data[criterion][criterion_value]],
-                'country_alpha2': list(set([j for sub in country_codes for j in sub]))
             }
-            for ext_id in external_ids_label:
-                action[ext_id] = list(set([k[ext_id] for k in es_data[criterion][criterion_value]]))
+            for other_id in ['country_alpha2', 'grids', 'rors', 'wikidatas']:
+                all_codes = [k.get(other_id) for k in es_data[criterion][criterion_value] if other_id in k]
+                codes = list(set([j for sub in all_codes for j in sub]))
+                if codes:
+                    action[other_id] = codes
             if criterion in criteria:
                 action['query'] = {'match_phrase': {'content': {'query': criterion_value,
                                                                 'analyzer': analyzer, 'slop': 0}}}

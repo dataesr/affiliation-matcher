@@ -182,8 +182,15 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
             #    if len(tokens) < 2:
             #        #logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
             #        continue
-            action = {'_index': index, 'grids': [k['id'] for k in es_data[criterion][criterion_value]],
-                      'country_alpha2': list(set([k['country_alpha2'] for k in es_data[criterion][criterion_value]]))}
+            action = {
+                    '_index': index,
+                    'grids': [k['id'] for k in es_data[criterion][criterion_value]]
+                    }
+            for other_id in ['country_alpha2', 'grids', 'rors', 'wikidatas']:
+                all_codes = [k.get(other_id) for k in es_data[criterion][criterion_value] if other_id in k]
+                codes = list(set([j for sub in all_codes for j in sub]))
+                if codes:
+                    action[other_id] = codes
             action['query'] = {'match_phrase': {'content': {'query': criterion_value,
                                                                 'analyzer': analyzer, 'slop': 0}}}
             actions.append(action)
