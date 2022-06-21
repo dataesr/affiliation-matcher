@@ -65,8 +65,10 @@ def get_tokens(indices_client, analyzer: str, index: str, text: str) -> list:
 
 def remove_ref_index(query: str) -> str:
     """Remove the first 2 digits of a string if any."""
-    rgx = re.compile(r"^(\d){1,2}([A-Za-z])(.*)")
-    return rgx.sub("\\2\\3", query).strip()
+    if len(query.split(' '))> 5:
+        rgx = re.compile(r"^(\d){1,2}([A-Za-z])(.*)")
+        return rgx.sub("\\2\\3", query).strip()
+    return query.strip()
 
 
 def strip_accents(text: str) -> str:

@@ -87,13 +87,14 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         }
     }
     analyzers = {
+        'id': 'light',
         'acronym': 'acronym_analyzer',
         'city': 'city_analyzer',
         'country': 'light',
         'country_code': 'light',
         'name': 'heavy_en'
     }
-    criteria = ['acronym', 'city', 'country', 'country_code', 'name']
+    criteria = ['id', 'acronym', 'city', 'country', 'country_code', 'name']
     for criterion in criteria:
         index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
@@ -104,6 +105,11 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
     for data_point in transformed_data:
         for criterion in criteria:
             criterion_values = data_point.get(criterion)
+            if criterion_values is None:
+                logger.debug(f'This element {data_point} has no {criterion}')
+                continue
+            if not isinstance(criterion_values, list):
+                criterion_values = [criterion_values]
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []

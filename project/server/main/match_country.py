@@ -4,6 +4,8 @@ from project.server.main.utils import ENGLISH_STOP, FRENCH_STOP, remove_ref_inde
 STOPWORDS_STRATEGIES = {'grid_name': ENGLISH_STOP + FRENCH_STOP}
 
 DEFAULT_STRATEGIES = [
+    # group 0
+    [['ror_id']],
     # group 1
     [['grid_cities_by_region', 'grid_name', 'grid_acronym', 'country_name'],
         ['grid_cities_by_region', 'grid_name', 'country_name'], ['grid_cities_by_region', 'grid_acronym', 'country_name'],

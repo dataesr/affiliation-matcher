@@ -136,9 +136,10 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
             'analyzer': get_analyzers()
         }
     }
-    criteria = ['acronym', 'cities_by_region', 'city', 'country',
+    criteria = ['id', 'acronym', 'cities_by_region', 'city', 'country',
                       'country_code', 'department', 'parent', 'region', 'name']
     analyzers = {
+        'id': 'light',
         'acronym': 'acronym_analyzer',
         'cities_by_region': 'light',
         'city': 'city_analyzer',
@@ -162,6 +163,8 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
             if criterion_values is None:
                 logger.debug(f'This element {data_point} has no {criterion}')
                 continue
+            if not isinstance(criterion_values, list):
+                criterion_values = [criterion_values]
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
