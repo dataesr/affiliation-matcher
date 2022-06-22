@@ -18,7 +18,9 @@ def elasticsearch() -> dict:
 class TestMatchRor:
     @pytest.mark.parametrize(
         'query,strategies,expected_results,expected_logs', [
-            ('institut pasteur shanghai', [[['ror_name']]], ['0495fxg12'], '')
+            ('institut pasteur shanghai', [[['ror_name']]], ['0495fxg12'], ''),
+            ('02feahw73', [[['ror_id']]], ['02feahw73'], ''),
+            ('grid.4444.0', [[['ror_grid_id']]], ['02feahw73'], '')
         ]
     )
     def test_match_ror(self, elasticsearch, query, strategies, expected_results, expected_logs) -> None:

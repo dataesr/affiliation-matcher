@@ -25,6 +25,10 @@ class TestMatchCountry:
             ('Not meaningful string', [[['grid_city']]], [], 'No results'),
             # Vague french affiliation,
             ('UMR CNRS', [[['rnsr_code_prefix', 'rnsr_supervisor_acronym']]], ['fr'], 'strategy'),
+            # RoR id,
+            ('02feahw73', [[['ror_id']]], ['fr'], 'strategy'),
+            # grid id,
+            ('grid.4444.0', [[['grid_id']]], ['fr'], 'strategy'),
             # Simple query with a city should match the associated countries
             ('Tour Mirabeau Paris', [[['grid_city']]], ['ca', 'fr', 'us'], 'grid_city'),
             # Complex query with a city should match the associated country
