@@ -109,9 +109,7 @@ def transform_data(data: dict) -> list:
                                     relationship.get('type') == 'Parent' and relationship.get('id')]
         if len(formatted_data['country_code']) == 0:
             continue
-        if len(formatted_data['country_code']) > 1:
-            logger.debug(f'BEWARE: more than 1 country for {grid}. Only one is kept.')
-        formatted_data['country_alpha2'] = formatted_data['country_code'][0]
+        formatted_data['country_alpha2'] = formatted_data['country_code']
         # Add the cities from the regions
         formatted_data['cities_by_region'] = []
         if regions:
