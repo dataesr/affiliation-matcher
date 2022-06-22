@@ -1,3 +1,4 @@
+import datetime
 from project.server.main.affiliation_matcher import check_matcher_health, enrich_and_filter_publications_by_country,\
     enrich_publications_with_affiliations_id
 from project.server.main.load_country import load_country
@@ -10,6 +11,7 @@ from project.server.main.match_country import match_country
 from project.server.main.match_grid import match_grid
 from project.server.main.match_rnsr import match_rnsr
 from project.server.main.match_ror import match_ror
+from project.server.main.my_elastic import MyElastic
 
 logger = get_logger(__name__)
 
@@ -38,24 +40,34 @@ def create_task_load(args: dict = None) -> dict:
         args = {}
     matcher_type = args.get('type', 'all').lower()
     index_prefix = args.get('index_prefix', 'matcher').lower()
+    es = MyElastic()
+    es.delete_non_dated_indices(index_prefix=index_prefix)
+    today = datetime.datetime.today().strftime('%Y%m%d%H%M%S')
+    index_prefix_dated = f'{index_prefix}-{today}'
+    # the indices are created with the datetime in the name
     result = {}
     if matcher_type == 'all':
-        result.update(load_country(index_prefix=index_prefix))
-        result.update(load_grid(index_prefix=index_prefix))
-        result.update(load_rnsr(index_prefix=index_prefix))
-        result.update(load_ror(index_prefix=index_prefix))
+        result.update(load_country(index_prefix=index_prefix_dated))
+        result.update(load_grid(index_prefix=index_prefix_dated))
+        result.update(load_rnsr(index_prefix=index_prefix_dated))
+        result.update(load_ror(index_prefix=index_prefix_dated))
     elif matcher_type == 'country':
-        result.update(load_country(index_prefix=index_prefix))
+        result.update(load_country(index_prefix=index_prefix_dated))
     elif matcher_type == 'grid':
-        result.update(load_grid(index_prefix=index_prefix))
+        result.update(load_grid(index_prefix=index_prefix_dated))
     elif matcher_type == 'rnsr':
-        result.update(load_rnsr(index_prefix=index_prefix))
+        result.update(load_rnsr(index_prefix=index_prefix_dated))
     elif matcher_type == 'ror':
-        result.update(load_ror(index_prefix=index_prefix))
+        result.update(load_ror(index_prefix=index_prefix_dated))
     elif matcher_type == 'wikidata':
-        result.update(load_wikidata(index_prefix=index_prefix))
+        result.update(load_wikidata(index_prefix=index_prefix_dated))
     else:
         result = {'Error': f'Matcher type {matcher_type} unknown'}
+    # an alias is the put on the newly created indices
+    for idx in list(es.indices.get('*').keys()):
+        if idx.startswith(index_prefix_dated):
+            current_alias = idx.replace(index_prefix_dated, index_prefix) 
+            es.update_index_alias(my_alias = current_alias, new_index = idx)
     return result
 
 
