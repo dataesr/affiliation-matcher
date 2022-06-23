@@ -135,16 +135,19 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
         }
     }
     criteria = ['id', 'acronym', 'cities_by_region', 'city', 'country',
-                      'country_code', 'department', 'parent', 'region', 'name']
+                      'country_code', 'department', 'parent', 'region', 'name',
+                      'acronym_unique', 'name_unique']
     analyzers = {
         'id': 'light',
         'acronym': 'acronym_analyzer',
+        'acronym_unique': 'acronym_analyzer',
         'cities_by_region': 'light',
         'city': 'city_analyzer',
         'country': 'light',
         'country_code': 'light',
         'department': 'light',
         'name': 'heavy_en',
+        'name_unique': 'heavy_en',
         'parent': 'light',
         'region': 'light',
     }
@@ -159,7 +162,7 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
         for criterion in criteria:
             criterion_values = data_point.get(criterion)
             if criterion_values is None:
-                logger.debug(f'This element {data_point} has no {criterion}')
+                #logger.debug(f'This element {data_point} has no {criterion}')
                 continue
             if not isinstance(criterion_values, list):
                 criterion_values = [criterion_values]
@@ -167,6 +170,13 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
                 es_data[criterion][criterion_value].append({'id': data_point['id'], 'country_alpha2': data_point['country_alpha2']})
+    # add unique criterion
+    for criterion in ['name', 'acronym']:
+        for criterion_value in es_data[criterion]:
+            if len(es_data[criterion][criterion_value]) == 1:
+                if f'{criterion}_unique' not in es_data:
+                    es_data[f'{criterion}_unique'] = {}
+                es_data[f'{criterion}_unique'][criterion_value] = es_data[criterion][criterion_value]
     # Bulk insert data into ES
     actions = []
     results = {}
@@ -184,7 +194,7 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
                     '_index': index,
                     'grids': [k['id'] for k in es_data[criterion][criterion_value]]
                     }
-            for other_id in ['country_alpha2', 'grids', 'rors', 'wikidatas']:
+            for other_id in ['country_alpha2']:
                 all_codes = [k.get(other_id) for k in es_data[criterion][criterion_value] if other_id in k]
                 codes = list(set([j for sub in all_codes for j in sub]))
                 if codes:
