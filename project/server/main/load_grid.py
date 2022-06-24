@@ -135,22 +135,23 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
         }
     }
     criteria = ['id', 'acronym', 'cities_by_region', 'city', 'country',
-                      'country_code', 'department', 'parent', 'region', 'name',
-                      'acronym_unique', 'name_unique']
+                      'country_code', 'department', 'parent', 'region', 'name']
+    criteria_unique = ['acronym', 'name']
     analyzers = {
         'id': 'light',
         'acronym': 'acronym_analyzer',
-        'acronym_unique': 'acronym_analyzer',
         'cities_by_region': 'light',
         'city': 'city_analyzer',
         'country': 'light',
         'country_code': 'light',
         'department': 'light',
         'name': 'heavy_en',
-        'name_unique': 'heavy_en',
         'parent': 'light',
-        'region': 'light',
+        'region': 'light'
     }
+    for c in criteria_unique:
+        criteria.append(f'{c}_unique')
+        analyzers[f'{c}_unique'] = analyzers[c]
     es_data = {}
     for criterion in criteria:
         index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
@@ -171,7 +172,7 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
                     es_data[criterion][criterion_value] = []
                 es_data[criterion][criterion_value].append({'id': data_point['id'], 'country_alpha2': data_point['country_alpha2']})
     # add unique criterion
-    for criterion in ['name', 'acronym']:
+    for criterion in criteria_unique:
         for criterion_value in es_data[criterion]:
             if len(es_data[criterion][criterion_value]) == 1:
                 if f'{criterion}_unique' not in es_data:

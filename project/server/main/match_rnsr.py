@@ -50,6 +50,6 @@ def match_rnsr(conditions: dict) -> dict:
             strategies_copy.append(equivalent_strategies_copy)
         strategies = strategies_copy
     matcher = Matcher()
-    return matcher.match(method='rnsr', field='rnsrs', conditions=conditions, strategies=strategies,
+    return matcher.match(field='rnsrs', conditions=conditions, strategies=strategies,
                          stopwords_strategies=STOPWORDS_STRATEGIES,
                          pre_treatment_query=pre_treatment_rnsr)

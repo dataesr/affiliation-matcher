@@ -44,6 +44,10 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         'year': 'light'
     }
     criteria = exact_criteria + txt_criteria
+    criteria_unique = []
+    for c in criteria_unique:
+        criteria.append(f'{c}_unique')
+        analyzers[f'{c}_unique'] = analyzers[c]
     es_data = {}
     for criterion in criteria:
         index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
@@ -65,6 +69,13 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
                 es_data[criterion][criterion_value].append({'id': data_point['id'], 'country_alpha2': data_point['country_alpha2']})
+    # add unique criterion
+    for criterion in criteria_unique:
+        for criterion_value in es_data[criterion]:
+            if len(es_data[criterion][criterion_value]) == 1:
+                if f'{criterion}_unique' not in es_data:
+                    es_data[f'{criterion}_unique'] = {}
+                es_data[f'{criterion}_unique'][criterion_value] = es_data[criterion][criterion_value]
     # Bulk insert data into ES
     actions = []
     results = {}

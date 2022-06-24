@@ -101,6 +101,10 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         'name': 'heavy_en'
     }
     criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name']
+    criteria_unique = ['acronym', 'name']
+    for c in criteria_unique:
+        criteria.append(f'{c}_unique')
+        analyzers[f'{c}_unique'] = analyzers[c]
     for criterion in criteria:
         index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
@@ -128,6 +132,13 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
                     if ext_id not in external_ids_label:
                         external_ids_label.append(ext_id)
                 es_data[criterion][criterion_value].append(current_elt)
+    # add unique criterion
+    for criterion in criteria_unique:
+        for criterion_value in es_data[criterion]:
+            if len(es_data[criterion][criterion_value]) == 1:
+                if f'{criterion}_unique' not in es_data:
+                    es_data[f'{criterion}_unique'] = {}
+                es_data[f'{criterion}_unique'][criterion_value] = es_data[criterion][criterion_value]
     # Bulk insert data into ES
     actions = []
     results = {}

@@ -120,6 +120,12 @@ class Matcher:
               field: str = 'ids', stopwords_strategies: dict = None, post_treatment_results=None) -> dict:
         if conditions is None:
             conditions = {}
+        if method is None:
+            # ex: grids -> grid
+            assert(isinstance(field, str))
+            assert(field[-1] == 's')
+            method = field[:-1]
+        assert(method in ['grid', 'ror', 'rnsr'])
         if pre_treatment_query is None:
             pre_treatment_query = identity
         if stopwords_strategies is None:
