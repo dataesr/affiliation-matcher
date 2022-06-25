@@ -125,7 +125,7 @@ class Matcher:
             assert(isinstance(field, str))
             assert(field[-1] == 's')
             method = field[:-1]
-        assert(method in ['grid', 'ror', 'rnsr'])
+        assert(method in ['grid', 'ror', 'rnsr', 'country'])
         if pre_treatment_query is None:
             pre_treatment_query = identity
         if stopwords_strategies is None:
