@@ -37,8 +37,7 @@ DEFAULT_STRATEGIES = [
     #group 10
     [['rnsr_code_prefix', 'rnsr_acronym'], ['rnsr_code_prefix', 'rnsr_supervisor_acronym'], ['rnsr_code_prefix', 'rnsr_zone_emploi']],
     #group 11
-    [['grid_name_unique'], ['ror_name_unique']],
-    [['grid_acronym_unique'], ['ror_acronym_unique']]
+    [['grid_name_unique'], ['ror_name_unique']]
 ]
 
 

@@ -16,8 +16,7 @@ DEFAULT_STRATEGIES_GRID = [
     # group 5
     [['grid_name', 'grid_city']],
     # group 6
-    [['grid_name_unique'], ['ror_name_unique']],
-    [['grid_acronym_unique'], ['ror_acronym_unique']]
+    [['grid_name_unique'], ['ror_name_unique']]
 ]
 
 # adding extra strategies with grid_cities_by_region instead of grid_city
