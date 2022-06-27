@@ -134,9 +134,10 @@ def get_siren():
 
         for e in r.get('institutions'):
             if e.get('structure'):
-                elt = {'id': e['structure'], 'type': 'siren'}
-                if elt not in correspondance[current_id]:
-                    correspondance[current_id].append(elt)
+                if isinstance(e.get('relationType'), str) and 'tutelle' in e['relationType'].lower():
+                    elt = {'id': e['structure'], 'type': 'siren'}
+                    if elt not in correspondance[current_id]:
+                        correspondance[current_id].append(elt)
     logger.debug(f'{len(correspondance)} ids loaded with equivalent ids')
     return correspondance
 

@@ -10,9 +10,7 @@ DEFAULT_STRATEGIES = [
     [['ror_acronym', 'ror_city', 'ror_country'], ['ror_acronym', 'ror_city', 'ror_country_code']],
     [['ror_name', 'ror_acronym', 'ror_city'], ['ror_name', 'ror_acronym', 'ror_country'],
      ['ror_name', 'ror_acronym', 'ror_country_code']],
-    [['ror_name', 'ror_city']],
-    # group 6
-    [['ror_name_unique']]
+    [['ror_name', 'ror_city']]
 ]
 STOPWORDS_STRATEGIES = {'ror_name': ENGLISH_STOP + FRENCH_STOP}
 
