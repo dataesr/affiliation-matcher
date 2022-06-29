@@ -1,4 +1,4 @@
-DOCKER_IMAGE_NAME=dataesr/matcher-affiliation
+DOCKER_IMAGE_NAME=dataesr/affiliation-matcher
 CURRENT_VERSION=$(shell cat project/__init__.py | cut -d "'" -f 2)
 
 test: unit
