@@ -1,12 +1,12 @@
-# Matcher affiliations
+# Affiliation matcher
 
-![Tests](https://github.com/dataesr/matcher-affiliation/actions/workflows/tests.yml/badge.svg)
-![Build](https://github.com/dataesr/matcher-affiliation/actions/workflows/build.yml/badge.svg)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/dataesr/matcher-affiliation?display_name=tag)
+![Tests](https://github.com/dataesr/affiliation-matcher/actions/workflows/tests.yml/badge.svg)
+![Build](https://github.com/dataesr/affiliation-matcher/actions/workflows/build.yml/badge.svg)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/dataesr/affiliation-matcher?display_name=tag)
 
 ## Goal
 
-The matcher affiliations aims to automatically align an affiliation with different reference systems, including :
+The affiliation matcher aims to automatically align an affiliation with different reference systems, including :
 
 - [Country ISO 3166](https://en.wikipedia.org/wiki/ISO_3166)
 - [grid](https://grid.ac/)
@@ -27,8 +27,8 @@ https://hal.archives-ouvertes.fr/hal-03365806.
 ## Run it locally
 
 ```shell
-git clone git@github.com:dataesr/matcher-affiliation.git
-cd matcher-affiliation
+git clone git@github.com:dataesr/affiliation-matcher.git
+cd affiliation-matcher
 make docker-build start
 ```
 
@@ -73,7 +73,7 @@ pip install /path/to/your/package.tar.gz
 Then import the package into your python file
 
 ```python
-import matcher-affiliation
+import affiliation-matcher
 ```
 
 ## Release

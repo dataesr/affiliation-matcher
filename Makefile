@@ -3,20 +3,20 @@ CURRENT_VERSION=$(shell cat project/__init__.py | cut -d "'" -f 2)
 
 test: unit
 
-unit:
+unit: start
 	@echo Running unit tests...
 	APP_ENV=test venv/bin/python -m pytest
 	@echo End of unit tests
 
 start:
-	@echo Matcher affiliation starting...
+	@echo Affiliation matcher starting...
 	docker-compose up -d
-	@echo Matcher affiliation started http://localhost:5004
+	@echo Affiliation matcher started http://localhost:5004
 
 stop:
-	@echo Matcher affiliation stopping...
+	@echo Affiliation matcher stopping...
 	docker-compose down
-	@echo Matcher affiliation stopped
+	@echo Affiliation matcher stopped
 
 install:
 	@echo Installing dependencies...
@@ -42,7 +42,7 @@ python-build:
 load:
 	@echo Load all data into ES
 	curl http://localhost:5004/load
-	@echo Matcher affiliation is now populated
+	@echo Affiliation matcher is now populated
 
 release:
 	echo "__version__ = '$(VERSION)'" > project/__init__.py

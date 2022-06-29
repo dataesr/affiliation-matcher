@@ -6,15 +6,15 @@ with open('./README.md', 'r') as f:
     long_description = f.read()
 
 setup(
-    name='matcher-affiliation',
+    name='Affiliation matcher',
     version=__version__,
-    description='Matcher for French affiliations',
+    description='Matcher for affiliations',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/dataesr/matcher-affiliation',
+    url='https://github.com/dataesr/affiliation-matcher',
     license='MIT',
     author='Eric Jeangirard, Anne L\'Hôte',
-    author_email='eric.jeangirard@recherche.gouv.fr, anne.lhote@gmail.com',
+    author_email='eric.jeangirard@recherche.gouv.fr, anne.lhote@enseignementsup.gouv.fr',
     keywords=['research', 'matching', 'affiliation'],
     python_requires='>=3.6',
     packages=find_packages(),
