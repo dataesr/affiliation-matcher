@@ -2,6 +2,7 @@ import itertools
 
 from bs4 import BeautifulSoup
 
+from project import __version__
 from project.server.main.elastic_utils import get_index_name
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
@@ -12,15 +13,10 @@ logger = get_logger(__name__)
 
 correspondance = get_siren()
 
+
 def identity(x: str = '') -> str:
     return x
 
-
-#def get_highlights_length_by_grid(highlights: dict) -> int:
-#    values = list(highlights.values())
-#    values_flat = [j for sub in values for i in sub for j in i]
-#    all_highlights = ' '.join(values_flat)
-#    return len(set(BeautifulSoup(all_highlights, 'lxml').find_all('em')))
 
 def get_highlights_length_by_match(highlights: dict):
     criteria_per_token = {}
@@ -39,19 +35,26 @@ def get_highlights_length_by_match(highlights: dict):
         nb_criteria_per_token[current_token] = len(criteria_per_token[current_token])
     max_nb_criteria = max(list(nb_criteria_per_token.values()))
     min_nb_criteria = min(list(nb_criteria_per_token.values()))
-    return {'max': max_nb_criteria, 'min': min_nb_criteria,
-            'token_with_max':[{t:criteria_per_token[t]} for t in nb_criteria_per_token if nb_criteria_per_token[t] == max_nb_criteria]}
+    return {
+        'max': max_nb_criteria,
+        'min': min_nb_criteria,
+        'token_with_max': [
+            {t: criteria_per_token[t]} for t in nb_criteria_per_token if nb_criteria_per_token[t] == max_nb_criteria
+        ]
+    }
+
 
 def filter_submatching_results_by_criterion(res: dict) -> dict:
-    logs = res['logs']
-    results = res['results']
+    logs = res.get('logs')
+    results = res.get('results')
+    version = res.get('version')
     if len(results) == 0:
         return res
     ids_to_remove = []
     for strategy in res['highlights']:
         highlights = res['highlights'][strategy]
         matching_ids = list(highlights.keys())
-        if len(matching_ids)<1:
+        if len(matching_ids) < 1:
             logger.debug(f'SHOULD NOT HAPPEN ? not highlights but results {results} in strategy {strategy}')
             continue
         # Create all combinaisons of 2 ids among the matching_ids
@@ -69,22 +72,28 @@ def filter_submatching_results_by_criterion(res: dict) -> dict:
                 is_strict_inf_1 = is_strict_inf_1 or matching_elements_1 < matching_elements_2
                 is_strict_inf_2 = is_strict_inf_2 or matching_elements_2 < matching_elements_1
             if is_inf_or_equal_1 and is_strict_inf_1:
-                logs += f"<br>remove id1 {id1} because {matching_elements_2} better than {matching_elements_1}"
+                logs += f"<br>Remove id1 {id1} because {matching_elements_2} better than {matching_elements_1}"
                 ids_to_remove.append(id1)
             if is_inf_or_equal_2 and is_strict_inf_2:
-                logs += f"<br>remove id2 {id2} because {matching_elements_1} better than {matching_elements_2}"
+                logs += f"<br>Remove id2 {id2} because {matching_elements_1} better than {matching_elements_2}"
                 ids_to_remove.append(id2)
     new_results = [result for result in results if result not in ids_to_remove]
     new_highlights = {}
     for strategy in res['highlights']:
         current_highlights = res['highlights'][strategy]
         new_highlights[strategy] = {k: v for k, v in current_highlights.items() if k in new_results}
-    return {'highlights': new_highlights, 'logs': logs,
-            'results': new_results}
-    
+    return {
+        'highlights': new_highlights,
+        'logs': logs,
+        'results': new_results,
+        'version': version
+    }
+
+
 def filter_submatching_results_by_all(res: dict) -> dict:
-    logs = res['logs']
-    results = res['results']
+    logs = res.get('logs')
+    results = res.get('results')
+    version = res.get('version')
     if len(results) == 0:
         return res
     ids_to_remove = []
@@ -109,8 +118,13 @@ def filter_submatching_results_by_all(res: dict) -> dict:
     for strategy in res['highlights']:
         current_highlights = res['highlights'][strategy]
         new_highlights[strategy] = {k: v for k, v in current_highlights.items() if k in new_results}
-    return {'highlights': new_highlights, 'logs': logs,
-            'results': new_results}
+    return {
+        'highlights': new_highlights,
+        'logs': logs,
+        'results': new_results,
+        'version': version
+    }
+
 
 class Matcher:
     def __init__(self) -> None:
@@ -164,7 +178,7 @@ class Matcher:
                             'highlight': {'fields': {'content': {'type': 'unified'}}}
                         }
                         hits = self.es.search(index=index, body=body).get('hits', []).get('hits', [])
-                        cache[cache_key] = hits 
+                        cache[cache_key] = hits
                     strategy_label = ';'.join(strategy)
                     if strategy_label not in all_hits:
                         all_hits[strategy_label] = {}
@@ -207,7 +221,13 @@ class Matcher:
                 if post_treatment_results:
                     equivalent_strategies_results = post_treatment_results(equivalent_strategies_results, self.es,
                                                                            index_prefix)
-                final_res = {'results': equivalent_strategies_results, 'highlights': all_highlights, 'logs': logs, 'other_ids': []}
+                final_res = {
+                    'highlights': all_highlights,
+                    'logs': logs,
+                    'other_ids': [],
+                    'results': equivalent_strategies_results,
+                    'version': __version__
+                }
                 final_res = filter_submatching_results_by_criterion(final_res)
                 final_res = filter_submatching_results_by_all(final_res)
                 logs = final_res['logs']
@@ -240,7 +260,12 @@ class Matcher:
                     del final_res['logs']
                 return final_res
         logs += '<br/> No results found'
-        final_res = {'results': [], 'highlights': {}, 'other_ids': []}
+        final_res = {
+            'highlights': {},
+            'other_ids': [],
+            'results': [],
+            'version': __version__
+        }
         if verbose:
             final_res['logs'] = logs
         else:

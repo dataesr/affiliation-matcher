@@ -5,6 +5,7 @@ from project.server.main.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class MyElastic(Elasticsearch):
     def __init__(self) -> None:
         if ELASTICSEARCH_LOGIN:
@@ -47,7 +48,6 @@ class MyElastic(Elasticsearch):
             if not success:
                 logger.warning(f'A document failed: {info}')
 
-
     @exception_handler
     def delete_non_dated_indices(self, index_prefix):
         for idx in list(self.indices.get('*').keys()):
@@ -55,7 +55,7 @@ class MyElastic(Elasticsearch):
                 idx_splitted = idx.replace(index_prefix, '').split('-')
                 try:
                     current_date = int(idx_splitted[1][0:14])
-                    assert(20220601000000<current_date<25000101000000)
+                    assert(20220601000000 < current_date < 25000101000000)
                 except:
                     logger.debug(f'{idx} is not a dated index, lets delete it')
                     self.indices.delete(index=idx, ignore=[400, 404])
@@ -79,8 +79,8 @@ class MyElastic(Elasticsearch):
             logger.debug(f'no index for alias {my_alias}')
         actions.append({'add': {'index': new_index, 'alias': my_alias}})
         logger.debug(f'add alias {my_alias} for index {new_index}')
-        response = self.indices.update_aliases({'actions': actions})
-        
+        self.indices.update_aliases({'actions': actions})
+
         if old_index:
             logger.debug(f'delete index {old_index}')
             self.indices.delete(index=old_index, ignore=[400, 404])

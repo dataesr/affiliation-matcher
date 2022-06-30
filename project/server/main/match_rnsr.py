@@ -5,19 +5,26 @@ from project.server.main.utils import FRENCH_STOP, remove_ref_index
 
 DEFAULT_STRATEGIES = [
     [['rnsr_id']],
-    [['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_zone_emploi'], ['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_city']],
-    [['rnsr_code_number', 'rnsr_supervisor_name', 'rnsr_zone_emploi'], ['rnsr_code_number', 'rnsr_supervisor_name', 'rnsr_city']],
+    [['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_zone_emploi'],
+        ['rnsr_code_number', 'rnsr_supervisor_acronym', 'rnsr_supervisor_name', 'rnsr_city']],
+    [['rnsr_code_number', 'rnsr_supervisor_name', 'rnsr_zone_emploi'],
+        ['rnsr_code_number', 'rnsr_supervisor_name', 'rnsr_city']],
     [['rnsr_code_number', 'rnsr_acronym']],
     [['rnsr_code_number', 'rnsr_name']],
     [['rnsr_code_number', 'rnsr_supervisor_acronym']],
     [['rnsr_code_number', 'rnsr_supervisor_name']],
     [['rnsr_code_number', 'rnsr_zone_emploi'], ['rnsr_code_number', 'rnsr_city']],
-    [['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_name', 'rnsr_zone_emploi'], ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_name', 'rnsr_city']],
-    [['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_zone_emploi'], ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_city']],
+    [['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_name', 'rnsr_zone_emploi'],
+        ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_name', 'rnsr_city']],
+    [['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_zone_emploi'],
+        ['rnsr_acronym', 'rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_city']],
     [['rnsr_acronym', 'rnsr_name', 'rnsr_zone_emploi'], ['rnsr_acronym', 'rnsr_name', 'rnsr_city']],
-    [['rnsr_acronym', 'rnsr_supervisor_acronym', 'rnsr_zone_emploi'], ['rnsr_acronym', 'rnsr_supervisor_acronym', 'rnsr_city']],
-    [['rnsr_acronym', 'rnsr_supervisor_name', 'rnsr_zone_emploi'], ['rnsr_acronym', 'rnsr_supervisor_name', 'rnsr_city']],
-    [['rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_zone_emploi'], ['rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_city']],
+    [['rnsr_acronym', 'rnsr_supervisor_acronym', 'rnsr_zone_emploi'],
+        ['rnsr_acronym', 'rnsr_supervisor_acronym', 'rnsr_city']],
+    [['rnsr_acronym', 'rnsr_supervisor_name', 'rnsr_zone_emploi'],
+        ['rnsr_acronym', 'rnsr_supervisor_name', 'rnsr_city']],
+    [['rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_zone_emploi'],
+        ['rnsr_name', 'rnsr_supervisor_acronym', 'rnsr_city']],
     [['rnsr_name', 'rnsr_supervisor_name', 'rnsr_zone_emploi'], ['rnsr_name', 'rnsr_supervisor_name', 'rnsr_city']],
     [['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_acronym']],
     [['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_name']],
@@ -28,6 +35,7 @@ DEFAULT_STRATEGIES = [
 ]
 
 STOPWORDS_STRATEGIES = {'rnsr_name': FRENCH_STOP}
+
 
 # Done here rather than in synonym settings in ES as they seem to cause highlight bugs
 def pre_treatment_rnsr(query: str = '') -> str:
