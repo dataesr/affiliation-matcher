@@ -89,27 +89,74 @@ make release VERSION=x.x.x
 
 Querying the API but setting your own strategies :
 
-`curl "YOUR_API_IP" -X POST -d '{"type": "grid", "query": "YOUR_QUERY", "strategies": [[["grid_name", "grid_country"], ["grid_name", "grid_country_code"]]]}'`
+`curl "YOUR_API_IP/match_api" -X POST -d '{"type": "YOUR_TYPE", "query": "YOUR_QUERY", "strategies": YOUR_STRATEGIES}'`
+
+YOUR_TYPE is mandatory, has to be a string and can be one of :
+* country
+* grid
+* rnsr
+* ror
+
+YOUR_QUERY is mandatory, has to be a string and is your affiliation text.
+By example : `IPAG Institut de Planétologie et d'Astrophysique de Grenoble`.
+
+YOUR_STRATEGIES is optional, has to be a 3 dimensional arrays of criteria (see next paragraph).
+By example : `[[["grid_name", "grid_country"], ["grid_name", "grid_country_code"]]]`.
 
 
 ## Criteria
 
-Here is a list of the 9 criteria available for the Grid matcher:
+Here is a list of the criteria available for the **country matcher**:
+* country_alpha3
+* country_name
+* country_subdivision_code
+* country_subdivision_name
+
+Here is a list of the criteria available for the **grid matcher**:
 * grid_acronym
+* grid_acronym_unique
 * grid_cities_by_region [indirect]
 * grid_city
 * grid_country
 * grid_country_code
 * grid_department
+* grid_id
 * grid_name
+* grid_name_unique
 * grid_parent
 * grid_region
 
+Here is a list of the criteria available for the **rnsr matcher**:
+* rnsr_acronym
+* rnsr_city
+* rnsr_code_number
+* rnsr_code_prefix
+* rnsr_country_code
+* rnsr_id
+* rnsr_name
+* rnsr_name_txt
+* rnsr_supervisor_acronym
+* rnsr_supervisor_name
+* rnsr_urban_unit
+* rnsr_year
+* rnsr_zone_emploi [indirect]
+
+Here is a list of the criteria available for the **ror matcher**:
+* ror_acronym
+* ror_acronym_unique
+* ror_city
+* ror_country
+* ror_country_code
+* ror_grid_id
+* ror_id
+* ror_name
+* ror_name_unique
 
 1. You can combine criteria to create a strategy.
 2. You can cumulate strategies to create a family of strategies.
 3. And then you can cumulate families of strategies to create the final object.
-4. This final object is then a 3 dimensional array that you will give as an argument to the "/match_api" API endpoint.
+4. This final object `strategies` is then a 3 dimensional array that you will give as an argument to the "/match_api" API endpoint.
+By example : `[[["grid_name", "grid_country"], ["grid_name", "grid_country_code"]]]`.
 
 
 ## Results

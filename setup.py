@@ -6,7 +6,7 @@ with open('./README.md', 'r') as f:
     long_description = f.read()
 
 setup(
-    name='Affiliation matcher',
+    name='affiliation-matcher',
     version=__version__,
     description='Matcher for affiliations',
     long_description=long_description,
