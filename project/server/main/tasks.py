@@ -1,6 +1,6 @@
 import datetime
 from project.server.main.affiliation_matcher import check_matcher_health, enrich_and_filter_publications_by_country,\
-    enrich_publications_with_affiliations_id
+    get_matches
 from project.server.main.load_country import load_country
 from project.server.main.load_grid import load_grid
 from project.server.main.load_rnsr import load_rnsr
@@ -27,12 +27,17 @@ def create_task_enrich_filter(args: dict = None) -> dict:
     return enrich_and_filter_publications_by_country(publications=publications, countries_to_keep=countries_to_keep)
 
 
-def create_task_enrich_with_affiliations_id(args: dict = None) -> dict:
+def create_task_affiliations_list(args: dict = None) -> dict:
     check_matcher_health()
-    publications = args.get('publications', {})
-    if not isinstance(publications, list):
-        logger.debug('No valid publications args')
-    return enrich_publications_with_affiliations_id(publications=publications)
+    affiliations = args.get('affiliations', {})
+    logger.debug(f'start matching {len(affiliations)} affiliations ...')
+    if not isinstance(affiliations, list):
+        logger.debug('No valid affiliations args')
+    res = []
+    for aff in affiliations:
+        res.append({'query': aff, 'matches': get_matches(aff)})
+    logger.debug(f'end matching {len(affiliations)} affiliations.')
+    return res
 
 
 def create_task_load(args: dict = None) -> dict:

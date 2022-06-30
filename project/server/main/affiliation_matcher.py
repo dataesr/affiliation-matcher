@@ -24,6 +24,13 @@ def check_matcher_health() -> bool:
         logger.debug('Matcher does not seem loaded, lets load it')
         return False
 
+def get_query_from_affiliation(affiliation):
+    query_elts = []
+    for f in affiliation:
+        if f.lower() in ['name', 'ror', 'grid', 'rnsr', 'country']:
+            if isinstance(affiliation.get(f), str) and affiliation[f]:
+                query_elts.append(affiliation[f])
+    return ' '.join(query_elts)
 
 def get_country(affiliation):
     in_cache = False
@@ -86,12 +93,12 @@ def enrich_and_filter_publications_by_country(publications: list, countries_to_k
     for publication in publications:
         affiliations = publication.get('affiliations', [])
         affiliations = [] if affiliations is None else affiliations
-        all_affiliations += [affiliation.get('name') for affiliation in affiliations]
+        all_affiliations += [get_query_from_affiliation(affiliation) for affiliation in affiliations]
         authors = publication.get('authors', [])
         for author in authors:
             affiliations = author.get('affiliations', [])
             affiliations = [] if affiliations is None else affiliations
-            all_affiliations += [affiliation.get('name') for affiliation in affiliations]
+            all_affiliations += [get_query_from_affiliation(affiliation) for affiliation in affiliations]
     logger.debug(f'Found {len(all_affiliations)} affiliations in total.')
     # Deduplicate affiliations
     all_affiliations_list = list(filter(is_na, list(set(all_affiliations))))
@@ -119,7 +126,7 @@ def enrich_and_filter_publications_by_country(publications: list, countries_to_k
         affiliations = publication.get('affiliations', [])
         affiliations = [] if affiliations is None else affiliations
         for affiliation in affiliations:
-            query = affiliation.get('name')
+            query = get_query_from_affiliation(affiliation)
             if query in all_affiliations_dict:
                 countries = all_affiliations_dict[query]['countries']
                 affiliation[field_name] = countries
@@ -128,7 +135,7 @@ def enrich_and_filter_publications_by_country(publications: list, countries_to_k
         for author in authors:
             affiliations = author.get('affiliations', [])
             for affiliation in affiliations:
-                query = affiliation.get('name')
+                query = get_query_from_affiliation(affiliation)
                 if query in all_affiliations_dict:
                     countries = all_affiliations_dict[query]['countries']
                     affiliation[field_name] = countries
@@ -142,50 +149,3 @@ def enrich_and_filter_publications_by_country(publications: list, countries_to_k
                                  if len(set(publication[field_name]).intersection(countries_to_keep_set)) > 0]
     logger.debug(f'After filtering by countries, {len(filtered_publications)} publications have been kept.')
     return {'publications': publications, 'filtered_publications': filtered_publications}
-
-
-def enrich_publications_with_affiliations_id(publications: list) -> dict:
-    logger.debug(f'Matching affiliations for {len(publications)} publications')
-    # Retrieve all affiliations
-    all_affiliations = []
-    for publication in publications:
-        affiliations = publication.get('affiliations', [])
-        affiliations = [] if affiliations is None else affiliations
-        all_affiliations += [affiliation.get('name') for affiliation in affiliations]
-        authors = publication.get('authors', [])
-        for author in authors:
-            affiliations = author.get('affiliations', [])
-            affiliations = [] if affiliations is None else affiliations
-            all_affiliations += [affiliation.get('name') for affiliation in affiliations]
-    logger.debug(f'Found {len(all_affiliations)} affiliations in total.')
-    # Deduplicate affiliations
-    all_affiliations_list = list(filter(is_na, list(set(all_affiliations))))
-    logger.debug(f'Found {len(all_affiliations_list)} different affiliations in total.')
-    # Transform list into dict
-    all_affiliations_dict = {}
-    # Retrieve countries for all publications
-    assert(check_matcher_health())
-    for all_affiliations_list_chunk in chunks(all_affiliations_list, 1000):
-        for affiliation in all_affiliations_list_chunk:
-            all_affiliations_dict[affiliation] = get_matches(affiliation)
-        logger.debug(f'{len(all_affiliations_dict)} / {len(all_affiliations_list)} treated in affiliation matcher')
-    logger.debug('All countries of all affiliations have been retrieved.')
-    # Map countries with affiliations
-    for publication in publications:
-        affiliationsIds_by_publication = []
-        affiliations = publication.get('affiliations', [])
-        affiliations = [] if affiliations is None else affiliations
-        for affiliation in affiliations:
-            query = affiliation.get('name')
-            if query in all_affiliations_dict:
-                results = all_affiliations_dict[query]
-                affiliation['ids'] = results
-        authors = publication.get('authors', [])
-        for author in authors:
-            affiliations = author.get('affiliations', [])
-            for affiliation in affiliations:
-                query = affiliation.get('name')
-                if query in all_affiliations_dict:
-                    results = all_affiliations_dict[query]
-                    affiliation['ids'] = results
-    return publications
