@@ -68,11 +68,11 @@ def create_task_load(args: dict = None) -> dict:
         result.update(load_wikidata(index_prefix=index_prefix_dated))
     else:
         result = {'Error': f'Matcher type {matcher_type} unknown'}
-    # an alias is the put on the newly created indices
+    # An alias is the put on the newly created indices
     for idx in list(es.indices.get('*').keys()):
         if idx.startswith(index_prefix_dated):
-            current_alias = idx.replace(index_prefix_dated, index_prefix) 
-            es.update_index_alias(my_alias = current_alias, new_index = idx)
+            current_alias = idx.replace(index_prefix_dated, index_prefix)
+            es.update_index_alias(my_alias=current_alias, new_index=idx)
     return result
 
 
@@ -80,12 +80,12 @@ def create_task_match(args: dict = None) -> dict:
     if args is None:
         args = {}
     matcher_type = args.get('type', 'rnsr').lower()
-    if matcher_type == 'rnsr':
-        result = match_rnsr(args)
-    elif matcher_type == 'country':
+    if matcher_type == 'country':
         result = match_country(args)
     elif matcher_type == 'grid':
         result = match_grid(args)
+    elif matcher_type == 'rnsr':
+        result = match_rnsr(args)
     elif matcher_type == 'ror':
         result = match_ror(args)
     else:

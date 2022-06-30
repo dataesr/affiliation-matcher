@@ -91,13 +91,14 @@ Querying the API but setting your own strategies :
 
 `curl "YOUR_API_IP/match_api" -X POST -d '{"type": "YOUR_TYPE", "query": "YOUR_QUERY", "strategies": YOUR_STRATEGIES}'`
 
-YOUR_TYPE is mandatory, has to be a string and can be one of :
+YOUR_TYPE is optional, has to be a string and can be one of :
 * country
 * grid
 * rnsr
 * ror
+By default, type is equal to "rnsr".
 
-YOUR_QUERY is mandatory, has to be a string and is your affiliation text.
+YOUR_QUERY is **mandatory**, has to be a string and is your affiliation text.
 By example : `IPAG Institut de Planétologie et d'Astrophysique de Grenoble`.
 
 YOUR_STRATEGIES is optional, has to be a 3 dimensional arrays of criteria (see next paragraph).

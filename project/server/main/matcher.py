@@ -12,15 +12,10 @@ logger = get_logger(__name__)
 
 correspondance = get_siren()
 
+
 def identity(x: str = '') -> str:
     return x
 
-
-#def get_highlights_length_by_grid(highlights: dict) -> int:
-#    values = list(highlights.values())
-#    values_flat = [j for sub in values for i in sub for j in i]
-#    all_highlights = ' '.join(values_flat)
-#    return len(set(BeautifulSoup(all_highlights, 'lxml').find_all('em')))
 
 def get_highlights_length_by_match(highlights: dict):
     criteria_per_token = {}
@@ -40,7 +35,8 @@ def get_highlights_length_by_match(highlights: dict):
     max_nb_criteria = max(list(nb_criteria_per_token.values()))
     min_nb_criteria = min(list(nb_criteria_per_token.values()))
     return {'max': max_nb_criteria, 'min': min_nb_criteria,
-            'token_with_max':[{t:criteria_per_token[t]} for t in nb_criteria_per_token if nb_criteria_per_token[t] == max_nb_criteria]}
+            'token_with_max': [{t: criteria_per_token[t]} for t in nb_criteria_per_token if nb_criteria_per_token[t] == max_nb_criteria]}
+
 
 def filter_submatching_results_by_criterion(res: dict) -> dict:
     logs = res['logs']
@@ -51,7 +47,7 @@ def filter_submatching_results_by_criterion(res: dict) -> dict:
     for strategy in res['highlights']:
         highlights = res['highlights'][strategy]
         matching_ids = list(highlights.keys())
-        if len(matching_ids)<1:
+        if len(matching_ids) < 1:
             logger.debug(f'SHOULD NOT HAPPEN ? not highlights but results {results} in strategy {strategy}')
             continue
         # Create all combinaisons of 2 ids among the matching_ids
@@ -81,7 +77,8 @@ def filter_submatching_results_by_criterion(res: dict) -> dict:
         new_highlights[strategy] = {k: v for k, v in current_highlights.items() if k in new_results}
     return {'highlights': new_highlights, 'logs': logs,
             'results': new_results}
-    
+
+
 def filter_submatching_results_by_all(res: dict) -> dict:
     logs = res['logs']
     results = res['results']
@@ -111,6 +108,7 @@ def filter_submatching_results_by_all(res: dict) -> dict:
         new_highlights[strategy] = {k: v for k, v in current_highlights.items() if k in new_results}
     return {'highlights': new_highlights, 'logs': logs,
             'results': new_results}
+
 
 class Matcher:
     def __init__(self) -> None:
@@ -164,7 +162,7 @@ class Matcher:
                             'highlight': {'fields': {'content': {'type': 'unified'}}}
                         }
                         hits = self.es.search(index=index, body=body).get('hits', []).get('hits', [])
-                        cache[cache_key] = hits 
+                        cache[cache_key] = hits
                     strategy_label = ';'.join(strategy)
                     if strategy_label not in all_hits:
                         all_hits[strategy_label] = {}

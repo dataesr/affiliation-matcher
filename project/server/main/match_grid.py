@@ -3,21 +3,16 @@ from project.server.main.utils import ENGLISH_STOP, FRENCH_STOP, remove_ref_inde
 
 DEFAULT_STRATEGIES_GRID = [
     [['grid_id'], ['ror_id']],
-    # group 1
     [['grid_name', 'grid_acronym', 'grid_city', 'grid_country'],
      ['grid_name', 'grid_acronym', 'grid_city', 'grid_country_code']],
-    # group 2
     [['grid_name', 'grid_city', 'grid_country'], ['grid_name', 'grid_city', 'grid_country_code']],
-    # group 3
     [['grid_acronym', 'grid_city', 'grid_country'], ['grid_acronym', 'grid_city', 'grid_country_code']],
-    # group 4
     [['grid_name', 'grid_acronym', 'grid_city'], ['grid_name', 'grid_acronym', 'grid_country'],
      ['grid_name', 'grid_acronym', 'grid_country_code']],
-    # group 5
     [['grid_name', 'grid_city']]
 ]
 
-# adding extra strategies with grid_cities_by_region instead of grid_city
+# Adding extra strategies with grid_cities_by_region instead of grid_city
 extended_strategies = []
 for s in DEFAULT_STRATEGIES_GRID:
     current_extented_s = []
