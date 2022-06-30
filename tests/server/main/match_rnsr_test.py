@@ -12,7 +12,7 @@ def elasticsearch() -> dict:
     es = MyElastic()
     load_rnsr(index_prefix=index_prefix)
     yield {'index_prefix': index_prefix}
-    es.delete_index(index=f'{index_prefix}*')
+    es.delete_index(index=f'{index_prefix}_rnsr_*')
 
 
 class TestMatchRnsr:
@@ -32,5 +32,5 @@ class TestMatchRnsr:
 
     def test_precision_recall(self, elasticsearch) -> None:
         precision_recall = compute_precision_recall(match_type='rnsr', index_prefix=elasticsearch['index_prefix'])
-        assert precision_recall['precision'] >= 0.98
-        assert precision_recall['recall'] >= 0.75
+        assert precision_recall['precision'] >= 0.96
+        assert precision_recall['recall'] >= 0.81

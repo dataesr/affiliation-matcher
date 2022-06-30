@@ -1,6 +1,7 @@
 import pytest
 
 from project.server.main.load_grid import load_grid
+from project.server.main.load_ror import load_ror
 from project.server.main.match_grid import get_ancestors, match_grid, remove_ancestors
 from project.server.main.metrics import compute_precision_recall
 from project.server.main.my_elastic import MyElastic
@@ -11,8 +12,10 @@ def elasticsearch() -> dict:
     index_prefix = 'test'
     es = MyElastic()
     load_grid(index_prefix=index_prefix)
+    load_ror(index_prefix=index_prefix)
     yield {'index_prefix': index_prefix, 'es': es}
-    es.delete_index(index=f'{index_prefix}*')
+    es.delete_index(index=f'{index_prefix}_grid_*')
+    es.delete_index(index=f'{index_prefix}_ror_*')
 
 
 class TestMatchGrid:
@@ -55,5 +58,5 @@ class TestMatchGrid:
 
     def test_precision_recall(self, elasticsearch) -> None:
         precision_recall = compute_precision_recall(match_type='grid', index_prefix=elasticsearch['index_prefix'])
-        assert precision_recall['precision'] >= 0.91
-        assert precision_recall['recall'] >= 0.23
+        assert precision_recall['precision'] >= 0.88
+        assert precision_recall['recall'] >= 0.25

@@ -6,26 +6,63 @@ from project.server.main.matcher import filter_submatching_results_by_all, filte
 class TestMatcher:
     @pytest.mark.parametrize(
         'highlights,results,expected_results', [
-            ({'grid.1': {'grid_name': ['<em>Medical</em> <em>Cambridge</em> <em>University</em>'],
-                         'grid_country': ['<em>United</em> <em>Kingdom</em>']},
-              'grid.2': {'grid_name': ['<em>Cambridge</em> <em>University</em>'],
-                         'grid_country': ['<em>United</em> <em>Kingdom</em>']},
-              'grid.3': {'grid_name': ['<em>Cambridge</em> <em>University</em>'],
-                         'grid_country': ['<em>United</em> <em>States</em>']},
-              },
+            ({
+                'grid_name;grid_country': {
+                    'grid.1': {
+                        'grid_name': ['<em>Medical</em> <em>Cambridge</em> <em>University</em>'],
+                        'grid_country': ['<em>United</em> <em>Kingdom</em>']
+                    },
+                    'grid.2': {
+                        'grid_name': ['<em>Cambridge</em> <em>University</em>'],
+                        'grid_country': ['<em>United</em> <em>Kingdom</em>']
+                    },
+                    'grid.3': {
+                        'grid_name': ['<em>Cambridge</em> <em>University</em>'],
+                        'grid_country': ['<em>United</em> <em>States</em>']
+                    }
+                }
+            },
              ['grid.1', 'grid.2', 'grid.3'], ['grid.1', 'grid.3']),
-            ({'us': {'grid_city': ['<em>Paris</em>', '<em>Philadelphia</em>'],
-                     'grid_name': ['<em>University</em> of <em>Philadelphia</em>']},
-              'fr': {'grid_city': ['<em>Paris</em>'], 'grid_name': ['<em>University</em> of <em>Paris</em>']}},
+            ({
+                'grid_city;grid_name': {
+                    'us': {
+                        'grid_city': ['<em>Paris</em>', '<em>Philadelphia</em>'],
+                        'grid_name': ['<em>University</em> of <em>Philadelphia</em>']
+                    },
+                    'fr': {
+                        'grid_city': ['<em>Paris</em>'],
+                        'grid_name': ['<em>University</em> of <em>Paris</em>']
+                    }
+                }
+            },
              ['us', 'fr'], ['us', 'fr']),
-            ({'us': {'grid_city': [['Tour Mirabeau <em>Paris</em>']]},
-              'fr': {'grid_city': [['Tour Mirabeau <em>Paris</em>']]},
-              'ca': {'grid_city': [['Tour Mirabeau <em>Paris</em>']]}},
+            ({
+                'grid_city': {
+                    'us': {
+                        'grid_city': [['Tour Mirabeau <em>Paris</em>']]
+                    },
+                    'fr': {
+                        'grid_city': [['Tour Mirabeau <em>Paris</em>']]
+                    },
+                    'ca': {
+                        'grid_city': [['Tour Mirabeau <em>Paris</em>']]
+                    }
+                }
+            },
              ['us', 'fr', 'ca'], ['us', 'fr', 'ca']),
-            # Cas limite
-            ({'us': {'grid_city': ['<em>New</em>', '<em>York</em>'],
-                     'grid_name': ['<em>University</em> of <em>New</em> <em>York</em>']},
-              'uk': {'grid_city': ['<em>York</em>'], 'grid_name': ['<em>University</em> of <em>York</em>']}},
+            # Edge cases
+            ({
+                'grid_city;grid_name': {
+                    'us': {
+                        'grid_city': ['<em>New</em>', '<em>York</em>'],
+                        'grid_name': ['<em>University</em> of <em>New</em> <em>York</em>']
+                    },
+                    'uk': {
+                        'grid_city': ['<em>York</em>'],
+                        'grid_name': ['<em>University</em> of <em>York</em>']
+                    }
+                }
+            },
              ['us', 'uk'], ['us'])
         ])
     def test_filter_submatching_results_by_criterion(self, highlights, results, expected_results) -> None:
@@ -36,13 +73,20 @@ class TestMatcher:
 
     @pytest.mark.parametrize(
         'highlights,results,expected_results', [
-            ({'grid.1': {'grid_name': [['<em>Paris</em> <em>University</em>']],
-                         'grid_city': [['<em>Paris</em>']],
-                         'grid_country': [['<em>France</em>']]},
-              'grid.2': {'grid_name': [['<em>Sorbonne</em> <em>University</em>']],
-                         'grid_city': [['<em>Paris</em>']],
-                         'grid_country': [['<em>France</em>']]},
-              },
+            ({
+                'grid_name;grid_city;grid_country': {
+                    'grid.1': {
+                        'grid_name': [['<em>Paris</em> <em>University</em>']],
+                        'grid_city': [['<em>Paris</em>']],
+                        'grid_country': [['<em>France</em>']]
+                    },
+                    'grid.2': {
+                        'grid_name': [['<em>Sorbonne</em> <em>University</em>']],
+                        'grid_city': [['<em>Paris</em>']],
+                        'grid_country': [['<em>France</em>']]
+                    }
+                }
+            },
              ['grid.1', 'grid.2'], ['grid.2'])
         ])
     def test_filter_submatching_results_by_all(self, highlights, results, expected_results) -> None:

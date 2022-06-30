@@ -33,9 +33,6 @@ class TestUtils:
         result = normalize_text(text, remove_separator=False)
         assert result == normalized_text
 
-    # TODO
-    # def test_download_data_from_grid(self, requests_mock) -> None
-
     @pytest.mark.parametrize('text,test_has_a_digit_text', [
         ('no_digit_at_all', False),
         ('0test', True)
@@ -59,11 +56,11 @@ class TestUtils:
 
     @pytest.mark.parametrize('text,clean_text', [
         ('example', 'example'),
-        ('1example', 'example'),
-        ('12example', 'example'),
-        ('123example', '123example'),
-        ('exam58ple', 'exam58ple'),
-        ('12 example', '12 example')
+        ('1example and another text so on', 'example and another text so on'),
+        ('12example and another text so on', 'example and another text so on'),
+        ('123example and another text so on', '123example and another text so on'),
+        ('exam58ple and another text so on', 'exam58ple and another text so on'),
+        ('12 example and another text so on', '12 example and another text so on')
     ])
     def test_remove_ref_index(self, text, clean_text) -> None:
         result = remove_ref_index(query=text)

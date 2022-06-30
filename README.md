@@ -162,7 +162,9 @@ By example : `[[["grid_name", "grid_country"], ["grid_name", "grid_country_code"
 
 ## Results
 
-| repository | precision | recall |
+| matcher | precision | recall |
 | ----- | ----- | ----- |
-| grid | 0.9157 | 0.2334 |
-| rnsr | 0.9856 | 0.7534 |
+| country | 0.8978 | 0.5241 |
+| grid | 0.8849 | 0.2547 |
+| rnsr | 0.9654 | 0.8192 |
+| ror | 0.8891 | 0.2356 |
