@@ -8,7 +8,7 @@ unit: start
 	APP_ENV=test venv/bin/python -m pytest
 	@echo End of unit tests
 
-start:
+start: stop
 	@echo Affiliation matcher starting...
 	docker-compose up -d
 	@echo Affiliation matcher started http://localhost:5004
