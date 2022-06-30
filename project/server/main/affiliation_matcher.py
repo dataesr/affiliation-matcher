@@ -26,8 +26,10 @@ def check_matcher_health() -> bool:
 
 def get_query_from_affiliation(affiliation):
     query_elts = []
+    keys = list(affiliation.keys())
+    keys.sort()
     for f in affiliation:
-        if f.lower() in ['name', 'ror', 'grid', 'rnsr', 'country']:
+        if f.lower() in ['name', 'ror', 'grid', 'rnsr', 'country', 'city']:
             if isinstance(affiliation.get(f), str) and affiliation[f]:
                 query_elts.append(affiliation[f])
     return ' '.join(query_elts)
