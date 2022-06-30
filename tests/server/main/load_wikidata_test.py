@@ -1,8 +1,11 @@
+import pytest
+
 from project.server.main.load_wikidata import data2actions, load_wikidata
 from project.server.main.my_elastic import MyElastic
 
 
 class TestLoadWikidata:
+    @pytest.mark.skip
     def test_data2actions(self) -> None:
         index = 'test_wikidata'
         data = [{'country_alpha2': {'value': 'FR'}, 'label_en': {'value': 'label_01_EN'},
@@ -13,6 +16,7 @@ class TestLoadWikidata:
         assert actions[0]['country_alpha2'] == 'fr'
         assert actions[0]['query']['match_phrase']['content']['query'] in ['label_01_EN', 'label_01_FR']
 
+    @pytest.mark.skip
     def test_load_wikidata(self, requests_mock) -> None:
         requests_mock.real_http = True
         requests_mock.get('https://query.wikidata.org/bigdata/namespace/wdq/sparql',

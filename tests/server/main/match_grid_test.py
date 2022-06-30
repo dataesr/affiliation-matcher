@@ -41,9 +41,11 @@ class TestMatchGrid:
         'query,strategies,expected_results', [
             ('université de rennes 2', [[['grid_name']]], ['grid.11619.3e']),
             ('université de paris sorbonne', [[['grid_name']]], ['grid.462844.8']),
-            ('mcgill university montreal quebec', [[['grid_name', 'grid_city']], [['grid_name', 'grid_cities_by_region']]], ['grid.14709.3b']),
+            ('mcgill university montreal quebec', [[['grid_name', 'grid_city']],
+             [['grid_name', 'grid_cities_by_region']]], ['grid.14709.3b']),
             ('institut pasteur shanghai', [[['grid_name']]], ['grid.429007.8']),
-            ('Semmelweis University Budapest Hungary', [[['grid_name', 'grid_city', 'grid_country']]], ['grid.11804.3c']),
+            ('Semmelweis University Budapest Hungary', [[['grid_name', 'grid_city', 'grid_country']]],
+             ['grid.11804.3c']),
             ('02feahw73', [[['ror_id']]], ['grid.4444.0']),
             ('grid.4444.0', [[['grid_id']]], ['grid.4444.0'])
         ]

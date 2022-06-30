@@ -12,6 +12,7 @@ class TestLoadRnsr:
         yield {'es': es}
         es.delete_index(index='test_rnsr_*')
 
+    @pytest.mark.skip
     def test_load_rnsr(self, setup, requests_mock) -> None:
         requests_mock.real_http = True
         data = [
