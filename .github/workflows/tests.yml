@@ -28,7 +28,11 @@ jobs:
       - name: Check that ES is up
         run: |
           curl "http://localhost:9200/_cat/indices?s=i"
+      
+      - name: Check that app is up
+        run: |
+          curl -X POST "http://localhost:5004/match_api" --header 'Content-Type: application/json' --d '{"query": "IPAG Institut de Planétologie Astrophysique de Grenoble"}'
 
       - name: 🟩 Run unit tests
         run: |
-          python -m pytest tests/server/main/utils_test.py
+          python -m pytest tests/server/main/elastic_utils_test.py
