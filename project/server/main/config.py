@@ -10,11 +10,10 @@ def get_last_ror_dump_url():
     try:
         ROR_URL = 'https://zenodo.org/api/records/?communities=ror-data&sort=mostrecent'
         response = requests.get(url=ROR_URL).json()
-        ror_dump_url = response['hits']['hits'][0]['files'][0]['links']['self']
+        ror_dump_url = response['hits']['hits'][0]['files'][-1]['links']['self']
         logger.debug(f'Last ROR dump url found: {ror_dump_url}')
     except:
-        ror_dump_url = 'https://zenodo.org/api/files/b3deada8-9485-45f9-a6e5-50c2a512b12d/' \
-            'v1.0-2022-03-17-ror-data.json.zip'
+        ror_dump_url = 'https://zenodo.org/api/files/25d4f93f-6854-4dd4-9954-173197e7fad7/v1.1-2022-06-16-ror-data.zip'
         logger.error(f'ROR dump url detection failed, using {ror_dump_url} instead')
     return ror_dump_url
 
