@@ -1,11 +1,8 @@
-import pytest
-
 from project.server.main.load_grid import load_grid
 from project.server.main.my_elastic import MyElastic
 
 
 class TestLoadGrid:
-    @pytest.mark.skip
     def test_load_grid(self) -> None:
         es = MyElastic()
         load_grid(index_prefix='test')

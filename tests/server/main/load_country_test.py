@@ -1,11 +1,8 @@
-import pytest
-
 from project.server.main.load_country import load_country
 from project.server.main.my_elastic import MyElastic
 
 
 class TestLoadCountry:
-    @pytest.mark.skip
     def test_load_country(self) -> None:
         es = MyElastic()
         load_country(index_prefix='test')

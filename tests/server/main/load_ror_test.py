@@ -1,11 +1,8 @@
-import pytest
-
 from project.server.main.load_ror import load_ror
 from project.server.main.my_elastic import MyElastic
 
 
 class TestLoadRor:
-    @pytest.mark.skip
     def test_load_ror(self) -> None:
         es = MyElastic()
         index_prefix = 'test'
