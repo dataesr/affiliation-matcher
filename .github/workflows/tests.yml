@@ -31,4 +31,4 @@ jobs:
 
       - name: 🟩 Run unit tests
         run: |
-          python -m pytest tests/server/main/my_elastic_test.py
+          python -m pytest tests/server/main/utils_test.py
