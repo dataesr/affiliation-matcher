@@ -23,8 +23,8 @@ jobs:
 
       - name: Wait for app to be up
         run: |
-          sleep 60
+          sleep 30
 
       - name: 🟩 Run unit tests
         run: |
-          APP_ENV=test python -m pytest tests/server/main/my_elastic_test.py
+          APP_ENV=test python -m pytest

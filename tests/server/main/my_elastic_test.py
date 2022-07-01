@@ -9,9 +9,7 @@ class TestMyElastic:
     def test_create_index(self) -> None:
         index = 'create'
         es = MyElastic()
-        print(es)
         indices = es.indices.get_alias('*').keys()
-        print(indices)
         assert len(indices) == 0
         es.create_index(index=index)
         indices = es.indices.get_alias('*').keys()
