@@ -1,5 +1,5 @@
 const matchApi = (request) => {
-    request.url = '/match_api';
+    request.url = '/match';
     request.method = 'POST';
     $.ajax(request)
         .done(response => {

@@ -27,7 +27,7 @@ def run_task_load():
     return jsonify(response_object), 202
 
 
-@main_blueprint.route('/match_api', methods=['POST'])
+@main_blueprint.route('/match', methods=['POST'])
 def run_task_match():
     if request.files.get('file') is None:
         args = request.get_json(force=True)
