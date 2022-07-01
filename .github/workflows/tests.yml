@@ -23,7 +23,7 @@ jobs:
 
       - name: Wait for app to be up
         run: |
-          sleep 30
+          sleep 60
 
       - name: 🟩 Run unit tests
         run: |
