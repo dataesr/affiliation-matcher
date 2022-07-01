@@ -25,10 +25,6 @@ jobs:
         run: |
           sleep 60
 
-      - name: Check that ES is up 1/2
-        run: |
-          curl "http://localhost:9200/_cat/indices?s=i"
-
       - name: 🟩 Run unit tests
         run: |
           APP_ENV=test python -m pytest tests/server/main/my_elastic_test.py

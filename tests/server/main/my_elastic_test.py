@@ -1,10 +1,7 @@
-import pytest
-
 from project.server.main.my_elastic import MyElastic
 
 
 class TestMyElastic:
-    @pytest.mark.skip
     def test_constructor(self) -> None:
         es = MyElastic()
         assert type(es) == MyElastic
@@ -22,7 +19,6 @@ class TestMyElastic:
         assert index in indices
         es.delete_index(index=index)
 
-    @pytest.mark.skip
     def test_delete_index(self) -> None:
         index = 'delete'
         es = MyElastic()
@@ -34,7 +30,6 @@ class TestMyElastic:
         assert len(indices) == 0
         es.delete_index(index=index)
 
-    @pytest.mark.skip
     def test_delete_all_by_query(self) -> None:
         index = 'delete_all'
         es = MyElastic()
