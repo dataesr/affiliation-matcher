@@ -31,7 +31,7 @@ jobs:
       
       - name: Check that app is up
         run: |
-          curl -X POST "http://localhost:5004/match_api" --header 'Content-Type: application/json' --d '{"query": "IPAG Institut de Planétologie Astrophysique de Grenoble"}'
+          curl -X POST "http://localhost:5004/match_api" --header 'Content-Type: application/json' -d '{"query": "IPAG Institut de Planétologie Astrophysique de Grenoble"}'
 
       - name: 🟩 Run unit tests
         run: |
