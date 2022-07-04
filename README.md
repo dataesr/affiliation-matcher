@@ -87,22 +87,43 @@ make release VERSION=x.x.x
 
 ## API
 
-Querying the API but setting your own strategies :
+### Match a single query `/match`
 
-`curl "YOUR_API_IP/match" -X POST -d '{"type": "YOUR_TYPE", "query": "YOUR_QUERY", "strategies": YOUR_STRATEGIES}'`
+Query the API by setting your own strategies :
+
+`curl "YOUR_API_IP/match" -X POST -d '{"type": "YOUR_TYPE", "query": "YOUR_QUERY", "strategies": "YOUR_STRATEGIES"}'`
 
 YOUR_TYPE is optional, has to be a string and can be one of :
-* country
-* grid
-* rnsr
-* ror
-By default, type is equal to "rnsr".
+* "country"
+* "grid"
+* "rnsr"
+* "ror"
+
+By default, YOUR_TYPE is equal to "rnsr".
 
 YOUR_QUERY is **mandatory**, has to be a string and is your affiliation text.
 By example : `IPAG Institut de Planétologie et d'Astrophysique de Grenoble`.
 
 YOUR_STRATEGIES is optional, has to be a 3 dimensional arrays of criteria (see next paragraph).
 By example : `[[["grid_name", "grid_country"], ["grid_name", "grid_country_code"]]]`.
+
+
+### Match multiple queries `/match_list`
+
+`curl "YOUR_API_IP/match_list" -X POST -d '{"match_types": "YOUR_TYPES", "affiliations": "YOUR_AFFILIATIONS"}'`
+
+YOUR_TYPES is optional, has to be a list of string and can contain one of :
+* "country"
+* "grid"
+* "rnsr"
+* "ror"
+
+By default, YOUR_TYPES is equal to ["grid", "rnsr"].
+
+YOUR_AFFILIATIONS is optional, has to be a list of string.
+By example : `["affiliation_01", "affiliation_02"]`.
+
+By default, YOUR_AFFILIATIONS is equal to [].
 
 
 ## Criteria
