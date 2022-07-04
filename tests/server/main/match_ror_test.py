@@ -12,13 +12,13 @@ def elasticsearch() -> dict:
     es = MyElastic()
     load_ror(index_prefix=index_prefix)
     yield {'index_prefix': index_prefix, 'es': es}
-    es.delete_index(index=f'{index_prefix}*')
+    es.delete_index(index=f'{index_prefix}_ror_*')
 
 
 class TestMatchRor:
     @pytest.mark.parametrize(
         'query,strategies,expected_results,expected_logs', [
-            ('institut pasteur shanghai', [[['ror_name']]], ['0495fxg12'], ''),
+            ('institut pasteur shanghai', [[['ror_name']]], ['00w78qy64'], ''),
             ('02feahw73', [[['ror_id']]], ['02feahw73'], ''),
             ('grid.4444.0', [[['ror_grid_id']]], ['02feahw73'], '')
         ]
@@ -34,5 +34,5 @@ class TestMatchRor:
 
     def test_precision_recall(self, elasticsearch) -> None:
         precision_recall = compute_precision_recall(match_type='ror', index_prefix=elasticsearch['index_prefix'])
-        assert precision_recall['precision'] >= 0.81
-        assert precision_recall['recall'] >= 0.16
+        assert precision_recall['precision'] >= 0.88
+        assert precision_recall['recall'] >= 0.23

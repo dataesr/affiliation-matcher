@@ -15,7 +15,7 @@ jobs:
         run: echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
 
       - name: 🐍 Build python package
-        run: make python-build
+        run: python setup.py sdist
 
       - name: 📦 Upload python package to release
         uses: svenstaro/upload-release-action@v2

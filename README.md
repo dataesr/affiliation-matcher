@@ -89,7 +89,7 @@ make release VERSION=x.x.x
 
 Querying the API but setting your own strategies :
 
-`curl "YOUR_API_IP/match_api" -X POST -d '{"type": "YOUR_TYPE", "query": "YOUR_QUERY", "strategies": YOUR_STRATEGIES}'`
+`curl "YOUR_API_IP/match" -X POST -d '{"type": "YOUR_TYPE", "query": "YOUR_QUERY", "strategies": YOUR_STRATEGIES}'`
 
 YOUR_TYPE is optional, has to be a string and can be one of :
 * country
@@ -156,13 +156,15 @@ Here is a list of the criteria available for the **ror matcher**:
 1. You can combine criteria to create a strategy.
 2. You can cumulate strategies to create a family of strategies.
 3. And then you can cumulate families of strategies to create the final object.
-4. This final object `strategies` is then a 3 dimensional array that you will give as an argument to the "/match_api" API endpoint.
+4. This final object `strategies` is then a 3 dimensional array that you will give as an argument to the "/match" API endpoint.
 By example : `[[["grid_name", "grid_country"], ["grid_name", "grid_country_code"]]]`.
 
 
 ## Results
 
-| repository | precision | recall |
+| matcher | precision | recall |
 | ----- | ----- | ----- |
-| grid | 0.9157 | 0.2334 |
-| rnsr | 0.9856 | 0.7534 |
+| country | 0.8978 | 0.5241 |
+| grid | 0.8849 | 0.2547 |
+| rnsr | 0.9654 | 0.8192 |
+| ror | 0.8891 | 0.2356 |

@@ -27,4 +27,4 @@ jobs:
 
       - name: 🟩 Run unit tests
         run: |
-          python -m pytest
+          APP_ENV=test python -m pytest

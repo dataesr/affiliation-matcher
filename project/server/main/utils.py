@@ -15,22 +15,37 @@ ENGLISH_STOP = ['a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', '
                 'not', 'of', 'on', 'or', 'such', 'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this',
                 'to', 'was', 'will', 'with']
 
-FRENCH_STOP = ["au","aux","avec","ce","ces","dans","de","des","du","elle","en","et","eux","il","je","la","le","leur","lui","ma","mais","me","même","mes","moi","mon","ne","nos","notre","nous","on","ou","par","pas","pour","qu","que","qui","sa","se","ses","sur","ta","te","tes","toi","ton","tu","un","une","vos","votre","vous","c","d","j","l","à","m","n","s","t","y","étée","étées","étant","suis","es","êtes","sont","serai","seras","sera","serons","serez","seront","serais","serait","serions","seriez","seraient","étais","était","étions","étiez","étaient","fus","fut","fûmes","fûtes","furent","sois","soit","soyons","soyez","soient","fusse","fusses","fussions","fussiez","fussent","ayant","eu","eue","eues","eus","ai","avons","avez","ont","aurai","aurons","aurez","auront","aurais","aurait","aurions","auriez","auraient","avais","avait","aviez","avaient","eut","eûmes","eûtes","eurent","aie","aies","ait","ayons","ayez","aient","eusse","eusses","eût","eussions","eussiez","eussent","ceci","cela","celà","cet","cette","ici","ils","les","leurs","quel","quels","quelle","quelles","sans","soi"]
+FRENCH_STOP = ['au', 'aux', 'avec', 'ce', 'ces', 'dans', 'de', 'des', 'du', 'elle', 'en', 'et', 'eux', 'il', 'je', 'la',
+               'le', 'leur', 'lui', 'ma', 'mais', 'me', 'même', 'mes', 'moi', 'mon', 'ne', 'nos', 'notre', 'nous', 'on',
+               'ou', 'par', 'pas', 'pour', 'qu', 'que', 'qui', 'sa', 'se', 'ses', 'sur', 'ta', 'te', 'tes', 'toi',
+               'ton', 'tu', 'un', 'une', 'vos', 'votre', 'vous', 'c', 'd', 'j', 'l', 'à', 'm', 'n', 's', 't', 'y',
+               'étée', 'étées', 'étant', 'suis', 'es', 'êtes', 'sont', 'serai', 'seras', 'sera', 'serons', 'serez',
+               'seront', 'serais', 'serait', 'serions', 'seriez', 'seraient', 'étais', 'était', 'étions', 'étiez',
+               'étaient', 'fus', 'fut', 'fûmes', 'fûtes', 'furent', 'sois', 'soit', 'soyons', 'soyez', 'soient',
+               'fusse', 'fusses', 'fussions', 'fussiez', 'fussent', 'ayant', 'eu', 'eue', 'eues', 'eus', 'ai', 'avons',
+               'avez', 'ont', 'aurai', 'aurons', 'aurez', 'auront', 'aurais', 'aurait', 'aurions', 'auriez', 'auraient',
+               'avais', 'avait', 'aviez', 'avaient', 'eut', 'eûmes', 'eûtes', 'eurent', 'aie', 'aies', 'ait', 'ayons',
+               'ayez', 'aient', 'eusse', 'eusses', 'eût', 'eussions', 'eussiez', 'eussent', 'ceci', 'cela', 'celà',
+               'cet', 'cette', 'ici', 'ils', 'les', 'leurs', 'quel', 'quels', 'quelle', 'quelles', 'sans', 'soi']
 
 GEO_IGNORED = ['union'] + FRENCH_STOP + ENGLISH_STOP
 
-ACRONYM_IGNORED = ['usa', 'pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu', 'care', 'medecine', 'unite'] + FRENCH_STOP + ENGLISH_STOP
+ACRONYM_IGNORED = ['usa', 'pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu', 'care',
+                   'medecine', 'unite'] + FRENCH_STOP + ENGLISH_STOP
+
 
 def remove_stop(text: str, stopwords: list) -> str:
     pattern = re.compile(r'\b(' + r'|'.join(stopwords) + r')\b\s*', re.IGNORECASE)
     return pattern.sub('', text)
 
+
 def remove_parenthesis(x):
     if isinstance(x, str):
-        return re.sub("[\(\[].*?[\)\]]", "", x)
+        return re.sub(r"[\(\[].*?[\)\]]", "", x)
     return x
 
-def clean_list(data: list, stopwords = [], ignored = [], remove_inside_parenthesis = True, min_token = 1) -> list:
+
+def clean_list(data: list, stopwords=[], ignored=[], remove_inside_parenthesis=True, min_token=1) -> list:
     # Cast data into list if needed
     if not isinstance(data, list):
         data = [data]
@@ -47,13 +62,16 @@ def clean_list(data: list, stopwords = [], ignored = [], remove_inside_parenthes
     data = [k for k in data if len(get_token_basic(k)) >= min_token]
     return data
 
+
 def chunks(lst: list, n: int) -> list:
     """Yield successive n-sized chunks from list."""
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
+
 def get_token_basic(x):
     return x.split(' ')
+
 
 def get_tokens(indices_client, analyzer: str, index: str, text: str) -> list:
     try:
@@ -65,7 +83,7 @@ def get_tokens(indices_client, analyzer: str, index: str, text: str) -> list:
 
 def remove_ref_index(query: str) -> str:
     """Remove the first 2 digits of a string if any."""
-    if len(query.split(' '))> 5:
+    if len(query.split(' ')) > 5:
         rgx = re.compile(r"^(\d){1,2}([A-Za-z])(.*)")
         return rgx.sub("\\2\\3", query).strip()
     return query.strip()
