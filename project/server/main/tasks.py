@@ -29,15 +29,15 @@ def create_task_enrich_filter(args: dict = None) -> dict:
 
 def create_task_affiliations_list(args: dict = None) -> dict:
     check_matcher_health()
-    affiliations = args.get('affiliations', {})
-    logger.debug(f'start matching {len(affiliations)} affiliations ...')
+    affiliations = args.get('affiliations', [])
+    logger.debug(f'Start matching {len(affiliations)} affiliations ...')
     if not isinstance(affiliations, list):
         logger.debug('No valid affiliations args')
     res = []
-    match_types = args.get('match_types', ['rnsr', 'grid'])
+    match_types = args.get('match_types', ['grid', 'rnsr'])
     for aff in affiliations:
         res.append({'query': aff, 'matches': get_matches(aff, match_types)})
-    logger.debug(f'end matching {len(affiliations)} affiliations.')
+    logger.debug(f'End matching {len(affiliations)} affiliations.')
     return res
 
 

@@ -1,17 +1,15 @@
-from project.server.main.load_grid import load_grid
-from project.server.main.load_country import load_country
 from project.server.main.logger import get_logger
 from project.server.main.match_country import match_country
-from project.server.main.match_rnsr import match_rnsr
 from project.server.main.match_grid import match_grid
+from project.server.main.match_rnsr import match_rnsr
+from project.server.main.match_ror import match_ror
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import chunks
 
 logger = get_logger(__name__)
-    
 client = MyElastic()
-
 use_cache = False
+
 
 def check_matcher_health() -> bool:
     try:
@@ -24,6 +22,7 @@ def check_matcher_health() -> bool:
         logger.debug('Matcher does not seem loaded, lets load it')
         return False
 
+
 def get_query_from_affiliation(affiliation):
     query_elts = []
     keys = list(affiliation.keys())
@@ -33,6 +32,7 @@ def get_query_from_affiliation(affiliation):
             if isinstance(affiliation.get(f), str) and affiliation[f]:
                 query_elts.append(affiliation[f])
     return ' '.join(query_elts)
+
 
 def get_country(affiliation):
     in_cache = False
@@ -58,22 +58,26 @@ def get_country(affiliation):
         countries = match_country(conditions={'query': affiliation})['results']
     return {'countries': countries, 'in_cache': in_cache}
 
+
 def get_matches(affiliation, match_types):
     results = []
     other_ids = []
-    if 'rnsr' in match_types:
-        rnsrs = match_rnsr(conditions={'query': affiliation})
-        results += [{'id': e, 'type': 'rnsr'} for e in rnsrs['results']]
-        if 'other_ids' in rnsrs:
-            other_ids += rnsrs['other_ids']
+    if 'country' in match_types:
+        countries = match_country(conditions={'query': affiliation})
+        results += [{'id': e, 'type': 'country'} for e in countries['results']]
     if 'grid' in match_types:
         grids = match_grid(conditions={'query': affiliation})
         results += [{'id': e, 'type': 'grid'} for e in grids['results']]
         if 'other_ids' in grids:
             other_ids += grids['other_ids']
-    if 'country' in match_types:
-        countries = match_country(conditions={'query': affiliation})
-        results += [{'id': e, 'type': 'country'} for e in grids['results']]
+    if 'rnsr' in match_types:
+        rnsrs = match_rnsr(conditions={'query': affiliation})
+        results += [{'id': e, 'type': 'rnsr'} for e in rnsrs['results']]
+        if 'other_ids' in rnsrs:
+            other_ids += rnsrs['other_ids']
+    if 'ror' in match_types:
+        rors = match_ror(conditions={'query': affiliation})
+        results += [{'id': e, 'type': 'country'} for e in rors['results']]
     for r in other_ids:
         if r['type'] in ['siren', 'sirene', 'siret'] and r not in results:
             results.append(r)
@@ -113,12 +117,12 @@ def enrich_and_filter_publications_by_country(publications: list, countries_to_k
             all_affiliations_dict[affiliation] = get_country(affiliation)
         logger.debug(f'{len(all_affiliations_dict)} / {len(all_affiliations_list)} treated in country_matcher')
         if use_cache:
-            logger.debug(f'loading in cache')
+            logger.debug('Loading in cache')
             cache = []
             for ix, affiliation in enumerate(all_affiliations_list_chunk):
                 if affiliation in all_affiliations_dict and all_affiliations_dict[affiliation]['in_cache'] is False:
                     cache.append({'_index': 'bso-cache-country', 'affiliation': affiliation,
-                              'countries': all_affiliations_dict[affiliation]['countries']})
+                                  'countries': all_affiliations_dict[affiliation]['countries']})
             client.parallel_bulk(actions=cache)
     logger.debug('All countries of all affiliations have been retrieved.')
     # Map countries with affiliations

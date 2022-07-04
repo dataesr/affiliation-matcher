@@ -65,7 +65,7 @@ def run_task_enrich_filter():
     return jsonify(response_object), 202
 
 
-@main_blueprint.route('/affiliations_list', methods=['POST'])
+@main_blueprint.route('/match_list', methods=['POST'])
 def run_task_affiliations_list():
     args = request.get_json(force=True)
     logger.debug(args)
