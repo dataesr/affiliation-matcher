@@ -34,8 +34,9 @@ def create_task_affiliations_list(args: dict = None) -> dict:
     if not isinstance(affiliations, list):
         logger.debug('No valid affiliations args')
     res = []
+    match_types = args.get('match_types', ['rnsr', 'grid'])
     for aff in affiliations:
-        res.append({'query': aff, 'matches': get_matches(aff)})
+        res.append({'query': aff, 'matches': get_matches(aff, match_types)})
     logger.debug(f'end matching {len(affiliations)} affiliations.')
     return res
 

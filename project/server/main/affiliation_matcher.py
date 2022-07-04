@@ -58,23 +58,22 @@ def get_country(affiliation):
         countries = match_country(conditions={'query': affiliation})['results']
     return {'countries': countries, 'in_cache': in_cache}
 
-def get_matches(affiliation):
-    rnsrs = match_rnsr(conditions={'query': affiliation})
-    grids = match_grid(conditions={'query': affiliation})
+def get_matches(affiliation, match_types):
     results = []
-    results += [{'id': e, 'type': 'rnsr'} for e in rnsrs['results']]
-    results += [{'id': e, 'type': 'grid'} for e in grids['results']]
     other_ids = []
-    if 'other_ids' in rnsrs:
-        other_ids += rnsrs['other_ids']
-    else:
-        logger.debug('field other_id missing ?')
-        logger.debug(rnsrs)
-    if 'other_ids' in grids:
-        other_ids += grids['other_ids']
-    else:
-        logger.debug('field other_id missing ?')
-        logger.debug(grids)
+    if 'rnsr' in match_types:
+        rnsrs = match_rnsr(conditions={'query': affiliation})
+        results += [{'id': e, 'type': 'rnsr'} for e in rnsrs['results']]
+        if 'other_ids' in rnsrs:
+            other_ids += rnsrs['other_ids']
+    if 'grid' in match_types:
+        grids = match_grid(conditions={'query': affiliation})
+        results += [{'id': e, 'type': 'grid'} for e in grids['results']]
+        if 'other_ids' in grids:
+            other_ids += grids['other_ids']
+    if 'country' in match_types:
+        countries = match_country(conditions={'query': affiliation})
+        results += [{'id': e, 'type': 'country'} for e in grids['results']]
     for r in other_ids:
         if r['type'] in ['siren', 'sirene', 'siret'] and r not in results:
             results.append(r)
