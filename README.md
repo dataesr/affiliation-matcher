@@ -91,7 +91,7 @@ make release VERSION=x.x.x
 
 Query the API by setting your own strategies :
 
-`curl "YOUR_API_IP/match" -X POST -d '{"type": "YOUR_TYPE", "query": "YOUR_QUERY", "strategies": "YOUR_STRATEGIES"}'`
+`curl "YOUR_API_IP/match" -X POST -d '{"type": "YOUR_TYPE", "query": "YOUR_QUERY", "strategies": "YOUR_STRATEGIES", "year": "YOUR_YEAR"}'`
 
 YOUR_TYPE is optional, has to be a string and can be one of :
 * "country"
@@ -102,10 +102,18 @@ YOUR_TYPE is optional, has to be a string and can be one of :
 By default, YOUR_TYPE is equal to "rnsr".
 
 YOUR_QUERY is **mandatory**, has to be a string and is your affiliation text.
+
 By example : `IPAG Institut de Planétologie et d'Astrophysique de Grenoble`.
 
 YOUR_STRATEGIES is optional, has to be a 3 dimensional arrays of criteria (see next paragraph).
+
 By example : `[[["grid_name", "grid_country"], ["grid_name", "grid_country_code"]]]`.
+
+YOUR_YEAR is optional, and can be used only if you use the "rnsr" matcher type, has te be a string.
+
+By example : `1998`.
+
+By default, YOUR_YEAR is not set ie. it will be match over all years.
 
 
 ### Match multiple queries `/match_list`
