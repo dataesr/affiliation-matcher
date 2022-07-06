@@ -27,7 +27,7 @@ setup(
         'Flask==1.1.1',
         'Flask-Bootstrap==3.3.7.1',
         'geopy==2.1.0',
-        'lxml==4.6.5',
+        'lxml==4.9.1',
         'pandas==0.25.3',
         'pycountry==20.7.3',
         'redis==3.3.11',
