@@ -193,7 +193,7 @@ By example : `[[["grid_name", "grid_country"], ["grid_name", "grid_country_code"
 
 | matcher | precision | recall |
 | ----- | ----- | ----- |
-| country | 0.8978 | 0.5241 |
-| grid | 0.8849 | 0.2547 |
+| country | 0.9953 | 0.9690 |
+| grid | 0.7946 | 0.5944 |
 | rnsr | 0.9654 | 0.8192 |
-| ror | 0.8891 | 0.2356 |
+| ror | 0.8891 | 0.2356 | (TBC ???)
