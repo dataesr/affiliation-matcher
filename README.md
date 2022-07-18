@@ -26,6 +26,9 @@ https://hal.archives-ouvertes.fr/hal-03365806.
 
 ## Run it locally
 
+:warning: Please use `docker-compose` version 1.27.0 up to 1.19.2.
+
+
 ```shell
 git clone git@github.com:dataesr/affiliation-matcher.git
 cd affiliation-matcher
