@@ -15,11 +15,12 @@ services:
       - redis
 
   elasticsearch:
-    image: dataesr/es_icu:1.1
+    image: dataesr/es_icu:7.12.0
     ports:
       - 9200:9200
     environment:
       - 'discovery.type=single-node'
+      - 'ES_JAVA_OPTS=-Xms1g -Xmx1g'
     volumes:
       - elastic:/usr/share/elasticsearch/data
     networks:
