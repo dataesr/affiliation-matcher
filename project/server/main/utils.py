@@ -34,6 +34,25 @@ ACRONYM_IGNORED = ['usa', 'pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation
                    'medecine', 'unite'] + FRENCH_STOP + ENGLISH_STOP
 
 
+COUNTRY_SWITCHER = {
+            'bn': ['brunei'],
+            'ci': ['ivory coast'],
+            'cv': ['cape verde'],
+            'cz': ['czech'],
+            'de': ['deutschland'],
+            'gb': ['uk'],
+            'ir': ['iran'],
+            'kp': ['north korea'],
+            'kr': ['south korea', 'republic of korea'],
+            'la': ['laos'],
+            'mo': ['macau'],
+            'ru': ['russia'],
+            'sy': ['syria'],
+            'tw': ['taiwan'],
+            'us': ['usa'],
+            'vn': ['vietnam']
+        }
+
 def remove_stop(text: str, stopwords: list) -> str:
     pattern = re.compile(r'\b(' + r'|'.join(stopwords) + r')\b\s*', re.IGNORECASE)
     return pattern.sub('', text)

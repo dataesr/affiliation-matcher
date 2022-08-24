@@ -10,7 +10,7 @@ from project.server.main.config import CHUNK_SIZE, ROR_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED
+from project.server.main.utils import clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED, COUNTRY_SWITCHER
 
 logger = get_logger(__name__)
 SOURCE = 'ror'
@@ -49,10 +49,14 @@ def transform_data(rors: list) -> list:
         city = [address.get('city') for address in ror.get('addresses', [])]
         country = [ror.get('country', {}).get('country_name')]
         country_code = [ror.get('country', {}).get('country_code').lower()]
+        if country_code:
+            # handle usa, uk etc
+            country += COUNTRY_SWITCHER.get(country_code[0], [])
         current_id = ror.get('id').replace('https://ror.org/', '')
         name = [ror.get('name')]
         name += ror.get('aliases', [])
         name += [label.get('label') for label in ror.get('labels', [])]
+        relationships = ror.get('relationships')
         externals = ror.get('external_ids', [])
         external_ids = {}
         grids = []
@@ -61,6 +65,11 @@ def transform_data(rors: list) -> list:
             if ext_id.lower() == 'grid':
                 grids = get_external_ids(externals[ext_id])
         countries_code = clean_list(data=country_code)
+        supervisor_name = []
+        if relationships:
+            for relationship in relationships:
+                if relationship.get('type') == 'Parent' and relationship.get('label'):
+                    supervisor_name.append(relationship.get('label'))
         current_data = {
             'acronym': clean_list(data=acronym, ignored=ACRONYM_IGNORED),
             'city': clean_list(data=city, ignored=GEO_IGNORED),
@@ -68,6 +77,7 @@ def transform_data(rors: list) -> list:
             'country_code': countries_code,
             'id': current_id,
             'name': clean_list(data=name, stopwords=FRENCH_STOP+ENGLISH_STOP, min_token = 2),
+            'supervisor_name': clean_list(data=supervisor_name, stopwords=FRENCH_STOP+ENGLISH_STOP, min_token = 2),
         }
         if grids:
             current_data['grid_id'] = grids
@@ -98,9 +108,10 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         'city': 'city_analyzer',
         'country': 'light',
         'country_code': 'light',
-        'name': 'heavy_en'
+        'name': 'heavy_en',
+        'supervisor_name': 'heavy_en'
     }
-    criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name']
+    criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name', 'supervisor_name']
     criteria_unique = ['acronym', 'name']
     for c in criteria_unique:
         criteria.append(f'{c}_unique')

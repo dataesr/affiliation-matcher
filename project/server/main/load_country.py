@@ -3,6 +3,7 @@ import pycountry
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
+from project.server.main.utils import COUNTRY_SWITCHER
 
 SOURCE = 'country'
 
@@ -40,25 +41,7 @@ def transform_country_data(raw_data):
         for field_name in ['name', 'official_name', 'common_name']:
             if field_name in c:
                 names.append(c[field_name])
-        switcher = {
-            'bn': ['brunei'],
-            'ci': ['ivory coast'],
-            'cv': ['cape verde'],
-            'cz': ['czech'],
-            'de': ['deutschland'],
-            'gb': ['uk'],
-            'ir': ['iran'],
-            'kp': ['north korea'],
-            'kr': ['south korea', 'republic of korea'],
-            'la': ['laos'],
-            'mo': ['macau'],
-            'ru': ['russia'],
-            'sy': ['syria'],
-            'tw': ['taiwan'],
-            'us': ['usa'],
-            'vn': ['vietnam']
-        }
-        names += switcher.get(alpha2, [])
+        names += COUNTRY_SWITCHER.get(alpha2, [])
         names = list(set(names))
         country['name'] = names
         # Subdivisions

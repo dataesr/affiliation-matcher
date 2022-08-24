@@ -7,7 +7,10 @@ DEFAULT_STRATEGIES = [
     [['ror_grid_id']],
     [['ror_name', 'ror_acronym', 'ror_city', 'ror_country'],
      ['ror_name', 'ror_acronym', 'ror_city', 'ror_country_code']],
-    [['ror_name', 'ror_city', 'ror_country'], ['ror_name', 'ror_city', 'ror_country_code']],
+    [
+        ['ror_name', 'ror_city', 'ror_country'], ['ror_name', 'ror_city', 'ror_country_code'], 
+#        ['ror_supervisor_name', 'ror_city', 'ror_country'], ['ror_supervisor_name', 'ror_city', 'ror_country_code'], 
+    ],
     [['ror_acronym', 'ror_city', 'ror_country'], ['ror_acronym', 'ror_city', 'ror_country_code']],
     [['ror_name', 'ror_acronym', 'ror_city'], ['ror_name', 'ror_acronym', 'ror_country'],
      ['ror_name', 'ror_acronym', 'ror_country_code']],
@@ -18,7 +21,10 @@ DEFAULT_STRATEGIES = [
 #    [['ror_name_unique', 'ror_country']],
 #    [['ror_acronym_unique', 'ror_country']]
 ]
-STOPWORDS_STRATEGIES = {'ror_name': ENGLISH_STOP + FRENCH_STOP}
+STOPWORDS_STRATEGIES = {
+        'ror_name': ENGLISH_STOP + FRENCH_STOP,
+        'ror_supervisor_name': ENGLISH_STOP + FRENCH_STOP
+        }
 
 def replace_synonym(query, source, target):
     rgx = re.compile("(?i)(" + source + ")( |,)")
