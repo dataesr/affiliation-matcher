@@ -20,7 +20,6 @@ services:
       - 9200:9200
     environment:
       - 'discovery.type=single-node'
-      - 'ES_JAVA_OPTS=-Xms1g -Xmx1g'
     volumes:
       - elastic:/usr/share/elasticsearch/data
     networks:
