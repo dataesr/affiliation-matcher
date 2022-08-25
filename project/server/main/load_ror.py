@@ -10,7 +10,7 @@ from project.server.main.config import CHUNK_SIZE, ROR_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED, COUNTRY_SWITCHER
+from project.server.main.utils import clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED, COUNTRY_SWITCHER, CITY_COUNTRY
 
 logger = get_logger(__name__)
 SOURCE = 'ror'
@@ -49,6 +49,8 @@ def transform_data(rors: list) -> list:
         city = [address.get('city') for address in ror.get('addresses', [])]
         country = [ror.get('country', {}).get('country_name')]
         country_code = [ror.get('country', {}).get('country_code').lower()]
+        for c in city:
+            country += CITY_COUNTRY.get(c.lower(), [])
         if country_code:
             # handle usa, uk etc
             country += COUNTRY_SWITCHER.get(country_code[0], [])

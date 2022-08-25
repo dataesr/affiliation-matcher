@@ -53,6 +53,10 @@ COUNTRY_SWITCHER = {
             'vn': ['vietnam']
         }
 
+CITY_COUNTRY = {
+        'hong kong': ['hong kong']
+    }
+
 def remove_stop(text: str, stopwords: list) -> str:
     pattern = re.compile(r'\b(' + r'|'.join(stopwords) + r')\b\s*', re.IGNORECASE)
     return pattern.sub('', text)

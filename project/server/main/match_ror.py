@@ -9,12 +9,12 @@ DEFAULT_STRATEGIES = [
      ['ror_name', 'ror_acronym', 'ror_city', 'ror_country_code']],
     [
         ['ror_name', 'ror_city', 'ror_country'], ['ror_name', 'ror_city', 'ror_country_code'], 
-#        ['ror_supervisor_name', 'ror_city', 'ror_country'], ['ror_supervisor_name', 'ror_city', 'ror_country_code'], 
+        ['ror_supervisor_name', 'ror_city', 'ror_country'], ['ror_supervisor_name', 'ror_city', 'ror_country_code'], 
     ],
     [['ror_acronym', 'ror_city', 'ror_country'], ['ror_acronym', 'ror_city', 'ror_country_code']],
     [['ror_name', 'ror_acronym', 'ror_city'], ['ror_name', 'ror_acronym', 'ror_country'],
      ['ror_name', 'ror_acronym', 'ror_country_code']],
-    [['ror_name', 'ror_country']],
+    [['ror_name', 'ror_country'], ['ror_name', 'ror_country_code']],
     [['ror_name', 'ror_city']]
 #    ,[['ror_name_unique', 'ror_city']],
 #    [['ror_acronym_unique', 'ror_city']],
