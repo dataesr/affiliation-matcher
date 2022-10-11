@@ -11,7 +11,7 @@ from zipfile import ZipFile
 
 from project.server.main.config import CHUNK_SIZE, ZONE_EMPLOI_INSEE_DUMP
 
-ENGLISH_STOP = ['a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', 'if', 'in', 'into', 'is', 'it', 'no',
+ENGLISH_STOP = ['and', 'are', 'as', 'be', 'but', 'by', 'for', 'if', 'in', 'into', 'is', 'it', 'no',
                 'not', 'of', 'on', 'or', 'such', 'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this',
                 'to', 'was', 'will', 'with']
 
@@ -33,6 +33,7 @@ GEO_IGNORED = ['union'] + FRENCH_STOP + ENGLISH_STOP
 ACRONYM_IGNORED = ['usa', 'pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu', 'care',
                    'medecine', 'unite'] + FRENCH_STOP + ENGLISH_STOP
 
+NAME_IGNORED = ['medical center', 'medical college']
 
 COUNTRY_SWITCHER = {
             'bn': ['brunei'],
@@ -81,10 +82,15 @@ def clean_list(data: list, stopwords=[], ignored=[], remove_inside_parenthesis=T
         if stopwords:
             e = remove_stop(e, stopwords)
         data[ix] = e
-    data = [k for k in data if k.lower() not in ignored]
-    data = [k for k in data if len(get_token_basic(k)) >= min_token]
-    return data
-
+    new_data = []
+    for k in data:
+        k_normalized = normalize_text(k, remove_separator=False)
+        if k_normalized in ignored:
+            continue
+        if len(get_token_basic(k_normalized)) < min_token:
+            continue
+        new_data.append(k)
+    return new_data
 
 def chunks(lst: list, n: int) -> list:
     """Yield successive n-sized chunks from list."""
@@ -163,7 +169,7 @@ def get_alpha2_from_french(user_input):
 def download_insee_data() -> dict:
     insee_downloaded_file = 'insee_data_dump.zip'
     insee_unzipped_folder = mkdtemp()
-    response = requests.get(url=ZONE_EMPLOI_INSEE_DUMP, stream=True)
+    response = requests.get(url=ZONE_EMPLOI_INSEE_DUMP, stream=True, verify=False)
     with open(insee_downloaded_file, 'wb') as file:
         for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
             file.write(chunk)
