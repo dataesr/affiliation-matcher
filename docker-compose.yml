@@ -26,7 +26,7 @@ services:
       - affiliation-matcher-network
 
   worker:
-    image: ghcr.io/dataesr/affiliation-matcher:0.1.3
+    build: .
     privileged: true
     command: >
       /bin/sh -c "sysctl -w vm.max_map_count=262144
