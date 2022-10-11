@@ -5,22 +5,36 @@ from project.server.main.utils import ENGLISH_STOP, FRENCH_STOP, remove_ref_inde
 DEFAULT_STRATEGIES = [
     [['ror_id']],
     [['ror_grid_id']],
-    [['ror_name', 'ror_acronym', 'ror_city', 'ror_country'],
-     ['ror_name', 'ror_acronym', 'ror_city', 'ror_country_code']],
-    [
-        ['ror_name', 'ror_city', 'ror_country'], ['ror_name', 'ror_city', 'ror_country_code'], 
-        ['ror_supervisor_name', 'ror_city', 'ror_country'], ['ror_supervisor_name', 'ror_city', 'ror_country_code'], 
+    [['ror_name', 'ror_supervisor_name', 'ror_acronym', 'ror_city_nuts_level2', 'ror_country'],
+    # ['ror_name', 'ror_supervisor_name', 'ror_acronym', 'ror_city_nuts_level2', 'ror_country_code']
     ],
-    [['ror_acronym', 'ror_city', 'ror_country'], ['ror_acronym', 'ror_city', 'ror_country_code']],
+    [['ror_name', 'ror_acronym', 'ror_city', 'ror_country'],
+  #   ['ror_name', 'ror_acronym', 'ror_city', 'ror_country_code']
+    ],
+    [['ror_name', 'ror_supervisor_name', 'ror_city', 'ror_country'],
+    # ['ror_name', 'ror_supervisor_name', 'ror_city', 'ror_country_code']
+    ],
+       [['ror_name', 'ror_supervisor_name', 'ror_city_nuts_level2', 'ror_country'],
+   #  ['ror_name', 'ror_supervisor_name', 'ror_city_nuts_level2', 'ror_country_code']
+       ],
+    [
+        ['ror_name', 'ror_city', 'ror_country'],
+        #['ror_name', 'ror_city', 'ror_country_code'],
+    ],
+    #[['ror_acronym', 'ror_city', 'ror_country'], ['ror_acronym', 'ror_city', 'ror_country_code']],
     [['ror_name', 'ror_acronym', 'ror_city'], ['ror_name', 'ror_acronym', 'ror_country'],
-     ['ror_name', 'ror_acronym', 'ror_country_code']],
-    [['ror_name', 'ror_country'], ['ror_name', 'ror_country_code']],
-    [['ror_name', 'ror_city']]
-#    ,[['ror_name_unique', 'ror_city']],
-#    [['ror_acronym_unique', 'ror_city']],
+    # ['ror_name', 'ror_acronym', 'ror_country_code']
+    ],
+    [['ror_name', 'ror_country'],
+    # ['ror_name', 'ror_country_code']
+    ],
+    [['ror_name', 'ror_city'], ['ror_name', 'ror_city_nuts_level2']]
+#    ,[['ror_name_unique', 'ror_city_nuts_level2']],
+#    [['ror_acronym_unique', 'ror_city_nuts_level2']],
 #    [['ror_name_unique', 'ror_country']],
 #    [['ror_acronym_unique', 'ror_country']]
 ]
+
 STOPWORDS_STRATEGIES = {
         'ror_name': ENGLISH_STOP + FRENCH_STOP,
         'ror_supervisor_name': ENGLISH_STOP + FRENCH_STOP

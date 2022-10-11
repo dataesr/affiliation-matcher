@@ -10,13 +10,14 @@ from project.server.main.config import CHUNK_SIZE, ROR_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED, COUNTRY_SWITCHER, CITY_COUNTRY
+from project.server.main.utils import clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED, NAME_IGNORED, COUNTRY_SWITCHER, CITY_COUNTRY
 
 logger = get_logger(__name__)
 SOURCE = 'ror'
 
 
 def download_data() -> list:
+    logger.debug('download ROR')
     ror_downloaded_file = 'ror_data_dump.zip'
     ror_unzipped_folder = mkdtemp()
     response = requests.get(url=ROR_DUMP_URL, stream=True)
@@ -42,23 +43,80 @@ def get_external_ids(external):
             ids.append(external[k])
     return list(set(ids))
 
+def build_zone_mapping(rors):
+    zone_composition = {}
+    city_zone = {}
+    for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3']:
+        city_zone[zone_code_label] = {}
+    for d in rors:
+        for address in d.get('addresses', []):
+            #city = address.get('city')
+            if 'geonames_city' not in address:
+                continue
+            geoname = address['geonames_city']
+            city = None
+            if geoname.get('id'):
+                city_code = str(geoname['id'])
+                city = geoname['city']
+            if not city:
+                continue
+            for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3']:
+                zone_code = geoname.get(zone_code_label, {}).get('code')
+                if zone_code is None:
+                    continue
+                zone_code = str(zone_code)
+                if zone_code not in zone_composition:
+                    zone_composition[zone_code] = []
+                zone_composition[zone_code].append(city)
+                if city_code not in city_zone[zone_code_label]:
+                    city_zone[zone_code_label][city_code] = []
+                if zone_code and zone_code not in city_zone[zone_code_label][city_code]:
+                    city_zone[zone_code_label][city_code].append(zone_code)
+                assert(len(city_zone[zone_code_label][city_code]) <= 1)
+    for zone_code in zone_composition:
+        zone_composition[zone_code] = clean_list(zone_composition[zone_code])
+    return zone_composition, city_zone
+
 def transform_data(rors: list) -> list:
+    logger.debug('transform data')
+    zone_composition, city_zone = build_zone_mapping(rors)
     data = []
     for ror in rors:
+        current_id = ror.get('id').replace('https://ror.org/', '')
         acronym = ror.get('acronyms', [])
         city = [address.get('city') for address in ror.get('addresses', [])]
+        current_zone_cities = {}
+        for address in ror.get('addresses', []):
+            geoname = address.get('geonames_city')
+            if geoname and 'id' in geoname and geoname.get('id'):
+                city_code = str(geoname['id'])
+                for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3']:
+                    if city_code in city_zone[zone_code_label] and city_zone[zone_code_label][city_code]:
+                        current_zone_code = city_zone[zone_code_label][city_code][0]
+                        if current_zone_code in zone_composition:
+                            current_zone_cities[zone_code_label] = zone_composition[current_zone_code]
+
         country = [ror.get('country', {}).get('country_name')]
         country_code = [ror.get('country', {}).get('country_code').lower()]
+        for c in country_code:
+            current_code = c.lower()
+            if current_code in COUNTRY_SWITCHER:
+                country += COUNTRY_SWITCHER[current_code]
         for c in city:
             country += CITY_COUNTRY.get(c.lower(), [])
-        if country_code:
-            # handle usa, uk etc
-            country += COUNTRY_SWITCHER.get(country_code[0], [])
-        current_id = ror.get('id').replace('https://ror.org/', '')
+
         name = [ror.get('name')]
         name += ror.get('aliases', [])
         name += [label.get('label') for label in ror.get('labels', [])]
-        relationships = ror.get('relationships')
+        names_to_add = []
+        for n in name:
+            if n[0:11].lower()=='university ':
+                names_to_add.append(n[11:]+' university')
+                names_to_add.append(n[11:])
+            if n[-11:].lower()==' university':
+                names_to_add.append('university '+n[:-11])
+                names_to_add.append(n[:-11])
+        name += names_to_add
         externals = ror.get('external_ids', [])
         external_ids = {}
         grids = []
@@ -67,11 +125,6 @@ def transform_data(rors: list) -> list:
             if ext_id.lower() == 'grid':
                 grids = get_external_ids(externals[ext_id])
         countries_code = clean_list(data=country_code)
-        supervisor_name = []
-        if relationships:
-            for relationship in relationships:
-                if relationship.get('type') == 'Parent' and relationship.get('label'):
-                    supervisor_name.append(relationship.get('label'))
         current_data = {
             'acronym': clean_list(data=acronym, ignored=ACRONYM_IGNORED),
             'city': clean_list(data=city, ignored=GEO_IGNORED),
@@ -79,18 +132,27 @@ def transform_data(rors: list) -> list:
             'country_code': countries_code,
             'id': current_id,
             'name': clean_list(data=name, stopwords=FRENCH_STOP+ENGLISH_STOP, min_token = 2),
-            'supervisor_name': clean_list(data=supervisor_name, stopwords=FRENCH_STOP+ENGLISH_STOP, min_token = 2),
         }
+        #for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3']:
+        for zone_code_label in ['nuts_level2']:
+            if zone_code_label in current_zone_cities and current_zone_cities[zone_code_label]:
+                current_data[f'city_{zone_code_label}'] = current_zone_cities[zone_code_label]
         if grids:
             current_data['grid_id'] = grids
         if external_ids:
             current_data['external_ids'] = external_ids
+        supervisor_name = []
+        relationships = ror.get('relationships')
+        if relationships:
+            for relationship in relationships:
+                if relationship.get('type') == 'Parent' and relationship.get('label'):
+                    supervisor_name.append(relationship.get('label'))
+        current_data['supervisor_name'] = clean_list(data=supervisor_name, stopwords=FRENCH_STOP+ENGLISH_STOP, min_token = 2)
         data.append(current_data)
     return data
-
-
+        
 def load_ror(index_prefix: str = 'matcher') -> dict:
-    logger.debug('load_ror ...')
+    logger.debug('load ROR start')
     raw_data = download_data()
     transformed_data = transform_data(raw_data)
     # Init ES
@@ -108,12 +170,15 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         'grid_id': 'light',
         'acronym': 'acronym_analyzer',
         'city': 'city_analyzer',
+        'city_nuts_level1': 'city_analyzer',
+        'city_nuts_level2': 'city_analyzer',
+        'city_nuts_level3': 'city_analyzer',
         'country': 'light',
         'country_code': 'light',
         'name': 'heavy_en',
         'supervisor_name': 'heavy_en'
     }
-    criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name', 'supervisor_name']
+    criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name', 'supervisor_name', 'city_nuts_level1', 'city_nuts_level2', 'city_nuts_level3']
     criteria_unique = ['acronym', 'name']
     for c in criteria_unique:
         criteria.append(f'{c}_unique')
@@ -125,6 +190,7 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         es_data[criterion] = {}
     external_ids_label = []
     # Iterate over ror data
+    logger.debug('iterating over data points')
     for data_point in transformed_data:
         for criterion in criteria:
             criterion_values = data_point.get(criterion)
@@ -156,6 +222,7 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
     actions = []
     results = {}
     for criterion in es_data:
+        logger.debug(f'prep index {criterion}')
         index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
@@ -173,5 +240,6 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
                 action['query'] = {'match_phrase': {'content': {'query': criterion_value,
                                                                 'analyzer': analyzer, 'slop': 0}}}
             actions.append(action)
+    logger.debug('bulk insert')
     es.parallel_bulk(actions=actions)
     return results
