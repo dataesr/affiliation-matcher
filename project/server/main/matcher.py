@@ -13,7 +13,6 @@ logger = get_logger(__name__)
 
 correspondance = get_siren()
 
-
 def identity(x: str = '') -> str:
     return x
 
@@ -129,6 +128,22 @@ def filter_submatching_results_by_all(res: dict) -> dict:
 class Matcher:
     def __init__(self) -> None:
         self.es = MyElastic()
+
+    def enrich_results(self, results, method):
+      enriched = []
+      for r in results:
+          elt = {'id': r}
+          for f in ['name', 'city', 'acronym']:
+            index = f'matcher_{method}_{f}'
+            data = self.es.search(index=index, body= { "query": { "simple_query_string" : { "query": r } } })
+            hits = data['hits']['hits']
+            try:
+                elt[f] = list(hits[0]['_source']['query'].values())[0]['content']['query']
+            except:
+                pass
+          enriched.append(elt)
+      return enriched
+
 
     def match(self, method: str = None, conditions: dict = None, strategies: list = None, pre_treatment_query=None,
               field: str = 'ids', stopwords_strategies: dict = None, post_treatment_results=None) -> dict:
@@ -258,6 +273,7 @@ class Matcher:
                 final_res['logs'] = logs
                 if not verbose:
                     del final_res['logs']
+                final_res['enriched_results'] = self.enrich_results(final_res['results'], method)
                 return final_res
         logs += '<br/> No results found'
         final_res = {
@@ -270,4 +286,5 @@ class Matcher:
             final_res['logs'] = logs
         else:
             del final_res['highlights']
+        final_res['enriched_results'] = self.enrich_results(final_res['results'], method)
         return final_res
