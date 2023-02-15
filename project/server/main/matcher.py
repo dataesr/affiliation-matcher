@@ -138,7 +138,9 @@ class Matcher:
             data = self.es.search(index=index, body= { "query": { "simple_query_string" : { "query": r } } })
             hits = data['hits']['hits']
             try:
-                elt[f] = list(hits[0]['_source']['query'].values())[0]['content']['query']
+                elt[f] = []
+                for hit in hits:
+                    elt[f].append(list(hit['_source']['query'].values())[0]['content']['query'])
             except:
                 pass
           enriched.append(elt)

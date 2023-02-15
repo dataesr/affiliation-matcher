@@ -47,8 +47,10 @@ def run_task_match():
             elt['query'] = query
             response = create_task_match(args=args)
             if len(response.get('enriched_results')) > 0:
-                for f in ['id', 'name', 'acronym', 'city']:
-                    elt[f'result_{f}'] = response['enriched_results'][0].get(f)
+                enriched_result = response['enriched_results'][0]
+                elt['result_id'] = enriched_result.get('id')
+                for f in ['name', 'acronym', 'city']:
+                    elt[f'result_{f}'] = ' # '.join(enriched_result.get(f))
             results.append(elt)
         df_output = pd.DataFrame(results)
         return jsonify({'logs': df_output.to_csv(index=False)}), 202
