@@ -25,9 +25,9 @@ DEFAULT_STRATEGIES = [
     [['ror_name', 'ror_acronym', 'ror_city'], ['ror_name', 'ror_acronym', 'ror_country'],
     # ['ror_name', 'ror_acronym', 'ror_country_code']
     ],
-    [['ror_name', 'ror_country'],
+#    [['ror_name', 'ror_country'],
     # ['ror_name', 'ror_country_code']
-    ],
+#    ],
     [['ror_name', 'ror_city'], ['ror_name', 'ror_city_nuts_level2']]
 #    ,[['ror_name_unique', 'ror_city_nuts_level2']],
 #    [['ror_acronym_unique', 'ror_city_nuts_level2']],
