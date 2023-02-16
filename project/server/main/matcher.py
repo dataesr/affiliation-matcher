@@ -133,7 +133,7 @@ class Matcher:
       enriched = []
       for r in results:
           elt = {'id': r}
-          for f in ['name', 'city', 'acronym']:
+          for f in ['name', 'city', 'acronym', 'country']:
             index = f'matcher_{method}_{f}'
             data = self.es.search(index=index, body= { "query": { "simple_query_string" : { "query": r } } })
             hits = data['hits']['hits']

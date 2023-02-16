@@ -37,19 +37,20 @@ def run_task_match():
     else:
         args = request.form.to_dict(flat=True)
         decoded_file = request.files.get('file').read().decode('utf-8')
-        df_input = pd.read_csv(io.StringIO(decoded_file), header=None)
+        df_input = pd.read_csv(io.StringIO(decoded_file))
         queries = []
         results = []
         for _, row in df_input.iterrows():
-            query = row[0]
-            args['query'] = query
             elt = {}
-            elt['query'] = query
+            for f in ['query', 'name', 'acronym', 'city', 'country', 'supervisor_name', 'supervisor_acronym', 'zone_emploi', 'code_number', 'id']:
+                if f in row and isinstance(row[f], str):
+                    args[f] = row[f]
+                    elt[f] = row[f]
             response = create_task_match(args=args)
             if len(response.get('enriched_results')) > 0:
                 enriched_result = response['enriched_results'][0]
                 elt['result_id'] = enriched_result.get('id')
-                for f in ['name', 'acronym', 'city']:
+                for f in ['name', 'acronym', 'city', 'country']:
                     elt[f'result_{f}'] = ' # '.join(enriched_result.get(f))
             results.append(elt)
         df_output = pd.DataFrame(results)
