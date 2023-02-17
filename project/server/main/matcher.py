@@ -135,9 +135,9 @@ class Matcher:
           elt = {'id': r}
           for f in ['name', 'city', 'acronym', 'country']:
             index = f'matcher_{method}_{f}'
-            data = self.es.search(index=index, body= { "query": { "simple_query_string" : { "query": r } } })
-            hits = data['hits']['hits']
             try:
+                data = self.es.search(index=index, body= { "query": { "simple_query_string" : { "query": r } } })
+                hits = data['hits']['hits']
                 elt[f] = []
                 for hit in hits:
                     elt[f].append(list(hit['_source']['query'].values())[0]['content']['query'])
