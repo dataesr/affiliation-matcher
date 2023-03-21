@@ -10,7 +10,7 @@ from project.server.main.config import CHUNK_SIZE, ROR_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED, NAME_IGNORED, COUNTRY_SWITCHER, CITY_COUNTRY
+from project.server.main.utils import download_insee_data, clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED, NAME_IGNORED, COUNTRY_SWITCHER, CITY_COUNTRY
 
 logger = get_logger(__name__)
 SOURCE = 'ror'
@@ -46,7 +46,7 @@ def get_external_ids(external):
 def build_zone_mapping(rors):
     zone_composition = {}
     city_zone = {}
-    for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3']:
+    for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3', 'zone_emploi']:
         city_zone[zone_code_label] = {}
     for d in rors:
         for address in d.get('addresses', []):
@@ -60,7 +60,7 @@ def build_zone_mapping(rors):
                 city = geoname['city']
             if not city:
                 continue
-            for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3']:
+            for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3', 'zone_emploi']:
                 zone_code = geoname.get(zone_code_label, {}).get('code')
                 if zone_code is None:
                     continue
@@ -79,6 +79,30 @@ def build_zone_mapping(rors):
 
 def transform_data(rors: list) -> list:
     logger.debug('transform data')
+    # adding zone emploi data for France ie Saint Martin d'hères <-> Grenoble
+    zone_emploi_insee = download_insee_data()
+    zone_emploi_dict ={}
+    for e in zone_emploi_insee:
+        dict_key = e['DEP']+';'+e['LIBGEO']
+        if dict_key not in zone_emploi_dict:
+            zone_emploi_dict[dict_key] = {'code': 'ZE2020_'+str(e['ZE2020']), 'name': e['LIBZE2020']}
+        else:
+            pass
+    for e in rors:
+        if isinstance(e.get('addresses'), list):
+            for address in e['addresses']:
+                if address.get('geonames_city', {}).get('geonames_admin2', {}).get('code'):
+                    city = address.get('city')
+                    code = address.get('geonames_city', {}).get('geonames_admin2', {}).get('code')
+                    if city and code and code[0:2]=='FR':
+                        departement = code.split('.')[-1]
+                        dict_key = departement+';'+city
+                        if dict_key not in zone_emploi_dict:
+                            logger.debug(f"WARNING ! wrong french city name for {e['id']} key {dict_key} not in INSEE zone emploi")
+                        else:
+                            address['geonames_city']['zone_emploi'] = zone_emploi_dict[dict_key]
+
+
     zone_composition, city_zone = build_zone_mapping(rors)
     data = []
     for ror in rors:
@@ -90,7 +114,7 @@ def transform_data(rors: list) -> list:
             geoname = address.get('geonames_city')
             if geoname and 'id' in geoname and geoname.get('id'):
                 city_code = str(geoname['id'])
-                for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3']:
+                for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3', 'zone_emploi']:
                     if city_code in city_zone[zone_code_label] and city_zone[zone_code_label][city_code]:
                         current_zone_code = city_zone[zone_code_label][city_code][0]
                         if current_zone_code in zone_composition:
@@ -134,7 +158,7 @@ def transform_data(rors: list) -> list:
             'name': clean_list(data=name, stopwords=FRENCH_STOP+ENGLISH_STOP, min_token = 2),
         }
         #for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3']:
-        for zone_code_label in ['nuts_level2']:
+        for zone_code_label in ['nuts_level2', 'zone_emploi']:
             if zone_code_label in current_zone_cities and current_zone_cities[zone_code_label]:
                 current_data[f'city_{zone_code_label}'] = current_zone_cities[zone_code_label]
         if grids:
@@ -170,6 +194,7 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         'grid_id': 'light',
         'acronym': 'acronym_analyzer',
         'city': 'city_analyzer',
+        'city_zone_emploi': 'city_analyzer',
         'city_nuts_level1': 'city_analyzer',
         'city_nuts_level2': 'city_analyzer',
         'city_nuts_level3': 'city_analyzer',
@@ -178,7 +203,7 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         'name': 'heavy_en',
         'supervisor_name': 'heavy_en'
     }
-    criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name', 'supervisor_name', 'city_nuts_level1', 'city_nuts_level2', 'city_nuts_level3']
+    criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name', 'supervisor_name', 'city_nuts_level1', 'city_nuts_level2', 'city_nuts_level3', 'city_zone_emploi']
     criteria_unique = ['acronym', 'name']
     for c in criteria_unique:
         criteria.append(f'{c}_unique')
