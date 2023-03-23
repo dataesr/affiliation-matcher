@@ -71,10 +71,10 @@ def filter_submatching_results_by_criterion(res: dict) -> dict:
                 is_strict_inf_1 = is_strict_inf_1 or matching_elements_1 < matching_elements_2
                 is_strict_inf_2 = is_strict_inf_2 or matching_elements_2 < matching_elements_1
             if is_inf_or_equal_1 and is_strict_inf_1:
-                logs += f"<br>Remove id1 {id1} because {matching_elements_2} better than {matching_elements_1}"
+                logs += f"<br>filter_submatching_results_by_criterion - Remove id1 {id1} because {matching_elements_2} better than {matching_elements_1}"
                 ids_to_remove.append(id1)
             if is_inf_or_equal_2 and is_strict_inf_2:
-                logs += f"<br>Remove id2 {id2} because {matching_elements_1} better than {matching_elements_2}"
+                logs += f"<br>filter_submatching_results_by_criterion - Remove id2 {id2} because {matching_elements_1} better than {matching_elements_2}"
                 ids_to_remove.append(id2)
     new_results = [result for result in results if result not in ids_to_remove]
     new_highlights = {}
@@ -106,11 +106,11 @@ def filter_submatching_results_by_all(res: dict) -> dict:
             highlights_length_02 = get_highlights_length_by_match(highlights=highlights[id2])
             max_1 = highlights_length_01['max']
             max_2 = highlights_length_02['max']
-            if max_1 > max_2:
-                logs += f"<br>remove id1 {id1} because {highlights_length_02} better than {highlights_length_01}"
+            if max_2 > max_1:
+                logs += f"<br>filter_submatching_results_by_all - remove id1 {id1} because {highlights_length_02} better than {highlights_length_01}"
                 ids_to_remove.append(id1)
-            elif max_2 > max_1:
-                logs += f"<br>remove id1 {id2} because {highlights_length_01} better than {highlights_length_02}"
+            elif max_1 > max_2:
+                logs += f"<br>filter_submatching_results_by_all - remove id1 {id2} because {highlights_length_01} better than {highlights_length_02}"
                 ids_to_remove.append(id2)
     new_results = [result for result in results if result not in ids_to_remove]
     new_highlights = {}
