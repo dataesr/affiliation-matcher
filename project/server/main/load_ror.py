@@ -150,7 +150,7 @@ def transform_data(rors: list) -> list:
                 grids = get_external_ids(externals[ext_id])
         countries_code = clean_list(data=country_code)
         current_data = {
-            'acronym': clean_list(data=acronym, ignored=ACRONYM_IGNORED),
+            'acronym': clean_list(data=acronym, ignored=ACRONYM_IGNORED, min_character = 2),
             'city': clean_list(data=city, ignored=GEO_IGNORED),
             'country': clean_list(data=country),
             'country_code': countries_code,

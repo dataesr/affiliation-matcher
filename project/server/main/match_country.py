@@ -18,12 +18,11 @@ DEFAULT_STRATEGIES = [
         ['grid_name', 'country_subdivision_name', 'country_subdivision_code']],
     [['grid_name', 'grid_cities_by_region']],
     [['grid_name', 'grid_acronym']],
-    [['rnsr_acronym', 'rnsr_zone_emploi'], ['rnsr_acronym', 'rnsr_city']],
     [['grid_acronym', 'grid_cities_by_region']],
     [['grid_name', 'country_subdivision_name']],
-    [['rnsr_code_number'], ['rnsr_acronym', 'rnsr_supervisor_acronym'], ['rnsr_acronym', 'rnsr_zone_emploi'], ['rnsr_acronym', 'rnsr_city'],
-        ['rnsr_name', 'rnsr_zone_emploi'], ['rnsr_name', 'rnsr_city']],
-    [['rnsr_code_prefix', 'rnsr_acronym'], ['rnsr_code_prefix', 'rnsr_supervisor_acronym'], ['rnsr_code_prefix', 'rnsr_zone_emploi']]
+    [['rnsr_code_number'], ['rnsr_acronym', 'rnsr_supervisor_acronym'],
+        ['rnsr_name', 'rnsr_zone_emploi', 'country_name'], ['rnsr_name', 'rnsr_city', 'country_name']],
+    [['rnsr_code_prefix', 'rnsr_acronym'], ['rnsr_code_prefix', 'rnsr_supervisor_acronym'], ['rnsr_code_prefix', 'rnsr_zone_emploi', 'country_name']]
 ]
 
 

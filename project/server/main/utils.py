@@ -69,7 +69,7 @@ def remove_parenthesis(x):
     return x
 
 
-def clean_list(data: list, stopwords=[], ignored=[], remove_inside_parenthesis=True, min_token=1) -> list:
+def clean_list(data: list, stopwords=[], ignored=[], remove_inside_parenthesis=True, min_token=1, min_character = 1) -> list:
     # Cast data into list if needed
     if not isinstance(data, list):
         data = [data]
@@ -86,6 +86,8 @@ def clean_list(data: list, stopwords=[], ignored=[], remove_inside_parenthesis=T
     for k in data:
         k_normalized = normalize_text(k, remove_separator=False)
         if k_normalized in ignored:
+            continue
+        if len(k_normalized) < min_character:
             continue
         if len(get_token_basic(k_normalized)) < min_token:
             continue

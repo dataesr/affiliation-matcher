@@ -208,7 +208,7 @@ def transform_data(data: list) -> list:
         name_acronym_city[current_id]['city'] = clean_list(data = cities)
         name_acronym_city[current_id]['zone_emploi'] = clean_list(data = zone_emploi)
         name_acronym_city[current_id]['urban_unit'] = clean_list(data = urban_units)
-        name_acronym_city[current_id]['acronym'] = clean_list(data = acronyms, ignored=ACRONYM_IGNORED)
+        name_acronym_city[current_id]['acronym'] = clean_list(data = acronyms, ignored=ACRONYM_IGNORED, min_character = 2)
         name_acronym_city[current_id]['name'] = clean_list(data = names, stopwords = FRENCH_STOP, min_token = 2)
         country_alpha2 = clean_list(data = country_alpha2)
         if not country_alpha2:

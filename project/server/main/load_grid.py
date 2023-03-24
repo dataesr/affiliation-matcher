@@ -66,7 +66,7 @@ def transform_data(data: dict) -> list:
         formatted_data['name'] = clean_list(data = names, stopwords = ENGLISH_STOP+FRENCH_STOP, min_token = 2)
         # Acronyms
         acronyms = grid.get('acronyms', [])
-        formatted_data['acronym'] = clean_list(data = acronyms, ignored = ACRONYM_IGNORED)
+        formatted_data['acronym'] = clean_list(data = acronyms, ignored = ACRONYM_IGNORED, min_character = 2)
         # Countries, country_codes, regions, departments and cities
         countries, country_codes, regions, departments, cities = [], [], [], [], []
         for address in grid.get('addresses', []):
