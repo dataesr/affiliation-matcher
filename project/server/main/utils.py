@@ -46,6 +46,7 @@ COUNTRY_SWITCHER = {
             'kp': ['north korea'],
             'kr': ['south korea', 'republic of korea'],
             'la': ['laos'],
+            'lb': ['liban'],
             'mo': ['macau'],
             'ru': ['russia'],
             'sy': ['syria'],

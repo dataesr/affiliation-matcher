@@ -51,7 +51,8 @@ class TestMatchCountry:
             ('saint louis', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
             ('MN orleans', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
             ('Ltd Novel', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
-            ('Public Health Chan', COUNTRY_DEFAULT_STRATEGIES, [], 'No results')
+            ('Public Health Chan', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
+            ('Hotel Dieu de France Beirut Liban', COUNTRY_DEFAULT_STRATEGIES, ['lb'], 'strategy liban')
         ])
     def test_get_countries_from_query(self, elasticsearch, query, strategies, expected_results,
                                       expected_logs) -> None:

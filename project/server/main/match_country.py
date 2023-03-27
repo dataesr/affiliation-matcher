@@ -17,7 +17,6 @@ COUNTRY_DEFAULT_STRATEGIES = [
     [['country_subdivision_name', 'country_alpha3'],
         ['grid_name', 'country_subdivision_name', 'country_subdivision_code']],
     [['grid_name', 'grid_cities_by_region']],
-    [['grid_name', 'grid_acronym']],
     [['grid_acronym', 'grid_cities_by_region']],
     [['grid_name', 'country_subdivision_name']],
     [['rnsr_code_number'], ['rnsr_acronym', 'rnsr_supervisor_acronym'],
