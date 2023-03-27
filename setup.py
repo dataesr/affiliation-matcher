@@ -30,7 +30,7 @@ setup(
         'lxml==4.9.1',
         'pandas==0.25.3',
         'pycountry==20.7.3',
-        'redis==3.3.11',
+        'redis==4.5.3',
         'requests==2.20.0',
         'rq==1.1.0',
         'xlrd==1.1.0',
