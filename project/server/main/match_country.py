@@ -3,7 +3,7 @@ from project.server.main.utils import ENGLISH_STOP, FRENCH_STOP
 
 STOPWORDS_STRATEGIES = {'grid_name': ENGLISH_STOP + FRENCH_STOP}
 
-DEFAULT_STRATEGIES = [
+COUNTRY_DEFAULT_STRATEGIES = [
     [['ror_id'], ['grid_id'], ['rnsr_id']],
     [['grid_cities_by_region', 'grid_name', 'grid_acronym', 'country_name'],
         ['grid_cities_by_region', 'grid_name', 'country_name'], ['grid_cities_by_region', 'grid_acronym', 'country_name'],
@@ -29,7 +29,7 @@ DEFAULT_STRATEGIES = [
 def match_country(conditions: dict) -> dict:
     strategies = conditions.get('strategies')
     if strategies is None:
-        strategies = DEFAULT_STRATEGIES
+        strategies = COUNTRY_DEFAULT_STRATEGIES
     matcher = Matcher()
     return matcher.match(
             method='country',

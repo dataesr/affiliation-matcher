@@ -1,6 +1,6 @@
 import pytest
 
-from project.server.main.load_country import load_country
+from project.server.main.load_country import load_country, COUNTRY_DEFAULT_STRATEGIES
 from project.server.main.load_grid import load_grid
 from project.server.main.load_rnsr import load_rnsr
 from project.server.main.load_ror import load_ror
@@ -47,7 +47,11 @@ class TestMatchCountry:
             ('University Nottingham, Chair, Nomenclature and Standards Committee International Union Basic Clinical Pharmacology (NC-IUPHAR)',
              [[['grid_name', 'grid_cities_by_region']]], ['gb'], 'strategy'),
             # Even if city is not unknown, the university name should match the associated country
-            ('Université de technologie de Troyes', [[['grid_name']]], ['fr'], 'grid_name')
+            ('Université de technologie de Troyes', [[['grid_name']]], ['fr'], 'grid_name'),
+            ('saint louis', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
+            ('MN orleans', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
+            ('Ltd Novel', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
+            ('Public Health Chan', COUNTRY_DEFAULT_STRATEGIES, [], 'No results')
         ])
     def test_get_countries_from_query(self, elasticsearch, query, strategies, expected_results,
                                       expected_logs) -> None:
