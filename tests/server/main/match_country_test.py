@@ -1,10 +1,10 @@
 import pytest
 
-from project.server.main.load_country import load_country, COUNTRY_DEFAULT_STRATEGIES
+from project.server.main.load_country import load_country
 from project.server.main.load_grid import load_grid
 from project.server.main.load_rnsr import load_rnsr
 from project.server.main.load_ror import load_ror
-from project.server.main.match_country import match_country
+from project.server.main.match_country import match_country, COUNTRY_DEFAULT_STRATEGIES
 from project.server.main.metrics import compute_precision_recall
 from project.server.main.my_elastic import MyElastic
 
