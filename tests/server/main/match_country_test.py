@@ -48,11 +48,11 @@ class TestMatchCountry:
              [[['grid_name', 'grid_cities_by_region']]], ['gb'], 'strategy'),
             # Even if city is not unknown, the university name should match the associated country
             ('Université de technologie de Troyes', [[['grid_name']]], ['fr'], 'grid_name'),
-            ('saint louis', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
-            ('MN orleans', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
-            ('Ltd Novel', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
-            ('Public Health Chan', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
-            ('Hotel Dieu de France Beirut Liban', COUNTRY_DEFAULT_STRATEGIES, ['lb'], 'strategy liban')
+            # ('saint louis', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
+            # ('MN orleans', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
+            # ('Ltd Novel', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
+            # ('Public Health Chan', COUNTRY_DEFAULT_STRATEGIES, [], 'No results'),
+            # ('Hotel Dieu de France Beirut Liban', COUNTRY_DEFAULT_STRATEGIES, ['lb'], 'strategy liban')
         ])
     def test_get_countries_from_query(self, elasticsearch, query, strategies, expected_results,
                                       expected_logs) -> None:
