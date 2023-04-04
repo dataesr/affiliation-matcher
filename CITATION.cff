@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite our publication as below."
+title: "Using Elasticsearch for entity recognition in affiliation disambiguation"
+authors:
+- family-names: "L'Hôte"
+  given-names: "Anne"
+  orcid: "https://orcid.org/0000-0003-1353-5584"
+- family-names: "Jeangirard"
+  given-names: "Eric"
+  orcid: "https://orcid.org/0000-0002-3767-7125"
+preferred-citation:
+  type: unpublished
+  title: "Using Elasticsearch for entity recognition in affiliation disambiguation"
+  authors:
+  - family-names: "L'Hôte"
+    given-names: "Anne"
+    orcid: "https://orcid.org/0000-0003-1353-5584"
+  - family-names: "Jeangirard"
+    given-names: "Eric"
+    orcid: "https://orcid.org/0000-0002-3767-7125"
+  url: "https://hal.science/hal-03365806"
+  notes: "working paper or preprint"
+  year: 2021
+  month: Oct,
+  keywords:
+  - Elasticsearch
+  - affiliation disambiguation
+  - entity recognition
+  - open science
+  start: 1 # First page number
+  end: 12 # Last page number
+  version: 1.0.0
+  date-released: 2021-10-07
