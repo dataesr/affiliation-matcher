@@ -1,6 +1,6 @@
 import datetime
 import requests
-
+import pandas as pd
 from elasticsearch.client import IndicesClient
 
 from project.server.main.config import SCANR_DUMP_URL
@@ -111,13 +111,14 @@ def get_values(x: dict) -> list:
 
 
 def download_data() -> list:
-    r = requests.get(SCANR_DUMP_URL)
-    data = r.json()
+    #r = requests.get(SCANR_DUMP_URL)
+    #data = r.json()
+    data = pd.read_json(SCANR_DUMP_URL, lines=True)
     return data
 
 def get_siren():
     correspondance = {}
-    raw_rnsrs = download_data()
+    raw_rnsrs = download_data().to_dict(orient='records')
     for r in raw_rnsrs:
         current_id = None
         for e in r.get('externalIds', []):

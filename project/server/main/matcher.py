@@ -201,8 +201,14 @@ class Matcher:
                         all_hits[strategy_label] = {}
                     all_hits[strategy_label][criterion] = hits
                     criteria_results = [hit.get('_source', {}).get(field) for hit in hits]
-                    criteria_results = [item for sublist in criteria_results for item in sublist]
-                    criteria_results = list(set(criteria_results))
+                    criteria_results_flatten = []
+                    for sublist in criteria_results:
+                        if isinstance(sublist, list):
+                            for item in sublist:
+                                if item:
+                                    criteria_results_flatten.append(item)
+                    #criteria_results = [item for sublist in criteria_results for item in sublist]
+                    criteria_results = list(set(criteria_results_flatten))
                     if strategy_results is None:
                         strategy_results = criteria_results
                     else:
