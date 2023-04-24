@@ -209,3 +209,17 @@ def get_common_words(objects: list, field: string, split: bool = True, threshold
         if dictionary[entry] >= threshold:
             result.append(entry)
     return result
+
+def clean_url(x):
+    if not isinstance(x, str):
+        return None
+    x = x.lower().strip()
+    for f in ['https://', 'http://', 'www.']:
+        x = x.replace(f, '')
+    if x[-1] == '/':
+        x = x[:-1]
+    return x
+
+def get_url_domain(x):
+    url = clean_url(x)
+    return url.split('/')[0]

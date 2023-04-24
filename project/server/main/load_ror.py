@@ -7,10 +7,10 @@ from tempfile import mkdtemp
 from zipfile import ZipFile
 
 from project.server.main.config import CHUNK_SIZE, ROR_DUMP_URL
-from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
+from project.server.main.elastic_utils import get_analyzers, get_tokenizers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import download_insee_data, clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED, NAME_IGNORED, COUNTRY_SWITCHER, CITY_COUNTRY
+from project.server.main.utils import download_insee_data, clean_list, clean_url, get_url_domain, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED, NAME_IGNORED, COUNTRY_SWITCHER, CITY_COUNTRY
 
 logger = get_logger(__name__)
 SOURCE = 'ror'
@@ -172,6 +172,16 @@ def transform_data(rors: list) -> list:
                 if relationship.get('type') == 'Parent' and relationship.get('label'):
                     supervisor_name.append(relationship.get('label'))
         current_data['supervisor_name'] = clean_list(data=supervisor_name, stopwords=FRENCH_STOP+ENGLISH_STOP, min_token = 2)
+        urls, domains = [], []
+        if isinstance(ror.get('links'), list):
+            for link in ror['links']:
+                urls.append(clean_url(link))
+                urls.append(clean_url(link)+'/')
+                domains.append(get_url_domain(link))
+        if urls:
+            current_data['web_url'] = urls
+        if domains:
+            current_data['web_domain'] = domains
         data.append(current_data)
     return data
         
@@ -185,6 +195,7 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
     settings = {
         'analysis': {
             'analyzer': get_analyzers(),
+            'tokenizer': get_tokenizers(),
             'char_filter': get_char_filters(),
             'filter': get_filters()
         }
@@ -201,9 +212,11 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         'country': 'light',
         'country_code': 'light',
         'name': 'heavy_en',
-        'supervisor_name': 'heavy_en'
+        'supervisor_name': 'heavy_en',
+        'web_url': 'url_analyzer',
+        'web_domain': 'domain_analyzer'
     }
-    criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name', 'supervisor_name', 'city_nuts_level1', 'city_nuts_level2', 'city_nuts_level3', 'city_zone_emploi']
+    criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name', 'supervisor_name', 'city_nuts_level1', 'city_nuts_level2', 'city_nuts_level3', 'city_zone_emploi', 'web_url', 'web_domain']
     criteria_unique = ['acronym', 'name']
     for c in criteria_unique:
         criteria.append(f'{c}_unique')

@@ -24,6 +24,13 @@ def get_mappings(analyzer) -> dict:
     }
 
 
+def get_tokenizers():
+    return {
+        'url_tokenizer': {
+          "type": "uax_url_email"
+        }
+    }
+
 def get_filters() -> dict:
     return {
         'acronym_stop': {
@@ -95,6 +102,21 @@ def get_char_filters() -> dict:
             'type': 'pattern_replace',
             'pattern': r'(\\d+)\D(?=\\d)',
             'replacement': '$1'
+        },
+        'clean_url': {
+            'type': 'pattern_replace',
+            'pattern': r'(https?:\/\/)?(www\.)?(.+)([^\/])+',
+            'replacement': '$3'
+        },
+        'remove_http': {
+            'type': 'pattern_replace',
+            'pattern': r'(https?:\/\/)?(www\.)?',
+            'replacement': ''
+        },
+        'url_domain_only': {
+            'type': 'pattern_replace',
+            'pattern': r'([^\/])?(\/)?',
+            'replacement': '$1'
         }
     }
 
@@ -164,6 +186,25 @@ def get_analyzers() -> dict:
                 'icu_folding',
                 'common_synonym',
                 'english_stemmer'
+            ]
+        },
+        'url_analyzer': {
+            'tokenizer': 'url_tokenizer',
+            'filter': [
+                'lowercase'
+            ],
+            'char_filter': [
+                'remove_http'
+            ]
+        },
+        'domain_analyzer': {
+            'tokenizer': 'url_tokenizer',
+            'filter': [
+                'lowercase'
+            ],
+            'char_filter': [
+                'remove_http',
+                'url_domain_only'
             ]
         }
     }

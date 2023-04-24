@@ -11,6 +11,7 @@ DEFAULT_STRATEGIES = [
     [['ror_name', 'ror_acronym', 'ror_city', 'ror_country'],
      ['ror_name', 'ror_acronym', 'ror_city_zone_emploi', 'ror_country']
     ],
+    [['ror_name', 'ror_country', 'ror_web_url']],
     [['ror_name', 'ror_supervisor_name', 'ror_city', 'ror_country'],
      ['ror_name', 'ror_supervisor_name', 'ror_city_zone_emploi', 'ror_country_code']
     ],
@@ -22,13 +23,14 @@ DEFAULT_STRATEGIES = [
         ['ror_name', 'ror_city_zone_emploi', 'ror_country'],
     ],
     #[['ror_acronym', 'ror_city', 'ror_country'], ['ror_acronym', 'ror_city', 'ror_country_code']],
-    [['ror_name', 'ror_acronym', 'ror_city'], ['ror_name', 'ror_acronym', 'ror_country'],
+    [['ror_name', 'ror_acronym', 'ror_city'], ['ror_name', 'ror_acronym', 'ror_country']],
+    [['ror_web_url', 'ror_country']],
     # ['ror_name', 'ror_acronym', 'ror_country_code']
-    ],
 #    [['ror_name', 'ror_country'],
     # ['ror_name', 'ror_country_code']
 #    ],
-    [['ror_name', 'ror_city'], ['ror_name', 'ror_city_nuts_level2'], ['ror_name', 'ror_city_zone_emploi']]
+    [['ror_name', 'ror_city'], ['ror_name', 'ror_city_nuts_level2'], ['ror_name', 'ror_city_zone_emploi']],
+    [['ror_web_domain', 'ror_country']]
 #    ,[['ror_name_unique', 'ror_city_nuts_level2']],
 #    [['ror_acronym_unique', 'ror_city_nuts_level2']],
 #    [['ror_name_unique', 'ror_country']],
