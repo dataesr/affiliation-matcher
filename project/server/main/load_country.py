@@ -1,6 +1,6 @@
 import pycountry
 
-from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
+from project.server.main.elastic_utils import get_analyzers, get_tokenizers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import COUNTRY_SWITCHER
@@ -57,9 +57,10 @@ def load_country(index_prefix: str = 'matcher') -> dict:
     es = MyElastic()
     settings = {
         'analysis': {
+            'analyzer': get_analyzers(),
+            'tokenizer': get_tokenizers(),
             'char_filter': get_char_filters(),
-            'filter': get_filters(),
-            'analyzer': get_analyzers()
+            'filter': get_filters()
         }
     }
     analyzers = {

@@ -8,7 +8,7 @@ from tempfile import mkdtemp
 from zipfile import ZipFile
 
 from project.server.main.config import CHUNK_SIZE, GRID_DUMP_URL
-from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
+from project.server.main.elastic_utils import get_analyzers, get_tokenizers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import clean_list, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED
@@ -130,6 +130,7 @@ def load_grid(index_prefix: str = 'matcher') -> dict:
     settings = {
         'analysis': {
             'char_filter': get_char_filters(),
+            'tokenizer': get_tokenizers(),
             'filter': get_filters(),
             'analyzer': get_analyzers()
         }

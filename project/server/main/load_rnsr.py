@@ -4,7 +4,7 @@ import pandas as pd
 from elasticsearch.client import IndicesClient
 
 from project.server.main.config import SCANR_DUMP_URL
-from project.server.main.elastic_utils import get_analyzers, get_char_filters, get_filters, get_index_name, get_mappings
+from project.server.main.elastic_utils import get_analyzers, get_tokenizers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import download_insee_data, get_alpha2_from_french, FRENCH_STOP, clean_list, ACRONYM_IGNORED
@@ -20,9 +20,10 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
     indices_client = IndicesClient(es)
     settings = {
         'analysis': {
+            'analyzer': get_analyzers(),
+            'tokenizer': get_tokenizers(),
             'char_filter': get_char_filters(),
-            'filter': get_filters(),
-            'analyzer': get_analyzers()
+            'filter': get_filters()
         }
     }
     exact_criteria = ['id', 'city', 'urban_unit', 'zone_emploi', 'country_code', 'acronym', 'code_number', 'code_prefix',
@@ -54,8 +55,9 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
-    raw_data = download_data().to_dict(orient='records')
+    raw_data = download_data()
     transformed_data = transform_data(raw_data)
+    logger.debug('prepare data for ES')
     # Iterate over rnsr data
     for data_point in transformed_data:
         for criterion in criteria:
@@ -98,6 +100,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
                 action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': analyzer,
                                                          'minimum_should_match': '-10%'}}}
             actions.append(action)
+    logger.debug('load ES')
     es.parallel_bulk(actions=actions)
     return results
 
@@ -111,14 +114,17 @@ def get_values(x: dict) -> list:
 
 
 def download_data() -> list:
-    #r = requests.get(SCANR_DUMP_URL)
-    #data = r.json()
-    data = pd.read_json(SCANR_DUMP_URL, lines=True)
+    logger.debug(f'download RNSR data from {SCANR_DUMP_URL}')
+    if 'jsonl' in SCANR_DUMP_URL:
+        data = pd.read_json(SCANR_DUMP_URL, lines=True).to_dict(orient='records')
+    else:
+        r = requests.get(SCANR_DUMP_URL)
+        data = r.json()
     return data
 
 def get_siren():
     correspondance = {}
-    raw_rnsrs = download_data().to_dict(orient='records')
+    raw_rnsrs = download_data()
     for r in raw_rnsrs:
         current_id = None
         for e in r.get('externalIds', []):
@@ -143,6 +149,7 @@ def get_siren():
     return correspondance
 
 def transform_data(data: list) -> list:
+    logger.debug('transform RNSR data')
     rnsrs = []
     for d in data:
         external_ids = d.get('externalIds', [])
