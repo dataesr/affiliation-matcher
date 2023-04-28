@@ -54,7 +54,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
-    raw_data = download_data()
+    raw_data = download_data().to_dict(orient='records')
     transformed_data = transform_data(raw_data)
     # Iterate over rnsr data
     for data_point in transformed_data:
