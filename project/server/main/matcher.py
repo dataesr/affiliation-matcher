@@ -47,6 +47,7 @@ def filter_submatching_results_by_criterion(res: dict) -> dict:
     logs = res.get('logs')
     results = res.get('results')
     version = res.get('version')
+    index_date = res.get('index_date')
     if len(results) == 0:
         return res
     ids_to_remove = []
@@ -85,7 +86,8 @@ def filter_submatching_results_by_criterion(res: dict) -> dict:
         'highlights': new_highlights,
         'logs': logs,
         'results': new_results,
-        'version': version
+        'version': version,
+        'index_date': index_date
     }
 
 
@@ -93,6 +95,7 @@ def filter_submatching_results_by_all(res: dict) -> dict:
     logs = res.get('logs')
     results = res.get('results')
     version = res.get('version')
+    index_date = res.get('index_date')
     if len(results) == 0:
         return res
     ids_to_remove = []
@@ -121,7 +124,8 @@ def filter_submatching_results_by_all(res: dict) -> dict:
         'highlights': new_highlights,
         'logs': logs,
         'results': new_results,
-        'version': version
+        'version': version,
+        'index_date': index_date
     }
 
 
@@ -168,6 +172,7 @@ class Matcher:
         # to limit the nb of ES requests
         # avoid call ES if a search on the same criterion has been done for a strategy before
         cache = {}
+        index_date = None
         for equivalent_strategies in strategies:
             equivalent_strategies_results = None
             all_hits = {}
@@ -195,6 +200,8 @@ class Matcher:
                             'highlight': {'fields': {'content': {'type': 'unified'}}}
                         }
                         hits = self.es.search(index=index, body=body).get('hits', []).get('hits', [])
+                        if hits and (not index_date):
+                            index_date = hits[0]['_index'].replace('matcher-', '').split('_')[0][0:8]
                         cache[cache_key] = hits
                     strategy_label = ';'.join(strategy)
                     if strategy_label not in all_hits:
@@ -249,6 +256,7 @@ class Matcher:
                     'logs': logs,
                     'other_ids': [],
                     'results': equivalent_strategies_results,
+                    'index_date': index_date,
                     'version': __version__
                 }
                 final_res = filter_submatching_results_by_criterion(final_res)
@@ -288,6 +296,7 @@ class Matcher:
             'highlights': {},
             'other_ids': [],
             'results': [],
+            'index_date': index_date,
             'version': __version__
         }
         if verbose:
