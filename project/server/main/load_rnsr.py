@@ -65,7 +65,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         for criterion in criteria:
             criterion_values = data_point.get(criterion.replace('_txt', ''))
             if criterion_values is None:
-                logger.debug(f'This element {data_point} has no {criterion}')
+                #logger.debug(f'This element {data_point} has no {criterion}')
                 continue
             if not isinstance(criterion_values, list):
                 criterion_values = [criterion_values]
