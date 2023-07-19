@@ -7,7 +7,7 @@ from project.server.main.config import SCANR_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_tokenizers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import download_insee_data, get_alpha2_from_french, FRENCH_STOP, clean_list, ACRONYM_IGNORED
+from project.server.main.utils import download_insee_data, get_alpha2_from_french, FRENCH_STOP, clean_list, ACRONYM_IGNORED, clean_url, get_url_domain
 
 logger = get_logger(__name__)
 
@@ -27,7 +27,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         }
     }
     exact_criteria = ['id', 'city', 'urban_unit', 'zone_emploi', 'country_code', 'acronym', 'code_number', 'code_prefix',
-                      'supervisor_acronym', 'year', 'name', 'supervisor_name']
+                      'supervisor_acronym', 'year', 'name', 'supervisor_name', 'web_url', 'web_domain']
     txt_criteria = ['name_txt']
     analyzers = {
         'id': 'light',
@@ -42,7 +42,9 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         'name_txt': 'heavy_fr',
         'supervisor_acronym': 'acronym_analyzer',
         'supervisor_name': 'heavy_fr',
-        'year': 'light'
+        'year': 'light',
+        'web_url': 'url_analyzer',
+        'web_domain': 'domain_analyzer'
     }
     criteria = exact_criteria + txt_criteria
     criteria_unique = []
@@ -278,5 +280,19 @@ def transform_data(data: list) -> list:
         end = int(end_date[0:4])
         # Start date one year before official as it can be used before sometimes
         es_rnsr['year'] = [str(y) for y in list(range(start - 1, end + 1))]
+        
+        urls, domains = [], []
+        if isinstance(rnsr.get('links'), list):
+            for link in rnsr['links']:
+                current_link = link.get('url')
+                if current_link and link.get('type') == 'main':
+                    urls.append(clean_url(current_link))
+                    urls.append(clean_url(current_link)+'/')
+                    domains.append(get_url_domain(current_link))
+        if urls:
+            es_rnsr['web_url'] = urls
+        if domains:
+            es_rnsr['web_domain'] = domains
+        
         es_rnsrs.append(es_rnsr)
     return es_rnsrs

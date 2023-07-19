@@ -29,6 +29,8 @@ DEFAULT_STRATEGIES = [
     [['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_acronym']],
     [['rnsr_name', 'rnsr_acronym', 'rnsr_supervisor_name']],
     [['rnsr_name', 'rnsr_zone_emploi'], ['rnsr_name', 'rnsr_city']],
+    [['rnsr_name', 'rnsr_web_url']],
+    [['rnsr_acronym', 'rnsr_web_url']],
     [['rnsr_acronym', 'rnsr_zone_emploi'], ['rnsr_acronym', 'rnsr_city']],
     [['rnsr_name', 'rnsr_acronym']],
     [['rnsr_acronym', 'rnsr_city']]
