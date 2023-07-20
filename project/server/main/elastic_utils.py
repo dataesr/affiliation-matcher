@@ -23,6 +23,11 @@ def get_mappings(analyzer) -> dict:
         }
     }
 
+def get_mappings_direct(analyzers) -> dict:
+    mappings= { 'properties': {} }
+    for a in analyzers:
+        mappings['properties'][a] = { 'type': 'text', 'analyzer': analyzers[a] }
+    return mappings
 
 def get_tokenizers():
     return {
@@ -210,6 +215,8 @@ def get_analyzers() -> dict:
     }
 
 
-def get_index_name(index_name: str, source: str, index_prefix: str = '') -> str:
+def get_index_name(index_name: str, source: str, index_prefix: str = '', simple: bool = False) -> str:
     names = list(filter(lambda x: x != '', [index_prefix, source, index_name]))
+    if simple:
+        names.append('simple')
     return '_'.join(names)

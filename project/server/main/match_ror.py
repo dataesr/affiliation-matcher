@@ -55,6 +55,7 @@ def pre_treatment_ror(query: str = '') -> str:
             ['dpt.', 'department'],
             ['eng.', 'engineering'],
             ['inst.', 'institute'],
+            ['institut', 'institute'],
             ['mech.', 'mechanics'],
             ['sci.', 'sciences'],
             ['technol.', 'technology'],

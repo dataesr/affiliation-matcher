@@ -1,4 +1,5 @@
 import itertools
+from fuzzywuzzy import fuzz
 
 from bs4 import BeautifulSoup
 
@@ -6,7 +7,7 @@ from project import __version__
 from project.server.main.elastic_utils import get_index_name
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import remove_stop
+from project.server.main.utils import remove_stop, normalize_text
 from project.server.main.load_rnsr import get_siren
 
 logger = get_logger(__name__)
@@ -16,6 +17,16 @@ correspondance = get_siren()
 def identity(x: str = '') -> str:
     return x
 
+def check_similarity(str1, str2, pre_treatment_query, threshold = 0.8):
+    logs=''
+    x1 = pre_treatment_query(normalize_text(text = str1, remove_separator = False, re_order = True, to_lower = True))
+    x2 = pre_treatment_query(normalize_text(text = str2, remove_separator = False, re_order = True, to_lower = True))
+    r = (fuzz.ratio(x1, x2))/100.0
+    if r < threshold:
+        logger.debug(f'reject {str1} {str2} match as ratio = {r} < {threshold}')
+        return False
+    logger.debug(f'accept {str1} {str2} match as ratio = {r} >= {threshold} !')
+    return True
 
 def get_highlights_length_by_match(highlights: dict):
     criteria_per_token = {}
@@ -183,7 +194,7 @@ class Matcher:
                     # TODO : remove index_prefix
                     criterion_without_source = '_'.join(criterion.split('_')[1:])
                     if criterion_without_source in conditions:
-                        criterion_query = conditions[criterion_without_source]
+                        criterion_query = pre_treatment_query(conditions[criterion_without_source])
                     else:
                         criterion_query = pre_treatment_query(query)
                     if criterion in stopwords_strategies:
@@ -261,6 +272,25 @@ class Matcher:
                 }
                 final_res = filter_submatching_results_by_criterion(final_res)
                 final_res = filter_submatching_results_by_all(final_res)
+                final_res['enriched_results'] = self.enrich_results(final_res['results'], method)
+                if 'name' in conditions:
+                    similar_results = []
+                    input_name = conditions['name']
+                    for potential_result in final_res['enriched_results']:
+                        is_similar = False
+                        potential_names = potential_result.get('name')
+                        if not isinstance(potential_names, list):
+                            potential_names = []
+                        for name in potential_names:
+                            current_similar = check_similarity(name, input_name, pre_treatment_query, 0.8)
+                            if current_similar:
+                                is_similar = True
+                                similar_results.append(potential_result['id'])
+                                break
+                        if is_similar is False:
+                            final_res['logs'] += f"<br> removing potential_result['id'] as names potential_result['name'] not similar enough to input name {input_name}"
+                    final_res['results'] = similar_results
+                    final_res['enriched_results'] = self.enrich_results(final_res['results'], method)
                 logs = final_res['logs']
                 other_ids = []
                 logs += '<br><hr>Results: '
@@ -289,7 +319,6 @@ class Matcher:
                 final_res['logs'] = logs
                 if not verbose:
                     del final_res['logs']
-                final_res['enriched_results'] = self.enrich_results(final_res['results'], method)
                 return final_res
         logs += '<br/> No results found'
         final_res = {

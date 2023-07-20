@@ -132,14 +132,19 @@ def delete_punctuation(text: str) -> str:
     return text.lower().translate(str.maketrans(string.punctuation, len(string.punctuation) * ' '))
 
 
-def normalize_text(text: str = None, remove_separator: bool = True) -> str:
+def normalize_text(text: str = None, remove_separator: bool = True, re_order: bool = False, to_lower: bool = False) -> str:
     """Normalize string. Delete punctuation and accents."""
     if isinstance(text, str):
         text = text.replace('\xa0', ' ').replace('\n', ' ')
         text = delete_punctuation(text)
         text = strip_accents(text)
+        if to_lower:
+            text = text.lower()
         sep = '' if remove_separator else ' '
-        text = sep.join(text.split())
+        text_split = text.split(' ')
+        if re_order:
+            text_split.sort()
+        text = sep.join(text_split)
     return text or ''
 
 

@@ -7,7 +7,7 @@ from tempfile import mkdtemp
 from zipfile import ZipFile
 
 from project.server.main.config import CHUNK_SIZE, ROR_DUMP_URL
-from project.server.main.elastic_utils import get_analyzers, get_tokenizers, get_char_filters, get_filters, get_index_name, get_mappings
+from project.server.main.elastic_utils import get_analyzers, get_tokenizers, get_char_filters, get_filters, get_index_name, get_mappings, get_mappings_direct
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import download_insee_data, clean_list, clean_url, get_url_domain, ENGLISH_STOP, FRENCH_STOP, ACRONYM_IGNORED, GEO_IGNORED, NAME_IGNORED, COUNTRY_SWITCHER, CITY_COUNTRY
@@ -134,6 +134,8 @@ def transform_data(rors: list) -> list:
         name += [label.get('label') for label in ror.get('labels', [])]
         names_to_add = []
         for n in name:
+            if 'institut' in n.lower() and 'institute' not in n.lower():
+                names_to_add.append(n.lower().replace('institut', 'institute'))
             if n[0:11].lower()=='university ':
                 names_to_add.append(n[11:]+' university')
                 names_to_add.append(n[11:])
@@ -216,7 +218,9 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
         'web_url': 'url_analyzer',
         'web_domain': 'domain_analyzer'
     }
-    criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'name', 'supervisor_name', 'city_nuts_level1', 'city_nuts_level2', 'city_nuts_level3', 'city_zone_emploi', 'web_url', 'web_domain']
+    exact_criteria = ['id', 'grid_id', 'acronym', 'city', 'country', 'country_code', 'supervisor_name', 'city_nuts_level1', 'city_nuts_level2', 'city_nuts_level3', 'city_zone_emploi', 'web_url', 'web_domain']
+    txt_criteria = ['name']
+    criteria = exact_criteria + txt_criteria
     criteria_unique = ['acronym', 'name']
     for c in criteria_unique:
         criteria.append(f'{c}_unique')
@@ -234,7 +238,7 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
             criterion_values = data_point.get(criterion)
             if criterion_values is None:
                 if 'city' not in criterion and 'unique' not in criterion:
-                    logger.debug(f'This element {data_point} has no {criterion}')
+                    logger.debug(f"This element {data_point['id']} has no {criterion}")
                 continue
             if not isinstance(criterion_values, list):
                 criterion_values = [criterion_values]
@@ -275,9 +279,25 @@ def load_ror(index_prefix: str = 'matcher') -> dict:
                 codes = list(set([j for sub in all_codes for j in sub]))
                 if codes:
                     action[other_id] = codes
+            #if criterion in exact_criteria:
+            #    action['query'] = {
+            #        'match_phrase': {'content': {'query': criterion_value, 'analyzer': analyzer, 'slop': 1}}}
+            #elif criterion in txt_criteria:
+            #    action['query'] = {'match': {'content': {'query': criterion_value, 'analyzer': analyzer,
+            #                                             'minimum_should_match': '-10%'}}}
             if criterion in criteria:
                 action['query'] = {'match_phrase': {'content': {'query': criterion_value,
                                                                 'analyzer': analyzer, 'slop': 0}}}
+            actions.append(action)
+    load_plain_simple_index = False
+    if load_plain_simple_index:
+        logger.debug('prep direct index')
+        index = get_index_name(index_name='all', source=SOURCE, index_prefix=index_prefix, simple=True)
+        es.create_index(index=index, mappings=get_mappings_direct(analyzers), settings=settings)
+        results[index] = len(transformed_data)
+        for current_data in transformed_data: 
+            action = { '_index': index }
+            action.update(current_data)
             actions.append(action)
     logger.debug('bulk insert')
     es.parallel_bulk(actions=actions)
