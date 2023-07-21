@@ -172,6 +172,7 @@ Here is a list of the criteria available for the **rnsr matcher**:
 * rnsr_supervisor_acronym
 * rnsr_supervisor_name
 * rnsr_urban_unit
+* rnsr_web_url
 * rnsr_year
 * rnsr_zone_emploi [indirect]
 
