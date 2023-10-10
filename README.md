@@ -48,6 +48,25 @@ In your browser, you now have :
 - RabbitMQ : http://localhost:9181/
 - Matcher : http://localhost:5004/
 
+In python, you can call the matcher this way:
+
+```shell
+import requests
+url = 'http://localhost:5004/match'
+r=requests.post(url, json={
+  "type": "ror", 
+  "name": "Paris Dauphine University", 
+  "city": "Paris",
+  "country": "France",
+  "verbose": False}
+)
+r.json()
+```
+
+For RoR, available criteria are: id, grid_id, name, city, country, supervisor_name, acronym, city_zone_emploi, city_nuts_level2, web_url, web_domain. Default strategies are detauked https://github.com/dataesr/affiliation-matcher/blob/master/project/server/main/match_ror.py
+
+For RNSR, available criteria are: year, id, code_number, acronym, name, supervisor_name, supervisor_acronym, zone_emploi, city, web_url. Default strategies are detailed in https://github.com/dataesr/affiliation-matcher/blob/master/project/server/main/match_rnsr.py
+
 ## Run unit tests
 
 ```shell
