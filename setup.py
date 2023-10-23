@@ -24,7 +24,7 @@ setup(
         'beautifulsoup4==4.8.2',
         'elasticsearch==7.8.0',
         'elasticsearch-dsl==7.2.1',
-        'Flask==1.1.1',
+        'Flask==2.3.2',
         'Flask-Bootstrap==3.3.7.1',
         'geopy==2.1.0',
         'lxml==4.9.1',
