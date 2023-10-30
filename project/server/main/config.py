@@ -7,10 +7,11 @@ logger = get_logger(__name__)
 
 
 def get_last_ror_dump_url():
-    ROR_URL = 'curl "https://zenodo.org/api/communities/ror-data/records?q=&sort=newest"'
+    ROR_URL = "https://zenodo.org/api/communities/ror-data/records?q=&sort=newest"
     response = requests.get(url=ROR_URL).json()
-    ror_dump_url = response['hits']['hits'][0]['files'][-1]['links']['download']
+    ror_dump_url = response['hits']['hits'][0]['files'][-1]['links']['self']
     logger.debug(f'Last ROR dump url found: {ror_dump_url}')
+    return ror_dump_url
 
 
 # Load the application environment

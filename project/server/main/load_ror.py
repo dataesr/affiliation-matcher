@@ -17,7 +17,7 @@ SOURCE = 'ror'
 
 
 def download_data() -> list:
-    logger.debug('download ROR')
+    logger.debug(f'download ROR from {ROR_DUMP_URL}')
     ror_downloaded_file = 'ror_data_dump.zip'
     ror_unzipped_folder = mkdtemp()
     response = requests.get(url=ROR_DUMP_URL, stream=True)
