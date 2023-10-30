@@ -7,15 +7,10 @@ logger = get_logger(__name__)
 
 
 def get_last_ror_dump_url():
-    try:
-        ROR_URL = 'https://zenodo.org/api/records/?communities=ror-data&sort=mostrecent'
-        response = requests.get(url=ROR_URL).json()
-        ror_dump_url = response['hits']['hits'][0]['files'][-1]['links']['self']
-        logger.debug(f'Last ROR dump url found: {ror_dump_url}')
-    except:
-        ror_dump_url = 'https://zenodo.org/api/files/25d4f93f-6854-4dd4-9954-173197e7fad7/v1.1-2022-06-16-ror-data.zip'
-        logger.error(f'ROR dump url detection failed, using {ror_dump_url} instead')
-    return ror_dump_url
+    ROR_URL = 'curl "https://zenodo.org/api/communities/ror-data/records?q=&sort=newest"'
+    response = requests.get(url=ROR_URL).json()
+    ror_dump_url = response['hits']['hits'][0]['files'][-1]['links']['download']
+    logger.debug(f'Last ROR dump url found: {ror_dump_url}')
 
 
 # Load the application environment
@@ -30,7 +25,6 @@ ELASTICSEARCH_LOGIN = None
 ELASTICSEARCH_PASSWORD = None
 
 GRID_DUMP_URL = 'https://digitalscience.figshare.com/ndownloader/files/30895309'
-# SCANR_DUMP_URL = 'https://storage.gra.cloud.ovh.net/v1/AUTH_32c5d10cb0fe4519b957064a111717e3/scanR/organizations.json'
 SCANR_DUMP_URL = 'https://scanr-data.s3.gra.io.cloud.ovh.net/production/organizations.jsonl.gz'
 ZONE_EMPLOI_INSEE_DUMP = 'https://www.insee.fr/fr/statistiques/fichier/4652957/ZE2020_au_01-01-2021.zip'
 
