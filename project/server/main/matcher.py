@@ -43,8 +43,12 @@ def get_highlights_length_by_match(highlights: dict):
     for current_token in criteria_per_token:
         criteria_per_token[current_token] = list(set(criteria_per_token[current_token]))
         nb_criteria_per_token[current_token] = len(criteria_per_token[current_token])
-    max_nb_criteria = max(list(nb_criteria_per_token.values()))
-    min_nb_criteria = min(list(nb_criteria_per_token.values()))
+    if len(list(nb_criteria_per_token.values())) > 0:
+        max_nb_criteria = max(list(nb_criteria_per_token.values()))
+        min_nb_criteria = min(list(nb_criteria_per_token.values()))
+    else:
+        max_nb_criteria = 1
+        min_nb_criteria = 1
     return {
         'max': max_nb_criteria,
         'min': min_nb_criteria,
@@ -54,7 +58,7 @@ def get_highlights_length_by_match(highlights: dict):
     }
 
 
-def filter_submatching_results_by_criterion(res: dict) -> dict:
+def filter_submatching_results_by_criterion(res: dict, conditions) -> dict:
     logs = res.get('logs')
     results = res.get('results')
     version = res.get('version')
@@ -66,7 +70,7 @@ def filter_submatching_results_by_criterion(res: dict) -> dict:
         highlights = res['highlights'][strategy]
         matching_ids = list(highlights.keys())
         if len(matching_ids) < 1:
-            logger.debug(f'SHOULD NOT HAPPEN ? not highlights but results {results} in strategy {strategy}')
+            logger.debug(f'SHOULD NOT HAPPEN ? not highlights but results {results} in strategy {strategy} for {conditions}')
             continue
         # Create all combinaisons of 2 ids among the matching_ids
         all_id_combinations = itertools.combinations(matching_ids, 2)
@@ -102,7 +106,7 @@ def filter_submatching_results_by_criterion(res: dict) -> dict:
     }
 
 
-def filter_submatching_results_by_all(res: dict) -> dict:
+def filter_submatching_results_by_all(res: dict, conditions) -> dict:
     logs = res.get('logs')
     results = res.get('results')
     version = res.get('version')
@@ -270,8 +274,8 @@ class Matcher:
                     'index_date': index_date,
                     'version': __version__
                 }
-                final_res = filter_submatching_results_by_criterion(final_res)
-                final_res = filter_submatching_results_by_all(final_res)
+                final_res = filter_submatching_results_by_criterion(final_res, conditions)
+                final_res = filter_submatching_results_by_all(final_res, conditions)
                 final_res['enriched_results'] = self.enrich_results(final_res['results'], method)
                 if 'name' in conditions:
                     similar_results = []
