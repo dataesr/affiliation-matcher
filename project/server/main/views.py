@@ -38,7 +38,6 @@ def run_task_match():
         args = request.form.to_dict(flat=True)
         decoded_file = request.files.get('file').read().decode('utf-8')
         df_input = pd.read_csv(io.StringIO(decoded_file))
-        queries = []
         results = []
         for _, row in df_input.iterrows():
             elt = {}
