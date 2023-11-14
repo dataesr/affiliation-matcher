@@ -10,12 +10,12 @@ unit: start
 
 start: stop
 	@echo Affiliation matcher starting...
-	docker-compose up -d
+	docker compose up -d
 	@echo Affiliation matcher started http://localhost:5004
 
 stop:
 	@echo Affiliation matcher stopping...
-	docker-compose down
+	docker compose down
 	@echo Affiliation matcher stopped
 
 install:
