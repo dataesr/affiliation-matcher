@@ -221,7 +221,7 @@ def clean_url(x):
     x = x.lower().strip()
     for f in ['https://', 'http://', 'www.']:
         x = x.replace(f, '')
-    if x[-1] == '/':
+    if len(x)> 0 and x[-1] == '/':
         x = x[:-1]
     return x
 
