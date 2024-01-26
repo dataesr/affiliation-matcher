@@ -27,7 +27,7 @@ ELASTICSEARCH_PASSWORD = None
 
 GRID_DUMP_URL = 'https://digitalscience.figshare.com/ndownloader/files/30895309'
 SCANR_DUMP_URL = 'https://scanr-data.s3.gra.io.cloud.ovh.net/production/organizations.jsonl.gz'
-ZONE_EMPLOI_INSEE_DUMP = 'https://www.insee.fr/fr/statistiques/fichier/4652957/ZE2020_au_01-01-2021.zip'
+ZONE_EMPLOI_INSEE_DUMP = 'https://www.insee.fr/fr/statistiques/fichier/4652957/ZE2020_au_01-01-2023.zip'
 
 ROR_DUMP_URL = get_last_ror_dump_url()
 
