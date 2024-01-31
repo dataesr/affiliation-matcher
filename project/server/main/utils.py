@@ -183,7 +183,7 @@ def download_insee_data() -> dict:
             file.write(chunk)
     with ZipFile(insee_downloaded_file, 'r') as file:
         file.extractall(insee_unzipped_folder)
-    data = pd.read_excel(f'{insee_unzipped_folder}/ZE2020_au_01-01-2021.xlsx', sheet_name='Composition_communale',
+    data = pd.read_excel(f'{insee_unzipped_folder}/ZE2020_au_01-01-2023.xlsx', sheet_name='Composition_communale',
                          skiprows=5).to_dict(orient='records')
     os.remove(path=insee_downloaded_file)
     shutil.rmtree(path=insee_unzipped_folder)
