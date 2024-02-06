@@ -21,7 +21,7 @@ COUNTRY_DEFAULT_STRATEGIES = [
     [['grid_name', 'country_subdivision_name']],
     [['rnsr_code_number'], ['rnsr_acronym', 'rnsr_supervisor_acronym'],
         ['rnsr_name', 'rnsr_zone_emploi', 'country_name'], ['rnsr_name', 'rnsr_city', 'country_name']],
-    [['rnsr_code_prefix', 'rnsr_acronym'], ['rnsr_code_prefix', 'rnsr_supervisor_acronym'], ['rnsr_code_prefix', 'rnsr_zone_emploi', 'country_name']]
+    [['rnsr_code_prefix', 'rnsr_acronym'], ['rnsr_code_prefix', 'rnsr_supervisor_acronym']]
 ]
 
 

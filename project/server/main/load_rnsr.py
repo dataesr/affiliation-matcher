@@ -233,7 +233,11 @@ def transform_data(data: list) -> list:
         code_prefixes = []
         for code in [e['id'] for e in rnsr.get('externalIds', []) if e['type'] == 'label_numero']:
             code_numbers.extend([code, code.replace(' ', ''), code.replace(' ', '-'), code.replace(' ', '_')])
-            code_prefixes.append(code.split(' ')[0])
+            code_prefix = code.split(' ')[0]
+            if len(code_prefix)>=3:
+                for subp in ['umr', 'umi', 'ums', 'gdr', 'cic']:
+                    if subp in code_prefix.lower():
+                        code_prefixes.append(code_prefix)
         es_rnsr['code_number'] = list(set(code_numbers))
         es_rnsr['code_prefix'] = list(set(code_prefixes))
         # Acronyms & names
