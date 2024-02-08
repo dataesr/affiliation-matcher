@@ -6,14 +6,14 @@ on:
       - '*'
 
 env:
-  MM_NOTIFICATION_CHANNEL: 'bso-bot'
+  MM_NOTIFICATION_CHANNEL: bots
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: 🏁 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🏷️ Get Tag
         id: version
@@ -28,7 +28,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/affiliation-matcher-${{ steps.version.outputs.tag }}.tar.gz
           tag: ${{ github.ref }}
-
       - name: 🔑 Docker login
         run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
 
@@ -43,7 +42,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - uses: dataesr/mm-notifier-action@v1
+      - uses: dataesr/mm-notifier-action@v1.0.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN}}
           mattermost_webhook_url: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
