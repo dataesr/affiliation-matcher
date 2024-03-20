@@ -1,9 +1,10 @@
 # Affiliation matcher
 
-[![Discord Follow](https://dcbadge.vercel.app/api/server/dkcww8vs?style=flat)](https://discord.gg/dkcww8vs)
+[![Discord Follow](https://dcbadge.vercel.app/api/server/TudsqDqTqb?style=flat)](https://discord.gg/TudsqDqTqb)
+![license](https://img.shields.io/github/license/dataesr/affiliation-matcher)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/dataesr/affiliation-matcher?display_name=tag)
 ![Tests](https://github.com/dataesr/affiliation-matcher/actions/workflows/tests.yml/badge.svg)
 ![Build](https://github.com/dataesr/affiliation-matcher/actions/workflows/build.yml/badge.svg)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/dataesr/affiliation-matcher?display_name=tag)
 
 ## Goal
 
