@@ -28,3 +28,6 @@ doc/*
 
 # Jupyter Notebooks
 .ipynb_checkpoints
+
+# Env
+.env
