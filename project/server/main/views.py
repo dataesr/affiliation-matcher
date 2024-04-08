@@ -22,7 +22,7 @@ def home():
 @main_blueprint.route('/load', methods=['GET'])
 def run_task_load():
     args = request.args
-    logger.debug(args)
+    logger.debug(f"/load {args}")
     response_object = create_task_load(args=args)
     return jsonify(response_object), 202
 
@@ -31,7 +31,7 @@ def run_task_load():
 def run_task_match():
     if request.files.get('file') is None:
         args = request.get_json(force=True)
-        logger.debug(args)
+        logger.debug(f"/match {args}")
         response = create_task_match(args=args)
         return jsonify(response), 202
     else:
@@ -59,7 +59,7 @@ def run_task_match():
 @main_blueprint.route('/enrich_filter', methods=['POST'])
 def run_task_enrich_filter():
     args = request.get_json(force=True)
-    logger.debug(args)
+    logger.debug(f"/enrich_filter {args}")
     queue = 'matcher'
     if 'queue' in args and args['queue'] != 'matcher':
         queue = 'matcher_short'
@@ -73,7 +73,7 @@ def run_task_enrich_filter():
 @main_blueprint.route('/match_list', methods=['POST'])
 def run_task_affiliations_list():
     args = request.get_json(force=True)
-    logger.debug(args)
+    logger.debug(f"/match_list {args}")
     queue = 'matcher'
     if 'queue' in args and args['queue'] != 'matcher':
         queue = 'matcher_short'

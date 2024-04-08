@@ -12,7 +12,7 @@ from project.server.main.load_rnsr import get_siren
 
 logger = get_logger(__name__)
 
-correspondance = get_siren()
+# correspondance = get_siren()
 
 def identity(x: str = '') -> str:
     return x
@@ -149,22 +149,21 @@ class Matcher:
         self.es = MyElastic()
 
     def enrich_results(self, results, method):
-      enriched = []
-      for r in results:
-          elt = {'id': r}
-          for f in ['name', 'city', 'acronym', 'country']:
-            index = f'matcher_{method}_{f}'
-            try:
-                data = self.es.search(index=index, body= { "query": { "simple_query_string" : { "query": r } } })
-                hits = data['hits']['hits']
-                elt[f] = []
-                for hit in hits:
-                    elt[f].append(list(hit['_source']['query'].values())[0]['content']['query'])
-            except:
-                pass
-          enriched.append(elt)
-      return enriched
-
+        enriched = []
+        for r in results:
+            elt = {"id": r}
+            for f in ["name", "city", "acronym", "country"]:
+                index = f"matcher_{method}_{f}"
+                try:
+                    data = self.es.search(index=index, body={"query": {"simple_query_string": {"query": r}}})
+                    hits = data["hits"]["hits"]
+                    elt[f] = []
+                    for hit in hits:
+                        elt[f].append(list(hit["_source"]["query"].values())[0]["content"]["query"])
+                except:
+                    pass
+            enriched.append(elt)
+        return enriched
 
     def match(self, method: str = None, conditions: dict = None, strategies: list = None, pre_treatment_query=None,
               field: str = 'ids', stopwords_strategies: dict = None, post_treatment_results=None) -> dict:
@@ -175,7 +174,7 @@ class Matcher:
             assert(isinstance(field, str))
             assert(field[-1] == 's')
             method = field[:-1]
-        assert(method in ['grid', 'ror', 'rnsr', 'country'])
+        assert method in ["grid", "ror", "rnsr", "paysage", "country"]
         if pre_treatment_query is None:
             pre_treatment_query = identity
         if stopwords_strategies is None:
@@ -184,6 +183,8 @@ class Matcher:
         index_prefix = conditions.get('index_prefix', 'matcher')
         query = conditions.get('query', '')
         logs = f'<h1> &#128269; {query}</h1>'
+        logger.debug(f"method {method}")
+        logger.debug(f"query {query}")
         # to limit the nb of ES requests
         # avoid call ES if a search on the same criterion has been done for a strategy before
         cache = {}
@@ -229,7 +230,7 @@ class Matcher:
                             for item in sublist:
                                 if item:
                                     criteria_results_flatten.append(item)
-                    #criteria_results = [item for sublist in criteria_results for item in sublist]
+                    # criteria_results = [item for sublist in criteria_results for item in sublist]
                     criteria_results = list(set(criteria_results_flatten))
                     if strategy_results is None:
                         strategy_results = criteria_results
@@ -299,10 +300,10 @@ class Matcher:
                 other_ids = []
                 logs += '<br><hr>Results: '
                 for result in final_res['results']:
-                    if result in correspondance:
-                        for e in correspondance[result]:
-                            if e not in other_ids:
-                                other_ids.append(e)
+                    # if result in correspondance:
+                    #     for e in correspondance[result]:
+                    #         if e not in other_ids:
+                    #             other_ids.append(e)
                     final_res['other_ids'] = other_ids
                     if method == 'grid':
                         logs += f' <a target="_blank" href="https://grid.ac/institutes/' \
@@ -314,6 +315,11 @@ class Matcher:
                         logs += f' <a target="_blank" href="https://appliweb.dgri.education.fr/rnsr/' \
                                 f'PresenteStruct.jsp?numNatStruct={result}&PUBLIC=OK">' \
                                 f'{result}</a>'
+                    elif method == "paysage":
+                        logs += (
+                            f' <a target="_blank" href="https://paysage.staging.dataesr.ovh/structures/{result}">'
+                            f"{result}</a>"
+                        )
                     else:
                         logs += f' {result}'
                 for matching_id in final_res['highlights']:

@@ -6,11 +6,13 @@ from project.server.main.load_grid import load_grid
 from project.server.main.load_rnsr import load_rnsr
 from project.server.main.load_ror import load_ror
 from project.server.main.load_wikidata import load_wikidata
+from project.server.main.load_paysage import load_paysage
 from project.server.main.logger import get_logger
 from project.server.main.match_country import match_country
 from project.server.main.match_grid import match_grid
 from project.server.main.match_rnsr import match_rnsr
 from project.server.main.match_ror import match_ror
+from project.server.main.match_paysage import match_paysage
 from project.server.main.my_elastic import MyElastic
 
 logger = get_logger(__name__)
@@ -57,6 +59,7 @@ def create_task_load(args: dict = None) -> dict:
         result.update(load_grid(index_prefix=index_prefix_dated))
         result.update(load_rnsr(index_prefix=index_prefix_dated))
         result.update(load_ror(index_prefix=index_prefix_dated))
+        result.update(load_paysage(index_prefix=index_prefix_dated))
     elif matcher_type == 'country':
         result.update(load_country(index_prefix=index_prefix_dated))
     elif matcher_type == 'grid':
@@ -67,6 +70,8 @@ def create_task_load(args: dict = None) -> dict:
         result.update(load_ror(index_prefix=index_prefix_dated))
     elif matcher_type == 'wikidata':
         result.update(load_wikidata(index_prefix=index_prefix_dated))
+    elif matcher_type == "paysage":
+        result.update(load_paysage(index_prefix=index_prefix_dated))
     else:
         result = {'Error': f'Matcher type {matcher_type} unknown'}
     # An alias is the put on the newly created indices
@@ -89,6 +94,8 @@ def create_task_match(args: dict = None) -> dict:
         result = match_rnsr(args)
     elif matcher_type == 'ror':
         result = match_ror(args)
+    elif matcher_type == "paysage":
+        result = match_paysage(args)
     else:
         result = {'Error': f'Matcher type {matcher_type} unknown'}
     return result

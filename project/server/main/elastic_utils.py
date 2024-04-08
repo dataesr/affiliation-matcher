@@ -17,6 +17,10 @@ def get_mappings(analyzer) -> dict:
                 'type': 'text',
                 'analyzer': 'keyword'
             },
+            'paysages': {
+                'type': 'text',
+                'analyzer': 'keyword'
+            },
             'query': {
                 'type': 'percolator'
             }
@@ -150,8 +154,15 @@ def get_analyzers() -> dict:
             'filter': [
                 'lowercase',
                 'french_elision',
-                'icu_folding',
-                #'acronym_stop'
+                'icu_folding'
+            ]
+        },
+        'wikidata_analyzer': {
+            'tokenizer': 'icu_tokenizer',
+            'filter': [
+                'lowercase',
+                'french_elision',
+                'icu_folding'
             ]
         },
         'name_analyzer': {

@@ -36,7 +36,12 @@ $(document).ready(() => {
                 break;
             }
             case 'ror': {
-                $('#input_example').text('Paris Dauphine University France');
+                $('#input_example').text('Paris Dauphine University France France');
+                $('#select_year').addClass('d-none');
+                break;
+            }
+            case 'paysage': {
+                $('#input_example').text('UTC - Université de technologie de Compiègne, France');
                 $('#select_year').addClass('d-none');
                 break;
             }

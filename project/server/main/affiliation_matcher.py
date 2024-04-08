@@ -3,6 +3,7 @@ from project.server.main.match_country import match_country
 from project.server.main.match_grid import match_grid
 from project.server.main.match_rnsr import match_rnsr
 from project.server.main.match_ror import match_ror
+from project.server.main.match_paysage import match_paysage
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import chunks
 
@@ -28,7 +29,7 @@ def get_query_from_affiliation(affiliation):
     keys = list(affiliation.keys())
     keys.sort()
     for f in affiliation:
-        if f.lower() in ['name', 'ror', 'grid', 'rnsr', 'country', 'city']:
+        if f.lower() in ['name', 'ror', 'grid', 'rnsr', 'paysage', 'country', 'city']:
             if isinstance(affiliation.get(f), str) and affiliation[f]:
                 query_elts.append(affiliation[f])
     return ' '.join(query_elts)
@@ -78,6 +79,9 @@ def get_matches(affiliation, match_types):
     if 'ror' in match_types:
         rors = match_ror(conditions={'query': affiliation})
         results += [{'id': e, 'type': 'country'} for e in rors['results']]
+    if 'paysage' in match_types:
+        paysages = match_paysage(conditions={'query': affiliation})
+        results += [{'id': e, 'type': 'paysage'} for e in paysages['results']]
     for r in other_ids:
         if r['type'] in ['siren', 'sirene', 'siret'] and r not in results:
             results.append(r)
