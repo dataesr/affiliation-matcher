@@ -37,7 +37,6 @@ def match_paysage(conditions: dict) -> dict:
                 equivalent_strategies_copy.append(strategy + ["paysage_year"])
             strategies_copy.append(equivalent_strategies_copy)
         strategies = strategies_copy
-    print("match_paysage:", strategies)
     matcher = Matcher()
     return matcher.match(
         field="paysages",

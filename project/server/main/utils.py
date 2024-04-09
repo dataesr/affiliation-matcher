@@ -70,19 +70,21 @@ def remove_parenthesis(x):
     return x
 
 
-def clean_list(data: list, stopwords=[], ignored=[], remove_inside_parenthesis=True, min_token=1, min_character = 1) -> list:
+def clean_list(
+    data: list, stopwords=[], ignored=[], remove_inside_parenthesis=True, min_token=1, min_character=1
+) -> list:
     # Cast data into list if needed
     if not isinstance(data, list):
         data = [data]
     data = list(filter(None, data))
-    # Remove duplicates
+    # Remove duplicates and non str
     data = [k for k in list(set(data)) if k and isinstance(k, str)]
     for ix, e in enumerate(data):
         if remove_inside_parenthesis:
             e = remove_parenthesis(e)
         if stopwords:
             e = remove_stop(e, stopwords)
-        data[ix] = e
+        data[ix] = e.strip()
     new_data = []
     for k in data:
         k_normalized = normalize_text(k, remove_separator=False)
@@ -94,6 +96,7 @@ def clean_list(data: list, stopwords=[], ignored=[], remove_inside_parenthesis=T
             continue
         new_data.append(k)
     return new_data
+
 
 def chunks(lst: list, n: int) -> list:
     """Yield successive n-sized chunks from list."""
@@ -129,7 +132,7 @@ def strip_accents(text: str) -> str:
 
 def delete_punctuation(text: str) -> str:
     """Delete all punctuation in a string."""
-    return text.lower().translate(str.maketrans(string.punctuation, len(string.punctuation) * ' '))
+    return text.translate(str.maketrans(string.punctuation, len(string.punctuation) * " "))
 
 
 def normalize_text(text: str = None, remove_separator: bool = True, re_order: bool = False, to_lower: bool = False) -> str:
@@ -145,7 +148,7 @@ def normalize_text(text: str = None, remove_separator: bool = True, re_order: bo
         if re_order:
             text_split.sort()
         text = sep.join(text_split)
-    return text or ''
+    return text or ""
 
 
 def get_alpha2_from_french(user_input):
@@ -174,7 +177,7 @@ def get_alpha2_from_french(user_input):
     return ref.get(user_input)
 
 
-def download_insee_data() -> dict:
+def download_insee_data() -> list:
     insee_downloaded_file = 'insee_data_dump.zip'
     insee_unzipped_folder = mkdtemp()
     response = requests.get(url=ZONE_EMPLOI_INSEE_DUMP, stream=True, verify=False)
@@ -183,11 +186,34 @@ def download_insee_data() -> dict:
             file.write(chunk)
     with ZipFile(insee_downloaded_file, 'r') as file:
         file.extractall(insee_unzipped_folder)
-    data = pd.read_excel(f'{insee_unzipped_folder}/ZE2020_au_01-01-2023.xlsx', sheet_name='Composition_communale',
-                         skiprows=5).to_dict(orient='records')
+    data = pd.read_excel(
+        f"{insee_unzipped_folder}/ZE2020_au_01-01-2024.xlsx",
+        sheet_name="Composition_communale",
+        engine="calamine",
+        skiprows=5,
+    ).to_dict(orient="records")
     os.remove(path=insee_downloaded_file)
     shutil.rmtree(path=insee_unzipped_folder)
     return data
+
+
+def city_zone_emploi_insee() -> tuple[dict, dict]:
+    zone_emploi_composition = {}
+    city_zone_emploi = {}
+
+    zone_emploi_insee = download_insee_data()
+    for d in zone_emploi_insee:
+        city = d["LIBGEO"]
+        city_code = d["CODGEO"]
+        ze = d["LIBZE2020"]
+        if ze not in zone_emploi_composition:
+            zone_emploi_composition[ze] = []
+        zone_emploi_composition[ze].append(city)
+        if city_code not in city_zone_emploi:
+            city_zone_emploi[city_code] = []
+        city_zone_emploi[city_code].append(ze)
+
+    return city_zone_emploi, zone_emploi_composition
 
 
 def has_a_digit(text: str = '') -> bool:

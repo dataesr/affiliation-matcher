@@ -18,7 +18,7 @@ from project.server.main.elastic_utils import (
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import (
-    download_insee_data,
+    city_zone_emploi_insee,
     get_alpha2_from_french,
     FRENCH_STOP,
     clean_list,
@@ -88,10 +88,10 @@ def load_paysage(index_prefix: str = "matcher") -> dict:
         es_data[criterion] = {}
 
     # Download paysage data
-    raw_data = download_data()
+    raw_records = download_data()
 
     # Transform paysage data
-    transformed_data = transform_data(raw_data)
+    transformed_data = transform_data(raw_records)
 
     # Iterate over paysage data
     logger.debug("Prepare data for elastic")
@@ -153,55 +153,58 @@ def load_paysage(index_prefix: str = "matcher") -> dict:
 
 def download_data() -> list:
     logger.debug(f"Download Paysage data from {ODS_PAYSAGE}")
-    data = (
-        pd.read_csv(
-            f"https://data.enseignementsup-recherche.gouv.fr/explore/dataset/{ODS_PAYSAGE}/download/?format=csv&apikey={ODS_KEY}",
-            sep=";",
-            low_memory=False,
-        )
-        .replace(np.nan, None)
-        .to_dict(orient="records")
+    data = pd.read_csv(
+        f"https://data.enseignementsup-recherche.gouv.fr/explore/dataset/{ODS_PAYSAGE}/download/?format=csv&apikey={ODS_KEY}",
+        sep=";",
+        low_memory=False,
     )
-    return data
+    records = data.replace(np.nan, None).to_dict(orient="records")
+    return records
 
 
-def transform_data(data: list) -> list:
-    logger.debug(f"Start transform of Paysage data ({len(data)} records)")
+def transform_data(records: list) -> list:
+    logger.debug(f"Start transform of Paysage data ({len(records)} records)")
 
     # Loading zone emploi data
-    logger.debug(f"Download insee data")
-    zone_emploi_insee = download_insee_data()
-    zone_emploi_composition = {}
-    city_zone_emploi = {}
-    for d in zone_emploi_insee:
-        city = d["LIBGEO"]
-        city_code = d["CODGEO"]
-        ze = d["LIBZE2020"]
-        if ze not in zone_emploi_composition:
-            zone_emploi_composition[ze] = []
-        zone_emploi_composition[ze].append(city)
-        if city_code not in city_zone_emploi:
-            city_zone_emploi[city_code] = []
-        city_zone_emploi[city_code].append(ze)
+    logger.debug(f"Load insee data")
+    try:
+        city_zone_emploi, zone_emploi_composition = city_zone_emploi_insee()
+    except Exception as error:
+        city_zone_emploi = {}
+        zone_emploi_composition = {}
+        logger.error(f"Error while loading insee data: {error}")
 
     # Setting a dict with all names, acronyms and cities
     logger.debug("Get data from Paysage records")
     name_acronym_city = {}
-    for d in data:
-        current_id = d["identifiant_interne"]
+    for record in records:
+        current_id = record["identifiant_interne"]
         name_acronym_city[current_id] = {}
+
         # Acronyms
-        acronyms = [d.get("sigle")] if d.get("sigle") else []
+        acronyms, names = [], []
+        sigle = record.get("sigle")
+        name_short = record.get("nom_court")
+        if sigle:
+            acronyms.append(sigle)
+        if name_short:
+            if name_short.isalnum():
+                acronyms.append(name_short)
+            else:
+                names.append(name_short)
         # Names
-        labels = ["uo_lib", "uo_lib_officiel", "uo_lib_en", "nom_court"]
-        names = [d.get(name) for name in labels if d.get(name)]
+        labels = ["uo_lib", "uo_lib_officiel", "uo_lib_en"]
+        names += [record.get(name) for name in labels if record.get(name)]
         names = list(set(names))
         names = list(set(names) - set(acronyms))
+
         # Cities, country_alpha2, and zone_emploi
         cities, country_alpha2, zone_emploi = [], [], []
-        city = d.get("com_nom")
-        city_code = d.get("com_code")
-        country = d.get("pays_etranger_acheminement")
+        city = record.get("com_nom")
+        clean_city = " ".join([s for s in city.split(" ") if s.isalpha()])
+        city = clean_city if clean_city else city
+        city_code = record.get("com_code")
+        country = record.get("pays_etranger_acheminement")
         if city:
             cities.append(city)
             if city_code in city_zone_emploi:
@@ -211,7 +214,7 @@ def transform_data(data: list) -> list:
             country_alpha2.append(alpha2)
 
         name_acronym_city[current_id]["city"] = clean_list(data=cities)
-        name_acronym_city[current_id]["zone_emploi"] = clean_list(data=zone_emploi)
+        name_acronym_city[current_id]["zone_emploi"] = clean_list(zone_emploi)
         name_acronym_city[current_id]["acronym"] = clean_list(data=acronyms, ignored=ACRONYM_IGNORED, min_character=2)
         name_acronym_city[current_id]["name"] = clean_list(data=names, stopwords=FRENCH_STOP, min_token=2)
         country_alpha2 = clean_list(data=country_alpha2)
@@ -221,8 +224,8 @@ def transform_data(data: list) -> list:
 
     logger.debug("Transform records to elastic indexes")
     es_paysages = []
-    for d in data:
-        paysage_id = d.get("identifiant_interne")
+    for record in records:
+        paysage_id = record.get("identifiant_interne")
         es_paysage = {"id": paysage_id}
         # Acronyms & names
         es_paysage["acronym"] = name_acronym_city[paysage_id]["acronym"]
@@ -232,30 +235,26 @@ def transform_data(data: list) -> list:
         es_paysage["city"] = name_acronym_city[paysage_id]["city"]
         es_paysage["country_alpha2"] = name_acronym_city[paysage_id]["country_alpha2"]
         es_paysage["country_code"] = [name_acronym_city[paysage_id]["country_alpha2"]]
-        # For zone emploi, all the cities around are added, so that, eg, Bordeaux is in
-        # zone_emploi of a lab located in Talence
-        es_paysage["zone_emploi"] = []
-        for ze in name_acronym_city[paysage_id]["zone_emploi"]:
-            es_paysage["zone_emploi"] += zone_emploi_composition[ze]
-        es_paysage["zone_emploi"] = clean_list(es_paysage["zone_emploi"])
+        # Zone emploi
+        es_paysage["zone_emploi"] = name_acronym_city[paysage_id]["zone_emploi"]
         # Wikidata
-        wikidata = d.get("identifiant_wikidata")
+        wikidata = record.get("identifiant_wikidata")
         if wikidata:
             es_paysage["wikidata"] = wikidata
         # Dates
         last_year = f"{datetime.date.today().year}"
-        start_date = d.get("date_creation")
+        start_date = record.get("date_creation")
         if not start_date:
             start_date = "2010"
         start = int(start_date[0:4])
-        end_date = d.get("date_fermeture")
+        end_date = record.get("date_fermeture")
         if not end_date:
             end_date = last_year
         end = int(end_date[0:4])
         # Start date one year before official as it can be used before sometimes
         es_paysage["year"] = [str(y) for y in list(range(start - 1, end + 1))]
         # Url
-        url = d.get("url")
+        url = record.get("url")
         if isinstance(url, list):
             raise Exception("found list url", url)
         if url:
