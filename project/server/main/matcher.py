@@ -12,7 +12,7 @@ from project.server.main.load_rnsr import get_siren
 
 logger = get_logger(__name__)
 
-# correspondance = get_siren()
+correspondance = get_siren()
 
 def identity(x: str = '') -> str:
     return x
@@ -300,10 +300,10 @@ class Matcher:
                 other_ids = []
                 logs += '<br><hr>Results: '
                 for result in final_res['results']:
-                    # if result in correspondance:
-                    #     for e in correspondance[result]:
-                    #         if e not in other_ids:
-                    #             other_ids.append(e)
+                    if result in correspondance:
+                        for e in correspondance[result]:
+                            if e not in other_ids:
+                                other_ids.append(e)
                     final_res['other_ids'] = other_ids
                     if method == 'grid':
                         logs += f' <a target="_blank" href="https://grid.ac/institutes/' \
