@@ -36,7 +36,7 @@ $(document).ready(() => {
                 break;
             }
             case 'ror': {
-                $('#input_example').text('Paris Dauphine University France France');
+                $('#input_example').text('Paris Dauphine University France');
                 $('#select_year').addClass('d-none');
                 break;
             }
