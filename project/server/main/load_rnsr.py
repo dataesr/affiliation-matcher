@@ -1,6 +1,7 @@
 import datetime
 import requests
 import pandas as pd
+import numpy as np
 from elasticsearch.client import IndicesClient
 
 from project.server.main.config import SCANR_DUMP_URL
@@ -118,7 +119,7 @@ def get_values(x: dict) -> list:
 def download_data() -> list:
     logger.debug(f'download RNSR data from {SCANR_DUMP_URL}')
     if 'jsonl' in SCANR_DUMP_URL:
-        data = pd.read_json(SCANR_DUMP_URL, lines=True).to_dict(orient='records')
+        data = pd.read_json(SCANR_DUMP_URL, lines=True).replace(np.nan, None).to_dict(orient="records")
     else:
         r = requests.get(SCANR_DUMP_URL)
         data = r.json()
@@ -199,7 +200,7 @@ def transform_data(data: list) -> list:
         for address in d.get('address', []):
             if 'city' in address and address['city']:
                 cities.append(address['city'])
-            if 'city' in address and address['city'] and 'postcode' in address and address['postcode']:
+            if 'city' in address and address['city'] and 'citycode' in address and address['citycode']:
                 city_code = address['citycode']
                 if city_code in city_zone_emploi:
                     zone_emploi += city_zone_emploi[city_code]
@@ -284,7 +285,7 @@ def transform_data(data: list) -> list:
         end = int(end_date[0:4])
         # Start date one year before official as it can be used before sometimes
         es_rnsr['year'] = [str(y) for y in list(range(start - 1, end + 1))]
-        
+
         urls, domains = [], []
         if isinstance(rnsr.get('links'), list):
             for link in rnsr['links']:
@@ -297,6 +298,6 @@ def transform_data(data: list) -> list:
             es_rnsr['web_url'] = urls
         if domains:
             es_rnsr['web_domain'] = domains
-        
+
         es_rnsrs.append(es_rnsr)
     return es_rnsrs

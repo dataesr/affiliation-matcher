@@ -42,7 +42,7 @@ $(document).ready(() => {
             }
             case 'paysage': {
                 $('#input_example').text('UTC - Université de technologie de Compiègne, France');
-                $('#select_year').addClass('d-none');
+                $('#select_year').removeClass('d-none');
                 break;
             }
             default: {

@@ -201,11 +201,11 @@ def transform_data(records: list) -> list:
         # Cities, country_alpha2, and zone_emploi
         cities, country_alpha2, zone_emploi = [], [], []
         city = record.get("com_nom")
-        clean_city = " ".join([s for s in city.split(" ") if s.isalpha()])
-        city = clean_city if clean_city else city
         city_code = record.get("com_code")
         country = record.get("pays_etranger_acheminement")
         if city:
+            clean_city = " ".join([s for s in city.split(" ") if s.isalpha()])
+            city = clean_city if clean_city else city
             cities.append(city)
             if city_code in city_zone_emploi:
                 zone_emploi += city_zone_emploi[city_code]
