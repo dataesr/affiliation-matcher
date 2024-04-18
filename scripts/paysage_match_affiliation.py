@@ -11,6 +11,8 @@ load_dotenv()
 
 ODS_API_KEY = os.getenv("ODS_API_KEY")
 ODS_PAYSAGE_KEY = os.getenv("ODS_PAYSAGE_KEY")
+ES_URL = os.getenv("ES_PAYSAGE_URL")
+ES_TOKEN = os.getenv("ES_PAYSAGE_TOKEN")
 
 AFFILIATION_MATCHER_API = f"{os.getenv('AFFILIATION_MATCHER_URL')}/match"
 AFFILIATION_MATCHER_LIST_API = "http://localhost:5004/match_list"
@@ -44,6 +46,23 @@ SUBSET_AFFILIATION_MATCH = [COL_AFFILIATION_MATCH, COL_AFFILIATION_MATCH_OFF]
 COL_AFFILIATION_IS_MATCH = "affiliation_is_match"
 COL_AFFILIATION_IS_MATCH_OFF = "affiliation_is_match_off"
 
+WANTED_CATEGORIES = [
+    "Université",
+    "Établissement public expérimental",
+    "Établissement supérieur d'architecture",
+    "Organisme de recherche",
+    "Société d'accélération du transfert de technologies",
+    "Établissement d'enseignement supérieur privé d'intérêt général",
+    "Tutelle des établissements",
+    "Incubateur public",
+    "Liste des établissements publics relevant du ministre chargé de l'Enseignement supérieur",
+    "Etablissements d’enseignement supérieur techniques privés (hors formations relevant du commerce et de la gestion)",
+    "Etablissement publics d’enseignement supérieur entrant dans la cotutelle du ministre chargé de l’enseignement supérieur (Art L 123-1 du code de l’éducation)",
+    "Commerce et gestion - Etablissements d’enseignement supérieur techniques privés et consulaires autorisés à délivrer un diplôme visé par le ministre chargé de l’enseignement supérieur et/ou à conférer le grade universitaire",
+    "Opérateur du programme 150 - Formations supérieures et recherche universitaire",
+    "Structure de recherche",
+    # "Établissement d'enseignement supérieur étranger"
+]
 
 class MATCH(Enum):
     NO_ID_NO_MATCH = 0
@@ -74,6 +93,45 @@ def ods_get_df(ods_key: str, subset=None):
         return df[subset].copy()
 
     return df
+
+
+def download_categories() -> dict:
+    keep_alive = 1
+    scroll_id = None
+    categories = {}
+    hits = []
+    size = 10000
+    count = 0
+    total = 0
+    headers = {"Authorization": ES_TOKEN}
+    url = f"{ES_URL}/paysage/_search?scroll={keep_alive}m"
+    query = {
+        "size": size,
+        "_source": ["id", "category"],
+        "query": {"match": {"type": "structures"}},
+    }
+
+    # Scroll to get all results
+    while total == 0 or count < total:
+        if scroll_id:
+            url = f"{ES_URL}/_search/scroll"
+            query = {"scroll": f"{keep_alive}m", "scroll_id": scroll_id}
+        res = requests.post(url=url, headers=headers, json=query)
+        if res.status_code == 200:
+            json = res.json()
+            scroll_id = json.get("_scroll_id")
+            total = json.get("hits").get("total").get("value")
+            data = json.get("hits").get("hits")
+            count += len(data)
+            sources = [d.get("_source") for d in data]
+            hits += sources
+        else:
+            print(f"Elastic error {res.status_code}: stop scroll ({count}/{total})")
+            break
+
+    if hits:
+        categories = {item["id"]: item["category"] for item in hits}
+    return categories
 
 
 def paysage_get_names(paysage_row: pd.Series, use_acronym=False):
@@ -114,7 +172,7 @@ def affiliation_get_matches(affiliation: str, year=None):
     if res.status_code == 202:
         return res.json().get("results")
 
-    raise Exception("ERROR_{res.status_code}")
+    raise Exception(f"ERROR_{res.status_code}")
 
 
 # api/match_list
@@ -240,9 +298,13 @@ def paysage_match_affiliations(match_type: str, use_match_list=False, use_acrony
     df = ods_get_df(ODS_PAYSAGE_KEY, SUBSET_ALL)
     print(f"Found {len(df)} structures.")
 
-    # Filter with France structures
-    df = df[df[COL_COUNTRY] == "France"].replace(np.nan, None).copy()
-    print(f"Found {len(df)} french structures.")
+    # Download categories
+    categories = download_categories()
+    df["category"] = df["identifiant_interne"].apply(lambda x: categories.get(x))
+
+    # Filter wanted categories
+    df = df[df["category"].isin(WANTED_CATEGORIES)].copy()
+    print(f"Filter {len(df)} entries with wanted categories")
 
     # Create affiliations strings
     df[SUBSET_AFFILIATION_STR] = df.apply(paysage_get_affiliations, use_acronym=use_acronym, axis=1)

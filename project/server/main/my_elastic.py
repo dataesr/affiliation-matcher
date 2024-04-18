@@ -65,8 +65,8 @@ class MyElastic(Elasticsearch):
         logger.debug(f'update_index_alias {my_alias} {new_index}')
         old_index = None
         aliases_data = self.indices.get_alias('*')
-        logger.debug('aliases_data')
-        logger.debug(aliases_data)
+        # logger.debug('aliases_data')
+        # logger.debug(aliases_data)
         for idx in aliases_data:
             if my_alias in list(aliases_data[idx]['aliases'].keys()):
                 old_index = idx

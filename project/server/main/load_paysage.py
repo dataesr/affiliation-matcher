@@ -2,11 +2,9 @@ import os
 import datetime
 import pandas as pd
 import numpy as np
+import requests
+import json
 from elasticsearch.client import IndicesClient
-
-ODS_KEY = os.getenv("ODS_KEY")
-ODS_PAYSAGE = "fr_esr_paysage_structures_all"
-
 from project.server.main.elastic_utils import (
     get_analyzers,
     get_tokenizers,
@@ -30,7 +28,28 @@ from project.server.main.utils import (
 logger = get_logger(__name__)
 
 SOURCE = "paysage"
+ODS_KEY = os.getenv("ODS_KEY")
+ODS_PAYSAGE = "structures-de-paysage-v2"
+ES_URL = os.getenv("ES_PAYSAGE_URL")
+ES_TOKEN = os.getenv("ES_PAYSAGE_TOKEN")
 
+WANTED_CATEGORIES = [
+    "Université",
+    "Établissement public expérimental",
+    "Établissement supérieur d'architecture",
+    "Organisme de recherche",
+    "Société d'accélération du transfert de technologies",
+    "Établissement d'enseignement supérieur privé d'intérêt général",
+    "Tutelle des établissements",
+    "Incubateur public",
+    "Liste des établissements publics relevant du ministre chargé de l'Enseignement supérieur",
+    "Etablissements d’enseignement supérieur techniques privés (hors formations relevant du commerce et de la gestion)",
+    "Etablissement publics d’enseignement supérieur entrant dans la cotutelle du ministre chargé de l’enseignement supérieur (Art L 123-1 du code de l’éducation)",
+    "Commerce et gestion - Etablissements d’enseignement supérieur techniques privés et consulaires autorisés à délivrer un diplôme visé par le ministre chargé de l’enseignement supérieur et/ou à conférer le grade universitaire",
+    "Opérateur du programme 150 - Formations supérieures et recherche universitaire",
+    "Structure de recherche",
+    # "Établissement d'enseignement supérieur étranger"
+]
 
 def load_paysage(index_prefix: str = "matcher") -> dict:
     logger.debug("Start loading Paysage data...")
@@ -48,9 +67,7 @@ def load_paysage(index_prefix: str = "matcher") -> dict:
         "id",
         "city",
         "zone_emploi",
-        "country_code",
         "acronym",
-        "year",
         "name",
         "year",
         "wikidata",
@@ -62,7 +79,6 @@ def load_paysage(index_prefix: str = "matcher") -> dict:
         "id": "light",
         "city": "city_analyzer",
         "zone_emploi": "city_analyzer",
-        "country_code": "light",
         "acronym": "acronym_analyzer",
         "name": "heavy_fr",
         "name_txt": "heavy_fr",
@@ -151,14 +167,71 @@ def load_paysage(index_prefix: str = "matcher") -> dict:
     return results
 
 
-def download_data() -> list:
+def download_dataframe() -> pd.DataFrame:
     logger.debug(f"Download Paysage data from {ODS_PAYSAGE}")
     data = pd.read_csv(
         f"https://data.enseignementsup-recherche.gouv.fr/explore/dataset/{ODS_PAYSAGE}/download/?format=csv&apikey={ODS_KEY}",
         sep=";",
         low_memory=False,
     )
-    records = data.replace(np.nan, None).to_dict(orient="records")
+    return data.replace(np.nan, None)
+
+
+def download_categories() -> dict:
+    logger.debug(f"Download Paysage categories from {ES_URL}")
+    keep_alive = 1
+    scroll_id = None
+    categories = {}
+    hits = []
+    size = 10000
+    count = 0
+    total = 0
+    headers = {"Authorization": ES_TOKEN}
+    url = f"{ES_URL}/paysage/_search?scroll={keep_alive}m"
+    query = {
+        "size": size,
+        "_source": ["id", "category"],
+        "query": {"match": {"type": "structures"}},
+    }
+
+    # Scroll to get all results
+    while total == 0 or count < total:
+        if scroll_id:
+            url = f"{ES_URL}/_search/scroll"
+            query = {"scroll": f"{keep_alive}m", "scroll_id": scroll_id}
+        res = requests.post(url=url, headers=headers, json=query)
+        if res.status_code == 200:
+            json = res.json()
+            scroll_id = json.get("_scroll_id")
+            total = json.get("hits").get("total").get("value")
+            data = json.get("hits").get("hits")
+            count += len(data)
+            sources = [d.get("_source") for d in data]
+            hits += sources
+        else:
+            logger.error(f"Elastic error {res.status_code}: stop scroll ({count}/{total})")
+            break
+
+    if hits:
+        categories = {item["id"]: item["category"] for item in hits}
+    return categories
+
+
+def download_data() -> list:
+    # Download data
+    df = download_dataframe()
+
+    # Download categories
+    categories = download_categories()
+    df["category"] = df["id"].apply(lambda x: categories.get(x))
+
+    # Filter wanted categories
+    df_filter = df[df["category"].isin(WANTED_CATEGORIES)].copy()
+    logger.debug(f"Filter {len(df_filter)}/{len(df)} entries with wanted categories")
+
+    # Cast as records
+    records = df_filter.to_dict(orient="records")
+
     return records
 
 
@@ -178,54 +251,65 @@ def transform_data(records: list) -> list:
     logger.debug("Get data from Paysage records")
     name_acronym_city = {}
     for record in records:
-        current_id = record["identifiant_interne"]
+        current_id = record["id"]
         name_acronym_city[current_id] = {}
 
         # Acronyms
-        acronyms, names = [], []
-        sigle = record.get("sigle")
-        name_short = record.get("nom_court")
-        if sigle:
-            acronyms.append(sigle)
-        if name_short:
-            if name_short.isalnum():
-                acronyms.append(name_short)
-            else:
-                names.append(name_short)
+        acronyms_list = ["acronymfr", "acronymen", "acronymlocal"]
+        acronyms = [record.get(acronym) for acronym in acronyms_list if record.get(acronym)]
+
         # Names
-        labels = ["uo_lib", "uo_lib_officiel", "uo_lib_en"]
-        names += [record.get(name) for name in labels if record.get(name)]
+        names_list = ["usualname", "officialname", "nameen"]
+        names = [record.get(name) for name in names_list if record.get(name)]
+
+        short_name = record.get("shortname")
+        if short_name:
+            if short_name.isalnum():
+                acronyms.append(short_name)
+            else:
+                names.append(short_name)
+
+        acronyms = list(set(acronyms))
         names = list(set(names))
         names = list(set(names) - set(acronyms))
 
-        # Cities, country_alpha2, and zone_emploi
-        cities, country_alpha2, zone_emploi = [], [], []
-        city = record.get("com_nom")
-        city_code = record.get("com_code")
-        country = record.get("pays_etranger_acheminement")
+        # City
+        localisation = json.loads(record.get("currentlocalisation", "{}"))
+        city = record.get("com_nom") or localisation.get("city") or localisation.get("locality")
         if city:
             clean_city = " ".join([s for s in city.split(" ") if s.isalpha()])
             city = clean_city if clean_city else city
-            cities.append(city)
-            if city_code in city_zone_emploi:
-                zone_emploi += city_zone_emploi[city_code]
-        if country:
-            alpha2 = get_alpha2_from_french(country)
-            country_alpha2.append(alpha2)
 
-        name_acronym_city[current_id]["city"] = clean_list(data=cities)
-        name_acronym_city[current_id]["zone_emploi"] = clean_list(zone_emploi)
+        # Zone emploi (+ academie + urban unit)
+        zone_emploi = []
+        city_code = record.get("cityid")
+        if city_code in city_zone_emploi:
+            zone_emploi += city_zone_emploi[city_code]
+        academie = record.get("aca_nom")
+        if academie:
+            zone_emploi.append(academie)
+        urban_unit = record.get("uucr_nom")
+        if urban_unit:
+            zone_emploi.append(urban_unit)
+
+        # Countries
+        country = record.get("country")
+        country_alpha3 = localisation.get("iso3")
+        if country:
+            country_alpha2 = get_alpha2_from_french(country)
+
         name_acronym_city[current_id]["acronym"] = clean_list(data=acronyms, ignored=ACRONYM_IGNORED, min_character=2)
         name_acronym_city[current_id]["name"] = clean_list(data=names, stopwords=FRENCH_STOP, min_token=2)
-        country_alpha2 = clean_list(data=country_alpha2)
-        if not country_alpha2:
-            country_alpha2 = ["fr"]
-        name_acronym_city[current_id]["country_alpha2"] = country_alpha2[0]
+        name_acronym_city[current_id]["country"] = clean_list([country]) if country else []
+        name_acronym_city[current_id]["country_alpha2"] = clean_list([country_alpha2]) if country_alpha2 else []
+        name_acronym_city[current_id]["country_alpha3"] = clean_list([country_alpha3]) if country_alpha2 else []
+        name_acronym_city[current_id]["city"] = clean_list([city]) if city else []
+        name_acronym_city[current_id]["zone_emploi"] = clean_list(zone_emploi)
 
     logger.debug("Transform records to elastic indexes")
     es_paysages = []
     for record in records:
-        paysage_id = record.get("identifiant_interne")
+        paysage_id = record.get("id")
         es_paysage = {"id": paysage_id}
         # Acronyms & names
         es_paysage["acronym"] = name_acronym_city[paysage_id]["acronym"]
@@ -256,7 +340,7 @@ def transform_data(records: list) -> list:
         # Url
         url = record.get("url")
         if isinstance(url, list):
-            raise Exception("found list url", url)
+            raise Exception("Found list url", url)
         if url:
             es_paysage["web_url"] = clean_url(url)
             es_paysage["web_domain"] = get_url_domain(url)
