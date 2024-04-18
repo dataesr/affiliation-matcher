@@ -34,7 +34,6 @@ services:
       && python3 manage.py run_worker"
     environment:
       APP_SETTINGS: project.server.config.DevelopmentConfig
-      ODS_KEY: ${ODS_API_KEY}
     volumes:
       - '/tmp/.X11-unix:/tmp/.X11-unix'
     networks:
@@ -54,6 +53,8 @@ services:
       APP_SETTINGS: project.server.config.DevelopmentConfig
       APP_ENV: 'development'
       ODS_KEY: ${ODS_API_KEY}
+      ES_PAYSAGE_URL: ${ES_PAYSAGE_URL}
+      ES_PAYSAGE_TOKEN: ${ES_PAYSAGE_TOKEN}
     volumes:
       - '/tmp/.X11-unix:/tmp/.X11-unix'
     networks:
