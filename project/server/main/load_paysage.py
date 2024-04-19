@@ -35,6 +35,7 @@ ES_TOKEN = os.getenv("ES_PAYSAGE_TOKEN")
 
 WANTED_CATEGORIES = [
     "Université",
+    "Université de technologie",
     "Établissement public expérimental",
     "Établissement supérieur d'architecture",
     "Organisme de recherche",
@@ -53,7 +54,10 @@ WANTED_CATEGORIES = [
 
 
 def load_paysage(index_prefix: str = "matcher") -> dict:
+    """Load paysage data ton elastic indexes"""
+
     logger.debug("Start loading Paysage data...")
+
     es = MyElastic()
     indices_client = IndicesClient(es)
     settings = {
@@ -89,19 +93,12 @@ def load_paysage(index_prefix: str = "matcher") -> dict:
         "country_alpha3": "light",
     }
     criteria = exact_criteria + txt_criteria
-    criteria_unique = []
-    for c in criteria_unique:
-        criteria.append(f"{c}_unique")
-        analyzers[f"{c}_unique"] = analyzers[c]
-
     logger.debug(f"Criteria {criteria}")
 
     # Create Elastic Search index
     es_data = {}
     for criterion in criteria:
-        index = get_index_name(
-            index_name=criterion, source=SOURCE, index_prefix=index_prefix
-        )
+        index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
@@ -130,31 +127,15 @@ def load_paysage(index_prefix: str = "matcher") -> dict:
                         "id": data_point["id"],
                     }
                 )
-    # Add unique criterion
-    for criterion in criteria_unique:
-        for criterion_value in es_data[criterion]:
-            if len(es_data[criterion][criterion_value]) == 1:
-                if f"{criterion}_unique" not in es_data:
-                    es_data[f"{criterion}_unique"] = {}
-                es_data[f"{criterion}_unique"][criterion_value] = es_data[criterion][
-                    criterion_value
-                ]
 
     # Bulk insert data into ES
     actions = []
     results = {}
-    for criterion in es_data:
-        index = get_index_name(
-            index_name=criterion, source=SOURCE, index_prefix=index_prefix
-        )
+    for criterion in list(es_data.keys()):
+        index = get_index_name(index_name=criterion, source=SOURCE, index_prefix=index_prefix)
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            # if criterion in ['name']:
-            #    tokens = get_tokens(indices_client, analyzer, index, criterion_value)
-            #    if len(tokens) < 2:
-            #        logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
-            #        continue
             action = {
                 "_index": index,
                 "paysages": [k["id"] for k in es_data[criterion][criterion_value]],
@@ -226,9 +207,7 @@ def download_categories() -> dict:
             count += len(hits)
             sources += [hit.get("_source") for hit in hits]
         else:
-            logger.error(
-                f"Elastic error {res.status_code}: stop scroll ({count}/{total})"
-            )
+            logger.error(f"Elastic error {res.status_code}: stop scroll ({count}/{total})")
             break
 
     if sources:
@@ -237,6 +216,8 @@ def download_categories() -> dict:
 
 
 def download_data() -> list:
+    """Download paysage data as records"""
+
     # Download data
     df = download_dataframe()
 
@@ -255,7 +236,10 @@ def download_data() -> list:
 
 
 def transform_data(records: list) -> list:
+    """Transform paysage data to elastic data"""
+
     logger.debug(f"Start transform of Paysage data ({len(records)} records)")
+    es_records = []
 
     # Loading zone emploi data
     logger.debug(f"Load insee data")
@@ -268,16 +252,13 @@ def transform_data(records: list) -> list:
 
     # Setting a dict with all names, acronyms and cities
     logger.debug("Get data from Paysage records")
-    name_acronym_city = {}
     for record in records:
         current_id = record["id"]
-        name_acronym_city[current_id] = {}
+        es_record = {"id": current_id}
 
         # Acronyms
         acronyms_list = ["acronymfr", "acronymen", "acronymlocal"]
-        acronyms = [
-            record.get(acronym) for acronym in acronyms_list if record.get(acronym)
-        ]
+        acronyms = [record.get(acronym) for acronym in acronyms_list if record.get(acronym)]
 
         # Names
         names_list = ["usualname", "officialname", "nameen"]
@@ -296,11 +277,7 @@ def transform_data(records: list) -> list:
 
         # City
         localisation = json.loads(record.get("currentlocalisation", "{}"))
-        city = (
-            record.get("com_nom")
-            or localisation.get("city")
-            or localisation.get("locality")
-        )
+        city = record.get("com_nom") or localisation.get("city") or localisation.get("locality")
         if city:
             clean_city = " ".join([s for s in city.split(" ") if s.isalpha()])
             city = clean_city if clean_city else city
@@ -316,61 +293,13 @@ def transform_data(records: list) -> list:
         urban_unit = record.get("uucr_nom")
         if urban_unit:
             zone_emploi.append(urban_unit)
+        zone_emploi = list(set(zone_emploi))
 
         # Countries
         country = record.get("country")
+        country_alpha2 = get_alpha2_from_french(country) if country else None
         country_alpha3 = localisation.get("iso3")
-        if country:
-            country_alpha2 = get_alpha2_from_french(country)
 
-        name_acronym_city[current_id]["acronym"] = clean_list(
-            data=acronyms,
-            stopwords=FRENCH_STOP,
-            ignored=ACRONYM_IGNORED,
-            min_character=2,
-        )
-        name_acronym_city[current_id]["name"] = clean_list(
-            data=names, stopwords=FRENCH_STOP, min_token=2
-        )
-        name_acronym_city[current_id]["country"] = (
-            clean_list(data=[country], stopwords=FRENCH_STOP) if country else []
-        )
-        name_acronym_city[current_id]["country_alpha2"] = (
-            clean_list(data=[country_alpha2], stopwords=FRENCH_STOP)
-            if country_alpha2
-            else []
-        )
-        name_acronym_city[current_id]["country_alpha3"] = (
-            clean_list(data=[country_alpha3], stopwords=FRENCH_STOP)
-            if country_alpha2
-            else []
-        )
-        name_acronym_city[current_id]["city"] = (
-            clean_list(data=[city], stopwords=FRENCH_STOP) if city else []
-        )
-        name_acronym_city[current_id]["zone_emploi"] = clean_list(
-            data=zone_emploi, stopwords=FRENCH_STOP
-        )
-
-    logger.debug("Transform records to elastic indexes")
-    es_paysages = []
-    for record in records:
-        paysage_id = record.get("id")
-        es_paysage = {"id": paysage_id}
-        # Acronyms & names
-        es_paysage["acronym"] = name_acronym_city[paysage_id]["acronym"]
-        es_paysage["name"] = name_acronym_city[paysage_id]["name"]
-        # Addresses
-        es_paysage["city"] = name_acronym_city[paysage_id]["city"]
-        es_paysage["country"] = name_acronym_city[paysage_id]["country"]
-        es_paysage["country_alpha2"] = name_acronym_city[paysage_id]["country_alpha2"]
-        es_paysage["country_alpha3"] = name_acronym_city[paysage_id]["country_alpha3"]
-        # Zone emploi
-        es_paysage["zone_emploi"] = name_acronym_city[paysage_id]["zone_emploi"]
-        # Wikidata
-        # wikidata = record.get("identifiant_wikidata")
-        # if wikidata:
-        #     es_paysage["wikidata"] = wikidata
         # Dates
         last_year = f"{datetime.date.today().year}"
         start_date = record.get("creationdate")
@@ -382,7 +311,13 @@ def transform_data(records: list) -> list:
             end_date = last_year
         end = int(end_date[0:4])
         # Start date one year before official as it can be used before sometimes
-        es_paysage["year"] = [str(y) for y in list(range(start - 1, end + 1))]
+        year = [str(y) for y in list(range(start - 1, end + 1))]
+
+        # Wikidata
+        # wikidata = record.get("identifiant_wikidata")
+        # if wikidata:
+        #     es_paysage["wikidata"] = wikidata
+
         # Url
         # url = record.get("url")
         # if isinstance(url, list):
@@ -391,5 +326,21 @@ def transform_data(records: list) -> list:
         #     es_paysage["web_url"] = clean_url(url)
         #     es_paysage["web_domain"] = get_url_domain(url)
 
-        es_paysages.append(es_paysage)
-    return es_paysages
+        # Elastic record
+        es_record["acronym"] = clean_list(
+            data=acronyms,
+            stopwords=FRENCH_STOP,
+            ignored=ACRONYM_IGNORED,
+            min_character=2,
+        )
+        es_record["name"] = clean_list(data=names, stopwords=FRENCH_STOP, min_token=2)
+        es_record["city"] = clean_list(data=city, stopwords=FRENCH_STOP, min_character=2)
+        es_record["zone_emploi"] = clean_list(data=zone_emploi, stopwords=FRENCH_STOP)
+        es_record["year"] = year
+        es_record["country"] = clean_list(data=country, stopwords=FRENCH_STOP)
+        es_record["country_alpha2"] = clean_list(data=country_alpha2, stopwords=FRENCH_STOP)
+        es_record["country_alpha3"] = clean_list(data=country_alpha3, stopwords=FRENCH_STOP)
+
+        es_records.append(es_record)
+
+    return es_records
