@@ -9,10 +9,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ODS_API_KEY = os.getenv("ODS_API_KEY")
-ODS_PAYSAGE_KEY = os.getenv("ODS_PAYSAGE_KEY")
-ES_URL = os.getenv("ES_PAYSAGE_URL")
-ES_TOKEN = os.getenv("ES_PAYSAGE_TOKEN")
+PAYSAGE_API_URL = "https://paysage-api.staging.dataesr.ovh"
+PAYSAGE_API_KEY = os.getenv("PAYSAGE_API_KEY")
 
 AFFILIATION_MATCHER_API = f"{os.getenv('AFFILIATION_MATCHER_URL')}/match"
 AFFILIATION_MATCHER_LIST_API = "http://localhost:5004/match_list"
@@ -22,47 +20,35 @@ MATCH_TYPE = "rnsr"
 COL_RNSR_ID = "identifiant_rnsr"
 COL_PAYSAGE_ID = "identifiant_interne"
 COL_MATCH_ID = COL_RNSR_ID
-COL_STATE = "etat"
-COL_YEAR = "date_fermeture"
 COL_ACRONYM = "sigle"
+COL_NAME = "name"
+COL_ADDRESS = "address"
+COL_CITY = "city"
 COL_COUNTRY = "pays_etranger_acheminement"
-SUBSET_NAMES = ["uo_lib", "uo_lib_officiel"]
-SUBSET_ADRESS = [
-    "adresse_uai",
-    "lieu_dit_uai",
-    "boite_postale_uai",
-    "code_postal_uai",
-    "localite_acheminement_uai",
-    COL_COUNTRY,
-]
-SUBSET_ALL = [COL_RNSR_ID, COL_PAYSAGE_ID, COL_STATE, COL_YEAR, COL_ACRONYM] + SUBSET_NAMES + SUBSET_ADRESS
+COL_YEAR = "date_fermeture"
+SUBSET_ADDRESS = [COL_ADDRESS, COL_CITY, COL_COUNTRY]
 
 COL_AFFILIATION_STR = "affiliation_string"
-COL_AFFILIATION_STR_OFF = "affiliation_string_off"
-SUBSET_AFFILIATION_STR = [COL_AFFILIATION_STR, COL_AFFILIATION_STR_OFF]
 COL_AFFILIATION_MATCH = "affiliation_match"
-COL_AFFILIATION_MATCH_OFF = "affiliation_match_off"
-SUBSET_AFFILIATION_MATCH = [COL_AFFILIATION_MATCH, COL_AFFILIATION_MATCH_OFF]
 COL_AFFILIATION_IS_MATCH = "affiliation_is_match"
-COL_AFFILIATION_IS_MATCH_OFF = "affiliation_is_match_off"
 
-WANTED_CATEGORIES = [
-    "Université",
-    "Établissement public expérimental",
-    "Établissement supérieur d'architecture",
-    "Organisme de recherche",
-    "Société d'accélération du transfert de technologies",
-    "Établissement d'enseignement supérieur privé d'intérêt général",
-    "Tutelle des établissements",
-    "Incubateur public",
-    "Liste des établissements publics relevant du ministre chargé de l'Enseignement supérieur",
-    "Etablissements d’enseignement supérieur techniques privés (hors formations relevant du commerce et de la gestion)",
-    "Etablissement publics d’enseignement supérieur entrant dans la cotutelle du ministre chargé de l’enseignement supérieur (Art L 123-1 du code de l’éducation)",
-    "Commerce et gestion - Etablissements d’enseignement supérieur techniques privés et consulaires autorisés à délivrer un diplôme visé par le ministre chargé de l’enseignement supérieur et/ou à conférer le grade universitaire",
-    "Opérateur du programme 150 - Formations supérieures et recherche universitaire",
-    "Structure de recherche",
-    # "Établissement d'enseignement supérieur étranger"
-]
+CATEGORIES = {
+    "mCpLW": "Université",
+    "Eg7tX": "Établissement public expérimental",
+    "93BR1": "Établissement supérieur d'architecture",
+    "2ZdzP": "Organisme de recherche",
+    "MTFHZ": "Société d'accélération du transfert de technologies",
+    "UfEnK": "Établissement d'enseignement supérieur privé d'intérêt général",
+    "Sv5bb": "Tutelle des établissements",
+    "mNJ1Z": "Incubateur public",
+    "WCat8": "Liste des établissements publics relevant du ministre chargé de l'Enseignement supérieur",
+    "fQ6GL": "Etablissements d’enseignement supérieur techniques privés (hors formations relevant du commerce et de la gestion)",
+    "WkSgR": "Etablissement publics d’enseignement supérieur entrant dans la cotutelle du ministre chargé de l’enseignement supérieur (Art L 123-1 du code de l’éducation)",
+    "YNqFb": "Commerce et gestion - Etablissements d’enseignement supérieur techniques privés et consulaires autorisés à délivrer un diplôme visé par le ministre chargé de l’enseignement supérieur et/ou à conférer le grade universitaire",
+    "iyn79": "Opérateur du programme 150 - Formations supérieures et recherche universitaire",
+    "z367d": "Structure de recherche",
+    # "NsMkU": "Établissement d'enseignement supérieur étranger",
+}
 
 class MATCH(Enum):
     NO_ID_NO_MATCH = 0
@@ -72,90 +58,90 @@ class MATCH(Enum):
     NO_ID_MATCH = 6
 
 
-def ods_get_df(ods_key: str, subset=None):
-    df = pd.read_csv(
-        f"https://data.enseignementsup-recherche.gouv.fr/explore/dataset/{ods_key}/download/?format=csv&apikey={ODS_API_KEY}",
-        sep=";",
-        low_memory=False,
-    )
+def paysage_get_data() -> list:
+    """Request paysage data from api"""
+    print("Start requesting paysage api")
 
-    columns = df.columns.tolist()
+    # Request data
+    limit = 10000
+    filters = "&".join([f"filters[relatedObjectId]={category}" for category in list(CATEGORIES.keys())])
+    url = f"{PAYSAGE_API_URL}/relations?limit={limit}&filters[relationTag]=structure-categorie&{filters}"
+    headers = {"X-API-KEY": PAYSAGE_API_KEY}
+    response = requests.get(url=url, headers=headers)
 
-    if COL_STATE in columns:
-        # Set state as boolean
-        df[COL_STATE] = df[COL_STATE].apply(lambda state: True if state == "Actif" else False).astype(bool)
+    if response.status_code != 200:
+        print(f"Error {response.status_code} requesting {url}")
+        return None
 
-    if COL_YEAR in columns:
-        # Keep only year
-        df[COL_YEAR] = df[COL_YEAR].apply(lambda date: date[:4] if isinstance(date, str) else None)
+    data = response.json().get("data")
+    # print(f"Found {len(data)} paysage records for {len(CATEGORIES)} categories")
 
-    if subset:
-        return df[subset].copy()
+    data = pd.DataFrame(data).drop_duplicates(subset="resourceId").to_dict(orient="records")
+    # print(f"Keep {len(data)} paysage records without duplicates")
 
-    return df
+    return data
 
 
-def download_categories() -> dict:
-    keep_alive = 1
-    scroll_id = None
-    categories = {}
-    hits = []
-    size = 10000
-    count = 0
-    total = 0
-    headers = {"Authorization": ES_TOKEN}
-    url = f"{ES_URL}/paysage/_search?scroll={keep_alive}m"
-    query = {
-        "size": size,
-        "_source": ["id", "category"],
-        "query": {"match": {"type": "structures"}},
+def paysage_transform_data(data):
+    df_dict = {
+        COL_PAYSAGE_ID: [],
+        COL_RNSR_ID: [],
+        COL_ACRONYM: [],
+        COL_NAME: [],
+        COL_ADDRESS: [],
+        COL_CITY: [],
+        COL_COUNTRY: [],
+        COL_YEAR: [],
     }
 
-    # Scroll to get all results
-    while total == 0 or count < total:
-        if scroll_id:
-            url = f"{ES_URL}/_search/scroll"
-            query = {"scroll": f"{keep_alive}m", "scroll_id": scroll_id}
-        res = requests.post(url=url, headers=headers, json=query)
-        if res.status_code == 200:
-            json = res.json()
-            scroll_id = json.get("_scroll_id")
-            total = json.get("hits").get("total").get("value")
-            data = json.get("hits").get("hits")
-            count += len(data)
-            sources = [d.get("_source") for d in data]
-            hits += sources
-        else:
-            print(f"Elastic error {res.status_code}: stop scroll ({count}/{total})")
-            break
+    for record in data:
+        id = record.get("resourceId")
+        resource = record.get("resource")
+        identifiers = resource.get("identifiers", [])
+        naming = resource.get("currentName", {})
+        localisation = resource.get("currentLocalisation", {})
 
-    if hits:
-        categories = {item["id"]: item["category"] for item in hits}
-    return categories
+        rnsr_id = [i.get("value") for i in identifiers if i.get("type") == "rnsr"]
+        acronym = naming.get("acronymFr") or naming.get("acronymEn") or naming.get("acronymLocal")
+        name = naming.get("usualName") or naming.get("officialName") or naming.get("nameEn") or naming.get("shortName")
+        address = localisation.get("address")
+        city = localisation.get("locality")
+        country = localisation.get("country")
+        year = resource.get("closureDate")[0:4] if resource.get("closureDate") else None
+
+        df_dict[COL_PAYSAGE_ID].append(id)
+        df_dict[COL_RNSR_ID].append(rnsr_id)
+        df_dict[COL_ACRONYM].append(acronym)
+        df_dict[COL_NAME].append(name)
+        df_dict[COL_ADDRESS].append(address)
+        df_dict[COL_CITY].append(city)
+        df_dict[COL_COUNTRY].append(country)
+        df_dict[COL_YEAR].append(year)
+
+    return pd.DataFrame.from_dict(df_dict, orient="columns")
 
 
-def paysage_get_names(paysage_row: pd.Series, use_acronym=False):
-    names = paysage_row[SUBSET_NAMES]
-    names = names.where(~names.duplicated(), "").to_list()
+def paysage_get_name(paysage_row: pd.Series, use_acronym=False):
+    name = paysage_row[COL_NAME]
 
     if use_acronym:
         acronym = paysage_row[COL_ACRONYM]
-        names = [f"{acronym} - {name}" if isinstance(acronym, str) else name for name in names]
+        name = f"{acronym} - {name}"
 
-    return names
+    return name
 
 
-def paysage_get_adress(paysage_row: pd.Series):
-    adress = paysage_row[SUBSET_ADRESS].dropna().to_list()
+def paysage_get_address(paysage_row: pd.Series):
+    adress = paysage_row[SUBSET_ADDRESS].dropna().to_list()
     adress_str = ", ".join(adress)
     return adress_str
 
 
 def paysage_get_affiliations(paysage_row: pd.Series, use_acronym=False):
-    names = paysage_get_names(paysage_row, use_acronym)
-    adress = paysage_get_adress(paysage_row)
-    affiliations = [f"{name}, {adress}" if name else None for name in names]
-    return pd.Series(affiliations)
+    name = paysage_get_name(paysage_row, use_acronym)
+    adress = paysage_get_address(paysage_row)
+    affiliations = f"{name}, {adress}"
+    return affiliations
 
 
 # api/match
@@ -177,6 +163,7 @@ def affiliation_get_matches(affiliation: str, year=None):
 
 # api/match_list
 def affiliations_get_matches(affiliations: pd.Series):
+
     affiliations = affiliations.fillna("").to_list()
 
     res = requests.post(
@@ -243,24 +230,29 @@ def result_get_matches(result, types=[]):
 # api/match
 def affiliations_match(df: pd.DataFrame) -> pd.DataFrame:
     df[COL_AFFILIATION_MATCH] = df[COL_AFFILIATION_STR].apply(affiliation_get_matches)
-    df[COL_AFFILIATION_MATCH_OFF] = df[COL_AFFILIATION_STR_OFF].apply(affiliation_get_matches)
     return df
 
 
 # api/match_list
 def affiliations_match_list(df: pd.DataFrame):
-    df[SUBSET_AFFILIATION_MATCH] = df[SUBSET_AFFILIATION_STR].apply(affiliations_get_matches)
+    df[COL_AFFILIATION_MATCH] = df[COL_AFFILIATION_STR].apply(affiliations_get_matches, by_row=False)
     return df
 
 
-def affiliation_check_match(target_id: str, match_ids: list):
-    result = MATCH.ID_NO_MATCH if target_id else MATCH.NO_ID_NO_MATCH
+def affiliation_check_match(target_ids: list | str, match_ids: list):
+    result = MATCH.ID_NO_MATCH if target_ids else MATCH.NO_ID_NO_MATCH
 
     if match_ids:
-        if target_id in match_ids:
-            result = MATCH.ID_MATCH
+        if isinstance(target_ids, list):
+            for id in target_ids:
+                if id in match_ids:
+                    result = MATCH.ID_MATCH
+                    break
         else:
-            result = MATCH.ID_DIFF_MATCH if target_id else MATCH.NO_ID_MATCH
+            if target_ids in match_ids:
+                result = MATCH.ID_MATCH
+            else:
+                result = MATCH.ID_DIFF_MATCH if target_ids else MATCH.NO_ID_MATCH
 
     return result
 
@@ -268,17 +260,6 @@ def affiliation_check_match(target_id: str, match_ids: list):
 def affiliation_is_match(paysage_row: pd.Series):
     target_id = paysage_row[COL_MATCH_ID]
     match_ids = paysage_row[COL_AFFILIATION_MATCH]
-
-    return affiliation_check_match(target_id, match_ids)
-
-
-def affiliation_is_match_off(paysage_row: pd.Series):
-    target_id = paysage_row[COL_MATCH_ID]
-    affiliation_off = paysage_row[COL_AFFILIATION_STR_OFF]
-    match_ids = paysage_row[COL_AFFILIATION_MATCH_OFF]
-
-    if not affiliation_off:
-        return None
 
     return affiliation_check_match(target_id, match_ids)
 
@@ -294,29 +275,23 @@ def paysage_match_affiliations(match_type: str, use_match_list=False, use_acrony
         globals()["MATCH_TYPE"] = match_type
         globals()["COL_MATCH_ID"] = COL_PAYSAGE_ID
 
-    # Get paysage data from ods
-    df = ods_get_df(ODS_PAYSAGE_KEY, SUBSET_ALL)
-    print(f"Found {len(df)} structures.")
+    # Get paysage data from paysage api
+    data = paysage_get_data()
+    print(f"Found {len(data)} structures.")
 
-    # Download categories
-    categories = download_categories()
-    df["category"] = df["identifiant_interne"].apply(lambda x: categories.get(x))
-
-    # Filter wanted categories
-    df = df[df["category"].isin(WANTED_CATEGORIES)].copy()
-    print(f"Filter {len(df)} entries with wanted categories")
+    # Transform into clean dataframe
+    df = paysage_transform_data(data)
 
     # Create affiliations strings
-    df[SUBSET_AFFILIATION_STR] = df.apply(paysage_get_affiliations, use_acronym=use_acronym, axis=1)
+    df[COL_AFFILIATION_STR] = df.apply(paysage_get_affiliations, use_acronym=use_acronym, axis=1)
     print(f"Affiliations strings created.")
 
     # Match rnsr from affiliations strings
     df_match = affiliations_match_list(df) if use_match_list else affiliations_match(df)
     print("Affiliations strings matched.")
 
-    # Check with rnsr id from paysage
+    # Check match
     df_match[COL_AFFILIATION_IS_MATCH] = df_match.apply(affiliation_is_match, axis=1)
-    df_match[COL_AFFILIATION_IS_MATCH_OFF] = df_match.apply(affiliation_is_match_off, axis=1)
 
     # Save results as json
     filename = f"paysage_match_list_{match_type}{'_acronym' if use_acronym else ''}.json"
