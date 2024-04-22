@@ -4,15 +4,17 @@ from project.server.main.matcher import Matcher
 from project.server.main.utils import FRENCH_STOP, remove_ref_index
 
 DEFAULT_STRATEGIES = [
-    [["paysage_id"]],
     [
+        ["paysage_id"],
         ["paysage_acronym", "paysage_name", "paysage_zone_emploi"],
         ["paysage_acronym", "paysage_name", "paysage_city"],
-    ],
-    [["paysage_name", "paysage_acronym"]],
-    [["paysage_name", "paysage_zone_emploi"], ["paysage_name", "paysage_city"]],
-    [["paysage_acronym", "paysage_zone_emploi"], ["paysage_acronym", "paysage_city"]],
-    [["paysage_acronym", "paysage_city"]],
+        ["paysage_name", "paysage_acronym"],
+        ["paysage_name", "paysage_zone_emploi"],
+        ["paysage_name", "paysage_city"],
+        ["paysage_acronym", "paysage_zone_emploi"],
+        ["paysage_acronym", "paysage_city"],
+        ["paysage_acronym", "paysage_city"],
+    ]
 ]
 
 STOPWORDS_STRATEGIES = {"paysage_name": FRENCH_STOP}
