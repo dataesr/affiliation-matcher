@@ -173,6 +173,10 @@ def download_data() -> list:
     """Request paysage data from api"""
     logger.debug("Start requesting paysage api")
 
+    if not PAYSAGE_API_KEY:
+        logger.error(f"Error: no paysage-api key found")
+        return None
+
     # Request data
     limit = 10000
     filters = "&".join([f"filters[relatedObjectId]={category}" for category in list(CATEGORIES.keys())])
