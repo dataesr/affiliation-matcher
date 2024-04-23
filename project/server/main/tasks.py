@@ -56,14 +56,15 @@ def create_task_load(args: dict = None) -> dict:
     result = {}
     if matcher_type == 'all':
         result.update(load_country(index_prefix=index_prefix_dated))
-        result.update(load_grid(index_prefix=index_prefix_dated))
+        # result.update(load_grid(index_prefix=index_prefix_dated))
         result.update(load_rnsr(index_prefix=index_prefix_dated))
         result.update(load_ror(index_prefix=index_prefix_dated))
         # result.update(load_paysage(index_prefix=index_prefix_dated))
     elif matcher_type == 'country':
         result.update(load_country(index_prefix=index_prefix_dated))
     elif matcher_type == 'grid':
-        result.update(load_grid(index_prefix=index_prefix_dated))
+        result = {"Error": "Grid is deprecated!"}
+        # result.update(load_grid(index_prefix=index_prefix_dated))
     elif matcher_type == 'rnsr':
         result.update(load_rnsr(index_prefix=index_prefix_dated))
     elif matcher_type == 'ror':
