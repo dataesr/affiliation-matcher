@@ -8,12 +8,33 @@ from project.server.main.config import SCANR_DUMP_URL
 from project.server.main.elastic_utils import get_analyzers, get_tokenizers, get_char_filters, get_filters, get_index_name, get_mappings
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
-from project.server.main.utils import download_insee_data, get_alpha2_from_french, FRENCH_STOP, clean_list, ACRONYM_IGNORED, clean_url, get_url_domain
+from project.server.main.utils import (
+    city_zone_emploi_insee,
+    get_alpha2_from_french,
+    FRENCH_STOP,
+    clean_list,
+    ACRONYM_IGNORED,
+    clean_url,
+    get_url_domain,
+)
 
 logger = get_logger(__name__)
 
 SOURCE = 'rnsr'
+USE_ZONE_EMPLOI_COMPOSITION = False
 
+
+def download_data() -> list:
+    logger.debug(f"download RNSR data from {SCANR_DUMP_URL}")
+    if "jsonl" in SCANR_DUMP_URL:
+        data = pd.read_json(SCANR_DUMP_URL, lines=True).replace(np.nan, None).to_dict(orient="records")
+    else:
+        r = requests.get(SCANR_DUMP_URL)
+        data = r.json()
+    return data
+
+
+RNSR_DATA = download_data()
 
 def load_rnsr(index_prefix: str = 'matcher') -> dict:
     logger.debug('load rnsr ...')
@@ -58,7 +79,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         es.create_index(index=index, mappings=get_mappings(analyzer), settings=settings)
         es_data[criterion] = {}
-    raw_data = download_data()
+    raw_data = RNSR_DATA
     transformed_data = transform_data(raw_data)
     logger.debug('prepare data for ES')
     # Iterate over rnsr data
@@ -66,7 +87,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         for criterion in criteria:
             criterion_values = data_point.get(criterion.replace('_txt', ''))
             if criterion_values is None:
-                #logger.debug(f'This element {data_point} has no {criterion}')
+                # logger.debug(f'This element {data_point} has no {criterion}')
                 continue
             if not isinstance(criterion_values, list):
                 criterion_values = [criterion_values]
@@ -89,7 +110,7 @@ def load_rnsr(index_prefix: str = 'matcher') -> dict:
         analyzer = analyzers[criterion]
         results[index] = len(es_data[criterion])
         for criterion_value in es_data[criterion]:
-            #if criterion in ['name']:
+            # if criterion in ['name']:
             #    tokens = get_tokens(indices_client, analyzer, index, criterion_value)
             #    if len(tokens) < 2:
             #        logger.debug(f'Not indexing {criterion_value} (not enough token to be relevant !)')
@@ -116,18 +137,9 @@ def get_values(x: dict) -> list:
     return list(set(x.values()))
 
 
-def download_data() -> list:
-    logger.debug(f'download RNSR data from {SCANR_DUMP_URL}')
-    if 'jsonl' in SCANR_DUMP_URL:
-        data = pd.read_json(SCANR_DUMP_URL, lines=True).replace(np.nan, None).to_dict(orient="records")
-    else:
-        r = requests.get(SCANR_DUMP_URL)
-        data = r.json()
-    return data
-
 def get_siren():
     correspondance = {}
-    raw_rnsrs = download_data()
+    raw_rnsrs = RNSR_DATA
     for r in raw_rnsrs:
         current_id = None
         for e in r.get('externalIds', []):
@@ -160,20 +172,16 @@ def transform_data(data: list) -> list:
             d['rnsr'] = [e['id'] for e in external_ids if e['type'] == 'rnsr'][0]
             rnsrs.append(d)
     logger.debug(f'{len(rnsrs)} rnsr elements detected in dump')
-    zone_emploi_insee = download_insee_data()
+
     # Loading zone emploi data
-    zone_emploi_composition = {}
-    city_zone_emploi = {}
-    for d in zone_emploi_insee:
-        city = d['LIBGEO']
-        city_code = d['CODGEO']
-        ze = d['LIBZE2020']
-        if ze not in zone_emploi_composition:
-            zone_emploi_composition[ze] = []
-        zone_emploi_composition[ze].append(city)
-        if city_code not in city_zone_emploi:
-            city_zone_emploi[city_code] = []
-        city_zone_emploi[city_code].append(ze)
+    logger.debug(f"Load insee data")
+    try:
+        city_zone_emploi, zone_emploi_composition = city_zone_emploi_insee()
+    except Exception as error:
+        city_zone_emploi = {}
+        zone_emploi_composition = {}
+        logger.error(f"Error while loading insee data: {error}")
+
     # Setting a dict with all names, acronyms and cities
     name_acronym_city = {}
     urban_unit_composition = {}
@@ -270,8 +278,11 @@ def transform_data(data: list) -> list:
         es_rnsr['urban_unit'] = list(set(es_rnsr['urban_unit']))
         # Now zone emploi (larger than urban unit)
         es_rnsr['zone_emploi'] = []
-        for ze in name_acronym_city[rnsr_id]['zone_emploi']:
-            es_rnsr['zone_emploi'] += zone_emploi_composition[ze]
+        if USE_ZONE_EMPLOI_COMPOSITION:
+            for ze in name_acronym_city[rnsr_id]["zone_emploi"]:
+                es_rnsr["zone_emploi"] += zone_emploi_composition[ze]
+        else:
+            es_rnsr["zone_emploi"] += name_acronym_city[rnsr_id]["zone_emploi"]
         es_rnsr['zone_emploi'] = clean_list(es_rnsr['zone_emploi'])
         # Dates
         last_year = f'{datetime.date.today().year}'

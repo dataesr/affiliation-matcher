@@ -28,6 +28,7 @@ logger = get_logger(__name__)
 SOURCE = "paysage"
 PAYSAGE_API_URL = "https://paysage-api.staging.dataesr.ovh"
 PAYSAGE_API_KEY = os.getenv("PAYSAGE_API_KEY")
+USE_ZONE_EMPLOI_COMPOSITION = False
 
 CATEGORIES = {
     "mCpLW": "Université",
@@ -44,7 +45,7 @@ CATEGORIES = {
     "YNqFb": "Commerce et gestion - Etablissements d’enseignement supérieur techniques privés et consulaires autorisés à délivrer un diplôme visé par le ministre chargé de l’enseignement supérieur et/ou à conférer le grade universitaire",
     "iyn79": "Opérateur du programme 150 - Formations supérieures et recherche universitaire",
     "z367d": "Structure de recherche",
-    "NsMkU": "Établissement d'enseignement supérieur étranger",
+    # "NsMkU": "Établissement d'enseignement supérieur étranger",
 }
 
 
@@ -106,6 +107,7 @@ def load_paysage(index_prefix: str = "matcher") -> dict:
     raw_data = download_data()
     if not raw_data:
         logger.error("Loading aborted: no paysage data")
+        return {}
 
     # Transform paysage data
     transformed_data = transform_data(raw_data)
@@ -245,7 +247,11 @@ def transform_data(data: list) -> list:
         zone_emploi = []
         city_code = localisation.get("postalCode")
         if city_code in city_zone_emploi:
-            zone_emploi += city_zone_emploi[city_code]
+            zone_emploi += (
+                zone_emploi_composition[city_zone_emploi[city_code][0]]
+                if USE_ZONE_EMPLOI_COMPOSITION
+                else city_zone_emploi[city_code]
+            )
 
         # Countries
         country = localisation.get("country")
