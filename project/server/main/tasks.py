@@ -59,7 +59,7 @@ def create_task_load(args: dict = None) -> dict:
         result.update(load_grid(index_prefix=index_prefix_dated))
         result.update(load_rnsr(index_prefix=index_prefix_dated))
         result.update(load_ror(index_prefix=index_prefix_dated))
-        result.update(load_paysage(index_prefix=index_prefix_dated))
+        # result.update(load_paysage(index_prefix=index_prefix_dated))
     elif matcher_type == 'country':
         result.update(load_country(index_prefix=index_prefix_dated))
     elif matcher_type == 'grid':
@@ -71,7 +71,8 @@ def create_task_load(args: dict = None) -> dict:
     elif matcher_type == 'wikidata':
         result.update(load_wikidata(index_prefix=index_prefix_dated))
     elif matcher_type == "paysage":
-        result.update(load_paysage(index_prefix=index_prefix_dated))
+        result = {"Error": "Matcher paysage not developped yet!"}
+        # result.update(load_paysage(index_prefix=index_prefix_dated))
     else:
         result = {'Error': f'Matcher type {matcher_type} unknown'}
     # An alias is the put on the newly created indices
