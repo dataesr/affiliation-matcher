@@ -44,7 +44,7 @@ CATEGORIES = {
     "YNqFb": "Commerce et gestion - Etablissements d’enseignement supérieur techniques privés et consulaires autorisés à délivrer un diplôme visé par le ministre chargé de l’enseignement supérieur et/ou à conférer le grade universitaire",
     "iyn79": "Opérateur du programme 150 - Formations supérieures et recherche universitaire",
     "z367d": "Structure de recherche",
-    # "NsMkU": "Établissement d'enseignement supérieur étranger",
+    "NsMkU": "Établissement d'enseignement supérieur étranger",
 }
 
 
