@@ -238,7 +238,7 @@ def transform_data(data: list) -> list:
         # City
         city = localisation.get("locality")
         if city:
-            clean_city = " ".join([s for s in city.split(" ") if s.isalpha() or s.lower() != "cedex"])
+            clean_city = " ".join([s for s in city.split(" ") if s.isalpha() and s.lower() != "cedex"])
             city = clean_city if clean_city else city
 
         # Zone emploi (+ academie + urban unit)
