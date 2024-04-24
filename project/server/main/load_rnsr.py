@@ -9,7 +9,7 @@ from project.server.main.elastic_utils import get_analyzers, get_tokenizers, get
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import (
-    city_zone_emploi_insee,
+    insee_zone_emploi_data,
     get_alpha2_from_french,
     FRENCH_STOP,
     clean_list,
@@ -174,13 +174,8 @@ def transform_data(data: list) -> list:
     logger.debug(f'{len(rnsrs)} rnsr elements detected in dump')
 
     # Loading zone emploi data
-    logger.debug(f"Load insee data")
-    try:
-        city_zone_emploi, zone_emploi_composition = city_zone_emploi_insee()
-    except Exception as error:
-        city_zone_emploi = {}
-        zone_emploi_composition = {}
-        logger.error(f"Error while loading insee data: {error}")
+    # Loading zone emploi data
+    insee_zone_emploi, insee_city_zone_emploi, insee_city_codes = insee_zone_emploi_data()
 
     # Setting a dict with all names, acronyms and cities
     name_acronym_city = {}
@@ -210,8 +205,12 @@ def transform_data(data: list) -> list:
                 cities.append(address['city'])
             if 'city' in address and address['city'] and 'citycode' in address and address['citycode']:
                 city_code = address['citycode']
-                if city_code in city_zone_emploi:
-                    zone_emploi += city_zone_emploi[city_code]
+                if city_code in insee_city_zone_emploi:
+                    zone_emploi.append(insee_city_zone_emploi[city_code])
+                elif city.lower() in insee_city_codes:
+                    zone_emploi.append(insee_city_zone_emploi[insee_city_codes[city.lower()]])
+                else:
+                    pass
             if 'urbanUnitLabel' in address and address['urbanUnitLabel']:
                 urban_units.append(address['urbanUnitLabel'])
             if 'country' in address and address['country']:
@@ -277,12 +276,12 @@ def transform_data(data: list) -> list:
             es_rnsr['urban_unit'] += urban_unit_composition[uu]
         es_rnsr['urban_unit'] = list(set(es_rnsr['urban_unit']))
         # Now zone emploi (larger than urban unit)
-        es_rnsr['zone_emploi'] = []
-        if USE_ZONE_EMPLOI_COMPOSITION:
-            for ze in name_acronym_city[rnsr_id]["zone_emploi"]:
-                es_rnsr["zone_emploi"] += zone_emploi_composition[ze]
-        else:
-            es_rnsr["zone_emploi"] += name_acronym_city[rnsr_id]["zone_emploi"]
+        es_rnsr["zone_emploi"] = []
+        for ze in name_acronym_city[rnsr_id]["zone_emploi"]:
+            if USE_ZONE_EMPLOI_COMPOSITION:
+                es_rnsr["zone_emploi"] += insee_zone_emploi[ze]["composition"]
+            else:
+                es_rnsr["zone_emploi"].append(insee_zone_emploi[ze]["name"])
         es_rnsr['zone_emploi'] = clean_list(es_rnsr['zone_emploi'])
         # Dates
         last_year = f'{datetime.date.today().year}'

@@ -9,6 +9,10 @@ import unicodedata
 from tempfile import mkdtemp
 from zipfile import ZipFile
 
+from project.server.main.logger import get_logger
+
+logger = get_logger(__name__)
+
 from project.server.main.config import CHUNK_SIZE, ZONE_EMPLOI_INSEE_DUMP
 
 ENGLISH_STOP = ['and', 'are', 'as', 'be', 'but', 'by', 'for', 'if', 'in', 'into', 'is', 'it', 'no',
@@ -197,23 +201,45 @@ def download_insee_data() -> list:
     return data
 
 
-def city_zone_emploi_insee() -> tuple[dict, dict]:
-    zone_emploi_composition = {}
+def insee_zone_emploi_data() -> tuple[dict, dict, dict]:
+    """Transform INSEE zone emploi data into multiple dicts
+
+    Returns:
+        zone_emploi: dict(zone_emploi_code: {"name": zone_emploi_name, "composition": [city_names])
+        city_zone_emploi: dict(city_code: zone_emploi_name)
+        city_codes: dict(city_name.lower(): city_code)
+    """
+
+    city_codes = {}
     city_zone_emploi = {}
+    zone_emploi = {}
 
-    zone_emploi_insee = download_insee_data()
-    for d in zone_emploi_insee:
-        city = d["LIBGEO"]
-        city_code = d["CODGEO"]
-        ze = d["LIBZE2020"]
-        if ze not in zone_emploi_composition:
-            zone_emploi_composition[ze] = []
-        zone_emploi_composition[ze].append(city)
-        if city_code not in city_zone_emploi:
-            city_zone_emploi[city_code] = []
-        city_zone_emploi[city_code].append(ze)
+    logger.debug(f"Load insee data")
 
-    return city_zone_emploi, zone_emploi_composition
+    try:
+        zone_emploi_insee = download_insee_data()
+
+        for elem in zone_emploi_insee:
+            city_name = elem["LIBGEO"]
+            city_code = str(elem["CODGEO"])
+            zone_emploi_name = elem["LIBZE2020"]
+            zone_emploi_code = str(elem["ZE2020"])
+
+            # Build zone emploi composition dict
+            if zone_emploi_code not in zone_emploi:
+                zone_emploi[zone_emploi_code] = {"name": zone_emploi_name, "composition": []}
+            zone_emploi[zone_emploi_code]["composition"].append(city_name)
+
+            # Build city zone emploi dict
+            city_zone_emploi.setdefault(city_code, zone_emploi_code)
+
+            # Build city code dict
+            city_codes.setdefault(city_name.lower(), city_code)
+
+    except Exception as error:
+        logger.error(f"Error while loading insee data: {error}")
+
+    return zone_emploi, city_zone_emploi, city_codes
 
 
 def has_a_digit(text: str = '') -> bool:

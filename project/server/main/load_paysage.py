@@ -14,7 +14,7 @@ from project.server.main.elastic_utils import (
 from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import (
-    city_zone_emploi_insee,
+    insee_zone_emploi_data,
     get_alpha2_from_french,
     FRENCH_STOP,
     clean_list,
@@ -200,13 +200,7 @@ def transform_data(data: list) -> list:
     es_records = []
 
     # Loading zone emploi data
-    logger.debug(f"Load insee data")
-    try:
-        city_zone_emploi, zone_emploi_composition = city_zone_emploi_insee()
-    except Exception as error:
-        city_zone_emploi = {}
-        zone_emploi_composition = {}
-        logger.error(f"Error while loading insee data: {error}")
+    insee_zone_emploi, insee_city_zone_emploi, insee_city_codes = insee_zone_emploi_data()
 
     # Setting a dict with all names, acronyms and cities
     logger.debug("Get data from Paysage records")
@@ -243,15 +237,20 @@ def transform_data(data: list) -> list:
             clean_city = " ".join([s for s in city.split(" ") if s.isalpha() and s.lower() != "cedex"])
             city = clean_city if clean_city else city
 
-        # Zone emploi (+ academie + urban unit)
+        # Zone emploi
         zone_emploi = []
         city_code = localisation.get("postalCode")
-        if city_code in city_zone_emploi:
-            zone_emploi += (
-                zone_emploi_composition[city_zone_emploi[city_code][0]]
-                if USE_ZONE_EMPLOI_COMPOSITION
-                else city_zone_emploi[city_code]
-            )
+        if city_code in insee_city_zone_emploi:
+            zone_emploi_code = insee_city_zone_emploi[city_code]
+        elif city and city.lower() in insee_city_codes:
+            zone_emploi_code = insee_city_zone_emploi[insee_city_codes[city.lower()]]
+        else:
+            zone_emploi_code = None
+        if zone_emploi_code:
+            if USE_ZONE_EMPLOI_COMPOSITION:
+                zone_emploi += insee_zone_emploi[zone_emploi_code]["composition"]
+            else:
+                zone_emploi.append(insee_zone_emploi[zone_emploi_code]["name"])
 
         # Countries
         country = localisation.get("country")
