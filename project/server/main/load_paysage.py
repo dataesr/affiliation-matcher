@@ -21,6 +21,8 @@ from project.server.main.utils import (
     ACRONYM_IGNORED,
     clean_url,
     get_url_domain,
+    clean_city,
+    normalize_text,
 )
 
 logger = get_logger(__name__)
@@ -204,7 +206,7 @@ def transform_data(data: list) -> list:
     es_records = []
 
     # Loading zone emploi data
-    insee_zone_emploi, insee_city_zone_emploi, insee_city_codes = insee_zone_emploi_data()
+    insee_zone_emploi, insee_city_zone_emploi = insee_zone_emploi_data(use_city_key=True)
 
     # Setting a dict with all names, acronyms and cities
     logger.debug("Get data from Paysage records")
@@ -236,20 +238,22 @@ def transform_data(data: list) -> list:
         names = list(set(names) - set(acronyms))
 
         # City
-        city = localisation.get("locality")
-        if city:
-            clean_city = " ".join([s for s in city.split(" ") if s.isalpha() and s.lower() != "cedex"])
-            city = clean_city if clean_city else city
+        raw_city = localisation.get("locality")
+        city = clean_city(raw_city) or raw_city
 
         # Zone emploi
         zone_emploi = []
+        zone_emploi_code = None
         city_code = localisation.get("postalCode")
-        if city_code in insee_city_zone_emploi:
-            zone_emploi_code = insee_city_zone_emploi[city_code]
-        elif city and city.lower() in insee_city_codes:
-            zone_emploi_code = insee_city_zone_emploi[insee_city_codes[city.lower()]]
-        else:
-            zone_emploi_code = None
+        if city and city_code:
+            norm_city = normalize_text(city, remove_separator=False, to_lower=True)
+            city_dep = city_code[:3] if city_code.startswith("97") else city_code[:2]
+            city_key = city_dep + "_" + norm_city
+            if city_key in insee_city_zone_emploi:
+                zone_emploi_code = insee_city_zone_emploi[city_key]
+            else:
+                if localisation.get("country") == "France":
+                    logger.warn(f"{city_key} ({raw_city}) not found in insee_city_zone_emploi")
         if zone_emploi_code:
             if USE_ZONE_EMPLOI_COMPOSITION:
                 zone_emploi += insee_zone_emploi[zone_emploi_code]["composition"]

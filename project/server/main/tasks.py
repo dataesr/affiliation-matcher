@@ -63,7 +63,7 @@ def create_task_load(args: dict = None) -> dict:
     elif matcher_type == 'country':
         result.update(load_country(index_prefix=index_prefix_dated))
     elif matcher_type == 'grid':
-        result = {"Error": "Grid is deprecated!"}
+        result = {"Error": "Matcher Grid is deprecated!"}
         # result.update(load_grid(index_prefix=index_prefix_dated))
     elif matcher_type == 'rnsr':
         result.update(load_rnsr(index_prefix=index_prefix_dated))
@@ -72,7 +72,7 @@ def create_task_load(args: dict = None) -> dict:
     elif matcher_type == 'wikidata':
         result.update(load_wikidata(index_prefix=index_prefix_dated))
     elif matcher_type == "paysage":
-        result = {"Error": "Matcher paysage not developped yet!"}
+        result = {"Error": "Matcher Paysage is not developped yet!"}
         # result.update(load_paysage(index_prefix=index_prefix_dated))
     else:
         result = {'Error': f'Matcher type {matcher_type} unknown'}

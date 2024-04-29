@@ -52,9 +52,7 @@ services:
       FLASK_DEBUG: 1
       APP_SETTINGS: project.server.config.DevelopmentConfig
       APP_ENV: 'development'
-      ODS_KEY: ${ODS_API_KEY}
-      ES_PAYSAGE_URL: ${ES_PAYSAGE_URL}
-      ES_PAYSAGE_TOKEN: ${ES_PAYSAGE_TOKEN}
+      PAYSAGE_API_KEY: ${PAYSAGE_API_KEY}
     volumes:
       - '/tmp/.X11-unix:/tmp/.X11-unix'
     networks:

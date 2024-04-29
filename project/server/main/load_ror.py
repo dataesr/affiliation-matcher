@@ -12,9 +12,11 @@ from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import (
     insee_zone_emploi_data,
+    geonames_french_departments,
     clean_list,
     clean_url,
     get_url_domain,
+    normalize_text,
     ENGLISH_STOP,
     FRENCH_STOP,
     ACRONYM_IGNORED,
@@ -60,55 +62,15 @@ def download_data() -> list:
 
     return data
 
-# def get_external_ids(external):
-#     ids = []
-#     for k in external:
-#         if isinstance(external[k], list):
-#             ids += external[k]
-#         elif isinstance(external[k], str):
-#             ids.append(external[k])
-#     return list(set(ids))
-
-# def build_zone_mapping(rors):
-#     zone_composition = {}
-#     city_zone = {}
-#     for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3', 'zone_emploi']:
-#         city_zone[zone_code_label] = {}
-#     for d in rors:
-#         for address in d.get('addresses', []):
-#             #city = address.get('city')
-#             if 'geonames_city' not in address:
-#                 continue
-#             geoname = address['geonames_city']
-#             city = None
-#             if geoname.get('id'):
-#                 city_code = str(geoname['id'])
-#                 city = geoname['city']
-#             if not city:
-#                 continue
-#             for zone_code_label in ['nuts_level1', 'nuts_level2', 'nuts_level3', 'zone_emploi']:
-#                 zone_code = geoname.get(zone_code_label, {}).get('code')
-#                 if zone_code is None:
-#                     continue
-#                 zone_code = str(zone_code)
-#                 if zone_code not in zone_composition:
-#                     zone_composition[zone_code] = []
-#                 zone_composition[zone_code].append(city)
-#                 if city_code not in city_zone[zone_code_label]:
-#                     city_zone[zone_code_label][city_code] = []
-#                 if zone_code and zone_code not in city_zone[zone_code_label][city_code]:
-#                     city_zone[zone_code_label][city_code].append(zone_code)
-#                 assert(len(city_zone[zone_code_label][city_code]) <= 1)
-#     for zone_code in zone_composition:
-#         zone_composition[zone_code] = clean_list(zone_composition[zone_code])
-#     return zone_composition, city_zone
 
 def transform_data(rors: list) -> list:
     logger.debug('transform data')
 
     # adding zone emploi data for France ie Saint Martin d'hères <-> Grenoble
     # Loading zone emploi data
-    insee_zone_emploi, insee_city_zone_emploi, insee_city_codes = insee_zone_emploi_data()
+    insee_zone_emploi, insee_city_zone_emploi = insee_zone_emploi_data(use_city_key=True)
+    geonames_departments = geonames_french_departments()
+    logger.debug(f"Geonames_departments = {len(geonames_departments)}")
 
     data = []
     for ror in rors:
@@ -117,20 +79,30 @@ def transform_data(rors: list) -> list:
 
         cities, countries, country_codes, zone_emploi = [], [], [], []
         for location in ror.get("locations", []):
-            geoname = location.get("geonames_details", {})
-            city = geoname.get("name")
-            country = geoname.get("country")
-            country_code = geoname.get("country_code")
+            geonames_id = str(location.get("geonames_id") or "")
+            geonames_details = location.get("geonames_details", {})
+            city = geonames_details.get("name")
+            country = geonames_details.get("country_name")
+            country_code = geonames_details.get("country_code")
 
             if city:
-                if city.lower() in insee_city_codes:
-                    zone_emploi_code = insee_city_zone_emploi[insee_city_codes[city.lower()]]
-                    if USE_ZONE_EMPLOI_COMPOSITION:
-                        zone_emploi += insee_zone_emploi[zone_emploi_code]["composition"]
-                    else:
-                        zone_emploi.append(insee_zone_emploi[zone_emploi_code]["name"])
                 if city.lower() in CITY_COUNTRY:
                     countries += CITY_COUNTRY[city.lower()]
+
+                if geonames_id and geonames_id in geonames_departments:
+                    department = geonames_departments[geonames_id]
+                    city_key = department + "_" + normalize_text(city, remove_separator=False, to_lower=True)
+                    if city_key in insee_city_zone_emploi:
+                        zone_emploi_code = insee_city_zone_emploi[city_key]
+                        if USE_ZONE_EMPLOI_COMPOSITION:
+                            zone_emploi += insee_zone_emploi[zone_emploi_code]["composition"]
+                        else:
+                            zone_emploi.append(insee_zone_emploi[zone_emploi_code]["name"])
+                    else:
+                        logger.warn(f"{city_key} not found in insee_city_zone_emploi")
+                else:
+                    if country == "France":
+                        logger.warn(f"{geonames_id} ({city}) not in geonames_departments")
 
             if country_code and country_code.lower() in COUNTRY_SWITCHER:
                 countries += COUNTRY_SWITCHER[country_code.lower()]

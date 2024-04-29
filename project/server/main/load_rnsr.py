@@ -175,7 +175,7 @@ def transform_data(data: list) -> list:
 
     # Loading zone emploi data
     # Loading zone emploi data
-    insee_zone_emploi, insee_city_zone_emploi, insee_city_codes = insee_zone_emploi_data()
+    insee_zone_emploi, insee_city_zone_emploi = insee_zone_emploi_data()
 
     # Setting a dict with all names, acronyms and cities
     name_acronym_city = {}
@@ -205,12 +205,8 @@ def transform_data(data: list) -> list:
                 cities.append(address['city'])
             if 'city' in address and address['city'] and 'citycode' in address and address['citycode']:
                 city_code = address['citycode']
-                if city_code in insee_city_zone_emploi:
+                if city_code and city_code in insee_city_zone_emploi:
                     zone_emploi.append(insee_city_zone_emploi[city_code])
-                elif city.lower() in insee_city_codes:
-                    zone_emploi.append(insee_city_zone_emploi[insee_city_codes[city.lower()]])
-                else:
-                    pass
             if 'urbanUnitLabel' in address and address['urbanUnitLabel']:
                 urban_units.append(address['urbanUnitLabel'])
             if 'country' in address and address['country']:

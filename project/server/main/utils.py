@@ -13,7 +13,7 @@ from project.server.main.logger import get_logger
 
 logger = get_logger(__name__)
 
-from project.server.main.config import CHUNK_SIZE, ZONE_EMPLOI_INSEE_DUMP
+from project.server.main.config import CHUNK_SIZE, ZONE_EMPLOI_INSEE_DUMP, GEONAMES_DUMP_URL
 
 ENGLISH_STOP = ['and', 'are', 'as', 'be', 'but', 'by', 'for', 'if', 'in', 'into', 'is', 'it', 'no',
                 'not', 'of', 'on', 'or', 'such', 'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this',
@@ -152,7 +152,7 @@ def normalize_text(text: str = None, remove_separator: bool = True, re_order: bo
         if re_order:
             text_split.sort()
         text = sep.join(text_split)
-    return text or ""
+    return text.strip() or ""
 
 
 def get_alpha2_from_french(user_input):
@@ -181,6 +181,73 @@ def get_alpha2_from_french(user_input):
     return ref.get(user_input)
 
 
+def download_geonames_data(country: str) -> dict:
+    assert country.isupper() and len(country) == 2
+    geonames_url = f"{GEONAMES_DUMP_URL}/{country}.zip"
+    geonames_downloaded_file = f"{country}.zip"
+    geonames_unzipped_folder = mkdtemp()
+    geonames_unzipped_file = f"{geonames_unzipped_folder}/{country}.txt"
+    COL_GEO_ID = 0  # Geoname ID column
+    COL_FEAT_CLASS = 6  # Geoname feature class column http://www.geonames.org/export/codes.html
+    COL_GEO_DEP = 11  # Department code column
+
+    # Download file
+    response = requests.get(url=geonames_url, stream=True, verify=False)
+    with open(geonames_downloaded_file, "wb") as file:
+        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+            file.write(chunk)
+    # Extract file
+    with ZipFile(geonames_downloaded_file, "r") as file:
+        file.extractall(geonames_unzipped_folder)
+
+    # Read file
+    df = pd.read_csv(
+        geonames_unzipped_file,
+        sep="\t",
+        encoding="utf-8",
+        dtype=str,
+        header=None,
+        usecols=[COL_GEO_ID, COL_FEAT_CLASS, COL_GEO_DEP],
+    ).set_index(COL_GEO_ID)
+
+    # Filter by feature class P = City, Village, ...
+    df = df[df[COL_FEAT_CLASS] == "P"]
+
+    # Correct department for Mayotte
+    if country == "YT":
+        df[COL_GEO_DEP] = "976"
+
+    # Clean data
+    data = df[COL_GEO_DEP].dropna().to_dict()
+
+    os.remove(path=geonames_downloaded_file)
+    shutil.rmtree(path=geonames_unzipped_folder)
+
+    return data
+
+
+def geonames_french_departments() -> dict:
+    """Get geonames french departments
+
+    Returns:
+        data: dict(geoname_id: department code)
+    """
+
+    # France, Guadeloupe, Martinique, Guyane, Reunion, Mayotte
+    french_codes = ["FR", "GP", "MQ", "GF", "RE", "YT"]
+    logger.debug(f"Start download of geonames for countries {french_codes}")
+
+    data = {}
+    for code in french_codes:
+        try:
+            current_data = download_geonames_data(country=code)
+            data.update(current_data)
+        except Exception as error:
+            logger.error(f"Error while loading geonames {code} data: {error}")
+
+    return data
+
+
 def download_insee_data() -> list:
     insee_downloaded_file = 'insee_data_dump.zip'
     insee_unzipped_folder = mkdtemp()
@@ -201,16 +268,17 @@ def download_insee_data() -> list:
     return data
 
 
-def insee_zone_emploi_data() -> tuple[dict, dict, dict]:
+def insee_zone_emploi_data(use_city_key=False) -> tuple[dict, dict]:
     """Transform INSEE zone emploi data into multiple dicts
+
+    Args:
+        use_city_key (bool, optional): Use city key ('dep_cityname') instead of city_code. Defaults to False.
 
     Returns:
         zone_emploi: dict(zone_emploi_code: {"name": zone_emploi_name, "composition": [city_names])
         city_zone_emploi: dict(city_code: zone_emploi_name)
-        city_codes: dict(city_name.lower(): city_code)
     """
 
-    city_codes = {}
     city_zone_emploi = {}
     zone_emploi = {}
 
@@ -222,6 +290,9 @@ def insee_zone_emploi_data() -> tuple[dict, dict, dict]:
         for elem in zone_emploi_insee:
             city_name = elem["LIBGEO"]
             city_code = str(elem["CODGEO"])
+            city_dep = str(elem["DEP"])
+            city_dep = "20" if city_dep in ["2A", "2B"] else city_dep  # Corse
+            city_key = city_dep + "_" + normalize_text(city_name, remove_separator=False, to_lower=True)
             zone_emploi_name = elem["LIBZE2020"]
             zone_emploi_code = str(elem["ZE2020"])
 
@@ -231,15 +302,13 @@ def insee_zone_emploi_data() -> tuple[dict, dict, dict]:
             zone_emploi[zone_emploi_code]["composition"].append(city_name)
 
             # Build city zone emploi dict
-            city_zone_emploi.setdefault(city_code, zone_emploi_code)
-
-            # Build city code dict
-            city_codes.setdefault(city_name.lower(), city_code)
+            key = city_key if use_city_key else city_code
+            city_zone_emploi.setdefault(key, zone_emploi_code)
 
     except Exception as error:
         logger.error(f"Error while loading insee data: {error}")
 
-    return zone_emploi, city_zone_emploi, city_codes
+    return zone_emploi, city_zone_emploi
 
 
 def has_a_digit(text: str = '') -> bool:
@@ -280,3 +349,11 @@ def clean_url(x):
 def get_url_domain(x):
     url = clean_url(x)
     return url.split('/')[0]
+
+
+def clean_city(city: str):
+    if not isinstance(city, str):
+        return None
+    clean_city = re.sub("(?i)c(é|e)dex", "", city)  # Remove CEDEX
+    clean_city = " ".join([s for s in clean_city.split(" ") if not s.isnumeric()])
+    return clean_city.strip()
