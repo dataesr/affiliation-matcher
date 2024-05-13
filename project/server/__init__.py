@@ -2,6 +2,7 @@ import os
 
 from flask import Flask
 from flask_bootstrap import Bootstrap
+from flask_cors import CORS
 
 # instantiate the extensions
 bootstrap = Bootstrap()
@@ -14,6 +15,7 @@ def create_app():
         template_folder='../client/templates',
         static_folder='../client/static',
     )
+    CORS(app, origins="*")
     # set config
     app_settings = os.getenv('APP_SETTINGS')
     app.config.from_object(app_settings)

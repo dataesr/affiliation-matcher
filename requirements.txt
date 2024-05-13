@@ -7,6 +7,7 @@ elasticsearch==7.8.0
 elasticsearch-dsl==7.2.1
 Flask==3.0.3
 Flask-Bootstrap==3.3.7.1
+Flask-Cors==4.0.0
 fuzzywuzzy==0.18.0
 geopy==2.4.1
 lxml==5.2.1
