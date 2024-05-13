@@ -28,7 +28,7 @@ from project.server.main.utils import (
 logger = get_logger(__name__)
 
 SOURCE = 'ror'
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "2.0"
 USE_ZONE_EMPLOI_COMPOSITION = False
 
 def download_data() -> list:
