@@ -31,8 +31,7 @@ docker-build:
 
 docker-push:
 	@echo Pushing a new docker image
-	docker push $(GHCR_IMAGE_NAME):$(CURRENT_VERSION)
-	docker push $(GHCR_IMAGE_NAME):latest
+	docker push -a $(GHCR_IMAGE_NAME)
 	@echo Docker image pushed
 
 python-build:
