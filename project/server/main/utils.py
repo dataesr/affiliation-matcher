@@ -34,8 +34,9 @@ FRENCH_STOP = ['au', 'aux', 'avec', 'ce', 'ces', 'dans', 'de', 'des', 'du', 'ell
 
 GEO_IGNORED = ['union'] + FRENCH_STOP + ENGLISH_STOP
 
-ACRONYM_IGNORED = ['usa', 'pasteur', 'cedex', 'paris', 'ea', 'team', 'innovation', 'sphere', 'st', 'and', 'gu', 'care',
-                   'medecine', 'unite', 'histoire', 'cite', 'est', 'joliot'] + FRENCH_STOP + ENGLISH_STOP
+ACRONYM_IGNORED = (
+    pd.read_csv("./project/server/main/acronym_to_ignore.csv")["acronyms"].to_list() + FRENCH_STOP + ENGLISH_STOP
+)
 
 NAME_IGNORED = ['medical center', 'medical college']
 
