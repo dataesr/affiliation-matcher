@@ -91,7 +91,7 @@ def clean_list(
         data[ix] = e.strip()
     new_data = []
     for k in data:
-        k_normalized = normalize_text(k, remove_separator=False)
+        k_normalized = normalize_text(k, remove_separator=False, to_lower=True)
         if k_normalized in ignored:
             continue
         if len(k_normalized) < min_character:
