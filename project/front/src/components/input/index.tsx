@@ -10,7 +10,6 @@ const MATCHER_TYPES = [
 
 export default function Input() {
   const { currentQuery, currentMatcher, handleQueryChange, handleMatcherChange } = useUrl()
-  console.log("currentQuery", currentQuery, "currentMatcher", currentMatcher)
 
   return (
     <Container className="bg-input">

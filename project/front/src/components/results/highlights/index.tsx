@@ -1,6 +1,7 @@
+import { IntlMessageFormat } from "intl-messageformat"
 import { Container, Badge, Text, Row } from "@dataesr/dsfr-plus"
 import { CriterionHighlightsArgs, ResultHighlightsArgs, StrategyHighlightsArgs } from "../../../types/functions"
-import { displayHighlightedText, getHighlightedText, getHighlightedQuery, strategyCriteria } from "../utils/highlights"
+import { getHighlightedText, getHighlightedQuery, strategyCriteria } from "../utils/highlights"
 import useUrl from "../../../hooks/useUrl"
 
 function CriterionHighlights({ criterion, criterionHighlights, setTitle }: CriterionHighlightsArgs) {
@@ -8,14 +9,14 @@ function CriterionHighlights({ criterion, criterionHighlights, setTitle }: Crite
 
   const highlightedData = criterionHighlights.map((criterionHighlight) => {
     const highlightedText = getHighlightedText(criterionHighlight[0])
-    const highlightedQuery = getHighlightedQuery(highlightedText, currentQuery)
     return {
-      highlightedCriterion: displayHighlightedText(highlightedText.filter((text) => text.highlight || text.value === " ")),
-      highlightedQuery: displayHighlightedText(highlightedQuery),
+      highlightedCriterion: highlightedText.join(" "),
+      highlightedQuery: getHighlightedQuery(highlightedText, currentQuery),
     }
   })
 
-  const onEnter = (highlights: JSX.Element) => setTitle(highlights)
+  const onEnter = (highlightedQuery: string) =>
+    setTitle(new IntlMessageFormat(highlightedQuery).format({ b: (chunks) => <strong>{chunks}</strong> }))
   const onLeave = () => setTitle(currentQuery)
 
   return (
@@ -27,7 +28,7 @@ function CriterionHighlights({ criterion, criterionHighlights, setTitle }: Crite
           onMouseEnter={() => onEnter(data.highlightedQuery)}
           onMouseLeave={() => onLeave()}
         >
-          {data.highlightedCriterion}
+          <strong>{data.highlightedCriterion}</strong>
         </Text>
       ))}
     </Row>

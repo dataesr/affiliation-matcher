@@ -27,42 +27,17 @@ export const getHighlightedText = (highlight: string): TextHighlight => {
     const startIndex = startTags[i]
     const endIndex = endTags[i]
 
-    const prefix = highlight.slice(cursor, startIndex)
-    if (prefix) {
-      highlightedArray.push({ value: prefix, highlight: false })
-    }
-
     const highlighted = highlight.slice(startIndex + startTag.length, endIndex)
-    highlightedArray.push({ value: highlighted, highlight: true })
+    highlightedArray.push(highlighted)
 
     cursor = endIndex + endTag.length
-  }
-
-  const suffix = highlight.slice(endTags.pop() + endTag.length)
-  if (suffix) {
-    highlightedArray.push({ value: suffix, highlight: false })
   }
 
   return highlightedArray
 }
 
 export function getHighlightedQuery(highlightedArray: TextHighlight, query: string) {
-  highlightedArray.forEach((text, index) => {
-    if (query.startsWith(text.value)) {
-      query = query.slice(text.value.length)
-    } else {
-      const nextIndex = query.indexOf(highlightedArray[index].value)
-      const newText = query.slice(0, nextIndex)
-      highlightedArray.splice(index, 0, { value: newText, highlight: false })
-      query = query.slice(nextIndex)
-    }
-  })
-  return highlightedArray
-}
-
-export function displayHighlightedText(highlightedArray: TextHighlight) {
-  const display = (
-    <span>{highlightedArray.map((text) => (text.highlight ? <strong>{text.value}</strong> : text.value))}</span>
-  )
-  return display
+  let highlightedQuery = query
+  highlightedArray.forEach((text) => (highlightedQuery = highlightedQuery.replace(text, `<b>${text}</b>`)))
+  return highlightedQuery
 }
