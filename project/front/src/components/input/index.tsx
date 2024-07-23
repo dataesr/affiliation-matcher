@@ -21,7 +21,7 @@ export default function Input() {
             buttonLabel="Match"
             defaultValue={currentQuery}
             placeholder="Affiliation string"
-            onSearch={(value) => handleQueryChange(value)}
+            onSearch={(value) => handleQueryChange(value.toLowerCase())}
           />
         </Col>
         <Col xs="12" sm="4" lg="4">
