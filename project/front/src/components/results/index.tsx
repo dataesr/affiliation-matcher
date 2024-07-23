@@ -21,7 +21,9 @@ export default function Results() {
 
   if (isFetching) return <Fetching />
 
-  if (!data) return <div>hein quoi</div>
+  if (!data) return <div>no data?</div>
+
+  console.log("data", data)
 
   const matchIds = data.results as MatchIds
   if (!matchIds.length)
@@ -35,8 +37,8 @@ export default function Results() {
   return (
     <Container>
       <Text size="lead">{currentTitle}</Text>
-      {matchIds.map((id) => {
-        return <Result resultData={data} resultId={id} setTitle={setTitle} />
+      {matchIds.map((id, index) => {
+        return <Result key={index} resultData={data} resultId={id} setTitle={setTitle} />
       })}
     </Container>
   )

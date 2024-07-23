@@ -22,8 +22,9 @@ function CriterionHighlights({ criterion, criterionHighlights, setTitle }: Crite
   return (
     <Row>
       <Text>{`${criterion} (${highlightedData.length} match${highlightedData.length > 1 ? "es" : ""}):`}</Text>
-      {highlightedData.map((data) => (
+      {highlightedData.map((data, index) => (
         <Text
+          key={index}
           className="fr-ml-1w fr-mr-1w"
           onMouseEnter={() => onEnter(data.highlightedQuery)}
           onMouseLeave={() => onLeave()}
@@ -42,8 +43,13 @@ function StrategyHighlights({ strategy, strategyHighlights, setTitle }: Strategy
   return (
     <Container>
       <Badge color={color}>{`Strategy: ${criteria.join(", ")}`}</Badge>
-      {Object.entries(strategyHighlights).map(([criterion, criterionHighlights]) => (
-        <CriterionHighlights criterion={criterion} criterionHighlights={criterionHighlights} setTitle={setTitle} />
+      {Object.entries(strategyHighlights).map(([criterion, criterionHighlights], index) => (
+        <CriterionHighlights
+          key={index}
+          criterion={criterion}
+          criterionHighlights={criterionHighlights}
+          setTitle={setTitle}
+        />
       ))}
     </Container>
   )
@@ -52,8 +58,8 @@ function StrategyHighlights({ strategy, strategyHighlights, setTitle }: Strategy
 export default function ResultHighlights({ resultHighlights, setTitle }: ResultHighlightsArgs) {
   return (
     <Container fluid className="fr-mt-4w">
-      {Object.entries(resultHighlights).map(([strategy, criteriaHighlights]) => (
-        <StrategyHighlights strategy={strategy} strategyHighlights={criteriaHighlights} setTitle={setTitle} />
+      {Object.entries(resultHighlights).map(([strategy, criteriaHighlights], index) => (
+        <StrategyHighlights key={index} strategy={strategy} strategyHighlights={criteriaHighlights} setTitle={setTitle} />
       ))}
     </Container>
   )
