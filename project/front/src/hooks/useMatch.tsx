@@ -2,8 +2,9 @@ import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 import { API_MATCH_URL } from "../config/api"
 
-const fetchMatch = async (query: string, matcher: string) => {
+const fetchMatch = async (query: string, matcher: string, year: string) => {
   const body = { type: matcher, query: query }
+  if (year) body["year"] = year
 
   const response = await fetch(API_MATCH_URL, {
     method: "POST",
@@ -16,10 +17,10 @@ const fetchMatch = async (query: string, matcher: string) => {
   return data
 }
 
-export default function useMatch(query: string, matcher: string) {
+export default function useMatch(query: string, matcher: string, year: string) {
   const { data, error, isFetching } = useQuery({
-    queryKey: ["match", query, matcher],
-    queryFn: () => fetchMatch(query, matcher),
+    queryKey: ["match", query, matcher, year],
+    queryFn: () => fetchMatch(query, matcher, year),
     staleTime: 1000 * 60 * 5,
   })
 

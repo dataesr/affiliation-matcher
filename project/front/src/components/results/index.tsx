@@ -9,9 +9,9 @@ import Home from "../home"
 import { MatchIds } from "../../types/data"
 
 export default function Results() {
-  const { currentQuery, currentMatcher } = useUrl()
+  const { currentQuery, currentMatcher, currentYear } = useUrl()
   const [currentTitle, setTitle] = useState(currentQuery)
-  const { data, isFetching, error } = useMatch(currentQuery, currentMatcher)
+  const { data, isFetching, error } = useMatch(currentQuery, currentMatcher, currentYear)
 
   useEffect(() => setTitle(currentQuery), [currentQuery])
 
@@ -21,7 +21,7 @@ export default function Results() {
 
   if (isFetching) return <Fetching />
 
-  if (!data) return <div>no data?</div>
+  if (!data) return null
 
   console.log("data", data)
 

@@ -5,6 +5,7 @@ export default function useUrl() {
   const [searchParams, setSearchParams] = useSearchParams()
   const currentQuery = searchParams.get("q") || ""
   const currentMatcher = searchParams.get("matcher") || ""
+  const currentYear = searchParams.get("year") || ""
 
   const handleQueryChange = useCallback(
     (query: string) => {
@@ -17,6 +18,15 @@ export default function useUrl() {
   const handleMatcherChange = useCallback(
     (matcher: string) => {
       searchParams.set("matcher", matcher)
+      searchParams.delete("year")
+      setSearchParams(searchParams)
+    },
+    [searchParams, setSearchParams]
+  )
+
+  const handleYearChange = useCallback(
+    (year: string) => {
+      searchParams.set("year", year)
       setSearchParams(searchParams)
     },
     [searchParams, setSearchParams]
@@ -26,10 +36,12 @@ export default function useUrl() {
     return {
       currentQuery,
       currentMatcher,
+      currentYear,
       handleQueryChange,
       handleMatcherChange,
+      handleYearChange,
     }
-  }, [currentQuery, currentMatcher, handleQueryChange, handleMatcherChange])
+  }, [currentQuery, currentMatcher, currentYear, handleQueryChange, handleMatcherChange, handleYearChange])
 
   return values
 }
