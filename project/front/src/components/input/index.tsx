@@ -12,7 +12,7 @@ const YEARS = Array.from({ length: (2011 - 2023) / -1 + 1 }, (_, i) => 2023 + i 
 
 export default function Input() {
   const { currentQuery, currentMatcher, currentYear, handleQueryChange, handleMatcherChange, handleYearChange } = useUrl()
-  const enableYear: boolean = MATCHER_TYPES.find((matcher) => matcher.key == currentMatcher).year
+  const enableYear: boolean = MATCHER_TYPES.find((matcher) => matcher.key == currentMatcher)?.year || false
 
   return (
     <Container className="bg-input">

@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react"
-import { Container, Text } from "@dataesr/dsfr-plus"
+import { Container, Text, Badge } from "@dataesr/dsfr-plus"
 import useMatch from "../../hooks/useMatch"
 import useUrl from "../../hooks/useUrl"
 import Error from "../error"
 import Result from "./result"
 import Fetching from "../fetching"
-import Home from "../home"
 import { MatchIds } from "../../types/data"
 
 export default function Results() {
@@ -15,7 +14,7 @@ export default function Results() {
 
   useEffect(() => setTitle(currentQuery), [currentQuery])
 
-  if (!currentQuery || !currentMatcher) return <Home />
+  if (!currentQuery || !currentMatcher) return null
 
   if (error) return <Error error={error} />
 
@@ -30,7 +29,7 @@ export default function Results() {
     return (
       <Container>
         <Text size="lead">{currentTitle}</Text>
-        <Text>NO RESULTS</Text>
+        <Badge color="error">{`${currentMatcher} : no results`}</Badge>
       </Container>
     )
 
