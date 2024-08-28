@@ -11,7 +11,7 @@
     "start": "npm run dev"
   },
   "dependencies": {
-    "@dataesr/dsfr-plus": "^0.3.2",
+    "@dataesr/dsfr-plus": "^0.5.1",
     "@tanstack/react-query": "^4.29.5",
     "@tanstack/react-query-devtools": "^4.29.6",
     "@types/node": "^20.12.11",
