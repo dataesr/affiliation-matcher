@@ -34,11 +34,15 @@ export default function Results() {
     )
 
   return (
-    <Container>
-      <Text size="lead">{currentTitle}</Text>
-      {matchIds.map((id, index) => {
-        return <Result key={index} resultData={data} resultId={id} setTitle={setTitle} />
-      })}
+    <Container fluid>
+      <Container className="sticky">
+        <Text size="lead">{currentTitle}</Text>
+      </Container>
+      <Container fluid className="fr-mt-5w">
+        {matchIds.map((id, index) => {
+          return <Result key={index} resultData={data} resultId={id} setTitle={setTitle} />
+        })}
+      </Container>
     </Container>
   )
 }

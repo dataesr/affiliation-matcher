@@ -23,7 +23,7 @@ export default function Result({
   const resultUrl = getResultUrl(resultId, currentMatcher)
 
   return (
-    <Container fluid>
+    <Container>
       <Row>
         <BadgeGroup>
           {resultUrl ? (
