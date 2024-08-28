@@ -35,7 +35,7 @@ export default function Results() {
 
   return (
     <Container fluid>
-      <Container className="sticky">
+      <Container className="sticky card">
         <Text size="lead">{currentTitle}</Text>
       </Container>
       <Container fluid className="fr-mt-5w">

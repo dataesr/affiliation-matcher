@@ -1,12 +1,16 @@
-.bg-input {
+.input {
   background-color: var(--background-alt-blue-cumulus) !important;
 }
+
+.card {
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
 .sticky {
   background-color: white;
   position: sticky;
   top: 0px;
   z-index: 1;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
   padding-top: 15px;
   padding-bottom: 1px;
 }

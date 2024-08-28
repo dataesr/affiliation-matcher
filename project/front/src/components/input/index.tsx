@@ -15,7 +15,7 @@ export default function Input() {
   const enableYear: boolean = MATCHER_TYPES.find((matcher) => matcher.key == currentMatcher)?.year || false
 
   return (
-    <Container className="bg-input">
+    <Container className="input">
       <Row gutters className="fr-pb-4w fr-pt-4w fr-mb-2w">
         <Col xs="12" sm="8" lg="8">
           <SearchBar
