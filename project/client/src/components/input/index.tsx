@@ -1,18 +1,13 @@
 import { Container, SearchBar, Col, Row } from "@dataesr/dsfr-plus"
 import useUrl from "../../hooks/useUrl"
-
-const MATCHER_TYPES = [
-  { label: "Country", key: "country", year: false },
-  { label: "ROR", key: "ror", year: false },
-  { label: "RNSR", key: "rnsr", year: true },
-  { label: "grid.ac", key: "grid", year: false },
-]
+import { MATCHERS, matcher_get } from "../../config/matchers"
 
 const YEARS = Array.from({ length: (2011 - 2023) / -1 + 1 }, (_, i) => 2023 + i * -1)
 
 export default function Input() {
   const { currentQuery, currentMatcher, currentYear, handleQueryChange, handleMatcherChange, handleYearChange } = useUrl()
-  const enableYear: boolean = MATCHER_TYPES.find((matcher) => matcher.key == currentMatcher)?.year || false
+  const enableYear: boolean = matcher_get(currentMatcher)?.year || false
+  const placeholder: string = matcher_get(currentMatcher)?.placeholder || "Paris Dauphine University France"
 
   return (
     <Container className="input">
@@ -23,7 +18,7 @@ export default function Input() {
             isLarge
             buttonLabel="Match"
             defaultValue={currentQuery}
-            placeholder="Affiliation string"
+            placeholder={placeholder}
             onSearch={(value) => handleQueryChange(value.toLowerCase())}
           />
         </Col>
@@ -36,7 +31,7 @@ export default function Input() {
             <option key="DEFAULT" value="DEFAULT" disabled>
               Select a matcher
             </option>
-            {MATCHER_TYPES.map((matcher) => (
+            {MATCHERS.map((matcher) => (
               <option key={matcher.key} value={matcher.key}>
                 {matcher.label}
               </option>
