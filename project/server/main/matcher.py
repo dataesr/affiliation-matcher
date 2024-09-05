@@ -146,6 +146,25 @@ def filter_submatching_results_by_all(res: dict, conditions) -> dict:
     }
 
 
+def clean_highlights(highlights: dict):
+    new_highlights = {}
+    for strategy in highlights:
+        for match_id in highlights[strategy]:
+            if match_id not in new_highlights:
+                new_highlights[match_id] = {"criterion": {}, "strategies": []}
+            if strategy not in new_highlights[match_id]["strategies"]:
+                new_highlights[match_id]["strategies"].append(strategy.split(";"))
+            for criteria in highlights[strategy][match_id]:
+                if criteria not in new_highlights[match_id]["criterion"]:
+                    new_highlights[match_id]["criterion"][criteria] = []
+                for highlight in highlights[strategy][match_id][criteria]:
+                    logger.debug(f"highlight: {highlight}")
+                    new_highlights[match_id]["criterion"][criteria] = [
+                        tag.text for tag in BeautifulSoup(highlight[0], "lxml").find_all("em")
+                    ]
+    return new_highlights
+
+
 class Matcher:
     def __init__(self) -> None:
         self.es = MyElastic()
@@ -337,6 +356,7 @@ class Matcher:
                 final_res['logs'] = logs
                 if not verbose:
                     del final_res['logs']
+                final_res["highlights"] = clean_highlights(final_res.get("highlights"))
                 return final_res
         logs += '<br/> No results found'
         final_res = {
