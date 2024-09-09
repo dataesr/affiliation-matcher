@@ -1,7 +1,6 @@
-import { Container, Badge, Row, BadgeGroup, Accordion } from "@dataesr/dsfr-plus"
-import { MatchId, MatchResults } from "../../../types/data"
+import { Container, Badge, Row, BadgeGroup } from "@dataesr/dsfr-plus"
+import { MatchId, MatchResults } from "../../../types"
 import useUrl from "../../../hooks/useUrl"
-import { getResultHighlights } from "../utils/highlights"
 import { getResultUrl } from "../utils/url"
 import ResultHighlights from "../highlights"
 
@@ -19,7 +18,7 @@ export default function Result({
   const { results: resultsIds, enriched_results: resultsEnriched, highlights: resultsHighlights } = resultData
   const resultIndex = resultsIds.findIndex((element) => element === resultId)
   const resultEnriched = resultsEnriched[resultIndex]
-  const resultHighlights = getResultHighlights(resultsHighlights, resultId)
+  const resultHighlights = resultsHighlights?.[resultId]
   const resultUrl = getResultUrl(resultId, currentMatcher)
 
   return (
@@ -42,9 +41,7 @@ export default function Result({
           {resultEnriched?.country?.length && <Badge color="pink-macaron">{resultEnriched.country[0]}</Badge>}
         </BadgeGroup>
       </Row>
-      <Accordion title="Highlights">
-        <ResultHighlights resultHighlights={resultHighlights} setTitle={setTitle} />
-      </Accordion>
+      <ResultHighlights resultHighlights={resultHighlights} setTitle={setTitle} />
     </Container>
   )
 }

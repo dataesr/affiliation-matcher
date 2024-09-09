@@ -14,3 +14,12 @@
   padding-top: 15px;
   padding-bottom: 1px;
 }
+
+.debug-item {
+  padding-bottom: 1rem !important
+}
+
+.debug-item:not(:first-child) {
+  border-top: 1px solid var(--border-default-grey);
+  padding-top: 1rem !important;
+}

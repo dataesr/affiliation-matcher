@@ -1,4 +1,4 @@
-import { MatchId } from "../../../types/data"
+import { MatchId } from "../../../types"
 
 export function getResultUrl(resultId: MatchId, currentMatcher: string) {
   if (currentMatcher === "ror") return `https://ror.org/${resultId}`
