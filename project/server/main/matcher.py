@@ -157,11 +157,11 @@ def clean_highlights(highlights: dict):
             for criteria in highlights[strategy][match_id]:
                 if criteria not in new_highlights[match_id]["criterion"]:
                     new_highlights[match_id]["criterion"][criteria] = []
-                for highlight in highlights[strategy][match_id][criteria]:
-                    logger.debug(f"highlight: {highlight}")
-                    new_highlights[match_id]["criterion"][criteria] = [
-                        tag.text for tag in BeautifulSoup(highlight[0], "lxml").find_all("em")
-                    ]
+                    for highlight in highlights[strategy][match_id][criteria]:
+                        logger.debug(f"highlight: {highlight}")
+                        new_highlights[match_id]["criterion"][criteria].append(
+                            [tag.text for tag in BeautifulSoup(highlight[0], "lxml").find_all("em")]
+                        )
     return new_highlights
 
 
@@ -271,9 +271,9 @@ class Matcher:
                 logs += f'Strategy : {strategy} : {len(strategy_results)} matches <br/>'
                 logs += f'Equivalent strategies have {len(equivalent_strategies_results)} possibilities that match ' \
                         f'one of the strategy<br/>'
-                debug["strategies"].append(
-                    {"equivalent_strategies": equivalent_strategies, "matches": len(equivalent_strategies_results)}
-                )
+            debug["strategies"].append(
+                {"equivalent_strategies": equivalent_strategies, "matches": len(equivalent_strategies_results)}
+            )
             # Strategies stopped as soon as a first result is met for an equivalent_strategies
             all_highlights = {}
             if len(equivalent_strategies_results) > 0:
