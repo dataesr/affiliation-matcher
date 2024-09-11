@@ -213,6 +213,7 @@ class Matcher:
         index_date = None
         for equivalent_strategies in strategies:
             equivalent_strategies_results = None
+            equivalent_strategies_matches = []
             all_hits = {}
             logs += f'<br/> - Matching equivalent strategies : {equivalent_strategies}<br/>'
             for strategy in equivalent_strategies:
@@ -261,6 +262,7 @@ class Matcher:
                         strategy_results = [result for result in strategy_results if result in criteria_results]
                     logs += f'Criteria : {criterion} : {len(criteria_results)} matches <br/>'
                     debug["criterion"][criterion] = len(criteria_results)
+                equivalent_strategies_matches.append(len(strategy_results))
                 if equivalent_strategies_results is None:
                     equivalent_strategies_results = strategy_results
                 else:
@@ -272,7 +274,13 @@ class Matcher:
                 logs += f'Equivalent strategies have {len(equivalent_strategies_results)} possibilities that match ' \
                         f'one of the strategy<br/>'
             debug["strategies"].append(
-                {"equivalent_strategies": equivalent_strategies, "matches": len(equivalent_strategies_results)}
+                {
+                    "equivalent_strategies": [
+                        {"criteria": es, "matches": equivalent_strategies_matches[index]}
+                        for index, es in enumerate(equivalent_strategies)
+                    ],
+                    "possibilities": len(equivalent_strategies_results),
+                }
             )
             # Strategies stopped as soon as a first result is met for an equivalent_strategies
             all_highlights = {}
