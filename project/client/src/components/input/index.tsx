@@ -24,6 +24,7 @@ export default function Input() {
         </Col>
         <Col xs="12" sm="2" lg="2">
           <select
+            key={currentMatcher}
             className="fr-select"
             defaultValue={currentMatcher || "DEFAULT"}
             onChange={(matcher) => handleMatcherChange(matcher.target.value)}
@@ -40,6 +41,7 @@ export default function Input() {
         </Col>
         <Col xs="12" sm="2" lg="2">
           <select
+            key={currentYear}
             className="fr-select"
             defaultValue={currentYear || "DEFAULT"}
             disabled={!enableYear}

@@ -21,11 +21,12 @@ export default function useMatch(query: string, matcher: string, year: string) {
   const { data, error, isFetching } = useQuery({
     queryKey: ["match", query, matcher, year],
     queryFn: () => fetchMatch(query, matcher, year),
+    enabled: Boolean(query && matcher),
     staleTime: 1000 * 60 * 5,
   })
 
   const values = useMemo(() => {
-    return { data, isFetching, error }
+    return { data, isFetching, error } as { data: any; isFetching: boolean; error: Error }
   }, [data, isFetching, error])
 
   return values

@@ -50,21 +50,21 @@ export default function MainFooter() {
         </Link>
       </FooterBody>
       <FooterBottom>
-        <button className="fr-footer__bottom-link" data-fr-opened="false">
+        {/* <button className="fr-footer__bottom-link" data-fr-opened="false">
           Unnamed
-        </button>
-        <button
+        </button> */}
+        {/* <button
           className="fr-footer__bottom-link fr-icon-theme-fill fr-btn--icon-left"
           aria-controls="fr-theme-modal"
           data-fr-opened="false"
         >
           Theme
-        </button>
+        </button> */}
         <Link
           target="_blank"
           rel="noreferer noopenner"
           className="fr-footer__bottom-link"
-          href={`https://github.com/dataesr`}
+          href={`https://github.com/dataesr/affiliation-matcher`}
         >
           {`App version ${VITE_VERSION}`}
         </Link>

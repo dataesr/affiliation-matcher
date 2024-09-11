@@ -5,8 +5,6 @@ type ResultsDebugArgs = {
   resultsDebug: MatchDebug
 }
 export default function ResultsDebug({ resultsDebug }: ResultsDebugArgs) {
-  console.log("resultsDebug", resultsDebug)
-
   if (!resultsDebug) return null
 
   const criterionMatches = (criterion: string) => resultsDebug.criterion?.[criterion] ?? 0
