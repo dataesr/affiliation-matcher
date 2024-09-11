@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useIntl } from "react-intl"
 import { Container, Text, Badge } from "@dataesr/dsfr-plus"
 import { MatchResults } from "../../types"
 import Error from "../error"
@@ -10,6 +11,7 @@ import Info from "../info"
 import useMatch from "../../hooks/useMatch"
 
 export default function Results() {
+  const intl = useIntl()
   const { currentQuery, currentMatcher, currentYear } = useUrl()
   const { data, isFetching, error } = useMatch(currentQuery, currentMatcher, currentYear)
   const [currentTitle, setTitle] = useState(currentQuery)
@@ -17,8 +19,8 @@ export default function Results() {
   useEffect(() => setTitle(currentQuery), [currentQuery])
 
   if (currentQuery === null && currentMatcher === null) return null
-  if (currentQuery === "") return <Info info="Please enter a text affiliation" />
-  if (!currentMatcher) return <Info info="Please select a matcher" />
+  if (currentQuery === "") return <Info info={intl.formatMessage({ id: "info.missing.query" })} />
+  if (!currentMatcher) return <Info info={intl.formatMessage({ id: "info.missing.matcher" })} />
 
   if (isFetching) return <Fetching />
 
@@ -36,7 +38,7 @@ export default function Results() {
           <Text size="lead">{currentTitle}</Text>
         </Container>
         <Container className="fr-mt-3w">
-          <Badge color="error">{`${currentMatcher} : 0 matches`}</Badge>
+          <Badge color="error">{`${currentMatcher} : ${intl.formatMessage({ id: "match.count" }, { count: 0 })}`}</Badge>
         </Container>
         <ResultsDebug resultsDebug={matchResults?.debug} />
       </Container>
@@ -48,7 +50,7 @@ export default function Results() {
         <Text size="lead">{currentTitle}</Text>
       </Container>
       <Container className="fr-mt-3w">
-        <Text size="md">{`${matchIds.length} match${matchIds.length > 1 ? "es" : ""}`}</Text>
+        <Text size="md">{intl.formatMessage({ id: "match.count" }, { count: matchIds.length })}</Text>
       </Container>
       <Container fluid className="fr-mt-3w">
         {matchIds.map((id, index) => {

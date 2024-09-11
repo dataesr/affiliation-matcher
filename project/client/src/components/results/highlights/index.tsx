@@ -24,10 +24,13 @@ export default function ResultHighlights({ resultHighlights, setTitle }: ResultH
     <Container fluid className="fr-mt-2w">
       {Object.entries(resultHighlights.criterion).map(([criterion, highlights], groupIndex) => (
         <BadgeGroup key={groupIndex}>
-          <Badge color="success">{criterion}</Badge>
+          <Badge size="sm" color="success">
+            {criterion}
+          </Badge>
           {highlights.map((highlight, badgeIndex) => (
             <Badge
               key={badgeIndex}
+              size="sm"
               onMouseEnter={() => onEnter(getHighlightedQuery(highlight, currentQuery))}
               onMouseLeave={() => onLeave()}
             >
