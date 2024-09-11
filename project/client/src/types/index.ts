@@ -21,9 +21,13 @@ export type MatchHighlight = {
 export type MatchHighlights = Record<MatchId, MatchHighlight>
 
 export type CriterionDebug = Record<string, number>
-export type StrategiesDebug = {
-  equivalent_strategies: Array<Array<string>>
+export type EquivalentStrategiesDebug = {
+  criteria: Array<string>
   matches: number
+}
+export type StrategiesDebug = {
+  equivalent_strategies: Array<EquivalentStrategiesDebug>
+  possibilities: number
 }
 export type MatchDebug = {
   criterion: CriterionDebug

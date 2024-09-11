@@ -37,8 +37,16 @@ export default function Result({
           )}
           {resultEnriched?.acronym?.length && <Badge color="green-archipel">{resultEnriched.acronym[0]}</Badge>}
           {resultEnriched?.name?.length && <Badge color="blue-ecume">{resultEnriched.name[0]}</Badge>}
-          {resultEnriched?.city?.length && <Badge color="purple-glycine">{resultEnriched.city[0]}</Badge>}
-          {resultEnriched?.country?.length && <Badge color="pink-macaron">{resultEnriched.country[0]}</Badge>}
+          {resultEnriched?.city?.length && (
+            <Badge icon="building-line" color="purple-glycine">
+              {resultEnriched.city[0]}
+            </Badge>
+          )}
+          {resultEnriched?.country?.length && (
+            <Badge icon="earth-line" color="pink-macaron">
+              {resultEnriched.country[0]}
+            </Badge>
+          )}
         </BadgeGroup>
       </Row>
       <ResultHighlights resultHighlights={resultHighlights} setTitle={setTitle} />

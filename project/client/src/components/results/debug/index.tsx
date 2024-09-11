@@ -15,21 +15,26 @@ export default function ResultsDebug({ resultsDebug }: ResultsDebugArgs) {
     <Accordion className="fr-container fr-mt-3w" title="See more">
       {resultsDebug.strategies.map((strategy, index) => (
         <Container key={index} className="debug-item">
+          <Badge className="fr-mb-3w" color={strategy.possibilities ? "success" : "error"}>{`Matching ${
+            strategy.equivalent_strategies.length
+          } strategies : ${strategy.possibilities} ${strategy.possibilities == 1 ? "possibility" : "possibilities"}`}</Badge>
           {strategy.equivalent_strategies.map((equivalent) => (
-            <BadgeGroup>
-              {equivalent.map((criterion) => {
-                const matches: number = criterionMatches(criterion)
-                return (
-                  <Badge color={matches ? "yellow-moutarde" : null}>{`${criterion}: ${matches} match${
-                    matches == 1 ? "" : "es"
-                  }`}</Badge>
-                )
-              })}
-            </BadgeGroup>
+            <Container fluid>
+              <BadgeGroup className="fr-mb-2w">
+                {equivalent.criteria.map((criterion) => {
+                  const matches: number = criterionMatches(criterion)
+                  return (
+                    <Badge color={matches ? "yellow-moutarde" : null}>{`${criterion}: ${matches} match${
+                      matches == 1 ? "" : "es"
+                    }`}</Badge>
+                  )
+                })}
+                {equivalent.matches > 0 && (
+                  <Badge color="success">{`${equivalent.matches} match${equivalent.matches == 1 ? "" : "es"}`}</Badge>
+                )}
+              </BadgeGroup>
+            </Container>
           ))}
-          <Badge color={strategy.matches ? "success" : "error"}>{`${strategy.matches} ${
-            strategy.matches == 1 ? "possibility" : "possibilities"
-          }`}</Badge>
         </Container>
       ))}
     </Accordion>
