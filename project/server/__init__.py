@@ -10,11 +10,7 @@ bootstrap = Bootstrap()
 
 def create_app():
     # instantiate the app
-    app = Flask(
-        __name__,
-        template_folder='../client/templates',
-        static_folder='../client/static',
-    )
+    app = Flask(__name__, template_folder="../client/dist", static_folder="../client/dist/static", static_url_path="/static")
     CORS(app, origins="*")
     # set config
     app_settings = os.getenv('APP_SETTINGS')

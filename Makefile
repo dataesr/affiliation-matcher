@@ -24,6 +24,10 @@ install:
 	pip install -r requirements.txt
 	@echo End of dependencies installation
 
+client-build:
+	@echo Building client files
+	cd project/client && npm install && npm run build
+
 docker-build:
 	@echo Building a new docker image
 	docker build -t $(GHCR_IMAGE_NAME):$(CURRENT_VERSION) -t $(GHCR_IMAGE_NAME):latest .
@@ -46,7 +50,8 @@ load:
 
 release:
 	echo "__version__ = '$(VERSION)'" > project/__init__.py
-	echo "$(VERSION)" > project/client/templates/version.html
+	cd project/client && npm version
+	make client-build
 	git commit -am '[release] version $(VERSION)'
 	git tag $(VERSION)
 	@echo If everything is OK, you can push with tags i.e. git push origin master --tags

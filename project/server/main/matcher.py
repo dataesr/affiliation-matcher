@@ -98,11 +98,12 @@ def filter_submatching_results_by_criterion(res: dict, conditions) -> dict:
         current_highlights = res['highlights'][strategy]
         new_highlights[strategy] = {k: v for k, v in current_highlights.items() if k in new_results}
     return {
-        'highlights': new_highlights,
-        'logs': logs,
-        'results': new_results,
-        'version': version,
-        'index_date': index_date
+        "highlights": new_highlights,
+        "logs": logs,
+        "debug": res.get("debug"),
+        "results": new_results,
+        "version": version,
+        "index_date": index_date,
     }
 
 
@@ -136,12 +137,32 @@ def filter_submatching_results_by_all(res: dict, conditions) -> dict:
         current_highlights = res['highlights'][strategy]
         new_highlights[strategy] = {k: v for k, v in current_highlights.items() if k in new_results}
     return {
-        'highlights': new_highlights,
-        'logs': logs,
-        'results': new_results,
-        'version': version,
-        'index_date': index_date
+        "highlights": new_highlights,
+        "logs": logs,
+        "debug": res.get("debug"),
+        "results": new_results,
+        "version": version,
+        "index_date": index_date,
     }
+
+
+def clean_highlights(highlights: dict):
+    new_highlights = {}
+    for strategy in highlights:
+        for match_id in highlights[strategy]:
+            if match_id not in new_highlights:
+                new_highlights[match_id] = {"criterion": {}, "strategies": []}
+            if strategy not in new_highlights[match_id]["strategies"]:
+                new_highlights[match_id]["strategies"].append(strategy.split(";"))
+            for criteria in highlights[strategy][match_id]:
+                if criteria not in new_highlights[match_id]["criterion"]:
+                    new_highlights[match_id]["criterion"][criteria] = []
+                    for highlight in highlights[strategy][match_id][criteria]:
+                        logger.debug(f"highlight: {highlight}")
+                        new_highlights[match_id]["criterion"][criteria].append(
+                            [tag.text for tag in BeautifulSoup(highlight[0], "lxml").find_all("em")]
+                        )
+    return new_highlights
 
 
 class Matcher:
@@ -183,6 +204,7 @@ class Matcher:
         index_prefix = conditions.get('index_prefix', 'matcher')
         query = conditions.get('query', '')
         logs = f'<h1> &#128269; {query}</h1>'
+        debug = {"criterion": {}, "strategies": []}
         logger.debug(f"method {method}")
         logger.debug(f"query {query}")
         # to limit the nb of ES requests
@@ -191,6 +213,7 @@ class Matcher:
         index_date = None
         for equivalent_strategies in strategies:
             equivalent_strategies_results = None
+            equivalent_strategies_matches = []
             all_hits = {}
             logs += f'<br/> - Matching equivalent strategies : {equivalent_strategies}<br/>'
             for strategy in equivalent_strategies:
@@ -238,6 +261,8 @@ class Matcher:
                         # Intersection
                         strategy_results = [result for result in strategy_results if result in criteria_results]
                     logs += f'Criteria : {criterion} : {len(criteria_results)} matches <br/>'
+                    debug["criterion"][criterion] = len(criteria_results)
+                equivalent_strategies_matches.append(len(strategy_results))
                 if equivalent_strategies_results is None:
                     equivalent_strategies_results = strategy_results
                 else:
@@ -248,6 +273,15 @@ class Matcher:
                 logs += f'Strategy : {strategy} : {len(strategy_results)} matches <br/>'
                 logs += f'Equivalent strategies have {len(equivalent_strategies_results)} possibilities that match ' \
                         f'one of the strategy<br/>'
+            debug["strategies"].append(
+                {
+                    "equivalent_strategies": [
+                        {"criteria": es, "matches": equivalent_strategies_matches[index]}
+                        for index, es in enumerate(equivalent_strategies)
+                    ],
+                    "possibilities": len(equivalent_strategies_results),
+                }
+            )
             # Strategies stopped as soon as a first result is met for an equivalent_strategies
             all_highlights = {}
             if len(equivalent_strategies_results) > 0:
@@ -268,12 +302,13 @@ class Matcher:
                     equivalent_strategies_results = post_treatment_results(equivalent_strategies_results, self.es,
                                                                            index_prefix)
                 final_res = {
-                    'highlights': all_highlights,
-                    'logs': logs,
-                    'other_ids': [],
-                    'results': equivalent_strategies_results,
-                    'index_date': index_date,
-                    'version': __version__
+                    "highlights": all_highlights,
+                    "logs": logs,
+                    "debug": debug,
+                    "other_ids": [],
+                    "results": equivalent_strategies_results,
+                    "index_date": index_date,
+                    "version": __version__,
                 }
                 final_res = filter_submatching_results_by_criterion(final_res, conditions)
                 final_res = filter_submatching_results_by_all(final_res, conditions)
@@ -329,6 +364,7 @@ class Matcher:
                 final_res['logs'] = logs
                 if not verbose:
                     del final_res['logs']
+                final_res["highlights"] = clean_highlights(final_res.get("highlights"))
                 return final_res
         logs += '<br/> No results found'
         final_res = {
@@ -340,6 +376,7 @@ class Matcher:
         }
         if verbose:
             final_res['logs'] = logs
+            final_res["debug"] = debug
         else:
             del final_res['highlights']
         final_res['enriched_results'] = self.enrich_results(final_res['results'], method)
