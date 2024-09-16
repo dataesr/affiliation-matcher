@@ -50,7 +50,7 @@ load:
 
 release:
 	echo "__version__ = '$(VERSION)'" > project/__init__.py
-	cd project/client && npm version
+	cd project/client && npm version $(VERSION)
 	make client-build
 	git commit -am '[release] version $(VERSION)'
 	git tag $(VERSION)
