@@ -15,7 +15,6 @@ venv
 *.log
 
 # Build
-dist
 *.egg-info
 
 # Documentation
