@@ -64,7 +64,7 @@ export default function MainFooter() {
           target="_blank"
           rel="noreferer noopenner"
           className="fr-footer__bottom-link"
-          href={`https://github.com/dataesr/affiliation-matcher`}
+          href={`https://github.com/dataesr/affiliation-matcher/releases/tag/${VITE_VERSION}`}
         >
           {`App version ${VITE_VERSION}`}
         </Link>
