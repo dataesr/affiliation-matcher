@@ -7,6 +7,7 @@ export type MatchEnrichedResult = {
   acronym?: Array<string>
   city?: Array<string>
   country?: Array<string>
+  paysage_categories?: Array<{ id: string; label?: string; priority?: number }>
 }
 export type MatchEnrichedResults = Array<MatchEnrichedResult>
 

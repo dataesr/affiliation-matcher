@@ -127,7 +127,7 @@ def load_paysage(index_prefix: str = "matcher") -> dict:
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
-                es_data[criterion][criterion_value].append({"id": data_point["id"], "categories": data_point["categories"]})
+                es_data[criterion][criterion_value].append({"id": data_point["id"]})
 
     # Bulk insert data into ES
     actions = []
