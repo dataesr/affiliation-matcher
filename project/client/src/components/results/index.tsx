@@ -18,8 +18,10 @@ export default function Results() {
 
   useEffect(() => setTitle(currentQuery), [currentQuery])
 
+  console.log("data", data)
+
   if (currentQuery === null && currentMatcher === null) return null
-  if (currentQuery === "") return <Info info={intl.formatMessage({ id: "info.missing.query" })} />
+  if (!currentQuery) return <Info info={intl.formatMessage({ id: "info.missing.query" })} />
   if (!currentMatcher) return <Info info={intl.formatMessage({ id: "info.missing.matcher" })} />
 
   if (isFetching) return <Fetching />
@@ -58,6 +60,7 @@ export default function Results() {
         })}
       </Container>
       <ResultsDebug resultsDebug={matchResults?.debug} />
+      {/* <div dangerouslySetInnerHTML={{ __html: matchResults?.logs }} /> */}
     </Container>
   )
 }

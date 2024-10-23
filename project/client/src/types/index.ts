@@ -42,6 +42,7 @@ export type MatchResults = {
   enriched_results: MatchEnrichedResults
   highlights?: MatchHighlights
   debug?: MatchDebug
+  logs?: string
 }
 
 export type TextHighlight = Array<any>
