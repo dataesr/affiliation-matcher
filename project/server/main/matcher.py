@@ -1,3 +1,4 @@
+import requests
 import itertools
 from fuzzywuzzy import fuzz
 
@@ -9,6 +10,7 @@ from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import remove_stop, normalize_text
 from project.server.main.load_rnsr import get_siren
+from project.server.main.load_paysage import PAYSAGE_API_URL, PAYSAGE_API_KEY, CATEGORIES
 
 logger = get_logger(__name__)
 
@@ -183,6 +185,21 @@ class Matcher:
                         elt[f].append(list(hit["_source"]["query"].values())[0]["content"]["query"])
                 except:
                     pass
+
+            # enrich with paysage categories
+            if method == "paysage":
+                try:
+                    headers = {"X-API-KEY": PAYSAGE_API_KEY}
+                    url = f"{PAYSAGE_API_URL}/relations?limit=100&filters[relationTag]=structure-categorie&filters[resourceId]={r}"
+                    response = requests.get(url=url, headers=headers)
+                    data = response.json().get("data")
+                    categories = [d.get("relatedObjectId") for d in data if d.get("relatedObjectId") in CATEGORIES]
+                    elt["paysage_categories"] = [
+                        {"category": category, "label": CATEGORIES[category]} for category in categories
+                    ]
+                except:
+                    pass
+
             enriched.append(elt)
         return enriched
 
