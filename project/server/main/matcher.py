@@ -1,3 +1,4 @@
+import requests
 import itertools
 from fuzzywuzzy import fuzz
 
@@ -9,6 +10,7 @@ from project.server.main.logger import get_logger
 from project.server.main.my_elastic import MyElastic
 from project.server.main.utils import remove_stop, normalize_text
 from project.server.main.load_rnsr import get_siren
+from project.server.main.load_paysage import PAYSAGE_API_URL, PAYSAGE_API_KEY, CATEGORIES
 
 logger = get_logger(__name__)
 
@@ -158,9 +160,10 @@ def clean_highlights(highlights: dict):
                 if criteria not in new_highlights[match_id]["criterion"]:
                     new_highlights[match_id]["criterion"][criteria] = []
                     for highlight in highlights[strategy][match_id][criteria]:
+                        highlight = " ".join(highlight)
                         logger.debug(f"highlight: {highlight}")
                         new_highlights[match_id]["criterion"][criteria].append(
-                            [tag.text for tag in BeautifulSoup(highlight[0], "lxml").find_all("em")]
+                            list(set([tag.text for tag in BeautifulSoup(highlight, "lxml").find_all("em")]))
                         )
     return new_highlights
 
@@ -183,6 +186,27 @@ class Matcher:
                         elt[f].append(list(hit["_source"]["query"].values())[0]["content"]["query"])
                 except:
                     pass
+
+            # enrich with paysage categories
+            if method == "paysage":
+                try:
+                    headers = {"X-API-KEY": PAYSAGE_API_KEY}
+                    url = f"{PAYSAGE_API_URL}/relations?limit=100&filters[relationTag]=structure-categorie&filters[resourceId]={r}"
+                    response = requests.get(url=url, headers=headers)
+                    data = response.json().get("data")
+                    categories = [
+                        {
+                            "id": d.get("relatedObjectId"),
+                            "label": d.get("relatedObject", {}).get("displayName"),
+                            "priority": d.get("relatedObject", {}).get("priority"),
+                        }
+                        for d in data
+                        if d.get("relatedObjectId") in CATEGORIES
+                    ]
+                    elt["paysage_categories"] = categories
+                except:
+                    pass
+
             enriched.append(elt)
         return enriched
 
@@ -203,7 +227,8 @@ class Matcher:
         verbose = conditions.get('verbose', False)
         index_prefix = conditions.get('index_prefix', 'matcher')
         query = conditions.get('query', '')
-        logs = f'<h1> &#128269; {query}</h1>'
+        # logs = f'<h1> &#128269; {query}</h1>'
+        logs = ""
         debug = {"criterion": {}, "strategies": []}
         logger.debug(f"method {method}")
         logger.debug(f"query {query}")
@@ -215,7 +240,7 @@ class Matcher:
             equivalent_strategies_results = None
             equivalent_strategies_matches = []
             all_hits = {}
-            logs += f'<br/> - Matching equivalent strategies : {equivalent_strategies}<br/>'
+            # logs += f'<br/> - Matching equivalent strategies : {equivalent_strategies}<br/>'
             for strategy in equivalent_strategies:
                 strategy_results = None
                 for criterion in strategy:
@@ -260,7 +285,7 @@ class Matcher:
                     else:
                         # Intersection
                         strategy_results = [result for result in strategy_results if result in criteria_results]
-                    logs += f'Criteria : {criterion} : {len(criteria_results)} matches <br/>'
+                    # logs += f'Criteria : {criterion} : {len(criteria_results)} matches <br/>'
                     debug["criterion"][criterion] = len(criteria_results)
                 equivalent_strategies_matches.append(len(strategy_results))
                 if equivalent_strategies_results is None:
@@ -270,9 +295,9 @@ class Matcher:
                     equivalent_strategies_results += strategy_results
                     # Remove duplicates
                     equivalent_strategies_results = list(set(equivalent_strategies_results))
-                logs += f'Strategy : {strategy} : {len(strategy_results)} matches <br/>'
-                logs += f'Equivalent strategies have {len(equivalent_strategies_results)} possibilities that match ' \
-                        f'one of the strategy<br/>'
+                # logs += f'Strategy : {strategy} : {len(strategy_results)} matches <br/>'
+                # logs += f'Equivalent strategies have {len(equivalent_strategies_results)} possibilities that match ' \
+                # f'one of the strategy<br/>'
             debug["strategies"].append(
                 {
                     "equivalent_strategies": [
@@ -310,8 +335,9 @@ class Matcher:
                     "index_date": index_date,
                     "version": __version__,
                 }
-                final_res = filter_submatching_results_by_criterion(final_res, conditions)
-                final_res = filter_submatching_results_by_all(final_res, conditions)
+                if method != "paysage":
+                    final_res = filter_submatching_results_by_criterion(final_res, conditions)
+                    final_res = filter_submatching_results_by_all(final_res, conditions)
                 final_res['enriched_results'] = self.enrich_results(final_res['results'], method)
                 if 'name' in conditions:
                     similar_results = []
@@ -333,30 +359,30 @@ class Matcher:
                     final_res['enriched_results'] = self.enrich_results(final_res['results'], method)
                 logs = final_res['logs']
                 other_ids = []
-                logs += '<br><hr>Results: '
+                # logs += '<br><hr>Results: '
                 for result in final_res['results']:
                     if result in correspondance:
                         for e in correspondance[result]:
                             if e not in other_ids:
                                 other_ids.append(e)
                     final_res['other_ids'] = other_ids
-                    if method == 'grid':
-                        logs += f' <a target="_blank" href="https://grid.ac/institutes/' \
-                                f'{result}">{result}</a>'
-                    elif method == 'ror':
-                        logs += f' <a target="_blank" href="https://ror.org/{result}">' \
-                                f'{result}</a>'
-                    elif method == 'rnsr':
-                        logs += f' <a target="_blank" href="https://appliweb.dgri.education.fr/rnsr/' \
-                                f'PresenteStruct.jsp?numNatStruct={result}&PUBLIC=OK">' \
-                                f'{result}</a>'
-                    elif method == "paysage":
-                        logs += (
-                            f' <a target="_blank" href="https://paysage.staging.dataesr.ovh/structures/{result}">'
-                            f"{result}</a>"
-                        )
-                    else:
-                        logs += f' {result}'
+                    # if method == 'grid':
+                    #     logs += f' <a target="_blank" href="https://grid.ac/institutes/' \
+                    #             f'{result}">{result}</a>'
+                    # elif method == 'ror':
+                    #     logs += f' <a target="_blank" href="https://ror.org/{result}">' \
+                    #             f'{result}</a>'
+                    # elif method == 'rnsr':
+                    #     logs += f' <a target="_blank" href="https://appliweb.dgri.education.fr/rnsr/' \
+                    #             f'PresenteStruct.jsp?numNatStruct={result}&PUBLIC=OK">' \
+                    #             f'{result}</a>'
+                    # elif method == "paysage":
+                    #     logs += (
+                    #         f' <a target="_blank" href="https://paysage.staging.dataesr.ovh/structures/{result}">'
+                    #         f"{result}</a>"
+                    #     )
+                    # else:
+                    #     logs += f' {result}'
                 for matching_id in final_res['highlights']:
                     logs += f'<br/><hr>Explanation for {matching_id} :<br/>'
                     for matching_criteria in final_res['highlights'][matching_id]:
