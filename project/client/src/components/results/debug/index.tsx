@@ -4,8 +4,9 @@ import { MatchDebug } from "../../../types"
 
 type ResultsDebugArgs = {
   resultsDebug: MatchDebug
+  resultsLogs: string
 }
-export default function ResultsDebug({ resultsDebug }: ResultsDebugArgs) {
+export default function ResultsDebug({ resultsDebug, resultsLogs }: ResultsDebugArgs) {
   const intl = useIntl()
   if (!resultsDebug) return null
 
@@ -40,6 +41,9 @@ export default function ResultsDebug({ resultsDebug }: ResultsDebugArgs) {
           ))}
         </Container>
       ))}
+      <Container>
+        <div dangerouslySetInnerHTML={{ __html: resultsLogs }} />
+      </Container>
     </Accordion>
   )
 }

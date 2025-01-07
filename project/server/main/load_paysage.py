@@ -47,7 +47,7 @@ CATEGORIES = {
     "YNqFb": "Commerce et gestion - Etablissements d’enseignement supérieur techniques privés et consulaires autorisés à délivrer un diplôme visé par le ministre chargé de l’enseignement supérieur et/ou à conférer le grade universitaire",
     "iyn79": "Opérateur du programme 150 - Formations supérieures et recherche universitaire",
     "z367d": "Structure de recherche",
-    # "NsMkU": "Établissement d'enseignement supérieur étranger",
+    "NsMkU": "Établissement d'enseignement supérieur étranger",
 }
 
 
@@ -127,11 +127,7 @@ def load_paysage(index_prefix: str = "matcher") -> dict:
             for criterion_value in criterion_values:
                 if criterion_value not in es_data[criterion]:
                     es_data[criterion][criterion_value] = []
-                es_data[criterion][criterion_value].append(
-                    {
-                        "id": data_point["id"],
-                    }
-                )
+                es_data[criterion][criterion_value].append({"id": data_point["id"]})
 
     # Bulk insert data into ES
     actions = []
@@ -181,19 +177,31 @@ def download_data() -> list:
 
     # Request data
     limit = 10000
-    filters = "&".join([f"filters[relatedObjectId]={category}" for category in list(CATEGORIES.keys())])
-    url = f"{PAYSAGE_API_URL}/relations?limit={limit}&filters[relationTag]=structure-categorie&{filters}"
     headers = {"X-API-KEY": PAYSAGE_API_KEY}
-    response = requests.get(url=url, headers=headers)
+    data = []
 
-    if response.status_code != 200:
-        logger.error(f"Error {response.status_code} requesting {url}")
-        return None
+    for category in CATEGORIES:
+        url = f"{PAYSAGE_API_URL}/relations?limit={limit}&filters[relationTag]=structure-categorie&filters[relatedObjectId]={category}"
+        response = requests.get(url=url, headers=headers)
 
-    data = response.json().get("data")
-    logger.debug(f"Found {len(data)} paysage records for {len(CATEGORIES)} categories")
+        if response.status_code != 200:
+            logger.error(f"Error {response.status_code} requesting {url}")
+            continue
 
-    data = pd.DataFrame(data).drop_duplicates(subset="resourceId").to_dict(orient="records")
+        current_data = response.json().get("data")
+        # logger.debug(f"Found {len(current_data)} paysage records for category {CATEGORIES[category]}")
+
+        current_data = pd.DataFrame(current_data).drop_duplicates(subset="resourceId").to_dict(orient="records")
+        logger.debug(f"Found {len(current_data)} paysage records for category {CATEGORIES[category]} without duplicates")
+
+        data += current_data
+
+    df = pd.DataFrame(data)
+    data = (
+        df.groupby(by="resourceId")
+        .agg({k: list if k == "relatedObjectId" else "first" for k in df.columns})
+        .to_dict(orient="records")
+    )
     logger.debug(f"Keep {len(data)} paysage records without duplicates")
 
     return data
