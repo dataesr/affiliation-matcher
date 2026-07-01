@@ -142,19 +142,23 @@ def get_siren():
     raw_rnsrs = RNSR_DATA
     for r in raw_rnsrs:
         current_id = None
-        for e in r.get('externalIds', []):
+        current_ext = []
+        if isinstance(r.get('externalIds'), list):
+            current_ext = r.get('externalIds')
+        for e in current_ext:
             if e['type'] in ['rnsr', 'grid']:
                 current_id = e['id']
                 if current_id not in correspondance:
                     correspondance[current_id] = []
         if current_id is None:
             continue
-
-        for e in r.get('externalIds', []):
+        for e in current_ext:
             if e not in correspondance[current_id] and e['type'] in ['siren', 'siret', 'sirene']:
                 correspondance[current_id].append(e)
-
-        for e in r.get('institutions'):
+        current_institutions = []
+        if isinstance(r.get('institutions'), list):
+            current_institutions = r.get('institutions')
+        for e in current_institutions:
             if e.get('structure'):
                 if isinstance(e.get('relationType'), str) and 'tutelle' in e['relationType'].lower():
                     elt = {'id': e['structure'], 'type': 'siren'}
